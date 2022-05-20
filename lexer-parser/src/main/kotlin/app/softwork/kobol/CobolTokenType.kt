@@ -1,4 +1,4 @@
-package app.softwork.cobolidea
+package app.softwork.kobol
 
 import com.intellij.psi.tree.*
 

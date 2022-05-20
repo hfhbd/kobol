@@ -1,5 +1,4 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.grammarkit")
 }
 
@@ -29,12 +28,12 @@ tasks {
     }
 
     generateLexer {
-        source.set("$projectDir/src/main/kotlin/app/softwork/cobolidea/Cobol.flex")
-        targetDir.set("$buildDir/generated/lexer/main/java/app/softwork/cobolidea/")
+        source.set("$projectDir/src/main/kotlin/app/softwork/kobol/Cobol.flex")
+        targetDir.set("$buildDir/generated/lexer/main/java/app/softwork/kobol/")
         targetClass.set("CobolLexer")
     }
     generateParser {
-        source.set("$projectDir/src/main/kotlin/app/softwork/cobolidea/Cobol.bnf")
+        source.set("$projectDir/src/main/kotlin/app/softwork/kobol/Cobol.bnf")
         targetRoot.set("$buildDir/generated/parser/main/java")
         pathToParser.set("CobolParserGenerated.java")
         pathToPsiRoot.set("")
