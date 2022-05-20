@@ -1,4 +1,4 @@
-rootProject.name = "CobolIDEA"
+rootProject.name = "kobol"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
