@@ -1,0 +1,54 @@
+{
+  parserClass="app.softwork.cobolidea.CobolParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Cobol"
+  psiImplClassSuffix="Impl"
+  psiPackage="app.softwork.cobolidea"
+  psiImplPackage="app.softwork.cobolidea.impl"
+
+  elementTypeHolderClass="app.softwork.cobolidea.CobolTypes"
+  elementTypeClass="app.softwork.cobolidea.CobolElementType"
+  tokenTypeClass="app.softwork.cobolidea.CobolTokenType"
+
+  tokens=[
+    DOT='.'
+    varName='regexp:[a-zA-Z]([\w|\d|-]+[\w|\d|_])*'
+    space='regexp:\s+'
+    comment='regexp:\*.*'
+    number='regexp:\d+(\.\d*)?'
+    string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+    // line='regexp:^\d{6}(\*)?'
+  ]
+
+//  extends(".*_file")=file
+}
+
+//root ::= root_item *
+//private root_item ::= !<<eof>> exps '.' {pin=1 recoverWhile=exps_recover}
+
+file ::= (line) *
+
+line ::= exp | COMMENT
+
+exp ::= id | env | data | procedure
+
+id ::= 'IDENTIFICATION' 'DIVISION' [DOT] ( programID | author | installation | date ) *
+
+programID ::= 'PROGRAM-ID' [DOT] varName DOT
+author ::= 'AUTHOR' [DOT] string
+installation ::= 'INSTALLATION' [DOT] string
+date ::= 'DATE-WRITTEN' [DOT] string
+
+env ::=  'ENVIRONMENT' 'DIVISION' [DOT] (config | specialNames) *
+config ::= 'CONFIGURATION' 'SECTION' DOT
+specialNames ::= 'SPECIAL-NAMES' [DOT] (var) * DOT
+
+data ::= 'DATA' 'DIVISION' [DOT]
+
+procedure ::= procedureDiv display * DOT
+
+procedureDiv ::= 'PROCEDURE' 'DIVISION' [DOT]
+
+display ::= 'DISPLAY' string

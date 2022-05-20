@@ -1,0 +1,14 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="SVGID_416" gradientTransform="rotate(45)">
+            <stop offset="10%" stop-color="#0C4DA2"/>
+            <stop offset="90%" stop-color="#a50cbe"/>
+        </linearGradient>
+    </defs>
+
+    <rect x="0" width="16" height="16" rx="4" fill="url(#SVGID_416)"/>
+    <text xml:space="preserve" font-size="6" style="fill: black;">
+        <tspan x="1" y="7">KO</tspan>
+        <tspan x="1" y="14">BOL</tspan>
+    </text>
+</svg>
