@@ -15,3 +15,33 @@ allprojects {
         maven(url = "https://cache-redirector.jetbrains.com/intellij-dependencies")
     }
 }
+
+detekt {
+    source = files(rootProject.rootDir)
+    parallel = true
+    buildUponDefaultConfig = true
+}
+
+dependencies {
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.20.0")
+}
+
+tasks {
+    fun SourceTask.config() {
+        include("**/*.kt")
+        exclude("**/*.kts")
+        exclude("**/resources/**")
+        exclude("**/generated/**")
+        exclude("**/build/**")
+    }
+    withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach {
+        config()
+    }
+    withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+        config()
+
+        reports {
+            sarif.required.set(true)
+        }
+    }
+}
