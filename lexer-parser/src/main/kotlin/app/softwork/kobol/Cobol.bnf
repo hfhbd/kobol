@@ -1,16 +1,16 @@
 {
-  parserClass="app.softwork.cobolidea.CobolParser"
+  parserClass="app.softwork.kobol.CobolParser"
 
   extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
   psiClassPrefix="Cobol"
   psiImplClassSuffix="Impl"
-  psiPackage="app.softwork.cobolidea"
-  psiImplPackage="app.softwork.cobolidea.impl"
+  psiPackage="app.softwork.kobol"
+  psiImplPackage="app.softwork.kobol.impl"
 
-  elementTypeHolderClass="app.softwork.cobolidea.CobolTypes"
-  elementTypeClass="app.softwork.cobolidea.CobolElementType"
-  tokenTypeClass="app.softwork.cobolidea.CobolTokenType"
+  elementTypeHolderClass="app.softwork.kobol.CobolTypes"
+  elementTypeClass="app.softwork.kobol.CobolElementType"
+  tokenTypeClass="app.softwork.kobol.CobolTokenType"
 
   tokens=[
     DOT='.'
@@ -47,8 +47,10 @@ specialNames ::= 'SPECIAL-NAMES' [DOT] (var) * DOT
 
 data ::= 'DATA' 'DIVISION' [DOT]
 
-procedure ::= procedureDiv display * DOT
+procedure ::= procedureDiv displays DOT
 
 procedureDiv ::= 'PROCEDURE' 'DIVISION' [DOT]
+
+displays ::= display *
 
 display ::= 'DISPLAY' string
