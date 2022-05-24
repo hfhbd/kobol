@@ -1,4 +1,4 @@
-val idea = "211.7628.21"
+val idea = "221.5591.52"
 
 dependencies {
     implementation(projects.lexerParser)
