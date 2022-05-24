@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.6.21" apply false
-    id("org.jetbrains.intellij") version "1.5.3" apply false
+    id("org.jetbrains.intellij") version "1.6.0" apply false
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
     `maven-publish`
 }
