@@ -1,23 +1,21 @@
 package app.softwork.kobol.compiler
 
 import app.softwork.kobol.*
-import com.intellij.core.*
-import com.intellij.openapi.util.*
-import com.intellij.psi.*
 import com.squareup.kotlinpoet.*
 import java.io.*
 
 object KobolCompiler {
     fun generateMain(file: CobolFile) = file.main {
-        val displays = file.procedure()
-        displays.displayList.forEach {
-            addStatement("println(%S)", it.string.text)
+        val procedure = file.procedure()
+
+        procedure.displays.displayList.forEach {
+            addStatement("println(%S)", it.string.text.drop(1).dropLast(1))
         }
     }
 
     private fun CobolFile.main(mainFunction: FunSpec.Builder.() -> Unit): FileSpec {
-        val name = getProgramName()
-        return FileSpec.builder("", name)
+        val name = getProgramName().lowercase()
+        return FileSpec.builder(name, name)
             .addFunction(
                 FunSpec.builder("main").apply(mainFunction)
                     .build()
@@ -26,15 +24,40 @@ object KobolCompiler {
     }
 }
 
+fun KobolCompiler.generateMain(file: File): FileSpec {
+    val env = CoreEnvironment(listOf(file)).apply {
+        initializeApplication {
+            registerFileType(CobolFileType, CobolFileType.defaultExtension)
+            registerParserDefinition(CobolParserDefinition)
+        }
+    }
+    var fileSpec: FileSpec? = null
+    env.forSourceFiles<CobolFile> {
+        fileSpec = generateMain(it)
+    }
+    return fileSpec!!
+}
+
 fun KobolCompiler.generateMain(file: File, output: File) {
-    val env = CoreApplicationEnvironment(Disposer.newDisposable())
-    val projectEnv = CoreProjectEnvironment(env.parentDisposable, env)
-    PsiFileFactory.getInstance(projectEnv.project)
-    env.registerFileType(CobolFileType, CobolFileType.defaultExtension)
+    generateMain(file).writeTo(output)
+}
 
-    val virtualFile = projectEnv.environment.localFileSystem.findFileByIoFile(file) ?: error("File $file not found")
+fun CobolFile.getProgramName(): String {
+    for (element in children) {
+        if (element is CobolLine) {
+            val programIDList: List<CobolProgramID>? = element.exp?.id?.programIDList?.takeIf { it.isNotEmpty() }
+            if (programIDList != null) {
+                return programIDList.single().varName.text
+            }
+        }
+    }
+    error("No PROGRAM-ID found")
+}
 
-    val cobolFile = PsiManager.getInstance(projectEnv.project).findFile(virtualFile) as CobolFile
-    val converted = generateMain(cobolFile)
-    converted.writeTo(output)
+fun CobolFile.procedure(): CobolProcedure {
+    return children
+        .filterIsInstance<CobolLine>()
+        .mapNotNull {
+            it.exp?.procedure
+        }.single()
 }

@@ -19,5 +19,5 @@ object CobolParserDefinition : ParserDefinition {
 
     override fun createElement(node: ASTNode?): PsiElement = CobolTypes.Factory.createElement(node)
 
-    override fun createFile(viewProvider: FileViewProvider): PsiFile = CobolFile(viewProvider)
+    override fun createFile(viewProvider: FileViewProvider) = CobolFile(viewProvider)
 }
