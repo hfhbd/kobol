@@ -40,15 +40,6 @@ private object ApplicationEnvironment {
   val coreApplicationEnvironment: CoreApplicationEnvironment by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
     CoreApplicationEnvironment(Disposer.newDisposable()).apply {
       Logger.setFactory { logger }
-
-      CoreApplicationEnvironment.registerExtensionPoint(
-        Extensions.getRootArea(),
-        MetaLanguage.EP_NAME, MetaLanguage::class.java
-      )
-      CoreApplicationEnvironment.registerExtensionPoint(
-        Extensions.getRootArea(), SmartPointerAnchorProvider.EP_NAME,
-        SmartPointerAnchorProvider::class.java
-      )
     }
   }
 }
