@@ -17,7 +17,6 @@
     varName="regexp:[a-zA-Z]([\w|-]+[\w|_])*"
     space="regexp:\s+"
     comment="regexp:\*.*"
-    lineNumber="regexp:\d{6}"
     number="regexp:\d+(\.\d*)?"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
   ]

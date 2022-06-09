@@ -8,6 +8,7 @@ import com.intellij.psi.tree.*
 object CobolParserDefinition : ParserDefinition {
     private val file = IFileElementType(CobolLanguage)
     private val comments = TokenSet.create(CobolTypes.COMMENT)
+    private val stringLiterals = TokenSet.create(CobolTypes.STRING)
 
     override fun createLexer(project: Project?) = CobolLexerAdapter
     override fun createParser(project: Project?) = CobolParser()
@@ -15,7 +16,7 @@ object CobolParserDefinition : ParserDefinition {
 
     override fun getCommentTokens(): TokenSet = comments
 
-    override fun getStringLiteralElements(): TokenSet = TokenSet.EMPTY
+    override fun getStringLiteralElements() = stringLiterals
 
     override fun createElement(node: ASTNode?): PsiElement = CobolTypes.Factory.createElement(node)
 
