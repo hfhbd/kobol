@@ -8,4 +8,5 @@
 ******************************************************************
 
      DISPLAY "HELLO"
-     DISPLAY "WORLD!".
+     WORLD = "WORLD!"
+     DISPLAY WORLD.

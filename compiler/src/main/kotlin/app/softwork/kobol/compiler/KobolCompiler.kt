@@ -8,19 +8,32 @@ object KobolCompiler {
     fun generateMain(file: CobolFile) = file.main {
         val procedure = file.procedure()
 
-        procedure.displays.displayList.forEach {
-            addStatement("println(%S)", it.string.text.drop(1).dropLast(1))
+        for (element in procedure.children) {
+            when (element) {
+                is CobolDisplay -> {
+                    val string = element.string
+                    if (string != null) {
+                        addStatement("println(%S)", string.text.drop(1).dropLast(1))
+                    } else {
+                        addStatement("println(${element.varName!!.text!!})")
+                    }
+                }
+
+                is CobolAssignment -> {
+                    val name: String = element.varName.text
+                    val valueElement = element.`var`.number ?: element.`var`.string
+                    val value = valueElement!!.text
+                    addStatement("val $name = $value")
+                }
+            }
         }
     }
 
     private fun CobolFile.main(mainFunction: FunSpec.Builder.() -> Unit): FileSpec {
         val name = getProgramName().lowercase()
-        return FileSpec.builder(name, name)
-            .addFunction(
-                FunSpec.builder("main").apply(mainFunction)
-                    .build()
-            )
-            .build()
+        return FileSpec.builder(name, name).addFunction(
+            FunSpec.builder("main").apply(mainFunction).build()
+        ).build()
     }
 }
 
@@ -55,9 +68,7 @@ fun CobolFile.getProgramName(): String {
 }
 
 fun CobolFile.procedure(): CobolProcedure {
-    return children
-        .filterIsInstance<CobolLine>()
-        .mapNotNull {
-            it.exp?.procedure
-        }.single()
+    return children.filterIsInstance<CobolLine>().mapNotNull {
+        it.exp?.procedure
+    }.single()
 }

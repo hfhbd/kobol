@@ -15,7 +15,8 @@ class HelloWorldTest {
         
         public fun main(): Unit {
           println("HELLO")
-          println("WORLD!")
+          val WORLD = "WORLD!"
+          println(WORLD)
         }
         
         """.trimIndent()

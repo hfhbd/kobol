@@ -47,10 +47,12 @@ specialNames ::= 'SPECIAL-NAMES' [DOT] (var) * DOT
 
 data ::= 'DATA' 'DIVISION' [DOT]
 
-procedure ::= procedureDiv displays DOT
+procedure ::= procedureDiv (display | assignment)* DOT
 
 procedureDiv ::= 'PROCEDURE' 'DIVISION' [DOT]
 
-displays ::= display *
+assignment ::= varName '=' var
 
-display ::= 'DISPLAY' string
+var ::= string | number
+
+display ::= 'DISPLAY' (string | varName)
