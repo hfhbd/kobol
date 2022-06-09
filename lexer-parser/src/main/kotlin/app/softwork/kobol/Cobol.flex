@@ -19,7 +19,6 @@ WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=("*")[^\r\n]*
 STRING=(\"([^\"])*\")
 VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
-LINENUMBER=\d{6}(\*)?
 
 %state PROGRAMID
 %state DISPLAY
@@ -28,7 +27,6 @@ LINENUMBER=\d{6}(\*)?
 
 <YYINITIAL>
 {
-    {LINENUMBER}                    { return CobolTypes.LINENUMBER; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     {END_OF_LINE_COMMENT}           { return CobolTypes.COMMENT; }
     "."                             { return CobolTypes.DOT; }
