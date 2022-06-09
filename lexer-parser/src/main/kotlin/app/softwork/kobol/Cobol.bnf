@@ -13,13 +13,13 @@
   tokenTypeClass="app.softwork.kobol.CobolTokenType"
 
   tokens=[
-    DOT='.'
-    varName='regexp:[a-zA-Z]([\w|\d|-]+[\w|\d|_])*'
-    space='regexp:\s+'
-    comment='regexp:\*.*'
-    number='regexp:\d+(\.\d*)?'
+    DOT="."
+    varName="regexp:[a-zA-Z]([\w|-]+[\w|_])*"
+    space="regexp:\s+"
+    comment="regexp:\*.*"
+    lineNumber="regexp:\d{6}"
+    number="regexp:\d+(\.\d*)?"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
-    // line='regexp:^\d{6}(\*)?'
   ]
 
 //  extends(".*_file")=file
@@ -47,10 +47,12 @@ specialNames ::= 'SPECIAL-NAMES' [DOT] (var) * DOT
 
 data ::= 'DATA' 'DIVISION' [DOT]
 
-procedure ::= procedureDiv displays DOT
+procedure ::= procedureDiv (display | assignment)* DOT
 
 procedureDiv ::= 'PROCEDURE' 'DIVISION' [DOT]
 
-displays ::= display *
+assignment ::= varName '=' var
 
-display ::= 'DISPLAY' string
+var ::= string | number
+
+display ::= 'DISPLAY' (string | varName)

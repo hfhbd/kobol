@@ -18,16 +18,38 @@ import com.intellij.psi.TokenType;
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=("*")[^\r\n]*
 STRING=(\"([^\"])*\")
-VARNAME=[a-zA-Z]([\w|\d|-]+[\w|\d|_])*
+VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
+LINENUMBER=\d{6}(\*)?
+
+%state PROGRAMID
+%state DISPLAY
 
 %%
 
 <YYINITIAL>
 {
+    {LINENUMBER}                    { return CobolTypes.LINENUMBER; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     {END_OF_LINE_COMMENT}           { return CobolTypes.COMMENT; }
     "."                             { return CobolTypes.DOT; }
+    "PROGRAM-ID"                    { yybegin(PROGRAMID); return CobolTypes.PROGRAM_ID; }
+    "DISPLAY"                       { yybegin(DISPLAY); return CobolTypes.DISPLAY; }
     {VARNAME}                       { return CobolTypes.VARNAME; }
     {STRING}                        { return CobolTypes.STRING; }
+    [^]                             { return TokenType.BAD_CHARACTER; }
+}
+
+<PROGRAMID> {
+    "."                             { return CobolTypes.DOT; }
+    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
+    {VARNAME}                       { yybegin(YYINITIAL); return CobolTypes.VARNAME; }
+    [^]                             { return TokenType.BAD_CHARACTER; }
+}
+
+<DISPLAY> {
+    "."                             { return CobolTypes.DOT; }
+    {STRING}                        { return CobolTypes.STRING; }
+    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
+    {VARNAME}                       { yybegin(YYINITIAL); return CobolTypes.VARNAME; }
     [^]                             { return TokenType.BAD_CHARACTER; }
 }
