@@ -1,7 +1,7 @@
 import io.gitlab.arturbosch.detekt.*
 
 plugins {
-    kotlin("jvm") version "1.6.21" apply false
+    kotlin("jvm") version "1.7.0" apply false
     id("org.jetbrains.intellij") version "1.6.0" apply false
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
     id("io.gitlab.arturbosch.detekt") version "1.20.0"
