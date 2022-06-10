@@ -50,8 +50,8 @@ procedure ::= procedureDiv (display | assignment)* DOT
 
 procedureDiv ::= 'PROCEDURE' 'DIVISION' [DOT]
 
-assignment ::= varName '=' var
-
+assignment ::= varName assign var
+assign ::= "="
 var ::= string | number
 
 display ::= 'DISPLAY' (string | varName)

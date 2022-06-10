@@ -19,6 +19,7 @@ WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=("*")[^\r\n]*
 STRING=(\"([^\"])*\")
 VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
+ASSIGN="="
 
 %state PROGRAMID
 %state DISPLAY
@@ -34,6 +35,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
     "DISPLAY"                       { yybegin(DISPLAY); return CobolTypes.DISPLAY; }
     {VARNAME}                       { return CobolTypes.VARNAME; }
     {STRING}                        { return CobolTypes.STRING; }
+    {ASSIGN}                        { return CobolTypes.ASSIGN; }
     [^]                             { return TokenType.BAD_CHARACTER; }
 }
 
