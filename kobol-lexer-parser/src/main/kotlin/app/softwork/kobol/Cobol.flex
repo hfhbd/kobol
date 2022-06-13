@@ -23,6 +23,8 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 ASSIGN="="
 
 %state PROGRAMID
+%state ID
+%state ID_DOT
 %state DISPLAY
 
 %%
@@ -34,6 +36,9 @@ ASSIGN="="
     "."                             { return CobolTypes.DOT; }
     "PROGRAM-ID"                    { yybegin(PROGRAMID); return CobolTypes.PROGRAM_ID; }
     "DISPLAY"                       { yybegin(DISPLAY); return CobolTypes.DISPLAY; }
+    "AUTHOR"                        { yybegin(ID); return CobolTypes.AUTHOR; }
+    "INSTALLATION"                  { yybegin(ID); return CobolTypes.INSTALLATION; }
+    "DATE-WRITTEN"                  { yybegin(ID); return CobolTypes.DATE; }
     {VARNAME}                       { return CobolTypes.VARNAME; }
     {STRING}                        { return CobolTypes.STRING; }
     {ASSIGN}                        { return CobolTypes.ASSIGN; }
@@ -47,6 +52,20 @@ ASSIGN="="
     {VARNAME}                       { yybegin(YYINITIAL); return CobolTypes.VARNAME; }
     {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
     [^]                             { return TokenType.BAD_CHARACTER; }
+}
+
+<ID> {
+    "."                             { yybegin(ID_DOT); return CobolTypes.DOT; }
+    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
+    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
+    [^]                             { yybegin(ID_DOT); return CobolTypes.ANY; }
+}
+
+<ID_DOT> {
+    "."                             { yybegin(YYINITIAL); return CobolTypes.DOT; }
+    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
+    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
+    [^]                             { return CobolTypes.ANY; }
 }
 
 <DISPLAY> {
