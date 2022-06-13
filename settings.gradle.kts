@@ -2,7 +2,7 @@ rootProject.name = "kobol"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include(":lexer-parser")
-include(":compiler")
-include(":gradle-plugin")
-include(":intellij-plugin")
+include(":kobol-lexer-parser")
+include(":kobol-compiler")
+include(":kobol-gradle-plugin")
+include(":kobol-intellij-plugin")

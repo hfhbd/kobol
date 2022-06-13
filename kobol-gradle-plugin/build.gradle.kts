@@ -1,5 +1,4 @@
 plugins {
-    kotlin("jvm")
     `java-gradle-plugin`
 }
 
@@ -13,5 +12,5 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation(projects.compiler)
+    implementation(projects.kobolCompiler)
 }

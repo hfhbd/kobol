@@ -1,10 +1,9 @@
 plugins {
-    kotlin("jvm")
     id("org.jetbrains.intellij")
 }
 
 dependencies {
-    implementation(projects.lexerParser)
+    implementation(projects.kobolLexerParser)
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
@@ -26,15 +25,5 @@ tasks {
     patchPluginXml {
         sinceBuild.set("221")
         untilBuild.set("222.*")
-    }
-
-    signPlugin {
-        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
-        privateKey.set(System.getenv("PRIVATE_KEY"))
-        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
-    }
-
-    publishPlugin {
-        token.set(System.getenv("PUBLISH_TOKEN"))
     }
 }

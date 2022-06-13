@@ -1,11 +1,7 @@
-plugins {
-    kotlin("jvm")
-}
-
 val idea = "211.7628.21"
 
 dependencies {
-    implementation(projects.lexerParser)
+    implementation(projects.kobolLexerParser)
 
     implementation("com.jetbrains.intellij.java:java-psi:$idea")
     implementation("com.jetbrains.intellij.platform:core-impl:$idea")
