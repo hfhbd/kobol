@@ -1,4 +1,4 @@
-val idea = "211.7628.21"
+val idea = "221.5787.30"
 
 dependencies {
     implementation(projects.kobolLexerParser)
