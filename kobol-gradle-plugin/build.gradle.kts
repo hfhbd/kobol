@@ -12,5 +12,5 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation(projects.compiler)
+    implementation(projects.kobolCompiler)
 }
