@@ -19,6 +19,7 @@
     comment="regexp:\*.*"
     number="regexp:\d+(\.\d*)?"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+    any="regexp:.*\."
   ]
 
 //  extends(".*_file")=file
@@ -36,9 +37,11 @@ exp ::= id | env | data | procedure
 id ::= 'IDENTIFICATION' 'DIVISION' [DOT] ( programID | author | installation | date ) *
 
 programID ::= 'PROGRAM-ID' [DOT] varName DOT
-author ::= 'AUTHOR' [DOT] string
-installation ::= 'INSTALLATION' [DOT] string
-date ::= 'DATE-WRITTEN' [DOT] string
+author ::= 'AUTHOR' [DOT] anys DOT
+installation ::= 'INSTALLATION' [DOT] anys DOT
+date ::= 'DATE-WRITTEN' [DOT] anys DOT
+
+anys ::= any *
 
 env ::=  'ENVIRONMENT' 'DIVISION' [DOT] (config | specialNames) *
 config ::= 'CONFIGURATION' 'SECTION' DOT
