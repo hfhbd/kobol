@@ -21,4 +21,4 @@ jobs:
           java-version: 11
       - name: Build with Gradle
         run: ./gradlew build
-      - run: ./gradlew -Pversion=1.0.0 runPluginVerifier
+      - run: ./gradlew -Pversion=42.0.0 runPluginVerifier
