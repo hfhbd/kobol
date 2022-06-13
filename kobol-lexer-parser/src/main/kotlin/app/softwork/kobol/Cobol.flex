@@ -15,6 +15,7 @@ import com.intellij.psi.TokenType;
 %eof{  return;
 %eof}
 
+LINENUMBER=\d{6}(\*)?
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=("*")[^\r\n]*
 STRING=(\"([^\"])*\")
@@ -36,6 +37,7 @@ ASSIGN="="
     {VARNAME}                       { return CobolTypes.VARNAME; }
     {STRING}                        { return CobolTypes.STRING; }
     {ASSIGN}                        { return CobolTypes.ASSIGN; }
+    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
     [^]                             { return TokenType.BAD_CHARACTER; }
 }
 
@@ -43,6 +45,7 @@ ASSIGN="="
     "."                             { return CobolTypes.DOT; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     {VARNAME}                       { yybegin(YYINITIAL); return CobolTypes.VARNAME; }
+    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
     [^]                             { return TokenType.BAD_CHARACTER; }
 }
 
@@ -51,5 +54,6 @@ ASSIGN="="
     {STRING}                        { return CobolTypes.STRING; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     {VARNAME}                       { yybegin(YYINITIAL); return CobolTypes.VARNAME; }
+    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
     [^]                             { return TokenType.BAD_CHARACTER; }
 }
