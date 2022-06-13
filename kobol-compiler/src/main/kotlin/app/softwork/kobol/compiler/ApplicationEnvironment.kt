@@ -17,16 +17,13 @@ package app.softwork.kobol.compiler
  */
 
 import com.intellij.core.*
-import com.intellij.lang.*
 import com.intellij.openapi.diagnostic.*
-import com.intellij.openapi.extensions.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.roots.*
 import com.intellij.openapi.roots.impl.*
 import com.intellij.openapi.util.*
 import com.intellij.openapi.vfs.*
 import com.intellij.psi.*
-import com.intellij.psi.impl.smartPointers.*
 import java.io.*
 import java.util.concurrent.atomic.*
 

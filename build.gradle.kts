@@ -14,12 +14,6 @@ allprojects {
         maven(url = "https://www.jetbrains.com/intellij-repository/releases")
         maven(url = "https://cache-redirector.jetbrains.com/intellij-dependencies")
     }
-
-    configurations.all {
-        exclude(group = "com.jetbrains.rd")
-        exclude(group = "com.github.jetbrains", module = "jetCheck")
-        exclude(group = "org.roaringbitmap")
-    }
 }
 
 detekt {
@@ -55,6 +49,22 @@ tasks {
 subprojects {
     plugins.apply("maven-publish")
     plugins.apply("org.jetbrains.kotlin.jvm")
+
+    configurations.all {
+        exclude(group = "com.jetbrains.rd")
+        exclude(group = "com.github.jetbrains", module = "jetCheck")
+        exclude(group = "org.roaringbitmap")
+    }
+    tasks {
+        // Set the JVM compatibility versions
+        withType<JavaCompile> {
+            sourceCompatibility = "11"
+            targetCompatibility = "11"
+        }
+        withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+            kotlinOptions.jvmTarget = "11"
+        }
+    }
 
     publishing {
         repositories {
