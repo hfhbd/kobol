@@ -1,5 +1,3 @@
-import io.gitlab.arturbosch.detekt.*
-
 plugins {
     kotlin("jvm") version "1.7.0" apply false
     id("org.jetbrains.intellij") version "1.6.0" apply false
@@ -51,4 +49,47 @@ tasks {
             sarif.required.set(true)
         }
     }
+}
+
+subprojects {
+    plugins.apply("maven-publish")
+    plugins.apply("org.jetbrains.kotlin.jvm")
+
+    publishing {
+        repositories {
+            maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {
+                name = "GitHubPackages"
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+        publications.register<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+        publications.all {
+            this as MavenPublication
+            pom {
+                name by "app.softwork KOBOL"
+                url by "https://github.com/hfhbd/kobol"
+                developers {
+                    developer {
+                        id by "hfhbd"
+                        name by "Philip Wedemann"
+                        email by "mybztg+mavencentral@icloud.com"
+                    }
+                }
+                scm {
+                    connection by "scm:git://github.com/hfhbd/kobol.git"
+                    developerConnection by "scm:git://github.com/hfhbd/kobol.git"
+                    url by "https://github.com/hfhbd/kobol"
+                }
+            }
+        }
+    }
+}
+
+infix fun <T> Property<T>.by(value: T) {
+    set(value)
 }

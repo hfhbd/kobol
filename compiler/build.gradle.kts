@@ -1,7 +1,3 @@
-plugins {
-    kotlin("jvm")
-}
-
 val idea = "211.7628.21"
 
 dependencies {
