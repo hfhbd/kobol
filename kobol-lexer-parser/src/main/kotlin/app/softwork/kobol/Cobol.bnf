@@ -13,7 +13,6 @@
   tokenTypeClass="app.softwork.kobol.CobolTokenType"
 
   tokens=[
-    DOT="."
     varName="regexp:[a-zA-Z]([\w|-]+[\w|_])*"
     space="regexp:\s+"
     comment="regexp:\*.*"
@@ -33,13 +32,15 @@ file ::= (line) *
 line ::= exp | COMMENT
 
 exp ::= id | env | data | procedure
-
-id ::= 'IDENTIFICATION' 'DIVISION' [DOT] ( programID | author | installation | date ) *
+DOT ::= '.'
+id ::= identification division [DOT] ( programID | author | installation | date ) *
+identification ::= 'IDENTIFICATION'
+division ::= 'DIVISION'
 
 programID ::= 'PROGRAM-ID' [DOT] varName DOT
-author ::= 'AUTHOR' [DOT] anys DOT
-installation ::= 'INSTALLATION' [DOT] anys DOT
-date ::= 'DATE-WRITTEN' [DOT] anys DOT
+author ::= 'AUTHOR' anys
+installation ::= 'INSTALLATION' anys
+date ::= 'DATE-WRITTEN' anys
 
 anys ::= any *
 
