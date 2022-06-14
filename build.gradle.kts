@@ -76,8 +76,10 @@ subprojects {
                 }
             }
         }
-        publications.register<MavenPublication>("mavenJava") {
-            from(components["java"])
+        if (name != "kobol-gradle-plugin") {
+            publications.register<MavenPublication>("mavenJava") {
+                from(components["java"])
+            }
         }
         publications.all {
             this as MavenPublication
