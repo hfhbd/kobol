@@ -28,4 +28,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v3
         with:
-          path: kobol-intellij-plugin/build/distributions
+          path: kobol-intellij-plugin/build/distributions/kobol-intellij-plugin-${{ env.version }}.zip
