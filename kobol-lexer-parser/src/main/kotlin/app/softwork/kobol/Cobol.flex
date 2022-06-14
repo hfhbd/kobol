@@ -15,7 +15,7 @@ import com.intellij.psi.TokenType;
 %eof{  return;
 %eof}
 
-LINENUMBER=\d{6}?
+LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
 STRING=(\"([^\"])*\")
