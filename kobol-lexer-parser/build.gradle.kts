@@ -13,6 +13,12 @@ dependencies {
     compileOnly("com.jetbrains.intellij.platform:core-impl:$idea")
     compileOnly("com.jetbrains.intellij.platform:core-ui:$idea")
     compileOnly("com.jetbrains.intellij.platform:lang-impl:$idea")
+
+    testImplementation(kotlin("test-junit"))
+    testImplementation("com.jetbrains.intellij.java:java-psi:$idea")
+    testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
+    testImplementation("com.jetbrains.intellij.platform:core-ui:$idea")
+    testImplementation("com.jetbrains.intellij.platform:lang-impl:$idea")
 }
 
 sourceSets["main"].java.srcDirs("$buildDir/generated/lexer/main/java", "$buildDir/generated/parser/main/java")
