@@ -15,9 +15,9 @@ import com.intellij.psi.TokenType;
 %eof{  return;
 %eof}
 
-LINENUMBER=\d{6}(\*)?
+LINENUMBER=\d{6}?
 WHITE_SPACE=\s+
-END_OF_LINE_COMMENT=("*")[^\r\n]*
+END_OF_LINE_COMMENT=\*.*
 STRING=(\"([^\"])*\")
 VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 ASSIGN="="
@@ -69,6 +69,7 @@ ASSIGN="="
 }
 
 <DISPLAY> {
+    {END_OF_LINE_COMMENT}           { return CobolTypes.COMMENT; }
     "."                             { return CobolTypes.DOT; }
     {STRING}                        { return CobolTypes.STRING; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
