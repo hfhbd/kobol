@@ -45,6 +45,7 @@ ASSIGN="="
     {STRING}                        { return STRING; }
     {ASSIGN}                        { return ASSIGN; }
     {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
+    "/"                             { return TokenType.WHITE_SPACE; }
     [^]                             { return TokenType.BAD_CHARACTER; }
 }
 
