@@ -13,10 +13,12 @@ class HelloWorldTest {
         
         import kotlin.Unit
         
+        var WORLD = "WORLD!"
+        
         public fun main(): Unit {
-          println("HELLO")
-          val WORLD = "WORLD!"
-          println(WORLD)
+          println("HELLO${'$'}WORLD")
+          WORLD = "42"
+          println("ANSWERT${'$'}WORLD")
         }
         
         """.trimIndent()

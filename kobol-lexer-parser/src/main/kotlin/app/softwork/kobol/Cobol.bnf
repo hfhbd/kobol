@@ -31,9 +31,9 @@ file ::= (line) *
 
 line ::= exp | COMMENT
 
-exp ::= id | env | data | procedure
+exp ::= idDiv [envDiv] [dataDiv] procedureDiv
 DOT ::= '.'
-id ::= identification division [DOT] ( programID | author | installation | date ) *
+idDiv ::= identification division [DOT] ( programID | author | installation | date ) *
 identification ::= 'IDENTIFICATION'
 division ::= 'DIVISION'
 
@@ -44,18 +44,33 @@ date ::= 'DATE-WRITTEN' anys
 
 anys ::= any *
 
-env ::=  'ENVIRONMENT' 'DIVISION' [DOT] (config | specialNames) *
-config ::= 'CONFIGURATION' 'SECTION' DOT
-specialNames ::= 'SPECIAL-NAMES' [DOT] (var) * DOT
+envDiv ::=  environment division [DOT] (config | specialNames) *
+environment ::= 'ENVIRONMENT'
+config ::= 'CONFIGURATION' section DOT
+specialNames ::= 'SPECIAL-NAMES' [[DOT] (var) *] DOT
+section ::= 'SECTION'
 
-data ::= 'DATA' 'DIVISION' [DOT]
+dataDiv ::= data division [DOT] (workingStorageSection)
+data ::= 'DATA'
+workingStorageSection ::= workingStorage section [DOT] (record | sa ) * DOT
+workingStorage ::= 'WORKING-STORAGE'
 
-procedure ::= procedureDiv (display | assignment)* DOT
+record ::= '01' varName
+sa ::= '77' varName pic
+pic ::= picLiteral (picX | picS | pic9) ['(' number ')']
+picLiteral ::= 'PIC'
+picX ::= 'X'
+picS ::= 'S'
+pic9 ::= '9'
 
-procedureDiv ::= 'PROCEDURE' 'DIVISION' [DOT]
+procedureDiv ::= procedure division [DOT] (display | moving) * DOT
 
-assignment ::= varName assign var
-assign ::= "="
+procedure ::= 'PROCEDURE'
+
+moving ::= move (var | varName) to varName
+move ::= 'MOVE'
+to ::= 'TO'
+
 var ::= string | number
 
 display ::= 'DISPLAY' (string | varName)

@@ -16,45 +16,50 @@ import static app.softwork.kobol.CobolTypes.*;
 %eof{  return;
 %eof}
 
+NUMBER=\d+(\.\d+)?
 LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
 STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
-ASSIGN="="
 
 %state PROGRAMID
 %state ANY
-%state DISPLAY
+%state MOVE
+%state WORKINGSTORAGE
 
 %%
 
 <YYINITIAL>
 {
-    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
-    {END_OF_LINE_COMMENT}           { return COMMENT; }
-    "."                             { return DOT; }
-    "PROGRAM-ID"                    { yybegin(PROGRAMID); return PROGRAM_ID; }
-    "DISPLAY"                       { yybegin(DISPLAY); return CobolTypes.DISPLAY; }
+    "IDENTIFICATION"                { return CobolTypes.IDENTIFICATION; }
+    "ENVIRONMENT"                   { return CobolTypes.ENVIRONMENT; }
+    "DATA"                          { return CobolTypes.DATA; }
+    "PROCEDURE"                     { return CobolTypes.PROCEDURE; }
     "AUTHOR"                        { yybegin(ANY); return AUTHOR; }
     "INSTALLATION"                  { yybegin(ANY); return INSTALLATION; }
     "DATE-WRITTEN"                  { yybegin(ANY); return DATE; }
-    "IDENTIFICATION"                { return IDENTIFICATION; }
+    "PROGRAM-ID"                    { yybegin(PROGRAMID); return PROGRAM_ID; }
+    "DISPLAY"                       { return CobolTypes.DISPLAY; }
+    "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
+    "TO"                            { return CobolTypes.TO; }
     "DIVISION"                      { return DIVISION; }
+    "WORKING-STORAGE"               { yybeginn(WORKINGSTORAGE); return CobolTypes.WORKINGSTORAGE; }
+    "SECTION"                       { return SECTION; }
     {VARNAME}                       { return VARNAME; }
-    {STRING}                        { return STRING; }
-    {ASSIGN}                        { return ASSIGN; }
-    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
-    "/"                             { return TokenType.WHITE_SPACE; }
-    [^]                             { return TokenType.BAD_CHARACTER; }
 }
 
 <PROGRAMID> {
     "."                             { return DOT; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     {VARNAME}                       { yybegin(YYINITIAL); return VARNAME; }
-    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
-    [^]                             { return TokenType.BAD_CHARACTER; }
+}
+
+<MOVE> {
+      {NUMBER}                        { return NUMBER; }
+      {LINENUMBER}                    { return NUMBER; }
+      {VARNAME}                       { return VARNAME; }
+      "TO"                            { yybegin(YYINITIAL); return CobolTypes.TO; }
 }
 
 <ANY> {
@@ -63,12 +68,16 @@ ASSIGN="="
     [^]                             { return CobolTypes.ANY; }
 }
 
-<DISPLAY> {
-    {END_OF_LINE_COMMENT}           { return COMMENT; }
-    "."                             { yybegin(YYINITIAL); return DOT; }
-    {STRING}                        { return STRING; }
-    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
-    {VARNAME}                       { yybegin(YYINITIAL); return VARNAME; }
-    {LINENUMBER}                    { yybegin(YYINITIAL); return TokenType.WHITE_SPACE; }
-    [^]                             { return TokenType.BAD_CHARACTER; }
+<WORKINGSTORAGE> {
+
+  "01" { return CobolTypes.RECORD; }
+
 }
+
+    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
+    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
+    "/"                             { return TokenType.WHITE_SPACE; }
+    {END_OF_LINE_COMMENT}           { return COMMENT; }
+    "."                             { return DOT; }
+    {STRING}                        { return STRING; }
+    [^]                             { return TokenType.BAD_CHARACTER; }

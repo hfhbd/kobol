@@ -33,12 +33,30 @@ class CobolLexerTest {
         val input = """
             123456 DISPLAY "HELLO"
             123456 DISPLAY 'WORLD'.
+            123456 MOVE "42" TO WORLD
+            123456 MOVE '42' TO WORLD
         """.trimIndent()
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, DOT
+                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME
+            ),
+            all
+        )
+    }
+
+    @Test
+    fun inner6Digits() {
+        val input = """
+            123456 MOVE 123456 TO HELLO
+        """.trimIndent()
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, NUMBER, WHITE_SPACE, TO, WHITE_SPACE, VARNAME
             ),
             all
         )
