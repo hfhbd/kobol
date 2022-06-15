@@ -19,7 +19,7 @@ import static app.softwork.kobol.CobolTypes.*;
 LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
-STRING=(\"([^\"])*\")
+STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 ASSIGN="="
 
@@ -65,10 +65,10 @@ ASSIGN="="
 
 <DISPLAY> {
     {END_OF_LINE_COMMENT}           { return COMMENT; }
-    "."                             { return DOT; }
+    "."                             { yybegin(YYINITIAL); return DOT; }
     {STRING}                        { return STRING; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     {VARNAME}                       { yybegin(YYINITIAL); return VARNAME; }
-    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
+    {LINENUMBER}                    { yybegin(YYINITIAL); return TokenType.WHITE_SPACE; }
     [^]                             { return TokenType.BAD_CHARACTER; }
 }

@@ -8,7 +8,7 @@ import kotlin.test.*
 
 class CobolLexerTest {
     @Test
-    fun a() {
+    fun id() {
         val input = """
             123456 IDENTIFICATION              DIVISION.
             123456******************************************************************
@@ -26,6 +26,22 @@ class CobolLexerTest {
             WHITE_SPACE, WHITE_SPACE, INSTALLATION, ANY, WHITE_SPACE, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, WHITE_SPACE,
             WHITE_SPACE, WHITE_SPACE, DATE, WHITE_SPACE, ANY, ANY, ANY, ANY, ANY, ANY
         ), all)
+    }
+
+    @Test
+    fun string() {
+        val input = """
+            123456 DISPLAY "HELLO"
+            123456 DISPLAY 'WORLD'.
+        """.trimIndent()
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, DOT
+            ),
+            all
+        )
     }
 
     private fun FlexAdapter.all(input: String): Sequence<IElementType> = sequence {
