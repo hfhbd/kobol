@@ -1,4 +1,4 @@
-package app.softwork.kobol.compiler
+package app.softwork.kobol
 
 /*
  * Copyright (C) 2017 Square, Inc.

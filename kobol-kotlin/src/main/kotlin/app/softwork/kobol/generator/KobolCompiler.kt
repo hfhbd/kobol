@@ -1,10 +1,10 @@
-package app.softwork.kobol.compiler
+package app.softwork.kobol.generator
 
 import app.softwork.kobol.*
 import com.squareup.kotlinpoet.*
 import java.io.*
 
-object KobolCompiler {
+object KotlinGenerator {
     fun generateMain(file: CobolFile) = file.main {
         val procedure = file.procedure()
 
