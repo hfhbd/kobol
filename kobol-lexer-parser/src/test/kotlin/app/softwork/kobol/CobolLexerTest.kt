@@ -49,6 +49,20 @@ class CobolLexerTest {
     }
 
     @Test
+    fun stringInterpolation() {
+        val input = """
+            123456 DISPLAY "HELLO"WORLD.
+        """.trimIndent()
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, VARNAME, DOT
+            ),
+            all
+        )
+    }
+
+    @Test
     fun inner6Digits() {
         val input = """
             123456 MOVE 123456 TO HELLO
@@ -57,6 +71,24 @@ class CobolLexerTest {
         assertEquals(
             listOf(
                 WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, NUMBER, WHITE_SPACE, TO, WHITE_SPACE, VARNAME
+            ),
+            all
+        )
+    }
+
+    @Test
+    fun workingSection() {
+        val input = """
+            123456 WORKING-STORAGE SECTION.
+            123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
+            123456 77 FOO PIC 9(6) VALUE 123456.
+        """.trimIndent()
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, WORKING_STORAGE, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_X, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, STRING, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, DOT
             ),
             all
         )

@@ -26,7 +26,10 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 %state PROGRAMID
 %state ANY
 %state MOVE
+
 %state WORKINGSTORAGE
+%state WORKINGSTORAGE_SA
+%state WORKINGSTORAGE_SA_NAME
 
 %%
 
@@ -44,14 +47,13 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
     "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
     "TO"                            { return CobolTypes.TO; }
     "DIVISION"                      { return DIVISION; }
-    "WORKING-STORAGE"               { yybeginn(WORKINGSTORAGE); return CobolTypes.WORKINGSTORAGE; }
+    "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
     "SECTION"                       { return SECTION; }
     {VARNAME}                       { return VARNAME; }
 }
 
 <PROGRAMID> {
     "."                             { return DOT; }
-    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     {VARNAME}                       { yybegin(YYINITIAL); return VARNAME; }
 }
 
@@ -69,10 +71,28 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 }
 
 <WORKINGSTORAGE> {
-
+  "SECTION"                       { return SECTION; }
   "01" { return CobolTypes.RECORD; }
-
+  "77" { yybegin(WORKINGSTORAGE_SA_NAME); return SA_LITERAL; }
 }
+
+<WORKINGSTORAGE_SA_NAME> {
+    {VARNAME} { yybegin(WORKINGSTORAGE_SA); return VARNAME; }
+}
+
+<WORKINGSTORAGE_SA> {
+"PIC" { return PIC_LITERAL;}
+      "X" { return PIC_X;}
+      "9" { return PIC_9;}
+      "S" { return PIC_S;}
+      "(" { return LP; }
+      ")" { return RP; }
+      {NUMBER} { return NUMBER;}
+      {LINENUMBER}                    { return NUMBER; }
+      "VALUE" { return VALUE;}
+      "." { yybegin(WORKINGSTORAGE); return DOT;}
+}
+
 
     {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }

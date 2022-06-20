@@ -19,6 +19,7 @@
     number="regexp:\d+(\.\d*)?"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
+    twoDigits="regexp:\d{2}"
   ]
 
 //  extends(".*_file")=file
@@ -32,7 +33,12 @@ file ::= (line) *
 line ::= exp | COMMENT
 
 exp ::= idDiv [envDiv] [dataDiv] procedureDiv
+
 DOT ::= '.'
+LP ::= '('
+RP ::= ')'
+
+
 idDiv ::= identification division [DOT] ( programID | author | installation | date ) *
 identification ::= 'IDENTIFICATION'
 division ::= 'DIVISION'
@@ -55,9 +61,13 @@ data ::= 'DATA'
 workingStorageSection ::= workingStorage section [DOT] (record | sa ) * DOT
 workingStorage ::= 'WORKING-STORAGE'
 
-record ::= '01' varName
-sa ::= '77' varName pic
-pic ::= picLiteral (picX | picS | pic9) ['(' number ')']
+record ::= '01' varName [DOT] (group) * DOT
+group ::= twoDigits
+
+value ::= 'VALUE'
+saLiteral ::= '77'
+sa ::= saLiteral varName pic [value var]
+pic ::= picLiteral (picX | picS | pic9) [LP number RP]
 picLiteral ::= 'PIC'
 picX ::= 'X'
 picS ::= 'S'
@@ -73,4 +83,4 @@ to ::= 'TO'
 
 var ::= string | number
 
-display ::= 'DISPLAY' (string | varName)
+display ::= 'DISPLAY' (string | varName) +
