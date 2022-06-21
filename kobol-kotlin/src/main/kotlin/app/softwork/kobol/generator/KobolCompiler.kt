@@ -102,5 +102,5 @@ object KotlinGenerator {
 }
 
 fun KotlinGenerator.generate(file: File, output: File) {
-    generate(file).writeTo(output)
+    generate(file).writeTo(directory = output)
 }
