@@ -10,7 +10,7 @@ import javax.inject.*
 
 class KobolGradlePlugin: Plugin<Project> {
     override fun apply(target: Project) {
-        target.tasks.register("convert", KobolTask::class.java)
+        target.tasks.register("convertCobolToKotlin", KobolTask::class.java)
     }
 }
 
@@ -28,8 +28,8 @@ abstract class KobolTask: SourceTask() {
         return super.getSource()
     }
 
-    @get:OutputFile
-    var output: File? = null
+    @get:OutputDirectory
+    var outputFolder: File? = null
 
     @get:Inject
     internal abstract val workerExecutor: WorkerExecutor
@@ -38,7 +38,7 @@ abstract class KobolTask: SourceTask() {
     internal fun generate() {
         workerExecutor.classLoaderIsolation().submit(ExecuteKobol::class.java) {
             it.inputFile.set(source.singleFile)
-            it.outputFile.set(output)
+            it.outputFolder.set(outputFolder)
         }
     }
 }
@@ -47,14 +47,12 @@ abstract class KobolTask: SourceTask() {
 abstract class ExecuteKobol: WorkAction<ExecuteKobol.Parameters> {
     interface Parameters: WorkParameters {
         val inputFile: RegularFileProperty
-        val outputFile: RegularFileProperty
+        val outputFolder: DirectoryProperty
     }
 
     override fun execute() {
         val input = parameters.inputFile.get().asFile
-        val outputFile = parameters.outputFile.get().asFile
-        outputFile.delete()
-        outputFile.createNewFile()
-        KotlinGenerator.generate(input, outputFile)
+        val outputFolder = parameters.outputFolder.get().asFile
+        KotlinGenerator.generate(input, outputFolder)
     }
 }

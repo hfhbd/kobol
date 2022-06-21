@@ -13,4 +13,6 @@ gradlePlugin {
 
 dependencies {
     implementation(projects.kobolKotlin)
+
+    testImplementation(kotlin("test"))
 }
