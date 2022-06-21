@@ -19,6 +19,7 @@
     number="regexp:\d+(\.\d*)?"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
+    twoDigits="regexp:\d{2}"
   ]
 
 //  extends(".*_file")=file
@@ -29,11 +30,16 @@
 
 file ::= (line) *
 
-line ::= exp | COMMENT
+line ::= program | COMMENT
 
-exp ::= id | env | data | procedure
+program ::= idDiv [envDiv] [dataDiv] procedureDiv
+
 DOT ::= '.'
-id ::= identification division [DOT] ( programID | author | installation | date ) *
+LP ::= '('
+RP ::= ')'
+
+
+idDiv ::= identification division [DOT] ( programID | author | installation | date ) *
 identification ::= 'IDENTIFICATION'
 division ::= 'DIVISION'
 
@@ -44,18 +50,44 @@ date ::= 'DATE-WRITTEN' anys
 
 anys ::= any *
 
-env ::=  'ENVIRONMENT' 'DIVISION' [DOT] (config | specialNames) *
-config ::= 'CONFIGURATION' 'SECTION' DOT
-specialNames ::= 'SPECIAL-NAMES' [DOT] (var) * DOT
+envDiv ::=  environment division [DOT] [config] [input]
+environment ::= 'ENVIRONMENT'
+config ::= 'CONFIGURATION' section [DOT] specialNames *
+specialNames ::= 'SPECIAL-NAMES' [[DOT] (var) *] DOT
+input ::= 'INPUT-OUTPUT' section [DOT] [fileControl]
+fileControl ::= 'FILE-CONTROL' DOT
+section ::= 'SECTION'
 
-data ::= 'DATA' 'DIVISION' [DOT]
+dataDiv ::= data division [DOT] [workingStorageSection]
+data ::= 'DATA'
+workingStorageSection ::= workingStorage section [DOT] (record | sa ) * DOT
+workingStorage ::= 'WORKING-STORAGE'
 
-procedure ::= procedureDiv (display | assignment)* DOT
+record ::= '01' varName [DOT] (group) * DOT
+group ::= twoDigits
 
-procedureDiv ::= 'PROCEDURE' 'DIVISION' [DOT]
+value ::= 'VALUE'
+saLiteral ::= '77'
+sa ::= saLiteral varName pic [value var]
+pic ::= picLiteral (picX | picS | pic9) [LP number RP]
+picLiteral ::= 'PIC'
+picX ::= 'X'
+picS ::= 'S'
+pic9 ::= '9'
 
-assignment ::= varName assign var
-assign ::= "="
+procedureDiv ::= procedure division [DOT] (procedureSections | procedures DOT)
+
+procedure ::= 'PROCEDURE'
+procedureSections ::= procedureSection +
+procedureSection ::= varName section DOT procedures DOT
+procedures ::= (display | moving) *
+moving ::= move expr to varName
+move ::= 'MOVE'
+to ::= 'TO'
+
+expr ::= (var | varName | stringConcat)
+
 var ::= string | number
 
-display ::= 'DISPLAY' (string | varName)
+display ::= 'DISPLAY' stringConcat
+stringConcat ::= (string | varName) +

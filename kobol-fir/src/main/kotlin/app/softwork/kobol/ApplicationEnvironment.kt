@@ -1,4 +1,4 @@
-package app.softwork.kobol.compiler
+package app.softwork.kobol
 
 /*
  * Copyright (C) 2017 Square, Inc.
@@ -26,6 +26,7 @@ import com.intellij.openapi.vfs.*
 import com.intellij.psi.*
 import java.io.*
 import java.util.concurrent.atomic.*
+import kotlin.contracts.*
 
 private object ApplicationEnvironment {
   private val logger = object : DefaultLogger("") {
@@ -74,6 +75,19 @@ class CoreEnvironment(sourceFolders: List<File>) {
       val psiFile = psiManager.findFile(file) as? T ?: return@iterateContent true
       action(psiFile)
       return@iterateContent true
+    }
+  }
+
+  @OptIn(ExperimentalContracts::class)
+  fun<T: PsiFile> forSourceFile(action: (T) -> Unit) {
+    contract {
+      callsInPlace(action, InvocationKind.AT_MOST_ONCE)
+    }
+    val psiManager = PsiManager.getInstance(projectEnvironment.project)
+    fileIndex.iterateContent { file ->
+      val psiFile = psiManager.findFile(file) as? T ?: return@iterateContent true
+      action(psiFile)
+      return@iterateContent false
     }
   }
 

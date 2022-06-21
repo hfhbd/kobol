@@ -1,6 +1,6 @@
 package app.softwork.kobol
 
-import app.softwork.kobol.compiler.*
+import app.softwork.kobol.generator.*
 import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.tasks.*
@@ -35,7 +35,7 @@ abstract class KobolTask: SourceTask() {
     internal abstract val workerExecutor: WorkerExecutor
 
     @TaskAction
-    internal fun generateSchemaFile() {
+    internal fun generate() {
         workerExecutor.classLoaderIsolation().submit(ExecuteKobol::class.java) {
             it.inputFile.set(source.singleFile)
             it.outputFile.set(output)
@@ -55,6 +55,6 @@ abstract class ExecuteKobol: WorkAction<ExecuteKobol.Parameters> {
         val outputFile = parameters.outputFile.get().asFile
         outputFile.delete()
         outputFile.createNewFile()
-        KobolCompiler.generateMain(input, outputFile)
+        KotlinGenerator.generate(input, outputFile)
     }
 }
