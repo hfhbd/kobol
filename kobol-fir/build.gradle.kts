@@ -1,5 +1,5 @@
 dependencies {
-    implementation(projects.kobolLexerParser)
+    api(projects.kobolLexerParser)
 
     val idea = "211.7628.21"
     implementation("com.jetbrains.intellij.java:java-psi:$idea")

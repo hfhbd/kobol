@@ -1,74 +1,106 @@
 package app.softwork.kobol.generator
 
 import app.softwork.kobol.*
+import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import com.squareup.kotlinpoet.*
 import java.io.*
 
 object KotlinGenerator {
-    fun generateMain(file: CobolFile) = file.main {
-        val procedure = file.procedure()
+    fun generate(file: File): FileSpec {
+        val tree = file.toTree()!!
+        val name = tree.id.programID.lowercase()
+        val fileSpec = FileSpec.builder(name, name)
 
-        for (element in procedure.children) {
-            when (element) {
-                is CobolDisplay -> {
-                    val string = element.string
-                    if (string != null) {
-                        addStatement("println(%S)", string.text.drop(1).dropLast(1))
-                    } else {
-                        addStatement("println(${element.varName!!.text!!})")
+        val data = tree.data
+        if (data != null) {
+            fileSpec.addData(data)
+        }
+
+        fileSpec.addFunction(
+            FunSpec.builder("main").apply {
+                addProcedure(tree.procedure)
+            }.build()
+        ).build()
+        return fileSpec.build()
+    }
+
+    private fun FunSpec.Builder.addProcedure(procedure: CobolFIRTree.ProcedureTree) {
+        procedure.topLevelStatements?.forEach {
+            when (it) {
+                is Move -> {
+                    move(it)
+                }
+
+                is Display -> {
+                    println(it)
+                }
+            }
+        }
+    }
+
+    private fun FunSpec.Builder.move(it: Move) {
+        addStatement("%N = %L", it.target.name, it.value.toKotlin())
+    }
+
+    private fun FunSpec.Builder.println(it: Display) {
+        when (val expr = it.expr) {
+            is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral -> {
+                addStatement("println(%S)", expr.value)
+            }
+
+            is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> {
+                addStatement("println(${expr.target.name})")
+            }
+
+            is CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat -> {
+                val template: String = expr.toTemplate()
+                addStatement("println(\"%L\")", template)
+            }
+        }
+    }
+
+    private fun CobolFIRTree.ProcedureTree.Expression.toKotlin(): Any = when (this) {
+        is CobolFIRTree.ProcedureTree.Expression.StringExpression -> "\"${toTemplate()}\""
+    }
+
+    private fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toTemplate(): String = when (this) {
+        is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral -> {
+            value
+        }
+
+        is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> {
+            "$${target.name}"
+        }
+
+        is CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat -> {
+            "${left.toTemplate()}${right.toTemplate()}"
+        }
+    }
+
+    private fun FileSpec.Builder.addData(data: CobolFIRTree.DataTree) {
+        data.workingStorage?.forEach {
+            when (it) {
+                is Elementar -> {
+                    when (it) {
+                        is Elementar.StringElementar -> {
+                            val type = if (it.value == null) STRING.copy(nullable = true) else STRING
+                            addProperty(
+                                PropertySpec.builder(
+                                    name = it.name,
+                                    type = type
+                                ).mutable(true)
+                                    .initializer(codeBlock = CodeBlock.of("%S", it.value))
+                                    .build()
+                            )
+                        }
                     }
                 }
-
-                is CobolAssignment -> {
-                    val name: String = element.varName.text
-                    val valueElement = element.`var`.number ?: element.`var`.string
-                    val value = valueElement!!.text
-                    addStatement("val $name = $value")
-                }
             }
         }
     }
-
-    private fun CobolFile.main(mainFunction: FunSpec.Builder.() -> Unit): FileSpec {
-        val name = getProgramName().lowercase()
-        return FileSpec.builder(name, name).addFunction(
-            FunSpec.builder("main").apply(mainFunction).build()
-        ).build()
-    }
 }
 
-fun KobolCompiler.generateMain(file: File): FileSpec {
-    val env = CoreEnvironment(listOf(file)).apply {
-        initializeApplication {
-            registerFileType(CobolFileType, CobolFileType.defaultExtension)
-            registerParserDefinition(CobolParserDefinition)
-        }
-    }
-    var fileSpec: FileSpec? = null
-    env.forSourceFiles<CobolFile> {
-        fileSpec = generateMain(it)
-    }
-    return fileSpec!!
-}
-
-fun KobolCompiler.generateMain(file: File, output: File) {
-    generateMain(file).writeTo(output)
-}
-
-fun CobolFile.getProgramName(): String {
-    for (element in children) {
-        if (element is CobolLine) {
-            val programIDList: List<CobolProgramID>? = element.exp?.id?.programIDList?.takeIf { it.isNotEmpty() }
-            if (programIDList != null) {
-                return programIDList.single().varName.text
-            }
-        }
-    }
-    error("No PROGRAM-ID found")
-}
-
-fun CobolFile.procedure(): CobolProcedure {
-    return children.filterIsInstance<CobolLine>().mapNotNull {
-        it.exp?.procedure
-    }.single()
+fun KotlinGenerator.generate(file: File, output: File) {
+    generate(file).writeTo(output)
 }

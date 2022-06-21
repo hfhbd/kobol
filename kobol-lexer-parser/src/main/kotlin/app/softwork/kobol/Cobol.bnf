@@ -30,9 +30,9 @@
 
 file ::= (line) *
 
-line ::= exp | COMMENT
+line ::= program | COMMENT
 
-exp ::= idDiv [envDiv] [dataDiv] procedureDiv
+program ::= idDiv [envDiv] [dataDiv] procedureDiv
 
 DOT ::= '.'
 LP ::= '('
@@ -50,13 +50,15 @@ date ::= 'DATE-WRITTEN' anys
 
 anys ::= any *
 
-envDiv ::=  environment division [DOT] (config | specialNames) *
+envDiv ::=  environment division [DOT] [config] [input]
 environment ::= 'ENVIRONMENT'
-config ::= 'CONFIGURATION' section DOT
+config ::= 'CONFIGURATION' section [DOT] specialNames *
 specialNames ::= 'SPECIAL-NAMES' [[DOT] (var) *] DOT
+input ::= 'INPUT-OUTPUT' section [DOT] [fileControl]
+fileControl ::= 'FILE-CONTROL' DOT
 section ::= 'SECTION'
 
-dataDiv ::= data division [DOT] (workingStorageSection)
+dataDiv ::= data division [DOT] [workingStorageSection]
 data ::= 'DATA'
 workingStorageSection ::= workingStorage section [DOT] (record | sa ) * DOT
 workingStorage ::= 'WORKING-STORAGE'
@@ -73,14 +75,19 @@ picX ::= 'X'
 picS ::= 'S'
 pic9 ::= '9'
 
-procedureDiv ::= procedure division [DOT] (display | moving) * DOT
+procedureDiv ::= procedure division [DOT] (procedureSections | procedures DOT)
 
 procedure ::= 'PROCEDURE'
-
-moving ::= move (var | varName) to varName
+procedureSections ::= procedureSection +
+procedureSection ::= varName section DOT procedures DOT
+procedures ::= (display | moving) *
+moving ::= move expr to varName
 move ::= 'MOVE'
 to ::= 'TO'
 
+expr ::= (var | varName | stringConcat)
+
 var ::= string | number
 
-display ::= 'DISPLAY' (string | varName) +
+display ::= 'DISPLAY' stringConcat
+stringConcat ::= (string | varName) +

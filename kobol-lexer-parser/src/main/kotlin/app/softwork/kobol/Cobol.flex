@@ -74,6 +74,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
   "SECTION"                       { return SECTION; }
   "01" { return CobolTypes.RECORD; }
   "77" { yybegin(WORKINGSTORAGE_SA_NAME); return SA_LITERAL; }
+   "PROCEDURE"                     { yybegin(YYINITIAL);return CobolTypes.PROCEDURE; }
 }
 
 <WORKINGSTORAGE_SA_NAME> {
