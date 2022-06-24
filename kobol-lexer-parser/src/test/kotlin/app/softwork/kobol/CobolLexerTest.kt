@@ -4,7 +4,6 @@ import app.softwork.kobol.CobolTypes.*
 import com.intellij.lexer.*
 import com.intellij.psi.TokenType.*
 import com.intellij.psi.tree.*
-import javax.xml.parsers.SAXParserFactory
 import kotlin.test.*
 
 class CobolLexerTest {

@@ -23,7 +23,7 @@ fun CobolFile.toTree(): CobolFIRTree {
 }
 
 private fun CobolIdDiv.toID(): CobolFIRTree.ID {
-    val programID = programIDList.single().varName.text
+    val programID = programID.varName.text
     val author = authorList.single().anys.asString()
     val installation = installationList.single().anys.asString()
     val date = dateList.single().anys.asString()

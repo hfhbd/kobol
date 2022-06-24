@@ -39,9 +39,11 @@ LP ::= '('
 RP ::= ')'
 
 
-idDiv ::= identification division [DOT] ( programID | author | installation | date ) *
+idDiv ::= identification division [DOT] [other] programID [other]
 identification ::= 'IDENTIFICATION'
 division ::= 'DIVISION'
+
+private other ::= (author | installation | date ) *
 
 programID ::= 'PROGRAM-ID' [DOT] varName DOT
 author ::= 'AUTHOR' anys
