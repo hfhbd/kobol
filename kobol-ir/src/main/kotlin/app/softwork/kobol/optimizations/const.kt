@@ -9,7 +9,7 @@ fun KobolIRTree.constVariables(): KobolIRTree = copy(
     }
 )
 
-private fun KobolIRTree.Types.constVariable() = when (this) {
+internal fun KobolIRTree.Types.constVariable() = when (this) {
     is KobolIRTree.Types.Type.GlobalVariable -> {
         if (declaration is Primitive && !declaration.mutable && declaration.value is KobolIRTree.Expression.Literal) {
             copy(const = true)
