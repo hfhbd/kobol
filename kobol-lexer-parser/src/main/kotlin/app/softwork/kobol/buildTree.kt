@@ -18,6 +18,9 @@ fun CobolFile.toTree(): CobolFIRTree {
                 )
             }
         }
+        if (child is PsiErrorElement) {
+            error("$child")
+        }
     }
     error("No CobolLine found")
 }
@@ -143,21 +146,25 @@ private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIR
 
     val first = allChildren.first().singleAsString(dataTree)
     val s = allChildren.foldSecond(first) { acc, psi ->
-        CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat(
+        if (psi.elementType == TokenType.WHITE_SPACE) null
+        else CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat(
             left = acc, right = psi.singleAsString(dataTree)
         )
     }
     return s
 }
 
-inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R): R {
+inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R?): R {
     var accumulator = initial
     var first = true
     for (element in this) {
         if (first) {
             first = false
         } else {
-            accumulator = operation(accumulator, element)
+            val next = operation(accumulator, element)
+            if (next != null) {
+                accumulator = next
+            }
         }
     }
     return accumulator
