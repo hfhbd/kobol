@@ -8,7 +8,7 @@ fun KobolIRTree.readonlyVariables(): KobolIRTree {
         for (type in types) {
             when (type) {
                 is KobolIRTree.Types.Type.GlobalVariable -> add(type)
-                else -> Unit
+                else -> continue
             }
         }
     }
@@ -17,26 +17,26 @@ fun KobolIRTree.readonlyVariables(): KobolIRTree {
             buildList {
                 for (type in types) {
                     when (type) {
-                        is KobolIRTree.Types.Function -> add(type)
-                        else -> Unit
+                        is KobolIRTree.Types.Function -> this.add(type)
+                        else -> continue
                     }
                 }
             } + main
-        ).isNotEmpty()
+        ).isEmpty()
     }
 
     return copy(types = types.map {
         if (it is KobolIRTree.Types.Type.GlobalVariable && it in readOnly) {
             when (it.declaration) {
                 is StringDeclaration -> it.copy(
-                    declaration = it.declaration.copy(modifier = Modifier.ReadOnly)
+                    declaration = it.declaration.copy(mutable = false)
                 )
             }
         } else it
     })
 }
 
-fun KobolIRTree.Types.Function.Statement.Declaration.findWriteUsages(
+private fun KobolIRTree.Types.Function.Statement.Declaration.findWriteUsages(
     functions: List<KobolIRTree.Types.Function>
 ): List<KobolIRTree.Types.Function> = functions.filter {
     it.body.any {

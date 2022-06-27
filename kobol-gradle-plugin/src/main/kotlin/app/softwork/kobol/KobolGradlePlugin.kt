@@ -3,9 +3,9 @@ package app.softwork.kobol
 import app.softwork.kobol.generator.*
 import org.gradle.api.*
 import org.gradle.api.file.*
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.workers.*
-import java.io.*
 import javax.inject.*
 
 class KobolGradlePlugin: Plugin<Project> {
@@ -29,7 +29,10 @@ abstract class KobolTask: SourceTask() {
     }
 
     @get:OutputDirectory
-    var outputFolder: File? = null
+    abstract val outputFolder: DirectoryProperty
+
+    @get:Input
+    abstract val optimize: Property<Boolean>
 
     @get:Inject
     internal abstract val workerExecutor: WorkerExecutor
@@ -39,6 +42,7 @@ abstract class KobolTask: SourceTask() {
         workerExecutor.classLoaderIsolation().submit(ExecuteKobol::class.java) {
             it.inputFile.set(source.singleFile)
             it.outputFolder.set(outputFolder)
+            it.optimize.set(optimize)
         }
     }
 }
@@ -48,11 +52,12 @@ abstract class ExecuteKobol: WorkAction<ExecuteKobol.Parameters> {
     interface Parameters: WorkParameters {
         val inputFile: RegularFileProperty
         val outputFolder: DirectoryProperty
+        val optimize: Property<Boolean>
     }
 
     override fun execute() {
         val input = parameters.inputFile.get().asFile
         val outputFolder = parameters.outputFolder.get().asFile
-        KotlinGenerator.generate(input, outputFolder)
+        KotlinGenerator.generate(input, outputFolder, optimize = parameters.optimize.orNull ?: false)
     }
 }

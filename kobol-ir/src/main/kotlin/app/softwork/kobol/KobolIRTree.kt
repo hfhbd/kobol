@@ -12,18 +12,18 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             sealed interface Statement {
                 sealed interface Declaration : Statement {
                     val name: String
-                    val modifier: Modifier
+                    val mutable: Boolean
+                    val private: Boolean
                     val value: Expression?
 
-                    enum class Modifier {
-                        Write, ReadOnly
-                    }
+                    sealed interface Primitive: Declaration
 
                     data class StringDeclaration(
                         override val name: String,
                         override val value: Expression.StringExpression?,
-                        override val modifier: Modifier
-                    ) : Declaration
+                        override val mutable: Boolean,
+                        override val private: Boolean
+                    ) : Primitive
                 }
 
                 data class Assignment(val declaration: Declaration, val newValue: Expression) : Statement
@@ -36,7 +36,7 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
         }
 
         sealed interface Type : Types {
-            data class GlobalVariable(val declaration: Function.Statement.Declaration) : Type
+            data class GlobalVariable(val declaration: Function.Statement.Declaration, val const: Boolean) : Type
             data class Class(
                 val name: String,
                 val constructor: Constructor,

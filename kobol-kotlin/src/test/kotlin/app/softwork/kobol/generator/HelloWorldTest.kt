@@ -1,8 +1,6 @@
 package app.softwork.kobol.generator
 
 import app.softwork.kobol.*
-import com.squareup.kotlinpoet.*
-import org.intellij.lang.annotations.*
 import java.io.*
 import kotlin.test.*
 
@@ -28,10 +26,12 @@ class HelloWorldTest {
         123456     DISPLAY "HELLO"WORLD
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
-        """.trimIndent()
+        """.trimIndent().toIR()
+
         val output = KotlinGenerator.generate(input)
 
-        @Language("Kotlin") val expected = """
+        //language=kotlin
+        val expected = """
         package hello
         
         import kotlin.String
@@ -50,7 +50,5 @@ class HelloWorldTest {
     }
 }
 
-internal fun KotlinGenerator.generate(@Language("COBOL") cobolCode: String): FileSpec {
-    val file = File.createTempFile("testing", ".cobol").apply { writeText(cobolCode) }
-    return generate(file.toIR())
-}
+internal fun String.toIR() =
+    File.createTempFile("testing", ".cobol").apply { writeText(this@toIR) }.toIR()

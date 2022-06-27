@@ -34,7 +34,7 @@ class KobolGradlePluginTest {
         val cobolFile = File(tmp, "hello.cobol").apply {
             writeText(input)
         }
-        KotlinGenerator.generate(cobolFile, tmp)
+        KotlinGenerator.generate(cobolFile, tmp, optimize = false)
         val packageFolder = File(tmp, "hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("hello.kt"), packageFolder.list().toList())
