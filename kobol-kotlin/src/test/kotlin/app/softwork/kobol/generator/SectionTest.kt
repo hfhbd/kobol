@@ -1,14 +1,11 @@
 package app.softwork.kobol.generator
 
-import app.softwork.kobol.*
-import com.squareup.kotlinpoet.*
 import org.intellij.lang.annotations.*
-import java.io.*
 import kotlin.test.*
 
-class HelloWorldTest {
+class SectionTest {
     @Test
-    fun helloWorld() {
+    fun helloWorldSection() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456******************************************************************
@@ -23,9 +20,11 @@ class HelloWorldTest {
         123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
         123456******************************************************************
-        123456
-        123456 * Some Comment
         123456     DISPLAY "HELLO"WORLD
+        123456     PERFORM FOO.
+        123456            
+        123456 FOO SECTION.
+        123456 * Some Comment
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
@@ -37,20 +36,19 @@ class HelloWorldTest {
         import kotlin.String
         import kotlin.Unit
         
+        public fun FOO(): Unit {
+          WORLD = "42"
+          println("ANSWER${'$'}WORLD")
+        }
+        
         public var WORLD: String = "WORLD!"
         
         public fun main(): Unit {
           println("HELLO${'$'}WORLD")
-          WORLD = "42"
-          println("ANSWER${'$'}WORLD")
+          FOO()
         }
         
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
-}
-
-internal fun KotlinGenerator.generate(@Language("COBOL") cobolCode: String): FileSpec {
-    val file = File.createTempFile("testing", ".cobol").apply { writeText(cobolCode) }
-    return generate(file.toIR())
 }

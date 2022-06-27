@@ -14,7 +14,7 @@ dependencies {
     compileOnly("com.jetbrains.intellij.platform:core-ui:$idea")
     compileOnly("com.jetbrains.intellij.platform:lang-impl:$idea")
 
-    testImplementation(kotlin("test-junit"))
+    testImplementation(kotlin("test"))
     testImplementation("com.jetbrains.intellij.java:java-psi:$idea")
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:core-ui:$idea")

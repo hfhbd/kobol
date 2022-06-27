@@ -197,4 +197,30 @@ class CobolLexerTest {
             all
         )
     }
+
+    @Test
+    fun procedureSection() {
+        val input = """
+            123456 PROCEDURE DIVISION.
+            123456 FOO SECTION.
+            123456 * Some Comment
+            123456     DISPLAY "Foo"
+            123445     PERFORM BAR.
+            123456 BAR SECTION.
+            123456     DISPLAY "HELLO"WORLD.
+        """.trimIndent()
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, PERFORM, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, VARNAME, DOT
+            ),
+            all
+        )
+    }
 }

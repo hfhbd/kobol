@@ -15,14 +15,8 @@ data class CobolFIRTree(
 
     object EnvTree
     data class DataTree(
-        val workingStorage: List<WorkingStorage>?
+        val workingStorage: List<WorkingStorage>
     ) {
-        init {
-            if (workingStorage != null) {
-                require(workingStorage.isNotEmpty())
-            }
-        }
-
         sealed interface WorkingStorage {
             sealed interface Elementar : WorkingStorage {
                 val name: String
@@ -40,28 +34,17 @@ data class CobolFIRTree(
         }
     }
 
-    data class ProcedureTree(val functions: List<Function>?, val topLevelStatements: List<Statement>?) {
-        init {
-            if (functions != null) {
-                require(functions.isNotEmpty())
-                require(topLevelStatements == null)
-            } else {
-                require(topLevelStatements != null)
-                require(topLevelStatements.isNotEmpty())
-            }
-        }
+    data class ProcedureTree(val content: List<Procs>) {
+        sealed interface Procs {
+            data class TopLevelStatements(val statements: List<Statement>) : Procs
 
-        data class Function(val name: String, val statements: List<Statement>?) {
-            init {
-                if (statements != null) {
-                    require(statements.isNotEmpty())
-                }
-            }
+            data class Section(val name: String, val statements: List<Statement>) : Procs
         }
 
         sealed interface Statement {
             data class Move(val target: DataTree.WorkingStorage.Elementar, val value: Expression) : Statement
             data class Display(val expr: Expression.StringExpression) : Statement
+            data class Perform(val sectionName: String) : Statement
         }
 
         sealed interface Expression {
