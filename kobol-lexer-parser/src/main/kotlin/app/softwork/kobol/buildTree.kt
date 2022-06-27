@@ -47,52 +47,54 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree {
 private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?.saList?.map {
     val pic = it.pic
     when {
-        pic.pic9 != null -> error("Not supported")
-        pic.picS != null -> error("Not supported")
-        pic.picX != null -> CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar(
-            name = it.varName.text,
+        pic.pic9 != null -> TODO()
+        pic.picS != null -> TODO()
+        pic.picX != null -> CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar(name = it.varName.text,
             length = it.pic.number?.text?.toInt() ?: 1,
             value = it.`var`?.let {
                 it.string!!.text!!.drop(1).dropLast(1)
-            }
-        )
+            })
 
-        else -> error("Not supported")
+        else -> TODO()
     }
-})
+} ?: emptyList())
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree {
-    val sections = procedureSections
-    return if (sections == null) {
-        CobolFIRTree.ProcedureTree(
-            functions = null, topLevelStatements = procedures!!.asStatements(dataTree)
-        )
-    } else {
-        val functions = sections.procedureSectionList.map {
-            CobolFIRTree.ProcedureTree.Function(
-                name = it.varName.text,
-                statements = it.procedures.asStatements(dataTree),
-            )
+    return CobolFIRTree.ProcedureTree(procsList.map {
+        when {
+            it.sentence != null -> {
+                CobolFIRTree.ProcedureTree.Procs.TopLevelStatements(it.sentence!!.proceduresList.map {
+                    it.asStatements(
+                        dataTree
+                    )
+                })
+            }
+
+            it.procedureSection != null -> {
+                CobolFIRTree.ProcedureTree.Procs.Section(it.procedureSection!!.varName.text,
+                    it.procedureSection!!.sentence.proceduresList.map { it.asStatements(dataTree) })
+            }
+
+            else -> TODO()
         }
-        CobolFIRTree.ProcedureTree(
-            functions = functions, topLevelStatements = null
-        )
-    }
+    })
 }
 
-private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): List<CobolFIRTree.ProcedureTree.Statement> {
-    return children.map {
-        when (it) {
-            is CobolDisplay -> CobolFIRTree.ProcedureTree.Statement.Display(
-                expr = it.stringConcat.toExpr(dataTree)
-            )
+private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Statement {
+    return when {
+        display != null -> CobolFIRTree.ProcedureTree.Statement.Display(
+            expr = display!!.stringConcat.toExpr(dataTree)
+        )
 
-            is CobolMoving -> CobolFIRTree.ProcedureTree.Statement.Move(
-                target = dataTree!!.find(it.varName)!!, value = it.expr.toExpr(dataTree)
-            )
+        moving != null -> CobolFIRTree.ProcedureTree.Statement.Move(
+            target = dataTree!!.find(moving!!.varName)!!, value = moving!!.expr.toExpr(dataTree)
+        )
 
-            else -> error("Not supported")
-        }
+        performing != null -> CobolFIRTree.ProcedureTree.Statement.Perform(
+            sectionName = performing!!.varName.text
+        )
+
+        else -> TODO()
     }
 }
 
@@ -100,13 +102,13 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.Pro
     return when {
         `var` != null -> when {
             `var`!!.string != null -> `var`!!.string!!.singleAsString(dataTree)
-            `var`!!.number != null -> error("Not supported")
-            else -> error("Not supported $`var`")
+            `var`!!.number != null -> TODO()
+            else -> TODO("$`var`")
         }
 
         varName != null -> dataTree!!.find(varName!!)!!.toVariable()
         stringConcat != null -> stringConcat!!.toExpr(dataTree)
-        else -> error("Not supported $elementType")
+        else -> TODO("$elementType")
     }
 }
 
@@ -120,7 +122,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): CobolFI
             dataTree!!.find(this) as CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar
         )
 
-        else -> error("Not supported $elementType")
+        else -> TODO("$elementType")
     }
 }
 
@@ -148,7 +150,7 @@ private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIR
     return s
 }
 
-public inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R): R {
+inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R): R {
     var accumulator = initial
     var first = true
     for (element in this) {
@@ -163,7 +165,7 @@ public inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, 
 
 private fun CobolFIRTree.DataTree.find(varName: PsiElement): CobolFIRTree.DataTree.WorkingStorage.Elementar? {
     val name: String = varName.text
-    return workingStorage?.find { (it as? CobolFIRTree.DataTree.WorkingStorage.Elementar)?.name == name } as? CobolFIRTree.DataTree.WorkingStorage.Elementar
+    return workingStorage.find { (it as? CobolFIRTree.DataTree.WorkingStorage.Elementar)?.name == name } as? CobolFIRTree.DataTree.WorkingStorage.Elementar
 }
 
 private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variable =

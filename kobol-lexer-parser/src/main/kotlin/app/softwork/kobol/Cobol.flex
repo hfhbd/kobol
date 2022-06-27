@@ -49,6 +49,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
     "DIVISION"                      { return DIVISION; }
     "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
     "SECTION"                       { return SECTION; }
+    "PERFORM"                       { return PERFORM; }
     {VARNAME}                       { return VARNAME; }
 }
 

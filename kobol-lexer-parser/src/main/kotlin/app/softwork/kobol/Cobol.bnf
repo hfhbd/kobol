@@ -39,7 +39,7 @@ LP ::= '('
 RP ::= ')'
 
 
-idDiv ::= identification division [DOT] [other] programID [other]
+idDiv ::= identification division [DOT] programID [other]
 identification ::= 'IDENTIFICATION'
 division ::= 'DIVISION'
 
@@ -77,12 +77,14 @@ picX ::= 'X'
 picS ::= 'S'
 pic9 ::= '9'
 
-procedureDiv ::= procedure division [DOT] (procedureSections | procedures DOT)
-
+procedureDiv ::= procedure division [DOT] procs *
+procs ::= procedureSection | sentence
 procedure ::= 'PROCEDURE'
-procedureSections ::= procedureSection +
-procedureSection ::= varName section DOT procedures DOT
-procedures ::= (display | moving) *
+procedureSection ::= varName section DOT sentence
+sentence ::= procedures+ DOT
+procedures ::= display | moving | performing
+performing ::= perform varName
+perform ::= 'PERFORM'
 moving ::= move expr to varName
 move ::= 'MOVE'
 to ::= 'TO'

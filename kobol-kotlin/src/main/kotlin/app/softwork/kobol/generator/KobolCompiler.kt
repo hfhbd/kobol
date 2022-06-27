@@ -1,106 +1,150 @@
 package app.softwork.kobol.generator
 
 import app.softwork.kobol.*
-import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
-import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
 import com.squareup.kotlinpoet.*
 import java.io.*
 
 object KotlinGenerator {
-    fun generate(file: File): FileSpec {
-        val tree = file.toTree()!!
-        val name = tree.id.programID.lowercase()
-        val fileSpec = FileSpec.builder(name, name)
+    fun generate(tree: KobolIRTree): FileSpec {
+        val name = tree.name
+        val fileSpec = FileSpec.builder(name, name).apply {
+            tree.types.forEach {
+                addType(it)
+            }
 
-        val data = tree.data
-        if (data != null) {
-            fileSpec.addData(data)
+            addFunction(tree.main)
         }
-
-        fileSpec.addFunction(
-            FunSpec.builder("main").apply {
-                addProcedure(tree.procedure)
-            }.build()
-        ).build()
         return fileSpec.build()
     }
 
-    private fun FunSpec.Builder.addProcedure(procedure: CobolFIRTree.ProcedureTree) {
-        procedure.topLevelStatements?.forEach {
-            when (it) {
-                is Move -> {
-                    move(it)
+    private fun FileSpec.Builder.addFunction(function: KobolIRTree.Types.Function) {
+        addFunction(
+            FunSpec.builder(function.name).apply {
+                function.parameters.forEach {
+                    addParameter(it.name, it.KType)
                 }
+                function.body.forEach {
+                    when (it) {
+                        is KobolIRTree.Types.Function.Statement.Assignment -> {
+                            assign(it)
+                        }
 
-                is Display -> {
-                    println(it)
+                        is KobolIRTree.Types.Function.Statement.Print -> {
+                            println(it)
+                        }
+
+                        is KobolIRTree.Types.Function.Statement.Declaration -> addProperty(it.createProperty())
+                        is KobolIRTree.Types.Function.Statement.FunctionCall -> addCode(it.call())
+                    }
                 }
-            }
-        }
+            }.build()
+        )
     }
 
-    private fun FunSpec.Builder.move(it: Move) {
-        addStatement("%N = %L", it.target.name, it.value.toKotlin())
+    private fun FunSpec.Builder.assign(it: KobolIRTree.Types.Function.Statement.Assignment) {
+        addStatement("%N = %L", it.declaration.name, it.newValue.toKotlin())
     }
 
-    private fun FunSpec.Builder.println(it: Display) {
+    private fun FunSpec.Builder.println(it: KobolIRTree.Types.Function.Statement.Print) {
         when (val expr = it.expr) {
-            is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral -> {
-                addStatement("println(%S)", expr.value)
+            is KobolIRTree.Expression.StringExpression.StringLiteral -> {
+                addStatement("println(%L)", it.expr.toKotlin())
             }
 
-            is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> {
+            is KobolIRTree.Expression.StringExpression.StringVariable -> {
                 addStatement("println(${expr.target.name})")
             }
 
-            is CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat -> {
-                val template: String = expr.toTemplate()
+            is KobolIRTree.Expression.StringExpression.Concat -> {
+                val template = expr.toTemplate()
                 addStatement("println(\"%L\")", template)
             }
         }
     }
 
-    private fun CobolFIRTree.ProcedureTree.Expression.toKotlin(): Any = when (this) {
-        is CobolFIRTree.ProcedureTree.Expression.StringExpression -> "\"${toTemplate()}\""
+    private fun KobolIRTree.Types.Function.Statement.FunctionCall.call() = CodeBlock.builder().apply {
+        add("%M", MemberName("", function.name))
+        add(
+            parameters.joinToString(prefix = "(", postfix = ")") {
+                it.name
+            }
+        )
+    }.build()
+
+    private fun KobolIRTree.Expression.toKotlin(): CodeBlock = when (this) {
+        is KobolIRTree.Expression.StringExpression -> toTemplate()
+        is KobolIRTree.Types.Function.Statement.FunctionCall -> call()
     }
 
-    private fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toTemplate(): String = when (this) {
-        is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral -> {
-            value
-        }
-
-        is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> {
-            "$${target.name}"
-        }
-
-        is CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat -> {
-            "${left.toTemplate()}${right.toTemplate()}"
-        }
-    }
-
-    private fun FileSpec.Builder.addData(data: CobolFIRTree.DataTree) {
-        data.workingStorage?.forEach {
-            when (it) {
-                is Elementar -> {
-                    when (it) {
-                        is Elementar.StringElementar -> {
-                            val type = if (it.value == null) STRING.copy(nullable = true) else STRING
-                            addProperty(
-                                PropertySpec.builder(
-                                    name = it.name,
-                                    type = type
-                                ).mutable(true)
-                                    .initializer(codeBlock = CodeBlock.of("%S", it.value))
-                                    .build()
-                            )
-                        }
-                    }
-                }
+    private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
+        is KobolIRTree.Expression.StringExpression.StringLiteral -> {
+            if (escape) {
+                CodeBlock.of("%S", value)
+            } else {
+                CodeBlock.of("%L", value)
             }
         }
+
+        is KobolIRTree.Expression.StringExpression.StringVariable -> {
+            CodeBlock.of("$%L", target.name)
+        }
+
+        is KobolIRTree.Expression.StringExpression.Concat -> {
+            CodeBlock.of("%L%L", left.toTemplate(escape = false), right.toTemplate(escape = false))
+        }
     }
+
+    private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
+        when (data) {
+            is KobolIRTree.Types.Function -> addFunction(data)
+            is KobolIRTree.Types.Type.Class -> TODO()
+            is KobolIRTree.Types.Type.External -> TODO()
+            is KobolIRTree.Types.Type.GlobalVariable -> {
+                addGlobalVariable(data)
+            }
+
+            is KobolIRTree.Types.Type.List -> TODO()
+            KobolIRTree.Types.Type.Void -> Unit
+        }
+    }
+
+    private fun FileSpec.Builder.addGlobalVariable(data: KobolIRTree.Types.Type.GlobalVariable) {
+        val declaration = data.declaration
+
+        addProperty(
+            declaration.createProperty()
+        )
+    }
+
+    private fun KobolIRTree.Types.Function.Statement.Declaration.createProperty(): PropertySpec {
+        val (type, init) = when (this) {
+            is StringDeclaration -> {
+                val value = value
+                if (value != null) {
+                    STRING to value.toKotlin()
+                } else STRING.copy(nullable = true) to null
+            }
+        }
+        return PropertySpec.builder(
+            name = name,
+            type = type
+        ).apply {
+            when (modifier) {
+                Modifier.Write -> mutable(true)
+                Modifier.ReadOnly -> mutable(false)
+            }
+            initializer(init)
+        }.build()
+    }
+
+    private val KobolIRTree.Types.Function.Statement.Declaration.KType: TypeName
+        get() = when (this) {
+            is StringDeclaration -> STRING
+        }
 }
 
 fun KotlinGenerator.generate(file: File, output: File) {
-    generate(file).writeTo(directory = output)
+    val ir = file.toIR()
+    generate(ir).writeTo(directory = output)
 }
