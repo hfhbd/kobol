@@ -78,10 +78,10 @@ picS ::= 'S'
 pic9 ::= '9'
 
 procedureDiv ::= procedure division [DOT] procs *
-procs ::= procedureSection | sentence
+procs ::= procedureSection | sentence DOT
 procedure ::= 'PROCEDURE'
 procedureSection ::= varName section DOT sentence
-sentence ::= procedures+ DOT
+sentence ::= procedures+
 procedures ::= display | moving | performing
 performing ::= perform varName
 perform ::= 'PERFORM'

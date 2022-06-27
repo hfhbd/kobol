@@ -29,6 +29,8 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
 %state WORKINGSTORAGE
 %state WORKINGSTORAGE_SA
+%state WORKINGSTORAGE_SA_NUMBER
+%state WORKINGSTORAGE_SA_NUMBER_LINE
 %state WORKINGSTORAGE_SA_NAME
 
 %%
@@ -73,9 +75,9 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
 <WORKINGSTORAGE> {
   "SECTION"                       { return SECTION; }
-  "01" { return CobolTypes.RECORD; }
-  "77" { yybegin(WORKINGSTORAGE_SA_NAME); return SA_LITERAL; }
-   "PROCEDURE"                     { yybegin(YYINITIAL);return CobolTypes.PROCEDURE; }
+  "01"                            { return CobolTypes.RECORD; }
+  "77"                            { yybegin(WORKINGSTORAGE_SA_NAME); return SA_LITERAL; }
+  "PROCEDURE"                     { yybegin(YYINITIAL);return CobolTypes.PROCEDURE; }
 }
 
 <WORKINGSTORAGE_SA_NAME> {
@@ -90,9 +92,16 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
       "(" { return LP; }
       ")" { return RP; }
       {NUMBER} { return NUMBER;}
-      {LINENUMBER}                    { return NUMBER; }
-      "VALUE" { return VALUE;}
+      "VALUE" { yybegin(WORKINGSTORAGE_SA_NUMBER); return VALUE;}
       "." { yybegin(WORKINGSTORAGE); return DOT;}
+}
+<WORKINGSTORAGE_SA_NUMBER> {
+      {NUMBER} { yybegin(WORKINGSTORAGE_SA_NUMBER_LINE); return NUMBER; }
+      {STRING} { yybegin(WORKINGSTORAGE_SA_NUMBER_LINE); return STRING; }
+}
+<WORKINGSTORAGE_SA_NUMBER_LINE> {
+      {LINENUMBER} { yybegin(WORKINGSTORAGE); return TokenType.WHITE_SPACE; }
+      "." { yybegin(WORKINGSTORAGE); return DOT; }
 }
 
 
