@@ -6,7 +6,8 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             val name: String,
             val parameters: List<Statement.Declaration>,
             val returnType: Type,
-            val body: List<Statement>
+            val body: List<Statement>,
+            val private: Boolean
         ) : Types {
             sealed interface Statement {
                 sealed interface Declaration : Statement {
