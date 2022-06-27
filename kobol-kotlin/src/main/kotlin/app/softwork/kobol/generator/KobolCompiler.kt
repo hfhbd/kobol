@@ -2,6 +2,7 @@ package app.softwork.kobol.generator
 
 import app.softwork.kobol.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.kobol.optimizations.*
 import com.squareup.kotlinpoet.*
 import java.io.*
 
@@ -116,7 +117,11 @@ object KotlinGenerator {
         val declaration = data.declaration
 
         addProperty(
-            declaration.createProperty()
+            declaration.createProperty().toBuilder().apply {
+                if (data.const) {
+                    addModifiers(KModifier.CONST)
+                }
+            }.build()
         )
     }
 
@@ -133,9 +138,9 @@ object KotlinGenerator {
             name = name,
             type = type
         ).apply {
-            when (modifier) {
-                Modifier.Write -> mutable(true)
-                Modifier.ReadOnly -> mutable(false)
+            mutable(mutable)
+            if (private) {
+                addModifiers(KModifier.PRIVATE)
             }
             initializer(init)
         }.build()
@@ -147,7 +152,11 @@ object KotlinGenerator {
         }
 }
 
-fun KotlinGenerator.generate(file: File, output: File) {
-    val ir = file.toIR()
+fun KotlinGenerator.generate(file: File, output: File, optimize: Boolean) {
+    val ir = file.toIR().run {
+        if (optimize) {
+            optimize()
+        } else this
+    }
     generate(ir).writeTo(directory = output)
 }

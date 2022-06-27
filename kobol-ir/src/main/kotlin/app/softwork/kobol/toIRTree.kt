@@ -10,13 +10,15 @@ fun CobolFIRTree.toIRTree(): KobolIRTree {
     val types = data?.workingStorage?.map { it.toIR() } ?: emptyList()
     val (main, functions) = functions(types)
     return KobolIRTree(
-        name = id.programID.lowercase(),
+        name = id.programID.toKotlinName(),
         main = main,
         types = functions + types
     )
 }
 
-fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<Types.Function>> {
+internal fun String.toKotlinName(): String = lowercase().replace("-", "_")
+
+private fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<Types.Function>> {
     var main: Types.Function? = null
     val sections = buildList {
         for (procedures in procedure.content) {
@@ -31,7 +33,7 @@ fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<T
                     )
                 )
 
-                else -> Unit
+                else -> continue
             }
         }
     }
@@ -141,8 +143,10 @@ fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
                         name = name, value = value?.let {
                             Expression.StringExpression.StringLiteral(it)
                         },
-                        modifier = Declaration.Modifier.Write
-                    )
+                        mutable = true,
+                        private = false
+                    ),
+                    const = false
                 )
             }
         }
