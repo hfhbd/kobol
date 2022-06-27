@@ -21,6 +21,9 @@ object KotlinGenerator {
     private fun FileSpec.Builder.addFunction(function: KobolIRTree.Types.Function) {
         addFunction(
             FunSpec.builder(function.name).apply {
+                if (function.private) {
+                    addModifiers(KModifier.PRIVATE)
+                }
                 function.parameters.forEach {
                     addParameter(it.name, it.KType)
                 }

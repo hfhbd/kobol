@@ -26,7 +26,8 @@ fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<T
                         name = procedures.name,
                         parameters = emptyList(),
                         returnType = Types.Type.Void,
-                        body = emptyList()
+                        body = emptyList(),
+                        private = false
                     )
                 )
 
@@ -42,7 +43,8 @@ fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<T
                     name = "main",
                     parameters = emptyList(),
                     returnType = Types.Type.Void,
-                    body = it.statements.map { it.toIR(types, sections) }
+                    body = it.statements.map { it.toIR(types, sections) },
+                    private = false
                 )
                 null
             }
@@ -52,7 +54,8 @@ fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<T
                     name = it.name,
                     parameters = emptyList(),
                     returnType = Types.Type.Void,
-                    body = it.statements.map { it.toIR(types, sections) }
+                    body = it.statements.map { it.toIR(types, sections) },
+                    private = false
                 )
             }
         }
@@ -62,6 +65,7 @@ fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<T
         name = "main",
         parameters = emptyList(),
         returnType = Types.Type.Void,
+        private = false,
         body = listOf(
             FunctionCall(
                 function = otherFunctions.first(),
