@@ -30,6 +30,7 @@ jobs:
         with:
           path: kobol-intellij-plugin/build/distributions/kobol-intellij-plugin-${{ env.version }}.zip
       - uses: bruceadams/get-release@v1.2.3
+        id: get_release
         env:
           GITHUB_TOKEN: ${{ github.token }}      
       - uses: actions/upload-release-asset@v1
