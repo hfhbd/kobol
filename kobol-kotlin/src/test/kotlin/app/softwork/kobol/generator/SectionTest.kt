@@ -20,8 +20,7 @@ class SectionTest {
         123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
         123456******************************************************************
-        123456     DISPLAY HELLO WORLD
-        123456     PERFORM FOO.
+        123456     DISPLAY HELLO WORLD.
         123456            
         123456 FOO SECTION.
         123456* Some Comment

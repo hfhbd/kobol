@@ -34,12 +34,9 @@ data class CobolFIRTree(
         }
     }
 
-    data class ProcedureTree(val content: List<Procs>) {
-        sealed interface Procs {
-            data class TopLevelStatements(val statements: List<Statement>) : Procs
+    data class ProcedureTree(val topLevel: List<Statement>, val sections: List<Section>) {
 
-            data class Section(val name: String, val statements: List<Statement>) : Procs
-        }
+        data class Section(val name: String, val statements: List<Statement>)
 
         sealed interface Statement {
             data class Move(val target: DataTree.WorkingStorage.Elementar, val value: Expression) : Statement

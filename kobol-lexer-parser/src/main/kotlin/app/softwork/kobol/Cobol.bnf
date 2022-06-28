@@ -39,7 +39,7 @@ LP ::= '('
 RP ::= ')'
 
 
-idDiv ::= identification division [DOT] programID [other]
+idDiv ::= identification division DOT programID [other]
 identification ::= 'IDENTIFICATION'
 division ::= 'DIVISION'
 
@@ -52,15 +52,15 @@ date ::= 'DATE-WRITTEN' anys
 
 anys ::= any *
 
-envDiv ::=  environment division [DOT] [config] [input]
+envDiv ::=  environment division DOT [config] [input]
 environment ::= 'ENVIRONMENT'
-config ::= 'CONFIGURATION' section [DOT] specialNames *
-specialNames ::= 'SPECIAL-NAMES' [[DOT] (var) *] DOT
-input ::= 'INPUT-OUTPUT' section [DOT] [fileControl]
+config ::= 'CONFIGURATION' section DOT specialNames *
+specialNames ::= 'SPECIAL-NAMES' DOT [(var) * DOT]
+input ::= 'INPUT-OUTPUT' section DOT [fileControl]
 fileControl ::= 'FILE-CONTROL' DOT
 section ::= 'SECTION'
 
-dataDiv ::= data division [DOT] [workingStorageSection]
+dataDiv ::= data division DOT [workingStorageSection]
 data ::= 'DATA'
 workingStorageSection ::= workingStorage section [DOT] (record | sa ) *
 workingStorage ::= 'WORKING-STORAGE'
@@ -77,11 +77,10 @@ picXA ::= 'X' | 'A'
 picS ::= 'S'
 pic9 ::= '9'
 
-procedureDiv ::= procedure division [DOT] procs *
-procs ::= procedureSection | sentence DOT
+procedureDiv ::= procedure division DOT [sentence*] [procedureSection*]
 procedure ::= 'PROCEDURE'
 procedureSection ::= varName section DOT sentence
-sentence ::= procedures+
+sentence ::= procedures+ DOT
 procedures ::= display | moving | performing
 performing ::= perform varName
 perform ::= 'PERFORM'

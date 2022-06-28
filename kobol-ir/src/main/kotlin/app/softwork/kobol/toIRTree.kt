@@ -19,62 +19,38 @@ fun CobolFIRTree.toIRTree(): KobolIRTree {
 internal fun String.toKotlinName(): String = lowercase().replace("-", "_")
 
 private fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<Types.Function>> {
-    var main: Types.Function? = null
-    val sections = buildList {
-        for (procedures in procedure.content) {
-            when (procedures) {
-                is CobolFIRTree.ProcedureTree.Procs.Section -> add(
-                    Types.Function(
-                        name = procedures.name,
-                        parameters = emptyList(),
-                        returnType = Types.Type.Void,
-                        body = emptyList(),
-                        private = false
-                    )
-                )
-
-                else -> continue
-            }
-        }
-    }
-    val otherFunctions = procedure.content.mapNotNull {
-        when (it) {
-            is CobolFIRTree.ProcedureTree.Procs.TopLevelStatements -> {
-                require(main == null)
-                main = Types.Function(
-                    name = "main",
-                    parameters = emptyList(),
-                    returnType = Types.Type.Void,
-                    body = it.statements.map { it.toIR(types, sections) },
-                    private = false
-                )
-                null
-            }
-
-            is CobolFIRTree.ProcedureTree.Procs.Section -> {
-                Types.Function(
-                    name = it.name,
-                    parameters = emptyList(),
-                    returnType = Types.Type.Void,
-                    body = it.statements.map { it.toIR(types, sections) },
-                    private = false
-                )
-            }
-        }
+    val sections = procedure.sections.map {
+        Types.Function(
+            name = it.name,
+            parameters = emptyList(),
+            returnType = Types.Type.Void,
+            body = emptyList(),
+            private = false
+        )
     }
 
-    return (main ?: Types.Function(
+    val topLevelStatements = procedure.topLevel.map { it.toIR(types, sections) }
+
+    val main = Types.Function(
         name = "main",
         parameters = emptyList(),
         returnType = Types.Type.Void,
-        private = false,
-        body = listOf(
-            FunctionCall(
-                function = otherFunctions.first(),
-                parameters = emptyList()
-            )
+        body = topLevelStatements + sections.map {
+            FunctionCall(it, parameters = emptyList())
+        },
+        private = false
+    )
+    val sectionsWithResolvedCalls = procedure.sections.map {
+        Types.Function(
+            name = it.name,
+            parameters = emptyList(),
+            returnType = Types.Type.Void,
+            body = it.statements.map { it.toIR(types, sections) },
+            private = false
         )
-    )) to otherFunctions
+    }
+
+    return main to sectionsWithResolvedCalls
 }
 
 fun CobolFIRTree.ProcedureTree.Expression.toIR(): Expression = when (this) {

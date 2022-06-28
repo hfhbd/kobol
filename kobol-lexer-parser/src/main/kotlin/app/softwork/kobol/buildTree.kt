@@ -63,24 +63,19 @@ private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?
 } ?: emptyList())
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree {
-    return CobolFIRTree.ProcedureTree(procsList.map {
-        when {
-            it.sentence != null -> {
-                CobolFIRTree.ProcedureTree.Procs.TopLevelStatements(it.sentence!!.proceduresList.map {
-                    it.asStatements(
-                        dataTree
-                    )
-                })
-            }
-
-            it.procedureSection != null -> {
-                CobolFIRTree.ProcedureTree.Procs.Section(it.procedureSection!!.varName.text,
-                    it.procedureSection!!.sentence.proceduresList.map { it.asStatements(dataTree) })
-            }
-
-            else -> TODO()
+    return CobolFIRTree.ProcedureTree(
+        sentenceList.flatMap {
+            it.proceduresList.map { it.asStatements(dataTree) }
+        },
+        procedureSectionList.map {
+            CobolFIRTree.ProcedureTree.Section(
+                name = it.varName.text,
+                it.sentence.proceduresList.map {
+                    it.asStatements(dataTree)
+                }
+            )
         }
-    })
+    )
 }
 
 private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Statement {
