@@ -86,7 +86,8 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
 <WORKINGSTORAGE_SA> {
 "PIC" { return PIC_LITERAL;}
-      "X" { return PIC_X;}
+      "X" { return PIC_XA;}
+      "A" { return PIC_XA;}
       "9" { return PIC_9;}
       "S" { return PIC_S;}
       "(" { return LP; }

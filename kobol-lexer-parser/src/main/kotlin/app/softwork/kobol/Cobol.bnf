@@ -71,9 +71,9 @@ group ::= twoDigits
 value ::= 'VALUE'
 saLiteral ::= '77'
 sa ::= saLiteral varName pic [value var]
-pic ::= picLiteral (picX | picS | pic9) [LP number RP]
+pic ::= picLiteral (picXA | picS | pic9) [LP number RP]
 picLiteral ::= 'PIC'
-picX ::= 'X'
+picXA ::= 'X' | 'A'
 picS ::= 'S'
 pic9 ::= '9'
 
