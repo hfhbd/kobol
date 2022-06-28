@@ -28,7 +28,7 @@ class SectionTest {
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
-        val output = KotlinGenerator.generate(input)
+        val output = generate(input)
 
         //language=kotlin
         val expected = """
