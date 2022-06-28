@@ -9,7 +9,7 @@
 123456 PROCEDURE                   DIVISION.
 123456******************************************************************
 123456
-123456 * Some Comment
+123456* Some Comment
 123456     DISPLAY "HELLO"WORLD
 123456     MOVE "42" TO WORLD
 123456     DISPLAY "ANSWER"WORLD.
