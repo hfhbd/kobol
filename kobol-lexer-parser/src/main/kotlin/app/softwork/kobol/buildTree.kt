@@ -52,7 +52,7 @@ private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?
     when {
         pic.pic9 != null -> TODO()
         pic.picS != null -> TODO()
-        pic.picX != null -> CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar(name = it.varName.text,
+        pic.picXA != null -> CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar(name = it.varName.text,
             length = it.pic.number?.text?.toInt() ?: 1,
             value = it.`var`?.let {
                 it.string!!.text!!.drop(1).dropLast(1)

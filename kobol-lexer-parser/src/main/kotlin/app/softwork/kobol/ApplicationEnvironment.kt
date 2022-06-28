@@ -72,6 +72,7 @@ class CoreEnvironment(sourceFolders: List<File>) {
   fun<T: PsiFile> forSourceFiles(action: (T) -> Unit) {
     val psiManager = PsiManager.getInstance(projectEnvironment.project)
     fileIndex.iterateContent { file ->
+      @Suppress("UNCHECKED_CAST")
       val psiFile = psiManager.findFile(file) as? T ?: return@iterateContent true
       action(psiFile)
       return@iterateContent true
@@ -85,6 +86,7 @@ class CoreEnvironment(sourceFolders: List<File>) {
     }
     val psiManager = PsiManager.getInstance(projectEnvironment.project)
     fileIndex.iterateContent { file ->
+      @Suppress("UNCHECKED_CAST")
       val psiFile = psiManager.findFile(file) as? T ?: return@iterateContent true
       action(psiFile)
       return@iterateContent false
