@@ -15,7 +15,7 @@ class SectionTest {
         123456******************************************************************
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
-        123456 77 WORLD PIC X(6) VALUE 'WORLD!'
+        123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
         123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
@@ -24,7 +24,7 @@ class SectionTest {
         123456     PERFORM FOO.
         123456            
         123456 FOO SECTION.
-        123456 * Some Comment
+        123456* Some Comment
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()

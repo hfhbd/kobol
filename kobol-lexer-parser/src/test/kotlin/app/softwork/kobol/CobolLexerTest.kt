@@ -87,8 +87,8 @@ class CobolLexerTest {
             123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
             123456 77 WORLD PIC A(6).
             123456 77 WORLD PIC A.
-            123456 77 FOO PIC 9(6) VALUE 123456
-            123456 77 FOO PIC S(6) VALUE 123456.
+            123456 77 FOO PIC 9(6) VALUE 123456.
+            123456 77 FOO PIC S9(6) VALUE 123456.
         """.trimIndent()
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
@@ -97,8 +97,8 @@ class CobolLexerTest {
                 WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, STRING, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_S, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, DOT
+                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_S, PIC_9, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, DOT
             ),
             all
         )
@@ -125,13 +125,13 @@ class CobolLexerTest {
        val input = """
             123456******************************************************************
             123456
-            123456 * Some Comment
+            123456* Some Comment
             123456 DISPLAY
             123456******************************************************************
             123456 PROCEDURE.
             123456******************************************************************
             123456
-            123456 * Some Comment
+            123456* Some Comment
             123456 DISPLAY
         """.trimIndent()
        val all = CobolLexerAdapter.all(input).toList()
@@ -139,13 +139,13 @@ class CobolLexerTest {
            listOf(
                WHITE_SPACE, COMMENT, WHITE_SPACE,
                WHITE_SPACE, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE, COMMENT, WHITE_SPACE,
+               WHITE_SPACE, COMMENT, WHITE_SPACE,
                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE,
                WHITE_SPACE, COMMENT, WHITE_SPACE,
                WHITE_SPACE, WHITE_SPACE, PROCEDURE, DOT, WHITE_SPACE,
                WHITE_SPACE, COMMENT, WHITE_SPACE,
                WHITE_SPACE, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE, COMMENT, WHITE_SPACE,
+               WHITE_SPACE, COMMENT, WHITE_SPACE,
                WHITE_SPACE, WHITE_SPACE, DISPLAY,
            ),
            all
@@ -174,7 +174,7 @@ class CobolLexerTest {
             123456 PROCEDURE                   DIVISION.
             123456******************************************************************
             123456
-            123456 * Some Comment
+            123456* Some Comment
             123456     DISPLAY "Foo"
             123456     DISPLAY "HELLO"WORLD
             123456     MOVE "42" TO WORLD
@@ -194,7 +194,7 @@ class CobolLexerTest {
                 WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
                 WHITE_SPACE, COMMENT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, VARNAME, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
@@ -209,7 +209,7 @@ class CobolLexerTest {
         val input = """
             123456 PROCEDURE DIVISION.
             123456 FOO SECTION.
-            123456 * Some Comment
+            123456* Some Comment
             123456     DISPLAY "Foo"
             123445     PERFORM BAR.
             123456 BAR SECTION.
@@ -220,7 +220,7 @@ class CobolLexerTest {
             listOf(
                 WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, PERFORM, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,

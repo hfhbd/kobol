@@ -62,7 +62,7 @@ section ::= 'SECTION'
 
 dataDiv ::= data division [DOT] [workingStorageSection]
 data ::= 'DATA'
-workingStorageSection ::= workingStorage section [DOT] (record | sa ) * DOT
+workingStorageSection ::= workingStorage section [DOT] (record | sa ) *
 workingStorage ::= 'WORKING-STORAGE'
 
 record ::= '01' varName [DOT] (group) * DOT
@@ -70,8 +70,8 @@ group ::= twoDigits
 
 value ::= 'VALUE'
 saLiteral ::= '77'
-sa ::= saLiteral varName pic [value var]
-pic ::= picLiteral (picXA | picS | pic9) [LP number RP]
+sa ::= saLiteral varName pic [value var] DOT
+pic ::= picLiteral (picXA | [picS] pic9) [LP number RP]
 picLiteral ::= 'PIC'
 picXA ::= 'X' | 'A'
 picS ::= 'S'
