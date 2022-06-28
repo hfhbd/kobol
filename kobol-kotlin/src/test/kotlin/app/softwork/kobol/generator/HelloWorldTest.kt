@@ -28,7 +28,7 @@ class HelloWorldTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
 
-        val output = KotlinGenerator.generate(input)
+        val output = generate(input)
 
         //language=kotlin
         val expected = """

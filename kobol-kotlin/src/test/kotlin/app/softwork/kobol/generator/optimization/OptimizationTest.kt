@@ -30,7 +30,7 @@ class OptimizationTest {
             .toIR()
             .readonlyVariables()
 
-        val output = KotlinGenerator.generate(input)
+        val output = generate(input)
 
         //language=kotlin
         val expected = """
@@ -79,7 +79,7 @@ class OptimizationTest {
             .readonlyVariables()
             .constVariables()
 
-        val output = KotlinGenerator.generate(input)
+        val output = generate(input)
 
         //language=kotlin
         val expected = """
@@ -127,7 +127,7 @@ class OptimizationTest {
             .toIR()
             .private()
 
-        val output = KotlinGenerator.generate(input)
+        val output = generate(input)
 
         //language=kotlin
         val expected = """
@@ -178,7 +178,7 @@ class OptimizationTest {
             .toIR()
             .camelCase()
 
-        val output = KotlinGenerator.generate(input)
+        val output = generate(input)
 
         //language=kotlin
         val expected = """
@@ -233,7 +233,7 @@ class OptimizationTest {
             .toIR()
             .optimize()
 
-        val output = KotlinGenerator.generate(input)
+        val output = generate(input)
 
         //language=kotlin
         val expected = """

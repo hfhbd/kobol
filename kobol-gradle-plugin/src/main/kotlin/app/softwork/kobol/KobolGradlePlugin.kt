@@ -47,7 +47,6 @@ abstract class KobolTask: SourceTask() {
     }
 }
 
-
 abstract class ExecuteKobol: WorkAction<ExecuteKobol.Parameters> {
     interface Parameters: WorkParameters {
         val inputFile: RegularFileProperty
@@ -58,6 +57,6 @@ abstract class ExecuteKobol: WorkAction<ExecuteKobol.Parameters> {
     override fun execute() {
         val input = parameters.inputFile.get().asFile
         val outputFolder = parameters.outputFolder.get().asFile
-        KotlinGenerator.generate(input, outputFolder, optimize = parameters.optimize.orNull ?: false)
+        generate(input, outputFolder, optimize = parameters.optimize.orNull ?: false)
     }
 }
