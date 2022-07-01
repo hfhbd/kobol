@@ -1,41 +1,70 @@
 package app.softwork.kobol
 
 import com.intellij.psi.*
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.*
 
 fun CobolFile.toTree(): CobolFIRTree {
-    for (child in children) {
-        if (child is CobolLine) {
-            val program = child.program
-            if (program != null) {
-                val id = program.idDiv.toID()
-                val env = program.envDiv?.toEnv()
-                val data = program.dataDiv?.toData()
-                val procedure = program.procedureDiv.toProcedure(data)
+    var fileComments: List<String>? = null
+    var id: CobolFIRTree.ID? = null
+    var env: CobolFIRTree.EnvTree? = null
+    var data: CobolFIRTree.DataTree? = null
+    var procedure: CobolFIRTree.ProcedureTree? = null
 
-                return CobolFIRTree(
-                    id = id, env = env, data = data, procedure = procedure
-                )
-            }
-        }
+    for (child in children) {
         if (child is PsiErrorElement) {
             error("$child")
         }
+        if (child is PsiWhiteSpace) {
+            continue
+        }
+        child as CobolProgram
+        id = child.idDiv.toID()
+        env = child.envDiv?.toEnv()
+        data = child.dataDiv?.toData()
+        procedure = child.procedureDiv.toProcedure(data)
+
+        fileComments = child.comments.asComments()
     }
-    error("No CobolLine found")
+    if (id != null && procedure != null) {
+        return CobolFIRTree(
+            id = id, env = env, data = data, procedure = procedure,
+            fileComments = fileComments ?: emptyList()
+        )
+    }
+    error("No valid CobolLine found")
+}
+
+private val commentTokens = TokenSet.create(CobolTypes.COMMENT)
+
+private fun PsiElement.asComments(): List<String> = node.getChildren(commentTokens).map {
+    it.text.drop(1).trim()
+}.also {
+    println("GOT PSI $it")
+}
+
+private fun List<CobolComments>.asComments() = map {
+    it.text.drop(1)
+}.also {
+    println("GOT $it")
 }
 
 private fun CobolIdDiv.toID(): CobolFIRTree.ID {
-    val programID = programID.varName.text
-    val author = authorList.single().anys.asString()
-    val installation = installationList.single().anys.asString()
-    val date = dateList.single().anys.asString()
+    val (programID, programmIDComments) = programID.let { it.varName.text to it.comments.asComments() }
+    val (author, authorComments) = authorList.single().let { it.anys.asString() to it.comments.asComments() }
+    val (installation, installationComments) = installationList.single()
+        .let { it.anys.asString() to it.comments.asComments() }
+    val (date, dateComments) = dateList.single().let { it.anys.asString() to it.comments.asComments() }
 
     return CobolFIRTree.ID(
         programID = programID,
+        programIDComments = programmIDComments,
         author = author,
+        authorComments = authorComments,
         installation = installation,
+        installationsComments = installationComments,
         date = date,
+        dateComments = dateComments
     )
 }
 
@@ -52,15 +81,19 @@ private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?
     when {
         pic.pic9 != null -> TODO()
         pic.picS != null -> TODO()
-        pic.picXA != null -> CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar(name = it.varName.text,
+        pic.picXA != null -> CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar(
+            name = it.varName.text,
             length = it.pic.number?.text?.toInt() ?: 1,
             value = it.`var`?.let {
                 it.string!!.text!!.drop(1).dropLast(1)
-            })
+            }, comments = it.comments.asComments()
+        )
 
         else -> TODO()
     }
-} ?: emptyList())
+} ?: emptyList(),
+    comments = commentsList.asComments()
+)
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree {
     return CobolFIRTree.ProcedureTree(
@@ -70,26 +103,33 @@ private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): Cob
         procedureSectionList.map {
             CobolFIRTree.ProcedureTree.Section(
                 name = it.varName.text,
-                it.sentence.proceduresList.map {
+                statements = it.sentence.proceduresList.map {
                     it.asStatements(dataTree)
-                }
-            )
-        }
+                },
+                comments = it.comments.asComments()
+            ).also {
+                println("SECTION $it")
+            }
+        },
+        comments = comments.asComments()
     )
 }
 
 private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Statement {
     return when {
         display != null -> CobolFIRTree.ProcedureTree.Statement.Display(
-            expr = display!!.stringConcat.toExpr(dataTree)
+            expr = display!!.stringConcat.toExpr(dataTree),
+            comments = comments.asComments(),
         )
 
         moving != null -> CobolFIRTree.ProcedureTree.Statement.Move(
-            target = dataTree!!.find(moving!!.varName)!!, value = moving!!.expr.toExpr(dataTree)
+            target = dataTree!!.find(moving!!.varName)!!, value = moving!!.expr.toExpr(dataTree),
+            comments = comments.asComments()
         )
 
         performing != null -> CobolFIRTree.ProcedureTree.Statement.Perform(
-            sectionName = performing!!.varName.text
+            sectionName = performing!!.varName.text,
+            comments = comments.asComments()
         )
 
         else -> TODO()

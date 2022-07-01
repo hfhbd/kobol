@@ -1,6 +1,7 @@
 package app.softwork.kobol
 
 data class CobolFIRTree(
+    val fileComments: List<String>,
     val id: ID,
     val env: EnvTree?,
     val data: DataTree?,
@@ -8,21 +9,30 @@ data class CobolFIRTree(
 ) {
     data class ID(
         val programID: String,
+        val programIDComments: List<String>,
         val author: String,
+        val authorComments: List<String>,
         val installation: String,
-        val date: String
+        val installationsComments: List<String>,
+        val date: String,
+        val dateComments: List<String>
     )
 
     object EnvTree
     data class DataTree(
-        val workingStorage: List<WorkingStorage>
+        val workingStorage: List<WorkingStorage>,
+        val comments: List<String>
     ) {
         sealed interface WorkingStorage {
             sealed interface Elementar : WorkingStorage {
                 val name: String
 
-                data class StringElementar(override val name: String, val length: Int, val value: String?) :
-                    Elementar {
+                data class StringElementar(
+                    override val name: String,
+                    val length: Int,
+                    val value: String?,
+                    val comments: List<String>
+                ) : Elementar {
                     init {
                         if (value != null) {
                             require(!value.startsWith("\""))
@@ -34,14 +44,36 @@ data class CobolFIRTree(
         }
     }
 
-    data class ProcedureTree(val topLevel: List<Statement>, val sections: List<Section>) {
+    data class ProcedureTree(
+        val topLevel: List<Statement>,
+        val sections: List<Section>,
+        val comments: List<String>
+    ) {
 
-        data class Section(val name: String, val statements: List<Statement>)
+        data class Section(
+            val name: String,
+            val statements: List<Statement>,
+            val comments: List<String>
+        )
 
         sealed interface Statement {
-            data class Move(val target: DataTree.WorkingStorage.Elementar, val value: Expression) : Statement
-            data class Display(val expr: Expression.StringExpression) : Statement
-            data class Perform(val sectionName: String) : Statement
+            val comments: List<String>
+
+            data class Move(
+                val target: DataTree.WorkingStorage.Elementar,
+                val value: Expression,
+                override val comments: List<String>
+            ) : Statement
+
+            data class Display(
+                val expr: Expression.StringExpression,
+                override val comments: List<String>
+            ) : Statement
+
+            data class Perform(
+                val sectionName: String,
+                override val comments: List<String>
+            ) : Statement
         }
 
         sealed interface Expression {

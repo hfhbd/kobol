@@ -7,48 +7,64 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             val parameters: List<Statement.Declaration>,
             val returnType: Type,
             val body: List<Statement>,
-            val private: Boolean
+            val private: Boolean,
+            val doc: List<String>
         ) : Types {
             sealed interface Statement {
+                val comments: List<String>
+
                 sealed interface Declaration : Statement {
                     val name: String
                     val mutable: Boolean
                     val private: Boolean
                     val value: Expression?
 
-                    sealed interface Primitive: Declaration
+                    sealed interface Primitive : Declaration
 
                     data class StringDeclaration(
                         override val name: String,
                         override val value: Expression.StringExpression?,
                         override val mutable: Boolean,
-                        override val private: Boolean
+                        override val private: Boolean,
+                        override val comments: List<String>
                     ) : Primitive
                 }
 
-                data class Assignment(val declaration: Declaration, val newValue: Expression) : Statement
+                data class Assignment(
+                    val declaration: Declaration,
+                    val newValue: Expression,
+                    override val comments: List<String>
+                ) : Statement
 
-                data class FunctionCall(val function: Function, val parameters: List<Declaration>) : Statement,
+                data class FunctionCall(
+                    val function: Function,
+                    val parameters: List<Declaration>,
+                    override val comments: List<String>
+                ) : Statement,
                     Expression
 
-                data class Print(val expr: Expression.StringExpression): Statement
+                data class Print(val expr: Expression.StringExpression, override val comments: List<String>) : Statement
             }
         }
 
         sealed interface Type : Types {
-            data class GlobalVariable(val declaration: Function.Statement.Declaration, val const: Boolean) : Type
+            data class GlobalVariable(
+                val declaration: Function.Statement.Declaration,
+                val const: Boolean,
+                val doc: List<String>
+            ) : Type
+
             data class Class(
                 val name: String,
                 val constructor: Constructor,
-                val members: kotlin.collections.List<Function.Statement.Declaration>,
-                val functions: kotlin.collections.List<Function>
+                val members: List<Function.Statement.Declaration>,
+                val functions: List<Function>,
+                val doc: List<String>
             ) : Type {
-                data class Constructor(val parameters: kotlin.collections.List<Function.Statement.Declaration>)
+                data class Constructor(val parameters: List<Function.Statement.Declaration>)
             }
 
-            object Void: Type
-
-            data class List(val type: Type) : Type
+            object Void : Type
 
             data class External(val name: String, val qualifiedName: String) : Type
         }

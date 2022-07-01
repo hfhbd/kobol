@@ -8,7 +8,7 @@ fun File.toIR() = toTree().toIRTree()
 
 fun CobolFIRTree.toIRTree(): KobolIRTree {
     val types = data?.workingStorage?.map { it.toIR() } ?: emptyList()
-    val (main, functions) = functions(types)
+    val (main, functions) = procedure.functions(types)
     return KobolIRTree(
         name = id.programID.toKotlinName(),
         main = main,
@@ -18,35 +18,44 @@ fun CobolFIRTree.toIRTree(): KobolIRTree {
 
 internal fun String.toKotlinName(): String = lowercase().replace("-", "_")
 
-private fun CobolFIRTree.functions(types: List<Types.Type>): Pair<Types.Function, List<Types.Function>> {
-    val sections = procedure.sections.map {
+private fun CobolFIRTree.ProcedureTree.functions(
+    types: List<Types.Type>
+): Pair<Types.Function, List<Types.Function>> {
+    val sections = sections.map {
         Types.Function(
             name = it.name,
             parameters = emptyList(),
             returnType = Types.Type.Void,
             body = emptyList(),
-            private = false
+            private = false,
+            doc = it.comments
         )
     }
 
-    val topLevelStatements = procedure.topLevel.map { it.toIR(types, sections) }
+    val topLevelStatements = topLevel.map { it.toIR(types, sections) }
 
     val main = Types.Function(
         name = "main",
         parameters = emptyList(),
         returnType = Types.Type.Void,
         body = topLevelStatements + sections.map {
-            FunctionCall(it, parameters = emptyList())
+            FunctionCall(
+                it,
+                parameters = emptyList(),
+                comments = emptyList()
+            )
         },
-        private = false
+        private = false,
+        doc = comments
     )
-    val sectionsWithResolvedCalls = procedure.sections.map {
+    val sectionsWithResolvedCalls = this@functions.sections.map {
         Types.Function(
             name = it.name,
             parameters = emptyList(),
             returnType = Types.Type.Void,
             body = it.statements.map { it.toIR(types, sections) },
-            private = false
+            private = false,
+            doc = it.comments
         )
     }
 
@@ -92,20 +101,23 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
         }.single()
         Assignment(
             declaration = declaration,
-            newValue = value.toIR()
+            newValue = value.toIR(),
+            comments = comments
         )
     }
 
     is CobolFIRTree.ProcedureTree.Statement.Display -> {
         Print(
-            expr = expr.toIR()
+            expr = expr.toIR(),
+            comments = comments
         )
     }
 
     is CobolFIRTree.ProcedureTree.Statement.Perform -> {
         FunctionCall(
             function = sections.single { section -> sectionName == section.name },
-            parameters = emptyList()
+            parameters = emptyList(),
+            comments = comments
         )
     }
 }
@@ -120,9 +132,11 @@ fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
                             Expression.StringExpression.StringLiteral(it)
                         },
                         mutable = true,
-                        private = false
+                        private = false,
+                        comments = comments
                     ),
-                    const = false
+                    const = false,
+                    doc = comments
                 )
             }
         }
