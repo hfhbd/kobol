@@ -2,6 +2,7 @@ package app.softwork.kobol.generator.optimization
 
 import app.softwork.kobol.generator.*
 import app.softwork.kobol.optimizations.*
+import org.intellij.lang.annotations.*
 import kotlin.test.*
 
 class OptimizationTest {
@@ -9,19 +10,15 @@ class OptimizationTest {
     fun readonlyVariables() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
-        123456******************************************************************
         123456 PROGRAM-ID.                 HELLO.
         123456 AUTHOR. WEDEMANN / Softwork.app
         123456 INSTALLATION. Softwork.app
         123456 DATE-WRITTEN TODAY.
-        123456******************************************************************
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
-        123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
-        123456******************************************************************
         123456     DISPLAY HELLO WORLD
         123456* Some Comment
         123456     MOVE "42" TO WORLD
@@ -32,7 +29,7 @@ class OptimizationTest {
 
         val output = generate(input)
 
-        //language=kotlin
+        @Language("kotlin")
         val expected = """
         package hello
         
@@ -45,6 +42,7 @@ class OptimizationTest {
         
         public fun main(): Unit {
           println("${'$'}HELLO${'$'}WORLD")
+          // Some Comment
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
         }
@@ -57,19 +55,15 @@ class OptimizationTest {
     fun readonlyVariablesConst() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
-        123456******************************************************************
         123456 PROGRAM-ID.                 HELLO.
         123456 AUTHOR. WEDEMANN / Softwork.app
         123456 INSTALLATION. Softwork.app
         123456 DATE-WRITTEN TODAY.
-        123456******************************************************************
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
-        123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
-        123456******************************************************************
         123456     DISPLAY HELLO WORLD
         123456* Some Comment
         123456     MOVE "42" TO WORLD
@@ -94,6 +88,7 @@ class OptimizationTest {
         
         public fun main(): Unit {
           println("${'$'}HELLO${'$'}WORLD")
+          // Some Comment
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
         }
@@ -106,19 +101,15 @@ class OptimizationTest {
     fun private() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
-        123456******************************************************************
         123456 PROGRAM-ID.                 HELLO.
         123456 AUTHOR. WEDEMANN / Softwork.app
         123456 INSTALLATION. Softwork.app
         123456 DATE-WRITTEN TODAY.
-        123456******************************************************************
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
-        123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
-        123456******************************************************************
         123456     DISPLAY HELLO WORLD
         123456* Some Comment
         123456     MOVE "42" TO WORLD
@@ -142,6 +133,7 @@ class OptimizationTest {
         
         public fun main(): Unit {
           println("${'$'}HELLO${'$'}WORLD")
+          // Some Comment
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
         }
@@ -154,19 +146,15 @@ class OptimizationTest {
     fun camelCase() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
-        123456******************************************************************
         123456 PROGRAM-ID.                 HELLO.
         123456 AUTHOR. WEDEMANN / Softwork.app
         123456 INSTALLATION. Softwork.app
         123456 DATE-WRITTEN TODAY.
-        123456******************************************************************
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
-        123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
-        123456******************************************************************
         123456     DISPLAY HELLO WORLD.
         123456
         123456 FOO SECTION.
@@ -187,6 +175,7 @@ class OptimizationTest {
         import kotlin.Unit
         
         public fun foo(): Unit {
+          // Some Comment
           world = "42"
           println("ANSWER${'$'}world")
         }
@@ -208,19 +197,15 @@ class OptimizationTest {
     fun optimize() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
-        123456******************************************************************
         123456 PROGRAM-ID.                 HELLO.
         123456 AUTHOR. WEDEMANN / Softwork.app
         123456 INSTALLATION. Softwork.app
         123456 DATE-WRITTEN TODAY.
-        123456******************************************************************
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
-        123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
-        123456******************************************************************
         123456     DISPLAY HELLO WORLD.
         123456
         123456 FOO SECTION.
@@ -241,6 +226,7 @@ class OptimizationTest {
         import kotlin.Unit
         
         private fun foo(): Unit {
+          // Some Comment
           world = "42"
           println("ANSWER${'$'}world")
         }

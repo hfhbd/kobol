@@ -39,14 +39,10 @@ private val commentTokens = TokenSet.create(CobolTypes.COMMENT)
 
 private fun PsiElement.asComments(): List<String> = node.getChildren(commentTokens).map {
     it.text.drop(1).trim()
-}.also {
-    println("GOT PSI $it")
 }
 
 private fun List<CobolComments>.asComments() = map {
     it.text.drop(1)
-}.also {
-    println("GOT $it")
 }
 
 private fun CobolIdDiv.toID(): CobolFIRTree.ID {
@@ -107,9 +103,7 @@ private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): Cob
                     it.asStatements(dataTree)
                 },
                 comments = it.comments.asComments()
-            ).also {
-                println("SECTION $it")
-            }
+            )
         },
         comments = comments.asComments()
     )
@@ -171,8 +165,6 @@ private val CobolStringConcat.allChildren: Sequence<PsiElement>
 
 private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression.StringExpression {
     val allChildren = allChildren.toList()
-    println("${allChildren.size}: ${allChildren.joinToString("")}")
-    println("$firstChild $lastChild")
     require(allChildren.isNotEmpty())
     if (allChildren.count() == 1) {
         val single = allChildren.single()
