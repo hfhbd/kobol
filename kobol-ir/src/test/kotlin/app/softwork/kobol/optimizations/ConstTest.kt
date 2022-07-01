@@ -11,9 +11,11 @@ class ConstTest {
                 name = "foo",
                 mutable = false,
                 private = false,
-                value = KobolIRTree.Expression.StringExpression.StringLiteral("")
+                value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
+                comments = emptyList()
             ),
-            const = false
+            const = false,
+            doc = emptyList()
         )
         val expected = readonly.copy(const = true)
         assertEquals(expected, readonly.constVariable())
@@ -26,9 +28,11 @@ class ConstTest {
                 name = "foo",
                 mutable = true,
                 private = false,
-                value = KobolIRTree.Expression.StringExpression.StringLiteral("")
+                value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
+                comments = emptyList()
             ),
-            const = false
+            const = false,
+            doc = emptyList()
         )
         assertEquals(mutable, mutable.constVariable())
     }

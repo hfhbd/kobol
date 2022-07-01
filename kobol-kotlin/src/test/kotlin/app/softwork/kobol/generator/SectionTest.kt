@@ -7,19 +7,15 @@ class SectionTest {
     fun performSection() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
-        123456******************************************************************
         123456 PROGRAM-ID.                 HELLO.
         123456 AUTHOR. WEDEMANN / Softwork.app
         123456 INSTALLATION. Softwork.app
         123456 DATE-WRITTEN TODAY.
-        123456******************************************************************
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
-        123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
-        123456******************************************************************
         123456     DISPLAY HELLO WORLD.
         123456            
         123456 FOO SECTION.
@@ -37,6 +33,7 @@ class SectionTest {
         import kotlin.Unit
         
         public fun FOO(): Unit {
+          // Some Comment
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
         }
@@ -58,19 +55,15 @@ class SectionTest {
     fun emptyTopLevel() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
-        123456******************************************************************
         123456 PROGRAM-ID.                 HELLO.
         123456 AUTHOR. WEDEMANN / Softwork.app
         123456 INSTALLATION. Softwork.app
         123456 DATE-WRITTEN TODAY.
-        123456******************************************************************
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
-        123456/*****************************************************************
         123456 PROCEDURE                   DIVISION.
-        123456******************************************************************
         123456            
         123456 FOO SECTION.
         123456* Some Comment
@@ -87,6 +80,7 @@ class SectionTest {
         import kotlin.Unit
         
         public fun FOO(): Unit {
+          // Some Comment
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
         }

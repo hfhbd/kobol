@@ -28,6 +28,11 @@ private fun FileSpec.Builder.addFunction(function: KobolIRTree.Types.Function) {
                 addParameter(it.name, it.KType)
             }
             function.body.forEach {
+                if (it !is KobolIRTree.Types.Function.Statement.Declaration && it.comments.isNotEmpty()) {
+                    for (comment in it.comments) {
+                        addComment(comment)
+                    }
+                }
                 when (it) {
                     is KobolIRTree.Types.Function.Statement.Assignment -> {
                         assign(it)
@@ -41,6 +46,7 @@ private fun FileSpec.Builder.addFunction(function: KobolIRTree.Types.Function) {
                     is KobolIRTree.Types.Function.Statement.FunctionCall -> addCode(it.call())
                 }
             }
+            addKdoc(function.doc.joinToString(separator = "\n"))
         }.build()
     )
 }
@@ -107,7 +113,6 @@ private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
             addGlobalVariable(data)
         }
 
-        is KobolIRTree.Types.Type.List -> TODO()
         KobolIRTree.Types.Type.Void -> Unit
     }
 }
@@ -142,6 +147,7 @@ private fun KobolIRTree.Types.Function.Statement.Declaration.createProperty(): P
             addModifiers(KModifier.PRIVATE)
         }
         initializer(init)
+        addKdoc(comments.joinToString(separator = "\n"))
     }.build()
 }
 

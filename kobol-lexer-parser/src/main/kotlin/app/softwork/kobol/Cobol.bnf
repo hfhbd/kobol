@@ -13,9 +13,10 @@
   tokenTypeClass="app.softwork.kobol.CobolTokenType"
 
   tokens=[
+    lineNumber="regexp:\r?\n\d{6}(\s|\*)"
     varName="regexp:[a-zA-Z]([\w|-]+[\w|_])*"
     space="regexp:\s+"
-    comment="regexp:\*.*"
+    comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
     number="regexp:\d+(\.\d*)?"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
@@ -27,12 +28,11 @@
 
 //root ::= root_item *
 //private root_item ::= !<<eof>> exps '.' {pin=1 recoverWhile=exps_recover}
+root ::= program
 
-file ::= (line) *
+program ::= comments idDiv [envDiv] [dataDiv] procedureDiv
 
-line ::= program | COMMENT
-
-program ::= idDiv [envDiv] [dataDiv] procedureDiv
+comments ::= (comment) *
 
 DOT ::= '.'
 LP ::= '('
@@ -45,24 +45,24 @@ division ::= 'DIVISION'
 
 private other ::= (author | installation | date ) *
 
-programID ::= 'PROGRAM-ID' [DOT] varName DOT
-author ::= 'AUTHOR' anys
-installation ::= 'INSTALLATION' anys
-date ::= 'DATE-WRITTEN' anys
+programID ::= comments 'PROGRAM-ID' [DOT] varName DOT
+author ::= comments 'AUTHOR' anys
+installation ::= comments 'INSTALLATION' anys
+date ::= comments 'DATE-WRITTEN' anys
 
 anys ::= any *
 
-envDiv ::=  environment division DOT [config] [input]
+envDiv ::=  comments environment division DOT [comments config] comments [input]
 environment ::= 'ENVIRONMENT'
 config ::= 'CONFIGURATION' section DOT specialNames *
-specialNames ::= 'SPECIAL-NAMES' DOT [(var) * DOT]
+specialNames ::= comments 'SPECIAL-NAMES' DOT [(comments var) * DOT]
 input ::= 'INPUT-OUTPUT' section DOT [fileControl]
 fileControl ::= 'FILE-CONTROL' DOT
 section ::= 'SECTION'
 
-dataDiv ::= data division DOT [workingStorageSection]
+dataDiv ::= comments data division DOT comments [workingStorageSection]
 data ::= 'DATA'
-workingStorageSection ::= workingStorage section [DOT] (record | sa ) *
+workingStorageSection ::= workingStorage section DOT (record | sa ) *
 workingStorage ::= 'WORKING-STORAGE'
 
 record ::= '01' varName [DOT] (group) * DOT
@@ -70,18 +70,18 @@ group ::= twoDigits
 
 value ::= 'VALUE'
 saLiteral ::= '77'
-sa ::= saLiteral varName pic [value var] DOT
+sa ::= comments saLiteral varName pic [value var] DOT
 pic ::= picLiteral (picXA | [picS] pic9) [LP number RP]
 picLiteral ::= 'PIC'
 picXA ::= 'X' | 'A'
 picS ::= 'S'
 pic9 ::= '9'
 
-procedureDiv ::= procedure division DOT [sentence*] [procedureSection*]
+procedureDiv ::= comments procedure division DOT [sentence*] [procedureSection*]
 procedure ::= 'PROCEDURE'
-procedureSection ::= varName section DOT sentence
+procedureSection ::= comments varName section DOT sentence
 sentence ::= procedures+ DOT
-procedures ::= display | moving | performing
+procedures ::= comments (display | moving | performing)
 performing ::= perform varName
 perform ::= 'PERFORM'
 moving ::= move expr to varName
