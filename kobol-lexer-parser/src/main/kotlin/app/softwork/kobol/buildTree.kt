@@ -1,7 +1,7 @@
 package app.softwork.kobol
 
 import com.intellij.psi.*
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.*
 import com.intellij.psi.util.*
 
 fun CobolFile.toTree(): CobolFIRTree {
@@ -41,26 +41,29 @@ private fun PsiElement.asComments(): List<String> = node.getChildren(commentToke
     it.text.drop(1).trim()
 }
 
-private fun List<CobolComments>.asComments() = map {
-    it.text.drop(1)
+private fun List<CobolComments>.asComments() = mapNotNull {
+    val text = it.text
+    if (text.startsWith("*")) {
+        it.text.drop(1)
+    } else null
 }
 
 private fun CobolIdDiv.toID(): CobolFIRTree.ID {
     val (programID, programmIDComments) = programID.let { it.varName.text to it.comments.asComments() }
-    val (author, authorComments) = authorList.single().let { it.anys.asString() to it.comments.asComments() }
-    val (installation, installationComments) = installationList.single()
-        .let { it.anys.asString() to it.comments.asComments() }
-    val (date, dateComments) = dateList.single().let { it.anys.asString() to it.comments.asComments() }
+    val (author, authorComments) = authorList.singleOrNull().let { it?.anys?.asString() to it?.comments?.asComments() }
+    val (installation, installationComments) = installationList.singleOrNull()
+        .let { it?.anys?.asString() to it?.comments?.asComments() }
+    val (date, dateComments) = dateList.singleOrNull().let { it?.anys?.asString() to it?.comments?.asComments() }
 
     return CobolFIRTree.ID(
         programID = programID,
         programIDComments = programmIDComments,
         author = author,
-        authorComments = authorComments,
+        authorComments = authorComments ?: emptyList(),
         installation = installation,
-        installationsComments = installationComments,
+        installationsComments = installationComments ?: emptyList(),
         date = date,
-        dateComments = dateComments
+        dateComments = dateComments ?: emptyList()
     )
 }
 
@@ -117,7 +120,7 @@ private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): Cobo
         )
 
         moving != null -> CobolFIRTree.ProcedureTree.Statement.Move(
-            target = dataTree!!.find(moving!!.varName)!!, value = moving!!.expr.toExpr(dataTree),
+            target = dataTree.notNull.find(moving!!.varName), value = moving!!.expr.toExpr(dataTree),
             comments = comments.asComments()
         )
 
@@ -130,16 +133,25 @@ private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): Cobo
     }
 }
 
+private val CobolFIRTree.DataTree?.notNull
+    get() = checkNotNull(this) {
+        "No DATA DIVISION found"
+    }
+
 private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression {
+    val `var` = `var`
+    val varName = varName
+    val stringConcat = stringConcat
     return when {
         `var` != null -> when {
-            `var`!!.string != null -> `var`!!.string!!.singleAsString(dataTree)
-            `var`!!.number != null -> TODO()
+            `var`.string != null -> `var`.string!!.singleAsString(dataTree)
+            `var`.number != null -> TODO()
             else -> TODO("$`var`")
         }
 
-        varName != null -> dataTree!!.find(varName!!)!!.toVariable()
-        stringConcat != null -> stringConcat!!.toExpr(dataTree)
+        varName != null -> dataTree.notNull.find(varName).toVariable()
+
+        stringConcat != null -> stringConcat.toExpr(dataTree)
         else -> TODO("$elementType")
     }
 }
@@ -151,7 +163,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): CobolFI
         )
 
         CobolTypes.VARNAME -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
-            dataTree!!.find(this) as CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar
+            dataTree.notNull.find(this) as CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar
         )
 
         else -> TODO("$elementType")
@@ -197,9 +209,10 @@ inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R
     return accumulator
 }
 
-private fun CobolFIRTree.DataTree.find(varName: PsiElement): CobolFIRTree.DataTree.WorkingStorage.Elementar? {
+private fun CobolFIRTree.DataTree.find(varName: PsiElement): CobolFIRTree.DataTree.WorkingStorage.Elementar {
     val name: String = varName.text
     return workingStorage.find { (it as? CobolFIRTree.DataTree.WorkingStorage.Elementar)?.name == name } as? CobolFIRTree.DataTree.WorkingStorage.Elementar
+        ?: error("Elementar $name not found")
 }
 
 private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variable =

@@ -19,7 +19,6 @@ dependencies {
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:core-ui:$idea")
     testImplementation("com.jetbrains.intellij.platform:lang-impl:$idea")
-    testImplementation("com.jetbrains.intellij.platform:test-framework:$idea")
 }
 
 sourceSets["main"].java.srcDirs("$buildDir/generated/lexer/main/java", "$buildDir/generated/parser/main/java")
