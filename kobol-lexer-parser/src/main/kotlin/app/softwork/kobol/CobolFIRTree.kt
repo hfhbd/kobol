@@ -1,27 +1,27 @@
 package app.softwork.kobol
 
 data class CobolFIRTree(
-    val fileComments: List<String>,
+    val fileComments: List<String> = emptyList(),
     val id: ID,
-    val env: EnvTree?,
-    val data: DataTree?,
+    val env: EnvTree? = null,
+    val data: DataTree? = null,
     val procedure: ProcedureTree
 ) {
     data class ID(
         val programID: String,
-        val programIDComments: List<String>,
-        val author: String,
-        val authorComments: List<String>,
-        val installation: String,
-        val installationsComments: List<String>,
-        val date: String,
-        val dateComments: List<String>
+        val programIDComments: List<String> = emptyList(),
+        val author: String? = null,
+        val authorComments: List<String> = emptyList(),
+        val installation: String? = null,
+        val installationsComments: List<String> = emptyList(),
+        val date: String? = null,
+        val dateComments: List<String> = emptyList()
     )
 
     object EnvTree
     data class DataTree(
         val workingStorage: List<WorkingStorage>,
-        val comments: List<String>
+        val comments: List<String> = emptyList()
     ) {
         sealed interface WorkingStorage {
             sealed interface Elementar : WorkingStorage {
@@ -31,7 +31,7 @@ data class CobolFIRTree(
                     override val name: String,
                     val length: Int,
                     val value: String?,
-                    val comments: List<String>
+                    val comments: List<String> = emptyList()
                 ) : Elementar {
                     init {
                         if (value != null) {
@@ -45,15 +45,15 @@ data class CobolFIRTree(
     }
 
     data class ProcedureTree(
-        val topLevel: List<Statement>,
-        val sections: List<Section>,
-        val comments: List<String>
+        val topLevel: List<Statement> = emptyList(),
+        val sections: List<Section> = emptyList(),
+        val comments: List<String> = emptyList()
     ) {
 
         data class Section(
             val name: String,
-            val statements: List<Statement>,
-            val comments: List<String>
+            val statements: List<Statement> = emptyList(),
+            val comments: List<String> = emptyList()
         )
 
         sealed interface Statement {
@@ -62,17 +62,17 @@ data class CobolFIRTree(
             data class Move(
                 val target: DataTree.WorkingStorage.Elementar,
                 val value: Expression,
-                override val comments: List<String>
+                override val comments: List<String> = emptyList()
             ) : Statement
 
             data class Display(
                 val expr: Expression.StringExpression,
-                override val comments: List<String>
+                override val comments: List<String> = emptyList()
             ) : Statement
 
             data class Perform(
                 val sectionName: String,
-                override val comments: List<String>
+                override val comments: List<String> = emptyList()
             ) : Statement
         }
 
