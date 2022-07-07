@@ -51,6 +51,9 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
     "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
     "SECTION"                       { return SECTION; }
     "PERFORM"                       { return PERFORM; }
+    "IS"                            { return IS; }
+    "CONFIGURATION"                 { return CONFIGURATION; }
+    "SPECIAL-NAMES"                 { return SPECIAL_NAMES_LITERAL; }
     {VARNAME}                       { return VARNAME; }
 }
 

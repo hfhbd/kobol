@@ -52,10 +52,17 @@ date ::= comments 'DATE-WRITTEN' anys
 
 anys ::= any *
 
-envDiv ::=  comments environment division DOT [comments config] comments [input]
+envDiv ::=  comments environment division DOT [config] comments [input]
 environment ::= 'ENVIRONMENT'
-config ::= 'CONFIGURATION' section DOT specialNames *
-specialNames ::= comments 'SPECIAL-NAMES' DOT [(comments var) * DOT]
+configuration ::= 'CONFIGURATION'
+config ::= comments configuration section DOT [specialNames]
+specialNamesLiteral ::= 'SPECIAL-NAMES'
+specialNames ::= comments specialNamesLiteral DOT [specialNameDeclaration* DOT]
+specialNameDeclaration ::= comments specialName
+specialName ::= specialNameEnv is specialNameValue
+specialNameEnv ::= varName
+specialNameValue ::= varName
+is ::= 'IS'
 input ::= 'INPUT-OUTPUT' section DOT [fileControl]
 fileControl ::= 'FILE-CONTROL' DOT
 section ::= 'SECTION'

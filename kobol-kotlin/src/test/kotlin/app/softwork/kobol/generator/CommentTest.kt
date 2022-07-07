@@ -22,6 +22,18 @@ class CommentTest {
         123456* DATE I
         123456* DATE II
         123456 DATE-WRITTEN TODAY.
+        123456* ENV I
+        123456* ENV II
+        123456 ENVIRONMENT DIVISION.
+        123456* CONF I
+        123456* CONF II
+        123456 CONFIGURATION SECTION.
+        123456* SPECIAL I
+        123456* SPECIAL II
+        123456 SPECIAL-NAMES.
+        123456* COMMA I
+        123456* COMMA II
+        123456 DECIMAL-POINT IS COMMA.
         123456* DATA I
         123456* DATA II
         123456 DATA                        DIVISION.

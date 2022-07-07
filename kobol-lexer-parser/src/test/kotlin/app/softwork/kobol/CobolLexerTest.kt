@@ -120,9 +120,9 @@ class CobolLexerTest {
         )
     }
 
-   @Test
-   fun comment() {
-       val input = """
+    @Test
+    fun comment() {
+        val input = """
             123456******************************************************************
             123456
             123456* Some Comment
@@ -134,9 +134,9 @@ class CobolLexerTest {
             123456* Some Comment
             123456 DISPLAY
         """.trimIndent()
-       val all = CobolLexerAdapter.all(input).toList()
-       assertEquals(
-           listOf(
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
                WHITE_SPACE, COMMENT, WHITE_SPACE,
                WHITE_SPACE, WHITE_SPACE,
                WHITE_SPACE, COMMENT, WHITE_SPACE,
@@ -147,10 +147,10 @@ class CobolLexerTest {
                WHITE_SPACE, WHITE_SPACE,
                WHITE_SPACE, COMMENT, WHITE_SPACE,
                WHITE_SPACE, WHITE_SPACE, DISPLAY,
-           ),
-           all
-       )
-   }
+            ),
+            all
+        )
+    }
 
     private fun FlexAdapter.all(input: String): Sequence<IElementType> = sequence {
         start(input)
@@ -225,6 +225,27 @@ class CobolLexerTest {
                 WHITE_SPACE, WHITE_SPACE, PERFORM, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, VARNAME, DOT
+            ),
+            all
+        )
+    }
+
+    @Test
+    fun specialNames() {
+        val input = """
+            123456 ENVIRONMENT DIVISION.
+            123456 CONFIGURATION SECTION.
+            123456 SPECIAL-NAMES.
+            123456     DECIMAL-POINT           IS COMMA.
+        """.trimIndent()
+
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, ENVIRONMENT, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, CONFIGURATION, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, SPECIAL_NAMES_LITERAL, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, IS, WHITE_SPACE, VARNAME, DOT
             ),
             all
         )

@@ -18,7 +18,23 @@ data class CobolFIRTree(
         val dateComments: List<String> = emptyList()
     )
 
-    object EnvTree
+    data class EnvTree(
+        val configuration: Configuration? = null,
+        val comments: List<String> = emptyList()
+    ) {
+        data class Configuration(
+            val specialNames: SpecialNames? = null,
+            val comments: List<String> = emptyList()
+        )
+
+        data class SpecialNames(
+            val specialNames: List<SpecialName>,
+            val comments: List<String> = emptyList()
+        )
+
+        data class SpecialName(val env: String, val value: String, val comments: List<String> = emptyList())
+    }
+
     data class DataTree(
         val workingStorage: List<WorkingStorage>,
         val comments: List<String> = emptyList()
