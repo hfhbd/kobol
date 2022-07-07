@@ -71,9 +71,26 @@ private fun CobolAnys.asString(): String {
     return siblings().joinToString("")
 }
 
-private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree {
-    return CobolFIRTree.EnvTree
-}
+private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(
+    configuration = config?.let {
+        CobolFIRTree.EnvTree.Configuration(
+            specialNames = it.specialNames?.let {
+                CobolFIRTree.EnvTree.SpecialNames(
+                    specialNames = it.specialNameDeclarationList.map {
+                        CobolFIRTree.EnvTree.SpecialName(
+                            env = it.specialName.specialNameEnv.text,
+                            value = it.specialName.specialNameValue.text,
+                            comments = it.comments.asComments()
+                        )
+                    },
+                    comments = it.comments.asComments()
+                )
+            },
+            comments = it.comments.asComments()
+        )
+    },
+    comments = this.commentsList.asComments()
+)
 
 private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?.saList?.map {
     val pic = it.pic

@@ -55,4 +55,40 @@ class CobolParserTest {
             ), input.toTree()
         )
     }
+
+    @Test
+    fun specialNames() {
+        val input = """
+            123456 IDENTIFICATION              DIVISION.
+            123456 PROGRAM-ID.                 HELLO.
+            123456 ENVIRONMENT DIVISION.
+            123456 CONFIGURATION SECTION.
+            123456 SPECIAL-NAMES.
+            123456     DECIMAL-POINT           IS COMMA.
+            123456 PROCEDURE                   DIVISION.
+            123456     DISPLAY "HELLO".
+        """.trimIndent()
+
+        assertEquals(
+            CobolFIRTree(
+                id = CobolFIRTree.ID(
+                    programID = "HELLO"
+                ),
+                env = CobolFIRTree.EnvTree(
+                    configuration = CobolFIRTree.EnvTree.Configuration(
+                        specialNames = CobolFIRTree.EnvTree.SpecialNames(
+                            specialNames = listOf(
+                                CobolFIRTree.EnvTree.SpecialName("DECIMAL-POINT", "COMMA")
+                            )
+                        )
+                    )
+                ),
+                procedure = CobolFIRTree.ProcedureTree(
+                    topLevel = listOf(
+                        Display(StringLiteral("HELLO"))
+                    )
+                )
+            ), input.toTree()
+        )
+    }
 }

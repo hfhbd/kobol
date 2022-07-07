@@ -18,14 +18,86 @@ class CobolLexerTest {
             123456 DATE-WRITTEN TODAY.
         """.trimIndent()
         val all = CobolLexerAdapter.all(input).toList()
-        assertEquals(listOf(
-            WHITE_SPACE, WHITE_SPACE, IDENTIFICATION, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
-            WHITE_SPACE, WHITE_SPACE, COMMENT, WHITE_SPACE,
-            WHITE_SPACE, WHITE_SPACE, PROGRAM_ID, DOT, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
-            WHITE_SPACE, WHITE_SPACE, AUTHOR, ANY, WHITE_SPACE, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, WHITE_SPACE, ANY, WHITE_SPACE, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, WHITE_SPACE,
-            WHITE_SPACE, WHITE_SPACE, INSTALLATION, ANY, WHITE_SPACE, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, ANY, WHITE_SPACE,
-            WHITE_SPACE, WHITE_SPACE, DATE, WHITE_SPACE, ANY, ANY, ANY, ANY, ANY, ANY
-        ), all)
+        assertEquals(
+            listOf(
+                WHITE_SPACE,
+                WHITE_SPACE,
+                IDENTIFICATION,
+                WHITE_SPACE,
+                DIVISION,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                COMMENT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                PROGRAM_ID,
+                DOT,
+                WHITE_SPACE,
+                VARNAME,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                AUTHOR,
+                ANY,
+                WHITE_SPACE,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                WHITE_SPACE,
+                ANY,
+                WHITE_SPACE,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                INSTALLATION,
+                ANY,
+                WHITE_SPACE,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                DATE,
+                WHITE_SPACE,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY,
+                ANY
+            ), all
+        )
     }
 
     @Test
@@ -93,12 +165,92 @@ class CobolLexerTest {
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
-                WHITE_SPACE, WHITE_SPACE, WORKING_STORAGE, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, STRING, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_S, PIC_9, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, DOT
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WORKING_STORAGE,
+                WHITE_SPACE,
+                SECTION,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                SA_LITERAL,
+                WHITE_SPACE,
+                VARNAME,
+                WHITE_SPACE,
+                PIC_LITERAL,
+                WHITE_SPACE,
+                PIC_XA,
+                LP,
+                NUMBER,
+                RP,
+                WHITE_SPACE,
+                VALUE,
+                WHITE_SPACE,
+                STRING,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                SA_LITERAL,
+                WHITE_SPACE,
+                VARNAME,
+                WHITE_SPACE,
+                PIC_LITERAL,
+                WHITE_SPACE,
+                PIC_XA,
+                LP,
+                NUMBER,
+                RP,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                SA_LITERAL,
+                WHITE_SPACE,
+                VARNAME,
+                WHITE_SPACE,
+                PIC_LITERAL,
+                WHITE_SPACE,
+                PIC_XA,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                SA_LITERAL,
+                WHITE_SPACE,
+                VARNAME,
+                WHITE_SPACE,
+                PIC_LITERAL,
+                WHITE_SPACE,
+                PIC_9,
+                LP,
+                NUMBER,
+                RP,
+                WHITE_SPACE,
+                VALUE,
+                WHITE_SPACE,
+                NUMBER,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                SA_LITERAL,
+                WHITE_SPACE,
+                VARNAME,
+                WHITE_SPACE,
+                PIC_LITERAL,
+                WHITE_SPACE,
+                PIC_S,
+                PIC_9,
+                LP,
+                NUMBER,
+                RP,
+                WHITE_SPACE,
+                VALUE,
+                WHITE_SPACE,
+                NUMBER,
+                DOT
             ),
             all
         )
@@ -120,9 +272,9 @@ class CobolLexerTest {
         )
     }
 
-   @Test
-   fun comment() {
-       val input = """
+    @Test
+    fun comment() {
+        val input = """
             123456******************************************************************
             123456
             123456* Some Comment
@@ -134,23 +286,23 @@ class CobolLexerTest {
             123456* Some Comment
             123456 DISPLAY
         """.trimIndent()
-       val all = CobolLexerAdapter.all(input).toList()
-       assertEquals(
-           listOf(
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE,
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE,
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE, PROCEDURE, DOT, WHITE_SPACE,
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE,
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE, DISPLAY,
-           ),
-           all
-       )
-   }
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE,
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE,
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, PROCEDURE, DOT, WHITE_SPACE,
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE,
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DISPLAY,
+            ),
+            all
+        )
+    }
 
     private fun FlexAdapter.all(input: String): Sequence<IElementType> = sequence {
         start(input)
@@ -183,22 +335,107 @@ class CobolLexerTest {
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
-                WHITE_SPACE, WHITE_SPACE, IDENTIFICATION, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
-                WHITE_SPACE, COMMENT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, PROGRAM_ID, DOT, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
-                WHITE_SPACE, COMMENT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, WORKING_STORAGE, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, STRING, DOT, WHITE_SPACE,
-                WHITE_SPACE, COMMENT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
-                WHITE_SPACE, COMMENT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE,
-                WHITE_SPACE, COMMENT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, VARNAME, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, VARNAME, DOT
+                WHITE_SPACE,
+                WHITE_SPACE,
+                IDENTIFICATION,
+                WHITE_SPACE,
+                DIVISION,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                COMMENT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                PROGRAM_ID,
+                DOT,
+                WHITE_SPACE,
+                VARNAME,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                COMMENT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                DATA,
+                WHITE_SPACE,
+                DIVISION,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WORKING_STORAGE,
+                WHITE_SPACE,
+                SECTION,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                SA_LITERAL,
+                WHITE_SPACE,
+                VARNAME,
+                WHITE_SPACE,
+                PIC_LITERAL,
+                WHITE_SPACE,
+                PIC_XA,
+                LP,
+                NUMBER,
+                RP,
+                WHITE_SPACE,
+                VALUE,
+                WHITE_SPACE,
+                STRING,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                COMMENT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                PROCEDURE,
+                WHITE_SPACE,
+                DIVISION,
+                DOT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                COMMENT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                COMMENT,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                DISPLAY,
+                WHITE_SPACE,
+                STRING,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                DISPLAY,
+                WHITE_SPACE,
+                STRING,
+                VARNAME,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                MOVE,
+                WHITE_SPACE,
+                STRING,
+                WHITE_SPACE,
+                TO,
+                WHITE_SPACE,
+                VARNAME,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                WHITE_SPACE,
+                DISPLAY,
+                WHITE_SPACE,
+                STRING,
+                VARNAME,
+                DOT
             ),
             all
         )
@@ -225,6 +462,27 @@ class CobolLexerTest {
                 WHITE_SPACE, WHITE_SPACE, PERFORM, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, VARNAME, DOT
+            ),
+            all
+        )
+    }
+
+    @Test
+    fun specialNames() {
+        val input = """
+            123456 ENVIRONMENT DIVISION.
+            123456 CONFIGURATION SECTION.
+            123456 SPECIAL-NAMES.
+            123456     DECIMAL-POINT           IS COMMA.
+        """.trimIndent()
+
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, ENVIRONMENT, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, CONFIGURATION, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, SPECIAL_NAMES_LITERAL, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, IS, WHITE_SPACE, VARNAME, DOT
             ),
             all
         )
