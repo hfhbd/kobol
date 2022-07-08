@@ -5,6 +5,7 @@ import kotlin.test.*
 class SectionTest {
     @Test
     fun performSection() {
+        //language=COBOL
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.

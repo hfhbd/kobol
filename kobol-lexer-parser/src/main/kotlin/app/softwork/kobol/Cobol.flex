@@ -79,18 +79,20 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 }
 
 <FILE_CONTROL_START> {
-"."                             { yybegin(FILE_CONTROL); return DOT; }
+    "SELECT"                        { yybegin(FILE_CONTROL); return FILE_CONFIG_SELECT_LITERAL; }
+
+    "DATA"                          { yybegin(DATA); return CobolTypes.DATA; }
+    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
 }
 
 <FILE_CONTROL> {
-    "SELECT"                        { return FILE_CONFIG_SELECT_LITERAL; }
     "ASSIGN"                        { return FILE_CONFIG_ASSIGN_LITERAL; }
     "FILE"                          { return FILE_LITERAL; }
     "STATUS"                        { return FILE_CONFIG_STATUS_STATUS_LITERAL; }
     "TO"                            { return CobolTypes.TO; }
 
     {VARNAME}                       { return VARNAME; }
-    "."                             { yybegin(ENVIRONMENT); return DOT; }
+    "."                             { yybegin(FILE_CONTROL_START); return DOT; }
 }
 
 <CONFIGURATION> {
@@ -119,8 +121,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 }
 
 <FD> {
-"RECORDING" { return CobolTypes.RECORDING; }
-"V" { return RECORDING_OPTION; }
+"RECORDING" { return RECORDING_LITERAL; }
 "LABEL" { return CobolTypes.LABEL; }
 "RECORD" { return CobolTypes.RECORD_LITERAL; }
       "DATA" { return CobolTypes.DATA; }

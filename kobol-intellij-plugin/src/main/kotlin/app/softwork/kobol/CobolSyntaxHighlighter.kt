@@ -1,5 +1,6 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolTypes.*
 import com.intellij.openapi.editor.*
 import com.intellij.openapi.editor.colors.*
 import com.intellij.openapi.editor.colors.TextAttributesKey.*
@@ -23,27 +24,28 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getHighlightingLexer() = CobolLexerAdapter
 
     override fun getTokenHighlights(tokenType: IElementType?) = when (tokenType) {
-        CobolTypes.COMMENT -> comment
-        CobolTypes.VARNAME -> vars
-        CobolTypes.DISPLAY_LITERAL -> function
-        CobolTypes.STRING -> string
+        COMMENT -> comment
+        VARNAME -> vars
+        DISPLAY_LITERAL -> function
+        STRING -> string
 
-        CobolTypes.DIVISION, CobolTypes.SECTION,
-        CobolTypes.IDENTIFICATION, CobolTypes.PROGRAM_ID, CobolTypes.AUTHOR, CobolTypes.DATE, CobolTypes.INSTALLATION,
-        CobolTypes.ENVIRONMENT,
-        CobolTypes.CONFIGURATION, CobolTypes.SPECIAL_NAMES_LITERAL, CobolTypes.IS,
-        CobolTypes.INPUT_OUTPUT_LITERAL, CobolTypes.FILE_CONTROL_LITERAL, CobolTypes.FILE_CONFIG_SELECT_LITERAL, CobolTypes.FILE_CONFIG_ASSIGN_LITERAL, CobolTypes.FILE_LITERAL, CobolTypes.FILE_CONFIG_STATUS_STATUS_LITERAL,
-        CobolTypes.TO,
+        DIVISION, SECTION,
+        IDENTIFICATION, PROGRAM_ID, AUTHOR, DATE, INSTALLATION,
+        ENVIRONMENT,
+        CONFIGURATION, SPECIAL_NAMES_LITERAL, IS,
+        INPUT_OUTPUT_LITERAL, FILE_CONTROL_LITERAL, FILE_CONFIG_SELECT_LITERAL, FILE_CONFIG_ASSIGN_LITERAL, FILE_LITERAL, FILE_CONFIG_STATUS_STATUS_LITERAL,
+        TO,
 
-        CobolTypes.WORKING_STORAGE,
+        WORKING_STORAGE,
+        FILE_LITERAL, FD, RECORD_LITERAL, RECORDING, STANDARD, LABEL,
 
-        CobolTypes.DATA,
-        CobolTypes.PROCEDURE -> keyword
+        DATA,
+        PROCEDURE -> keyword
 
         TokenType.BAD_CHARACTER -> badCharacter
-        CobolTypes.DOT -> dot
+        DOT -> dot
 
-        TokenType.WHITE_SPACE, CobolTypes.ANY -> empty
+        TokenType.WHITE_SPACE, ANY -> empty
         else -> empty
     }.also {
         if (it === empty) {
