@@ -31,6 +31,7 @@ class CobolLexerTest {
     @Test
     fun string() {
         val input = """
+            123456 PROCEDURE DIVISION.
             123456 DISPLAY "HELLO"
             123456 DISPLAY 'WORLD'
             123456 MOVE "42" TO WORLD
@@ -40,6 +41,7 @@ class CobolLexerTest {
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
+                WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL, WHITE_SPACE, STRING, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL, WHITE_SPACE, STRING, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
@@ -53,12 +55,14 @@ class CobolLexerTest {
     @Test
     fun stringInterpolation() {
         val input = """
+            123456 PROCEDURE DIVISION.
             123456 DISPLAY "HELLO"WORLD
             123456 DISPLAY "HELLO"WORLD.
         """.trimIndent()
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
+                WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL, WHITE_SPACE, STRING, VARNAME, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL, WHITE_SPACE, STRING, VARNAME, DOT
             ),
@@ -69,12 +73,14 @@ class CobolLexerTest {
     @Test
     fun inner6Digits() {
         val input = """
-            123456 MOVE 123456 TO HELLO
+            123456 PROCEDURE DIVISION.
+            123456 MOVE 123456 TO HELLO.
         """.trimIndent()
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
-                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, NUMBER, WHITE_SPACE, TO, WHITE_SPACE, VARNAME
+                WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, NUMBER, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, DOT
             ),
             all
         )
@@ -83,6 +89,7 @@ class CobolLexerTest {
     @Test
     fun workingSection() {
         val input = """
+            123456 DATA DIVISION.
             123456 WORKING-STORAGE SECTION.
             123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
             123456 77 WORLD PIC A(6).
@@ -93,6 +100,7 @@ class CobolLexerTest {
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, WORKING_STORAGE, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, STRING, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, SA_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, DOT, WHITE_SPACE,
@@ -124,11 +132,7 @@ class CobolLexerTest {
     fun comment() {
         val input = """
             123456******************************************************************
-            123456
-            123456* Some Comment
-            123456 DISPLAY
-            123456******************************************************************
-            123456 PROCEDURE.
+            123456 PROCEDURE DIVISION.
             123456******************************************************************
             123456
             123456* Some Comment
@@ -137,16 +141,12 @@ class CobolLexerTest {
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE,
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL, WHITE_SPACE,
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE, PROCEDURE, DOT, WHITE_SPACE,
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE,
-               WHITE_SPACE, COMMENT, WHITE_SPACE,
-               WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE,
+                WHITE_SPACE, COMMENT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL
             ),
             all
         )
@@ -246,6 +246,68 @@ class CobolLexerTest {
                 WHITE_SPACE, WHITE_SPACE, CONFIGURATION, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, SPECIAL_NAMES_LITERAL, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, VARNAME, WHITE_SPACE, IS, WHITE_SPACE, VARNAME, DOT
+            ),
+            all
+        )
+    }
+
+    @Test
+    fun fileConfig() {
+        val input = """
+            123456 ENVIRONMENT DIVISION.
+            123456 INPUT-OUTPUT SECTION.
+            123456 FILE-CONTROL.
+            123456     SELECT FOO-FILE ASSIGN FOO FILE STATUS FOO-STATUS.
+            123456 DATA DIVISION.
+            123456 FILE SECTION.
+            123456 FD FOO
+            123456 RECORDING V
+        """.trimIndent()
+
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, ENVIRONMENT, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, INPUT_OUTPUT_LITERAL, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FILE_CONTROL_LITERAL, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FILE_CONFIG_SELECT_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, FILE_CONFIG_ASSIGN_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE, FILE_LITERAL, WHITE_SPACE, FILE_CONFIG_STATUS_STATUS_LITERAL, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FILE_LITERAL, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FD, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, RECORDING_LITERAL, WHITE_SPACE, VARNAME
+            ),
+            all
+        )
+    }
+
+    @Test
+    fun file() {
+        val input = """
+            123456 DATA DIVISION.
+            123456 FILE SECTION.
+            123456 FD A
+            123456     RECORDING               V
+            123456     LABEL RECORD            STANDARD
+            123456     DATA RECORD             BAR.
+            123456 FD A
+            123456     RECORDING               V
+            123456     LABEL RECORD            STANDARD
+            123456     DATA RECORD             BAR.
+        """.trimIndent()
+
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FILE_LITERAL, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FD, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, RECORDING_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, LABEL, WHITE_SPACE, RECORD_LITERAL, WHITE_SPACE, STANDARD, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, RECORD_LITERAL, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FD, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, RECORDING_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, LABEL, WHITE_SPACE, RECORD_LITERAL, WHITE_SPACE, STANDARD, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, RECORD_LITERAL, WHITE_SPACE, VARNAME, DOT
             ),
             all
         )

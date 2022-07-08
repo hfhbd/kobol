@@ -72,14 +72,25 @@ fileConfig ::= comments fileConfigSelect fileConfigAssign fileConfigStatus DOT
 fileConfigSelectLiteral ::= 'SELECT'
 fileConfigSelect ::= fileConfigSelectLiteral varName
 fileConfigAssignLiteral ::= 'ASSIGN'
-fileConfigAssign ::= fileConfigAssignLiteral varName
-fileConfigStatusFileLiteral ::= 'FILE'
+fileConfigAssign ::= fileConfigAssignLiteral [to] varName
+fileLiteral ::= 'FILE'
 fileConfigStatusStatusLiteral ::= 'STATUS'
-fileConfigStatus ::= fileConfigStatusFileLiteral fileConfigStatusStatusLiteral varName
+fileConfigStatus ::= fileLiteral fileConfigStatusStatusLiteral varName
 section ::= 'SECTION'
 
-dataDiv ::= comments data division DOT comments [workingStorageSection]
+dataDiv ::= comments data division DOT comments [fileSection] [workingStorageSection]
 data ::= 'DATA'
+
+fileSection ::= comments fileLiteral section DOT fileDescription*
+fd ::= 'FD'
+recordingLiteral ::= 'RECORDING'
+label ::= 'LABEL'
+recordLiteral ::= 'RECORD'
+standard ::= 'STANDARD'
+recording ::= recordingLiteral varName
+fileDescription ::= comments fd varName recording label recordLiteral standard dataRecord DOT
+dataRecord ::= data recordLiteral varName
+
 workingStorageSection ::= workingStorage section DOT (record | sa ) *
 workingStorage ::= 'WORKING-STORAGE'
 
