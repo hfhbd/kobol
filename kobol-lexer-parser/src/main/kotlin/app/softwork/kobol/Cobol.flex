@@ -44,7 +44,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
     "INSTALLATION"                  { yybegin(ANY); return INSTALLATION; }
     "DATE-WRITTEN"                  { yybegin(ANY); return DATE; }
     "PROGRAM-ID"                    { yybegin(PROGRAMID); return PROGRAM_ID; }
-    "DISPLAY"                       { return CobolTypes.DISPLAY; }
+    "DISPLAY"                       { return CobolTypes.DISPLAY_LITERAL; }
     "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
     "TO"                            { return CobolTypes.TO; }
     "DIVISION"                      { return DIVISION; }
