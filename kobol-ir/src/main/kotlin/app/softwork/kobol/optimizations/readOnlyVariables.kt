@@ -17,7 +17,7 @@ fun KobolIRTree.readonlyVariables(): KobolIRTree {
             buildList {
                 for (type in types) {
                     when (type) {
-                        is KobolIRTree.Types.Function -> this.add(type)
+                        is KobolIRTree.Types.Function -> add(type)
                         else -> continue
                     }
                 }

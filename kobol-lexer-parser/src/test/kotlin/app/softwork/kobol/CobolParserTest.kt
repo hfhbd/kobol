@@ -1,6 +1,7 @@
 package app.softwork.kobol
 
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
+import app.softwork.kobol.CobolFIRTree.EnvTree.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.StringExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import kotlin.test.*
@@ -75,12 +76,61 @@ class CobolParserTest {
                     programID = "HELLO"
                 ),
                 env = CobolFIRTree.EnvTree(
-                    configuration = CobolFIRTree.EnvTree.Configuration(
-                        specialNames = CobolFIRTree.EnvTree.SpecialNames(
+                    configuration = Configuration(
+                        specialNames = Configuration.SpecialNames(
                             specialNames = listOf(
-                                CobolFIRTree.EnvTree.SpecialName("DECIMAL-POINT", "COMMA")
+                                Configuration.SpecialNames.SpecialName("DECIMAL-POINT", "COMMA")
                             )
                         )
+                    )
+                ),
+                procedure = CobolFIRTree.ProcedureTree(
+                    topLevel = listOf(
+                        Display(StringLiteral("HELLO"))
+                    )
+                )
+            ), input.toTree()
+        )
+    }
+
+    @Test
+    fun fileConfig() {
+        val input = """
+            123456 IDENTIFICATION              DIVISION.
+            123456 PROGRAM-ID.                 HELLO.
+            123456 ENVIRONMENT DIVISION.
+            123456* INPUT I
+            123456* INPUT II
+            123456 INPUT-OUTPUT SECTION.
+            123456* FILE I
+            123456* FILE II
+            123456 FILE-CONTROL.
+            123456* FOO I
+            123456* FOO II
+            123456     SELECT FOO-FILE ASSIGN FOO FILE STATUS FOO-STATUS.
+            123456 PROCEDURE                   DIVISION.
+            123456     DISPLAY "HELLO".
+        """.trimIndent()
+
+        assertEquals(
+            CobolFIRTree(
+                id = CobolFIRTree.ID(
+                    programID = "HELLO"
+                ),
+                env = CobolFIRTree.EnvTree(
+                    inputOutput = InputOutput(
+                        fileControl = InputOutput.FileControl(
+                            files = listOf(
+                                InputOutput.FileControl.File(
+                                    file = "FOO-FILE",
+                                    fileVariable = "FOO",
+                                    fileStatus = "FOO-STATUS",
+                                    comments = listOf("FOO I", "FOO II")
+                                )
+                            ),
+                            comments = listOf("FILE I", "FILE II")
+                        ),
+                        comments = listOf("INPUT I", "INPUT II")
                     )
                 ),
                 procedure = CobolFIRTree.ProcedureTree(
