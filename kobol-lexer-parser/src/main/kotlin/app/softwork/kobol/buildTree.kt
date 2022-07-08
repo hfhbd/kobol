@@ -1,5 +1,7 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.EnvTree.Configuration.*
+import app.softwork.kobol.CobolFIRTree.EnvTree.InputOutput.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 import com.intellij.psi.util.*
@@ -75,9 +77,9 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(
     configuration = config?.let {
         CobolFIRTree.EnvTree.Configuration(
             specialNames = it.specialNames?.let {
-                CobolFIRTree.EnvTree.SpecialNames(
+                SpecialNames(
                     specialNames = it.specialNameDeclarationList.map {
-                        CobolFIRTree.EnvTree.SpecialName(
+                        SpecialNames.SpecialName(
                             env = it.specialName.specialNameEnv.text,
                             value = it.specialName.specialNameValue.text,
                             comments = it.comments.asComments()
@@ -89,7 +91,25 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(
             comments = it.comments.asComments()
         )
     },
-    comments = this.commentsList.asComments()
+    inputOutput = input?.let {
+        CobolFIRTree.EnvTree.InputOutput(
+            fileControl = it.fileControl?.let {
+                FileControl(
+                    it.fileConfigList.map {
+                        FileControl.File(
+                            file = it.fileConfigSelect.varName.text,
+                            fileVariable = it.fileConfigAssign.varName.text,
+                            fileStatus = it.fileConfigStatus.varName.text,
+                            comments = it.comments.asComments()
+                        )
+                    },
+                    comments = it.comments.asComments()
+                )
+            },
+            comments = it.comments.asComments()
+        )
+    },
+    comments = comments.asComments()
 )
 
 private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?.saList?.map {

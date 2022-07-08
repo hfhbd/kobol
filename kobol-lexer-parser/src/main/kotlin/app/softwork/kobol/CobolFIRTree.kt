@@ -20,19 +20,37 @@ data class CobolFIRTree(
 
     data class EnvTree(
         val configuration: Configuration? = null,
+        val inputOutput: InputOutput? = null,
         val comments: List<String> = emptyList()
     ) {
         data class Configuration(
             val specialNames: SpecialNames? = null,
             val comments: List<String> = emptyList()
-        )
+        ) {
+            data class SpecialNames(
+                val specialNames: List<SpecialName>,
+                val comments: List<String> = emptyList()
+            ) {
+                data class SpecialName(val env: String, val value: String, val comments: List<String> = emptyList())
+            }
+        }
 
-        data class SpecialNames(
-            val specialNames: List<SpecialName>,
+        data class InputOutput(
+            val fileControl: FileControl? = null,
             val comments: List<String> = emptyList()
-        )
-
-        data class SpecialName(val env: String, val value: String, val comments: List<String> = emptyList())
+        ) {
+            data class FileControl(
+                val files: List<File> = emptyList(),
+                val comments: List<String> = emptyList()
+            ) {
+                data class File(
+                    val file: String,
+                    val fileVariable: String,
+                    val fileStatus: String,
+                    val comments: List<String> = emptyList()
+                )
+            }
+        }
     }
 
     data class DataTree(

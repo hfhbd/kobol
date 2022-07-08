@@ -54,6 +54,11 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
     "IS"                            { return IS; }
     "CONFIGURATION"                 { return CONFIGURATION; }
     "SPECIAL-NAMES"                 { return SPECIAL_NAMES_LITERAL; }
+    "INPUT-OUTPUT"                  { return INPUT_OUTPUT_LITERAL; }
+    "SELECT"                        { return FILE_CONFIG_SELECT_LITERAL; }
+    "ASSIGN"                        { return FILE_CONFIG_ASSIGN_LITERAL; }
+    "FILE"                          { return FILE_CONFIG_STATUS_FILE_LITERAL; }
+    "STATUS"                        { return FILE_CONFIG_STATUS_STATUS_LITERAL; }
     {VARNAME}                       { return VARNAME; }
 }
 

@@ -52,7 +52,7 @@ date ::= comments 'DATE-WRITTEN' anys
 
 anys ::= any *
 
-envDiv ::=  comments environment division DOT [config] comments [input]
+envDiv ::=  comments environment division DOT [config] [input]
 environment ::= 'ENVIRONMENT'
 configuration ::= 'CONFIGURATION'
 config ::= comments configuration section DOT [specialNames]
@@ -63,8 +63,19 @@ specialName ::= specialNameEnv is specialNameValue
 specialNameEnv ::= varName
 specialNameValue ::= varName
 is ::= 'IS'
-input ::= 'INPUT-OUTPUT' section DOT [fileControl]
-fileControl ::= 'FILE-CONTROL' DOT
+
+inputOutputLiteral ::= 'INPUT-OUTPUT'
+input ::= comments inputOutputLiteral section DOT [fileControl]
+fileControlLiteral ::= 'FILE-CONTROL'
+fileControl ::= comments fileControlLiteral DOT [fileConfig*]
+fileConfig ::= comments fileConfigSelect fileConfigAssign fileConfigStatus DOT
+fileConfigSelectLiteral ::= 'SELECT'
+fileConfigSelect ::= fileConfigSelectLiteral varName
+fileConfigAssignLiteral ::= 'ASSIGN'
+fileConfigAssign ::= fileConfigAssignLiteral varName
+fileConfigStatusFileLiteral ::= 'FILE'
+fileConfigStatusStatusLiteral ::= 'STATUS'
+fileConfigStatus ::= fileConfigStatusFileLiteral fileConfigStatusStatusLiteral varName
 section ::= 'SECTION'
 
 dataDiv ::= comments data division DOT comments [workingStorageSection]
