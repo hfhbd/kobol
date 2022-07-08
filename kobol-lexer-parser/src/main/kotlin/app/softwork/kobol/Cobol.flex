@@ -22,6 +22,12 @@ END_OF_LINE_COMMENT=\*.*
 STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
+%state IDENTIFICATION
+%state ENVIRONMENT
+%state DATA
+%state PROCEDURE
+
+
 %state PROGRAMID
 %state ANY
 %state MOVE
@@ -32,59 +38,80 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 %state WORKINGSTORAGE_SA_NUMBER_LINE
 %state WORKINGSTORAGE_SA_NAME
 
+%state CONFIGURATION
+%state SPECIAL_NAMES
+%state SPECIAL_NAMES_START
+%state FILE_CONTROL
+%state FILE_CONTROL_START
+
 %%
+
+"DIVISION"                      { return DIVISION; }
+"SECTION"                       { return SECTION; }
 
 <YYINITIAL>
 {
-    "IDENTIFICATION"                { return CobolTypes.IDENTIFICATION; }
-    "ENVIRONMENT"                   { return CobolTypes.ENVIRONMENT; }
-    "DATA"                          { return CobolTypes.DATA; }
-    "PROCEDURE"                     { return CobolTypes.PROCEDURE; }
-    "AUTHOR"                        { yybegin(ANY); return AUTHOR; }
-    "INSTALLATION"                  { yybegin(ANY); return INSTALLATION; }
-    "DATE-WRITTEN"                  { yybegin(ANY); return DATE; }
-    "PROGRAM-ID"                    { yybegin(PROGRAMID); return PROGRAM_ID; }
-    "DISPLAY"                       { return CobolTypes.DISPLAY_LITERAL; }
-    "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
-    "TO"                            { return CobolTypes.TO; }
-    "DIVISION"                      { return DIVISION; }
-    "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
-    "SECTION"                       { return SECTION; }
-    "PERFORM"                       { return PERFORM; }
-    "IS"                            { return IS; }
-    "CONFIGURATION"                 { return CONFIGURATION; }
-    "SPECIAL-NAMES"                 { return SPECIAL_NAMES_LITERAL; }
+    "IDENTIFICATION"                { yybegin(IDENTIFICATION); return CobolTypes.IDENTIFICATION; }
+    "ENVIRONMENT"                   { yybegin(ENVIRONMENT); return CobolTypes.ENVIRONMENT; }
+    "DATA"                          { yybegin(DATA); return CobolTypes.DATA; }
+    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
+}
+
+<ENVIRONMENT> {
+    "CONFIGURATION"                 { yybegin(CONFIGURATION); return CobolTypes.CONFIGURATION; }
     "INPUT-OUTPUT"                  { return INPUT_OUTPUT_LITERAL; }
     "SELECT"                        { return FILE_CONFIG_SELECT_LITERAL; }
     "ASSIGN"                        { return FILE_CONFIG_ASSIGN_LITERAL; }
-    "FILE"                          { return FILE_CONFIG_STATUS_FILE_LITERAL; }
+    "FILE"                          { return FILE_LITERAL; }
     "STATUS"                        { return FILE_CONFIG_STATUS_STATUS_LITERAL; }
+    "FILE-CONTROL"                  { yybegin(FILE_CONTROL_START); return CobolTypes.FILE_CONTROL_LITERAL; }
+
+
+    "DATA"                          { yybegin(DATA); return CobolTypes.DATA; }
+    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
+}
+
+<FILE_CONTROL_START> {
+"."                             { yybegin(FILE_CONTROL); return DOT; }
+}
+
+<FILE_CONTROL> {
+    "SELECT"                        { return FILE_CONFIG_SELECT_LITERAL; }
+    "ASSIGN"                        { return FILE_CONFIG_ASSIGN_LITERAL; }
+    "FILE"                          { return FILE_LITERAL; }
+    "STATUS"                        { return FILE_CONFIG_STATUS_STATUS_LITERAL; }
+    "TO"                            { return CobolTypes.TO; }
+
     {VARNAME}                       { return VARNAME; }
+    "."                             { yybegin(ENVIRONMENT); return DOT; }
 }
 
-<PROGRAMID> {
-    "."                             { return DOT; }
-    {VARNAME}                       { yybegin(YYINITIAL); return VARNAME; }
+<CONFIGURATION> {
+    "SPECIAL-NAMES"                 { yybegin(SPECIAL_NAMES_START); return SPECIAL_NAMES_LITERAL; }
 }
 
-<MOVE> {
-      {NUMBER}                        { return NUMBER; }
-      {LINENUMBER}                    { return NUMBER; }
-      {VARNAME}                       { return VARNAME; }
-      "TO"                            { yybegin(YYINITIAL); return CobolTypes.TO; }
+<SPECIAL_NAMES_START> {
+"."                             { yybegin(SPECIAL_NAMES); return DOT; }
 }
 
-<ANY> {
-    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
-    {LINENUMBER}                    { yybegin(YYINITIAL); return TokenType.WHITE_SPACE; }
-    [^]                             { return CobolTypes.ANY; }
+<SPECIAL_NAMES> {
+    "IS"                            { return IS; }
+
+    {VARNAME}                       { return VARNAME; }
+    "."                             { yybegin(ENVIRONMENT); return DOT; }
+}
+
+<DATA> {
+  "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
+
+  "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
 }
 
 <WORKINGSTORAGE> {
   "SECTION"                       { return SECTION; }
   "01"                            { return CobolTypes.RECORD; }
   "77"                            { yybegin(WORKINGSTORAGE_SA_NAME); return SA_LITERAL; }
-  "PROCEDURE"                     { yybegin(YYINITIAL);return CobolTypes.PROCEDURE; }
+  "PROCEDURE"                     { yybegin(PROCEDURE);return CobolTypes.PROCEDURE; }
 }
 
 <WORKINGSTORAGE_SA_NAME> {
@@ -112,6 +139,45 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
       "." { yybegin(WORKINGSTORAGE); return DOT; }
 }
 
+<PROCEDURE> {
+    "DISPLAY"                       { return CobolTypes.DISPLAY_LITERAL; }
+    "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
+    "TO"                            { return CobolTypes.TO; }
+
+    "PERFORM"                       { return PERFORM; }
+    "IS"                            { return IS; }
+
+    {VARNAME}                       { return VARNAME; }
+}
+
+<IDENTIFICATION> {
+    "AUTHOR"                        { yybegin(ANY); return AUTHOR; }
+    "INSTALLATION"                  { yybegin(ANY); return INSTALLATION; }
+    "DATE-WRITTEN"                  { yybegin(ANY); return DATE; }
+    "PROGRAM-ID"                    { yybegin(PROGRAMID); return PROGRAM_ID; }
+
+    "ENVIRONMENT"                   { yybegin(ENVIRONMENT); return CobolTypes.ENVIRONMENT; }
+    "DATA"                          { yybegin(DATA); return CobolTypes.DATA; }
+    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
+}
+
+<PROGRAMID> {
+    "."                             { return DOT; }
+    {VARNAME}                       { yybegin(IDENTIFICATION); return VARNAME; }
+}
+
+<ANY> {
+    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
+    {LINENUMBER}                    { yybegin(IDENTIFICATION); return TokenType.WHITE_SPACE; }
+    [^]                             { return CobolTypes.ANY; }
+}
+
+<MOVE> {
+      {NUMBER}                        { return NUMBER; }
+      {LINENUMBER}                    { return NUMBER; }
+      {VARNAME}                       { return VARNAME; }
+      "TO"                            { yybegin(PROCEDURE); return CobolTypes.TO; }
+}
 
     {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }

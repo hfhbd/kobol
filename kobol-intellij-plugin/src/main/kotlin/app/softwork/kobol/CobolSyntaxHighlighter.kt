@@ -32,7 +32,11 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         CobolTypes.IDENTIFICATION, CobolTypes.PROGRAM_ID, CobolTypes.AUTHOR, CobolTypes.DATE, CobolTypes.INSTALLATION,
         CobolTypes.ENVIRONMENT,
         CobolTypes.CONFIGURATION, CobolTypes.SPECIAL_NAMES_LITERAL, CobolTypes.IS,
-        CobolTypes.FILE_CONTROL_LITERAL, CobolTypes.FILE_CONFIG_SELECT_LITERAL, CobolTypes.FILE_CONFIG_ASSIGN_LITERAL, CobolTypes.FILE_CONFIG_STATUS_FILE_LITERAL, CobolTypes.FILE_CONFIG_STATUS_STATUS_LITERAL,
+        CobolTypes.INPUT_OUTPUT_LITERAL, CobolTypes.FILE_CONTROL_LITERAL, CobolTypes.FILE_CONFIG_SELECT_LITERAL, CobolTypes.FILE_CONFIG_ASSIGN_LITERAL, CobolTypes.FILE_LITERAL, CobolTypes.FILE_CONFIG_STATUS_STATUS_LITERAL,
+        CobolTypes.TO,
+
+        CobolTypes.WORKING_STORAGE,
+
         CobolTypes.DATA,
         CobolTypes.PROCEDURE -> keyword
 
@@ -40,7 +44,7 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         CobolTypes.DOT -> dot
 
         TokenType.WHITE_SPACE, CobolTypes.ANY -> empty
-        else -> error("Not yet supported: $tokenType")
+        else -> empty
     }.also {
         if (it === empty) {
             println("$tokenType results: empty")
