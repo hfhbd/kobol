@@ -8,29 +8,44 @@ import com.intellij.psi.*
 import com.intellij.psi.tree.*
 
 object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
-    private val COMMENT =
-        createTextAttributesKey("COBOL_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
-    private val VAR =
-        createTextAttributesKey("COBOL_VAR", DefaultLanguageHighlighterColors.LOCAL_VARIABLE)
-    private val FUNCTIONS = createTextAttributesKey("COBOL_FUNCTIONS", DefaultLanguageHighlighterColors.FUNCTION_CALL)
-    private val BAD_CHARACTER = createTextAttributesKey("COBOL_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER)
-    private val STRING = createTextAttributesKey("COBOL_STRING", DefaultLanguageHighlighterColors.STRING)
+    private val empty = arrayOf<TextAttributesKey>()
+    private val comment =
+        arrayOf(createTextAttributesKey("COBOL_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT))
+    private val badCharacter = arrayOf(createTextAttributesKey("COBOL_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER))
+    private val vars = arrayOf(createTextAttributesKey("COBOL_VAR", DefaultLanguageHighlighterColors.LOCAL_VARIABLE))
+    private val function =
+        arrayOf(createTextAttributesKey("COBOL_FUNCTIONS", DefaultLanguageHighlighterColors.FUNCTION_CALL))
+    private val string = arrayOf(createTextAttributesKey("COBOL_STRING", DefaultLanguageHighlighterColors.STRING))
+    private val keyword = arrayOf(createTextAttributesKey("COBOL_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD))
 
-    private val EMPTY_KEYS = arrayOf<TextAttributesKey>()
-    private val COMMENT_KEYS = arrayOf(COMMENT)
-    private val BAD_CHARACTER_KEYS = arrayOf(BAD_CHARACTER)
-    private val VAR_KEYS = arrayOf(VAR)
-    private val functionKeys = arrayOf(FUNCTIONS)
-    private val stringKeys = arrayOf(STRING)
+    private val dot = arrayOf(createTextAttributesKey("COBOL_DOT", DefaultLanguageHighlighterColors.DOT))
 
     override fun getHighlightingLexer() = CobolLexerAdapter
 
     override fun getTokenHighlights(tokenType: IElementType?) = when (tokenType) {
-        CobolTypes.COMMENT -> COMMENT_KEYS
-        CobolTypes.VARNAME -> VAR_KEYS
-        CobolTypes.DISPLAY -> functionKeys
-        CobolTypes.STRING -> stringKeys
-        TokenType.BAD_CHARACTER -> BAD_CHARACTER_KEYS
-        else -> EMPTY_KEYS
+        CobolTypes.COMMENT -> comment
+        CobolTypes.VARNAME -> vars
+        CobolTypes.DISPLAY_LITERAL -> function
+        CobolTypes.STRING -> string
+
+        CobolTypes.DIVISION, CobolTypes.SECTION,
+        CobolTypes.IDENTIFICATION, CobolTypes.PROGRAM_ID, CobolTypes.AUTHOR, CobolTypes.DATE, CobolTypes.INSTALLATION,
+        CobolTypes.ENVIRONMENT,
+        CobolTypes.CONFIGURATION, CobolTypes.SPECIAL_NAMES_LITERAL, CobolTypes.IS,
+        CobolTypes.FILE_CONTROL_LITERAL, CobolTypes.FILE_CONFIG_SELECT_LITERAL, CobolTypes.FILE_CONFIG_ASSIGN_LITERAL, CobolTypes.FILE_CONFIG_STATUS_FILE_LITERAL, CobolTypes.FILE_CONFIG_STATUS_STATUS_LITERAL,
+        CobolTypes.DATA,
+        CobolTypes.PROCEDURE -> keyword
+
+        TokenType.BAD_CHARACTER -> badCharacter
+        CobolTypes.DOT -> dot
+
+        TokenType.WHITE_SPACE, CobolTypes.ANY -> empty
+        else -> error("Not yet supported: $tokenType")
+    }.also {
+        if (it === empty) {
+            println("$tokenType results: empty")
+        } else {
+            println("$tokenType results: ${it.single()}")
+        }
     }
 }

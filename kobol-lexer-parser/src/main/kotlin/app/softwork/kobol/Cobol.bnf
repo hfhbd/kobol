@@ -110,5 +110,6 @@ expr ::= (var | varName | stringConcat)
 
 var ::= string | number
 
-display ::= 'DISPLAY' stringConcat
+displayLiteral ::= 'DISPLAY'
+display ::= displayLiteral stringConcat
 stringConcat ::= (string | varName) +
