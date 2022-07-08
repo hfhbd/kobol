@@ -271,4 +271,29 @@ class CobolLexerTest {
             all
         )
     }
+
+    @Test
+    fun file() {
+        val input = """
+            123456 DATA DIVISION.
+            123456 FILE SECTION.
+            123456 FD A
+            123456     RECORDING               V
+            123456     LABEL RECORD            STANDARD
+            123456     DATA RECORD             BAR.
+        """.trimIndent()
+
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FILE_LITERAL, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FD, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, RECORDING, WHITE_SPACE, RECORDING_OPTION, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, LABEL, WHITE_SPACE, RECORD_LITERAL, WHITE_SPACE, STANDARD, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, RECORD_LITERAL, WHITE_SPACE, VARNAME, DOT
+            ),
+            all
+        )
+    }
 }

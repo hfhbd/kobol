@@ -81,7 +81,15 @@ section ::= 'SECTION'
 dataDiv ::= comments data division DOT comments [fileSection] [workingStorageSection]
 data ::= 'DATA'
 
-fileSection ::= comments fileLiteral section DOT
+fileSection ::= comments fileLiteral section DOT fileDescription*
+fd ::= 'FD'
+recording ::= 'RECORDING'
+recordingOption ::= 'V'
+label ::= 'LABEL'
+recordLiteral ::= 'RECORD'
+standard ::= 'STANDARD'
+fileDescription ::= fd varName recording recordingOption label recordLiteral standard dataRecord DOT
+dataRecord ::= data recordLiteral varName
 
 workingStorageSection ::= workingStorage section DOT (record | sa ) *
 workingStorage ::= 'WORKING-STORAGE'

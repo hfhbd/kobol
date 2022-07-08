@@ -27,11 +27,11 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 %state DATA
 %state PROCEDURE
 
-
+// ID
 %state PROGRAMID
 %state ANY
-%state MOVE
 
+// ENV
 %state WORKINGSTORAGE
 %state WORKINGSTORAGE_SA
 %state WORKINGSTORAGE_SA_NUMBER
@@ -43,6 +43,13 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 %state SPECIAL_NAMES_START
 %state FILE_CONTROL
 %state FILE_CONTROL_START
+
+// DATA
+%state FILE
+%state FD
+
+// PROCEDURE
+%state MOVE
 
 %%
 
@@ -103,8 +110,23 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
 <DATA> {
   "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
-
+  "FILE"                          { yybegin(FILE); return FILE_LITERAL; }
   "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
+}
+
+<FILE> {
+      "FD" { yybegin(FD); return CobolTypes.FD; }
+}
+
+<FD> {
+"RECORDING" { return CobolTypes.RECORDING; }
+"V" { return RECORDING_OPTION; }
+"LABEL" { return CobolTypes.LABEL; }
+"RECORD" { return CobolTypes.RECORD_LITERAL; }
+      "DATA" { return CobolTypes.DATA; }
+      "STANDARD" { return STANDARD; }
+      "."                             { yybegin(FILE); return DOT; }
+          {VARNAME}                       { return VARNAME; }
 }
 
 <WORKINGSTORAGE> {
