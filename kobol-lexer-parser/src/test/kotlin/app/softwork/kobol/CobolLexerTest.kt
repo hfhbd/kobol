@@ -56,14 +56,14 @@ class CobolLexerTest {
     fun stringInterpolation() {
         val input = """
             123456 PROCEDURE DIVISION.
-            123456 DISPLAY "HELLO"WORLD
+            123456 DISPLAY "HELLO" WORLD
             123456 DISPLAY "HELLO"WORLD.
         """.trimIndent()
         val all = CobolLexerAdapter.all(input).toList()
         assertEquals(
             listOf(
                 WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL, WHITE_SPACE, STRING, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL, WHITE_SPACE, STRING, WHITE_SPACE, VARNAME, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY_LITERAL, WHITE_SPACE, STRING, VARNAME, DOT
             ),
             all

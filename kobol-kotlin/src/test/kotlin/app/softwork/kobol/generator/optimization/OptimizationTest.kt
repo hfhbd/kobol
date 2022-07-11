@@ -8,6 +8,7 @@ import kotlin.test.*
 class OptimizationTest {
     @Test
     fun readonlyVariables() {
+        //language=cobol
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
@@ -37,7 +38,7 @@ class OptimizationTest {
         import kotlin.Unit
         
         public var WORLD: String = "WORLD!"
-
+        
         public val HELLO: String = "HELLO"
         
         public fun main(): Unit {
@@ -53,6 +54,7 @@ class OptimizationTest {
 
     @Test
     fun readonlyVariablesConst() {
+        //language=cobol
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
@@ -83,7 +85,7 @@ class OptimizationTest {
         import kotlin.Unit
         
         public var WORLD: String = "WORLD!"
-
+        
         public const val HELLO: String = "HELLO"
         
         public fun main(): Unit {
@@ -99,6 +101,7 @@ class OptimizationTest {
 
     @Test
     fun private() {
+        //language=COBOL
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
@@ -128,7 +131,7 @@ class OptimizationTest {
         import kotlin.Unit
         
         private var WORLD: String = "WORLD!"
-
+        
         private var HELLO: String = "HELLO"
         
         public fun main(): Unit {
@@ -144,6 +147,7 @@ class OptimizationTest {
 
     @Test
     fun camelCase() {
+        //language=COBOL
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
@@ -179,11 +183,11 @@ class OptimizationTest {
           world = "42"
           println("ANSWER${'$'}world")
         }
-
+        
         public var world: String = "WORLD!"
-
+        
         public var hello: String = "HELLO"
-
+        
         public fun main(): Unit {
           println("${'$'}hello${'$'}world")
           foo()
@@ -195,6 +199,7 @@ class OptimizationTest {
 
     @Test
     fun optimize() {
+        //language=COBOL
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
@@ -230,11 +235,11 @@ class OptimizationTest {
           world = "42"
           println("ANSWER${'$'}world")
         }
-
+        
         private var world: String = "WORLD!"
-
+        
         private const val hello: String = "HELLO"
-
+        
         public fun main(): Unit {
           println("${'$'}hello${'$'}world")
           foo()

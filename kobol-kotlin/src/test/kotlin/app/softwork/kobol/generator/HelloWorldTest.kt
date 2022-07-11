@@ -1,12 +1,14 @@
 package app.softwork.kobol.generator
 
 import app.softwork.kobol.*
+import org.intellij.lang.annotations.*
 import java.io.*
 import kotlin.test.*
 
 class HelloWorldTest {
     @Test
     fun helloWorld() {
+        //language=cobol
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
@@ -19,7 +21,7 @@ class HelloWorldTest {
         123456 PROCEDURE                   DIVISION.
         123456
         123456* Some Comment
-        123456     DISPLAY "HELLO"WORLD
+        123456     DISPLAY "HELLO " WORLD
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
@@ -37,7 +39,7 @@ class HelloWorldTest {
         
         public fun main(): Unit {
           // Some Comment
-          println("HELLO${'$'}WORLD")
+          println("HELLO ${'$'}WORLD")
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
         }

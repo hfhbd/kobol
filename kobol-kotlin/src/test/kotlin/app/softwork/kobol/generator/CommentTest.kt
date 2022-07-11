@@ -6,7 +6,8 @@ import kotlin.test.*
 class CommentTest {
     @Test
     fun comments() {
-        @Language("COBOL") val input = """
+        //language=cobol
+        val input = """
         123456* TOP LEVEL I
         123456/* TOP LEVEL II
         123456 IDENTIFICATION              DIVISION.
@@ -65,7 +66,7 @@ class CommentTest {
         """.trimIndent().toIR()
         val output = generate(input)
 
-        @Language("kotlin")
+        //language=kotlin
         val expected = """
         package hello
         
@@ -84,7 +85,7 @@ class CommentTest {
           // DISPLAY ANSWER II
           println("ANSWER${'$'}WORLD")
         }
-
+        
         /**
          * HELLO I
          * HELLO II

@@ -5,7 +5,7 @@ import kotlin.test.*
 class SectionTest {
     @Test
     fun performSection() {
-        //language=COBOL
+        //language=cobol
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
@@ -40,7 +40,7 @@ class SectionTest {
         }
         
         public var WORLD: String = "WORLD!"
-
+        
         public var HELLO: String = "HELLO"
         
         public fun main(): Unit {
@@ -54,6 +54,7 @@ class SectionTest {
 
     @Test
     fun emptyTopLevel() {
+        //language=cobol
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
@@ -87,7 +88,7 @@ class SectionTest {
         }
         
         public var WORLD: String = "WORLD!"
-
+        
         public var HELLO: String = "HELLO"
         
         public fun main(): Unit {
