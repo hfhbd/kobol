@@ -165,10 +165,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 <PROCEDURE> {
     "DISPLAY"                       { return CobolTypes.DISPLAY_LITERAL; }
     "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
-    "TO"                            { return CobolTypes.TO; }
-
     "PERFORM"                       { return PERFORM; }
-    "IS"                            { return IS; }
 
     {VARNAME}                       { return VARNAME; }
 }
