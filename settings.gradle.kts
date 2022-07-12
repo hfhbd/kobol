@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
 rootProject.name = "kobol"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

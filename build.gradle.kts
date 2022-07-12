@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
     id("io.gitlab.arturbosch.detekt") version "1.20.0"
     `maven-publish`
+    id("app.cash.licensee") version "1.5.0" apply false
 }
 
 group = "app.softwork"
@@ -49,6 +50,11 @@ tasks {
 subprojects {
     plugins.apply("maven-publish")
     plugins.apply("org.jetbrains.kotlin.jvm")
+    plugins.apply("app.cash.licensee")
+
+    the<app.cash.licensee.LicenseeExtension>().apply {
+        allow("Apache-2.0")
+    }
 
     configurations.all {
         exclude(group = "com.jetbrains.rd")
