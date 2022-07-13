@@ -43,6 +43,8 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 %state SPECIAL_NAMES_START
 %state FILE_CONTROL
 %state FILE_CONTROL_START
+%state FILE_CONTROL_NEXTNUMBER
+%state FILE_CONTROL_LABEL
 
 // DATA
 %state FILE
@@ -122,12 +124,21 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
 <FD> {
 "RECORDING" { return RECORDING_LITERAL; }
-"LABEL" { return CobolTypes.LABEL; }
-"RECORD" { return CobolTypes.RECORD_LITERAL; }
-      "DATA" { return CobolTypes.DATA; }
-      "STANDARD" { return STANDARD; }
+"LABEL" { yybegin(FILE_CONTROL_LABEL); return CobolTypes.LABEL_LITERAL; }
+"RECORD" { yybegin(FILE_CONTROL_NEXTNUMBER); return CobolTypes.RECORD_LITERAL; }
+      "DATA" { yybegin(FILE_CONTROL_LABEL); return CobolTypes.DATA; }
+"BLOCK" { yybegin(FILE_CONTROL_NEXTNUMBER); return CobolTypes.BLOCK_LITERAL; }
       "."                             { yybegin(FILE); return DOT; }
           {VARNAME}                       { return VARNAME; }
+}
+
+<FILE_CONTROL_NEXTNUMBER> {
+ {NUMBER} { yybegin(FD);return NUMBER; }
+}
+<FILE_CONTROL_LABEL> {
+"RECORD" { return CobolTypes.RECORD_LITERAL; }
+            "STANDARD" { yybegin(FD); return STANDARD; }
+                {VARNAME}                       { yybegin(FD); return VARNAME; }
 }
 
 <WORKINGSTORAGE> {
