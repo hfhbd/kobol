@@ -47,11 +47,5 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
 
         TokenType.WHITE_SPACE, ANY -> null
         else -> null
-    }.also {
-        if (it == null) {
-            println("$tokenType results: empty")
-        } else {
-            println("$tokenType results: $it")
-        }
     }.let { arrayOf(it) }
 }
