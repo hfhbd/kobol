@@ -37,7 +37,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 %state WORKINGSTORAGE_SA_NUMBER
 %state WORKINGSTORAGE_SA_NUMBER_LINE
 %state WORKINGSTORAGE_SA_NAME
-
+%state WORKINGSTORAGE_RECORD_START
 %state CONFIGURATION
 %state SPECIAL_NAMES
 %state SPECIAL_NAMES_START
@@ -49,6 +49,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 // DATA
 %state FILE
 %state FD
+%state FD_RECORD_START
 
 // PROCEDURE
 %state MOVE
@@ -120,6 +121,7 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
 <FILE> {
       "FD" { yybegin(FD); return CobolTypes.FD; }
+      // "01" { yybegin(FD_RECORD_START); }
 }
 
 <FD> {
@@ -143,9 +145,12 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
 <WORKINGSTORAGE> {
   "SECTION"                       { return SECTION; }
-  "01"                            { return CobolTypes.RECORD; }
+  "01"                            { return CobolTypes.RECORD_01; }
   "77"                            { yybegin(WORKINGSTORAGE_SA_NAME); return SA_LITERAL; }
-  "PROCEDURE"                     { yybegin(PROCEDURE);return CobolTypes.PROCEDURE; }
+  "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
+  {VARNAME}                       { return VARNAME; }
+  {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
+  {NUMBER}                        { yybegin(WORKINGSTORAGE_SA_NAME); return NUMBER; }
 }
 
 <WORKINGSTORAGE_SA_NAME> {

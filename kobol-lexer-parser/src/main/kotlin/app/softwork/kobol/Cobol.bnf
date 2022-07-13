@@ -98,12 +98,14 @@ dataRecord ::= data recordLiteral varName
 workingStorageSection ::= workingStorage section DOT (record | sa ) *
 workingStorage ::= 'WORKING-STORAGE'
 
-record ::= '01' varName [DOT] (group) * DOT
-group ::= twoDigits
+record01 ::= '01'
+record ::= comments record01 varName [DOT] (group) * DOT
+group ::= comments number elementary
 
 value ::= 'VALUE'
 saLiteral ::= '77'
-sa ::= comments saLiteral varName pic [value var] DOT
+sa ::= comments saLiteral elementary
+elementary ::= varName pic [value var] DOT
 pic ::= picLiteral (picXA | [picS] pic9) [LP number RP]
 picLiteral ::= 'PIC'
 picXA ::= 'X' | 'A'

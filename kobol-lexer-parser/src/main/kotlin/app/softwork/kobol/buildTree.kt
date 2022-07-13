@@ -113,14 +113,14 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(
 )
 
 private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?.saList?.map {
-    val pic = it.pic
+    val pic = it.elementary.pic
     when {
         pic.pic9 != null -> TODO()
         pic.picS != null -> TODO()
         pic.picXA != null -> CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar(
-            name = it.varName.text,
-            length = it.pic.number?.text?.toInt() ?: 1,
-            value = it.`var`?.let {
+            name = it.elementary.varName.text,
+            length = it.elementary.pic.number?.text?.toInt() ?: 1,
+            value = it.elementary.`var`?.let {
                 it.string!!.text!!.drop(1).dropLast(1)
             }, comments = it.comments.asComments()
         )
