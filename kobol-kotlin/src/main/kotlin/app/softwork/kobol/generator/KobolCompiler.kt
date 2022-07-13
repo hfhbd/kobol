@@ -96,7 +96,11 @@ private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean =
     }
 
     is KobolIRTree.Expression.StringExpression.StringVariable -> {
-        CodeBlock.of("$%L", target.name)
+        if (escape) {
+            CodeBlock.of("%L", target.name)
+        } else {
+            CodeBlock.of("$%L", target.name)
+        }
     }
 
     is KobolIRTree.Expression.StringExpression.Concat -> {

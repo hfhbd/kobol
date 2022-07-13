@@ -8,6 +8,7 @@ import kotlin.test.*
 class KobolGradlePluginTest {
     @Test
     fun test() {
+        //language=cobol
         val input = """
             123456 IDENTIFICATION              DIVISION.
             123456******************************************************************
@@ -37,6 +38,6 @@ class KobolGradlePluginTest {
         generate(cobolFile, tmp, optimize = false)
         val packageFolder = File(tmp, "hello")
         assertTrue(packageFolder.exists())
-        assertEquals(listOf("hello.kt"), packageFolder.list().toList())
+        assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
     }
 }

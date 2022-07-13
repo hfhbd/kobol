@@ -59,7 +59,7 @@ class CommentTest {
         123456 FOO SECTION.
         123456* MOVE I
         123456* MOVE II
-        123456     MOVE "42" TO WORLD
+        123456     MOVE HELLO TO WORLD
         123456* DISPLAY ANSWER I
         123456* DISPLAY ANSWER II
         123456     DISPLAY "ANSWER"WORLD.
@@ -80,7 +80,7 @@ class CommentTest {
         public fun FOO(): Unit {
           // MOVE I
           // MOVE II
-          WORLD = "42"
+          WORLD = HELLO
           // DISPLAY ANSWER I
           // DISPLAY ANSWER II
           println("ANSWER${'$'}WORLD")
