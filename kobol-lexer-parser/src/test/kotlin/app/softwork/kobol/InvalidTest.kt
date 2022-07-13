@@ -45,4 +45,7 @@ class InvalidTest {
 }
 
 internal fun String.toTree() =
-    File.createTempFile("testing", ".cobol").apply { writeText(this@toTree) }.toTree()
+    toCobolFile().toTree()
+
+internal fun String.toCobolFile() =
+    File.createTempFile("testing", ".cobol").apply { writeText(this@toCobolFile) }.toCobolFile()

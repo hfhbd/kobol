@@ -3,15 +3,19 @@ package app.softwork.kobol
 import java.io.*
 
 fun File.toTree(): CobolFIRTree {
+    return toCobolFile().toTree()
+}
+
+fun File.toCobolFile(): CobolFile {
     val intelliJ = CoreEnvironment(listOf(this)).apply {
         initializeApplication {
             registerFileType(CobolFileType, CobolFileType.defaultExtension)
             registerParserDefinition(CobolParserDefinition)
         }
     }
-    var tree: CobolFIRTree? = null
+    lateinit var file: CobolFile
     intelliJ.forSourceFile<CobolFile> {
-        tree = it.toTree()
+        file = it
     }
-    return tree!!
+    return file
 }
