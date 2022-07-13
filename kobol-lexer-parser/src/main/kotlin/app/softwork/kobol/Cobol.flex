@@ -37,7 +37,6 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 %state WORKINGSTORAGE_SA_NUMBER
 %state WORKINGSTORAGE_SA_NUMBER_LINE
 %state WORKINGSTORAGE_SA_NAME
-%state WORKINGSTORAGE_RECORD_START
 %state CONFIGURATION
 %state SPECIAL_NAMES
 %state SPECIAL_NAMES_START
@@ -49,7 +48,10 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 // DATA
 %state FILE
 %state FD
-%state FD_RECORD_START
+%state FD_SA_NAME
+%state FD_SA
+%state FD_SA_NUMBER
+%state FD_SA_NUMBER_LINE
 
 // PROCEDURE
 %state MOVE
@@ -121,7 +123,8 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 
 <FILE> {
       "FD" { yybegin(FD); return CobolTypes.FD; }
-      // "01" { yybegin(FD_RECORD_START); }
+      {LINENUMBER} { return TokenType.WHITE_SPACE; }
+      {NUMBER} { yybegin(FD_SA); return NUMBER; }
 }
 
 <FD> {
@@ -144,20 +147,12 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
 }
 
 <WORKINGSTORAGE> {
-  "SECTION"                       { return SECTION; }
-  "01"                            { return CobolTypes.RECORD_01; }
-  "77"                            { yybegin(WORKINGSTORAGE_SA_NAME); return SA_LITERAL; }
-  "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
-  {VARNAME}                       { return VARNAME; }
-  {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
-  {NUMBER}                        { yybegin(WORKINGSTORAGE_SA_NAME); return NUMBER; }
+  {LINENUMBER} { return TokenType.WHITE_SPACE; }
+  {NUMBER}     { yybegin(WORKINGSTORAGE_SA); return NUMBER; }
+  "PROCEDURE"  { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
 }
 
-<WORKINGSTORAGE_SA_NAME> {
-    {VARNAME} { yybegin(WORKINGSTORAGE_SA); return VARNAME; }
-}
-
-<WORKINGSTORAGE_SA> {
+<WORKINGSTORAGE_SA, FD_SA> {
 "PIC" { return PIC_LITERAL;}
       "X" { return PIC_XA;}
       "A" { return PIC_XA;}
@@ -166,16 +161,61 @@ VARNAME=[a-zA-Z]([\w|-]+[\w|_])*
       "(" { return LP; }
       ")" { return RP; }
       {NUMBER} { return NUMBER;}
-      "VALUE" { yybegin(WORKINGSTORAGE_SA_NUMBER); return VALUE;}
-      "." { yybegin(WORKINGSTORAGE); return DOT;}
+      "VALUE" {
+          if (yystate() == FD_SA) {
+              yybegin(FD_SA_NUMBER);
+          } else if(yystate() == WORKINGSTORAGE_SA) {
+              yybegin(WORKINGSTORAGE_SA_NUMBER);
+          }
+          return VALUE;
+      }
+      "COMP" { return COMP; }
+      "." {
+          if (yystate() == FD_SA) {
+              yybegin(FILE);
+          } else if(yystate() == WORKINGSTORAGE_SA) {
+              yybegin(WORKINGSTORAGE);
+          }
+          return DOT;
+      }
+          {VARNAME}                       { return VARNAME; }
 }
-<WORKINGSTORAGE_SA_NUMBER> {
-      {NUMBER} { yybegin(WORKINGSTORAGE_SA_NUMBER_LINE); return NUMBER; }
-      {STRING} { yybegin(WORKINGSTORAGE_SA_NUMBER_LINE); return STRING; }
+<WORKINGSTORAGE_SA_NUMBER, FD_SA_NUMBER> {
+      {NUMBER} {
+          if (yystate() == FD_SA_NUMBER) {
+              yybegin(FD_SA_NUMBER_LINE);
+          } else if(yystate() == WORKINGSTORAGE_SA_NUMBER) {
+              yybegin(WORKINGSTORAGE_SA_NUMBER_LINE);
+          }
+          return NUMBER;
+      }
+      {STRING} {
+          if (yystate() == FD_SA_NUMBER) {
+              yybegin(FD_SA_NUMBER_LINE);
+          } else if(yystate() == WORKINGSTORAGE_SA_NUMBER) {
+              yybegin(WORKINGSTORAGE_SA_NUMBER_LINE);
+          }
+          return STRING;
+      }
 }
-<WORKINGSTORAGE_SA_NUMBER_LINE> {
-      {LINENUMBER} { yybegin(WORKINGSTORAGE); return TokenType.WHITE_SPACE; }
-      "." { yybegin(WORKINGSTORAGE); return DOT; }
+
+<WORKINGSTORAGE_SA_NUMBER_LINE, FD_SA_NUMBER_LINE> {
+      {LINENUMBER} {
+          if (yystate() == FD_SA_NUMBER_LINE) {
+              yybegin(FD);
+          } else if(yystate() == WORKINGSTORAGE_SA_NUMBER_LINE) {
+              yybegin(WORKINGSTORAGE);
+          }
+          return TokenType.WHITE_SPACE;
+      }
+      "." {
+          if (yystate() == FD_SA_NUMBER_LINE) {
+              yybegin(FD);
+          } else if(yystate() == WORKINGSTORAGE_SA_NUMBER_LINE) {
+              yybegin(WORKINGSTORAGE);
+          }
+          return DOT;
+      }
 }
 
 <PROCEDURE> {

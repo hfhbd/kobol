@@ -81,7 +81,7 @@ section ::= 'SECTION'
 dataDiv ::= comments data division DOT comments [fileSection] [workingStorageSection]
 data ::= 'DATA'
 
-fileSection ::= comments fileLiteral section DOT fileDescription*
+fileSection ::= comments fileLiteral section DOT fileDescriptions*
 fd ::= 'FD'
 recordingLiteral ::= 'RECORDING'
 labelLiteral ::= 'LABEL'
@@ -92,20 +92,16 @@ recording ::= recordingLiteral varName
 block ::= blockLiteral varName
 fileRecord ::= recordLiteral varName
 label ::= labelLiteral recordLiteral standard
+fileDescriptions ::= fileDescription | (record*)
 fileDescription ::= comments fd varName recording [block] [fileRecord] label dataRecord DOT
 dataRecord ::= data recordLiteral varName
 
-workingStorageSection ::= workingStorage section DOT (record | sa ) *
+workingStorageSection ::= workingStorage section DOT (record) *
 workingStorage ::= 'WORKING-STORAGE'
 
-record01 ::= '01'
-record ::= comments record01 varName [DOT] (group) * DOT
-group ::= comments number elementary
-
 value ::= 'VALUE'
-saLiteral ::= '77'
-sa ::= comments saLiteral elementary
-elementary ::= varName pic [value var] DOT
+record ::= comments number varName [pic] [value var] [COMP] DOT
+COMP ::= 'COMP'
 pic ::= picLiteral (picXA | [picS] pic9) [LP number RP]
 picLiteral ::= 'PIC'
 picXA ::= 'X' | 'A'

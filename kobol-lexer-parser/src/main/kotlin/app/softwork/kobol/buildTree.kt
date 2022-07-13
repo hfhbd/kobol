@@ -1,5 +1,7 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
+import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.Configuration.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.InputOutput.*
 import com.intellij.psi.*
@@ -112,24 +114,32 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(
     comments = comments.asComments()
 )
 
-private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?.saList?.map {
-    val pic = it.elementary.pic
-    when {
-        pic.pic9 != null -> TODO()
-        pic.picS != null -> TODO()
-        pic.picXA != null -> CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar(
-            name = it.elementary.varName.text,
-            length = it.elementary.pic.number?.text?.toInt() ?: 1,
-            value = it.elementary.`var`?.let {
-                it.string!!.text!!.drop(1).dropLast(1)
-            }, comments = it.comments.asComments()
-        )
-
+private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?.recordList?.map {
+    when (it.number.text.toInt()) {
+        77 -> sa(it)
         else -> TODO()
     }
 } ?: emptyList(),
     comments = commentsList.asComments()
 )
+
+private fun sa(it: CobolRecord): Elementar {
+    val pic = it.pic
+    return when {
+        pic == null -> TODO()
+        pic.pic9 != null -> TODO()
+        pic.picS != null -> TODO()
+        pic.picXA != null -> StringElementar(
+            name = it.varName.text,
+            length = pic.number?.text?.toInt() ?: 1,
+            value = it.`var`?.let {
+                it.text!!.drop(1).dropLast(1)
+            }, comments = it.comments.asComments()
+        )
+
+        else -> TODO()
+    }
+}
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree {
     return CobolFIRTree.ProcedureTree(
@@ -200,7 +210,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): CobolFI
         )
 
         CobolTypes.VARNAME -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
-            dataTree.notNull.find(this) as CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar
+            dataTree.notNull.find(this) as StringElementar
         )
 
         else -> TODO("$elementType")
@@ -254,7 +264,7 @@ private fun CobolFIRTree.DataTree.find(varName: PsiElement): CobolFIRTree.DataTr
 
 private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variable =
     when (this) {
-        is CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
+        is StringElementar -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
             target = this
         )
     }
