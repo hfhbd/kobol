@@ -128,7 +128,7 @@ private fun sa(it: CobolRecord): Elementar {
     return when {
         pic == null -> TODO()
         pic.pic9 != null -> TODO()
-        pic.picS != null -> TODO()
+        pic.picS9 != null -> TODO()
         pic.picXA != null -> StringElementar(
             name = it.varName.text,
             length = pic.number?.text?.toInt() ?: 1,

@@ -14,7 +14,7 @@
 
   tokens=[
     lineNumber="regexp:\r?\n\d{6}(\s|\*)"
-    varName="regexp:[a-zA-Z]([\w|-]+[\w|_])*"
+    varName="regexp:[a-zA-Z]([\w\-_])*"
     space="regexp:\s+"
     comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
     number="regexp:\d+(\.\d*)?"
@@ -89,8 +89,8 @@ blockLiteral ::= 'BLOCK'
 recordLiteral ::= 'RECORD'
 standard ::= 'STANDARD'
 recording ::= recordingLiteral varName
-block ::= blockLiteral varName
-fileRecord ::= recordLiteral varName
+block ::= blockLiteral number
+fileRecord ::= recordLiteral number
 label ::= labelLiteral recordLiteral standard
 fileDescriptions ::= fileDescription | (record*)
 fileDescription ::= comments fd varName recording [block] [fileRecord] label dataRecord DOT
@@ -102,10 +102,10 @@ workingStorage ::= 'WORKING-STORAGE'
 value ::= 'VALUE'
 record ::= comments number varName [pic] [value var] [COMP] DOT
 COMP ::= 'COMP'
-pic ::= picLiteral (picXA | [picS] pic9) [LP number RP]
+pic ::= picLiteral (picXA | picS9 | pic9) [LP number RP]
 picLiteral ::= 'PIC'
 picXA ::= 'X' | 'A'
-picS ::= 'S'
+picS9 ::= 'S9'
 pic9 ::= '9'
 
 procedureDiv ::= comments procedure division DOT [sentence*] [procedureSection*]
