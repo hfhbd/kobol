@@ -58,13 +58,15 @@ data class CobolFIRTree(
         val comments: List<String> = emptyList()
     ) {
         sealed interface WorkingStorage {
+            data class Record(val name: String, val elements: List<Elementar>): WorkingStorage
+
             sealed interface Elementar : WorkingStorage {
                 val name: String
 
                 data class StringElementar(
                     override val name: String,
                     val length: Int,
-                    val value: String?,
+                    val value: String? = null,
                     val comments: List<String> = emptyList()
                 ) : Elementar {
                     init {

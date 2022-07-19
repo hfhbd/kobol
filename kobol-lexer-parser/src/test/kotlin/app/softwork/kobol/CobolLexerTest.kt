@@ -121,6 +121,60 @@ class CobolLexerTest {
     }
 
     @Test
+    fun data() {
+        val all = CobolLexerAdapter.all(
+            """
+                123456 DATA DIVISION.
+                123456 FILE SECTION.
+                123456 FD FOO
+                123456     RECORDING               V
+                123456     LABEL RECORD            STANDARD
+                123456     DATA RECORD             BAR.
+                123456 01 BAR.
+                123456    05 FOO PIC 9(3) COMP.
+                123456    05 FOO PIC 9(3).            
+                123456 WORKING-STORAGE SECTION.
+                123456 01 RPI.
+                123456 05 WORLD PIC X(6) VALUE 'WORLD!'.
+                123456 77 WORLD PIC A(6).
+                123456 77 WORLD PIC A.
+                123456 77 FOO PIC 9(9) VALUE 123456.
+                123456 77 FOO PIC S9(6) VALUE 123456.
+                123456 01 RPICA.
+                123456    05 FOOPIC PIC 9(3).
+                123456 77 FOO PIC 9(3).
+            """.trimIndent()
+        ).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+
+                WHITE_SPACE, WHITE_SPACE, FILE_LITERAL, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, FD, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, RECORDING_LITERAL, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, LABEL_LITERAL, WHITE_SPACE, RECORD_LITERAL, WHITE_SPACE, STANDARD, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, RECORD_LITERAL, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
+
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, WHITE_SPACE, COMP, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, DOT, WHITE_SPACE,
+
+                WHITE_SPACE, WHITE_SPACE, WORKING_STORAGE, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, STRING, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, LP, NUMBER, RP, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_XA, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_S_9, LP, NUMBER, RP, WHITE_SPACE, VALUE, WHITE_SPACE, NUMBER, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, NUMBER, WHITE_SPACE, VARNAME, WHITE_SPACE, PIC_LITERAL, WHITE_SPACE, PIC_9, LP, NUMBER, RP, DOT
+            ),
+            all
+        )
+    }
+
+    @Test
     fun emptyDataDivision() {
         val input = """
             123456 DATA DIVISION.
@@ -158,14 +212,6 @@ class CobolLexerTest {
             ),
             all
         )
-    }
-
-    private fun FlexAdapter.all(input: String): Sequence<IElementType> = sequence {
-        start(input)
-        while (tokenType != null) {
-            yield(tokenType!!)
-            advance()
-        }
     }
 
     @Test
@@ -333,5 +379,36 @@ class CobolLexerTest {
             ),
             all
         )
+    }
+
+    @Test
+    fun sqlWorkingStorage() {
+        val input = """
+            123456 DATA DIVISION.
+            123456 WORKING-STORAGE SECTION.
+            123456 EXEC SQL FOO
+            123456 BAR
+            123456 END-EXEC.
+        """.trimIndent()
+        val all = CobolLexerAdapter.all(input).toList()
+        assertEquals(
+            listOf(
+                WHITE_SPACE, WHITE_SPACE, DATA, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, WORKING_STORAGE, WHITE_SPACE, SECTION, DOT, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, EXEC, WHITE_SPACE, SQL, WHITE_SPACE, ANY, ANY, ANY, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, ANY, ANY, ANY, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, END_EXEC, DOT
+            ),
+            all
+        )
+    }
+
+    private fun FlexAdapter.all(input: String): Sequence<IElementType> = sequence {
+        start(input)
+        while (true) {
+            val tokenType = tokenType ?: break
+            yield(tokenType)
+            advance()
+        }
     }
 }

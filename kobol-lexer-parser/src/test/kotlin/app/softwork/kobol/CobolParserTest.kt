@@ -1,12 +1,73 @@
 package app.softwork.kobol
 
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
+import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Record
 import app.softwork.kobol.CobolFIRTree.EnvTree.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.StringExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
+import com.intellij.psi.*
 import kotlin.test.*
 
 class CobolParserTest {
+    @Test
+    fun data() {
+        assertEquals(
+            CobolFIRTree(
+                id = CobolFIRTree.ID(
+                    programID = "HELLO"
+                ),
+                data = CobolFIRTree.DataTree(
+                    workingStorage = listOf(
+                        Record(
+                            name = "RPI",
+                            elements = listOf(
+                                StringElementar(name = "WORLD", value = "WORLD!", length = 6),
+                                StringElementar(name = "ANSWER", length = 6)
+                            )
+                        ),
+                        StringElementar(name = "FOO", value = "123456", length = 6),
+                        Record(
+                            name = "RPICA",
+                            elements = listOf(
+                                StringElementar(name = "FOOPIC", length = 3)
+                            )
+                        ),
+                        StringElementar(name = "BAR", length = 3)
+                    )
+                ),
+                procedure = CobolFIRTree.ProcedureTree(
+                    topLevel = listOf(
+                        Display(
+                            StringVariable(target = StringElementar(name = "WORLD", value = "WORLD!", length = 6))
+                        )
+                    )
+                )
+            ), """
+                123456 IDENTIFICATION DIVISION.
+                123456 PROGRAM-ID. HELLO.
+                123456 DATA DIVISION.
+                123456 FILE SECTION.
+                123456 FD FOO
+                123456     RECORDING               V
+                123456     LABEL RECORD            STANDARD
+                123456     DATA RECORD             BAR.
+                123456 01 BAR.
+                123456    05 FOO PIC X(3).
+                123456    05 BAR PIC A(3).            
+                123456 WORKING-STORAGE SECTION.
+                123456 01 RPI.
+                123456 05 WORLD PIC X(6) VALUE 'WORLD!'.
+                123456 05 ANSWER PIC A(6).
+                123456 77 FOO PIC X(6) VALUE '123456'.
+                123456 01 RPICA.
+                123456    05 FOOPIC PIC A(3).
+                123456 77 BAR PIC A(3).
+                123456 PROCEDURE DIVISION.
+                123456 DISPLAY WORLD.
+            """.trimIndent().toTree()
+        )
+    }
+
     @Test
     fun testInput() {
         val input = """

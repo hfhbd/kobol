@@ -14,7 +14,7 @@ import static app.softwork.kobol.CobolTypes.*;
 %eof{  return;
 %eof}
 
-NUMBER=\d+(\.\d+)?
+NUMBER=\+?\d+(\.\d+)?
 LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
@@ -57,6 +57,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state FD_SA_VAR
 %state FD_SA_NUMBER
 %state FD_SA_NUMBER_LINE
+
+%state SQLS
 
 // PROCEDURE
 %state MOVE
@@ -131,6 +133,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
    "01"                            { yybegin(FD_SA_VAR); return NUMBER; }
    {NUMBER}                        { yybegin(FD_SA_PIC); return NUMBER; }
+   "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
 }
 
 <FD> {
@@ -156,7 +159,16 @@ VARNAME=[a-zA-Z]([\w\-_])*
    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
    "01"                            { yybegin(WORKINGSTORAGE_SA_VAR); return NUMBER; }
    {NUMBER}                        { yybegin(WORKINGSTORAGE_SA_PIC); return NUMBER; }
+   "EXEC"                          { return EXEC; }
+   "SQL"                           { yybegin(SQLS); return SQL; }
    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
+}
+
+<SQLS> {
+    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
+    "END-EXEC"                      { yybegin(WORKINGSTORAGE); return END_EXEC; }
+    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
+    [^]                             { return CobolTypes.ANY; }
 }
 
 <WORKINGSTORAGE_SA_VAR, FD_SA_VAR> {

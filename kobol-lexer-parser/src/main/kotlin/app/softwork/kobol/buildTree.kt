@@ -32,8 +32,7 @@ fun CobolFile.toTree(): CobolFIRTree {
     }
     if (id != null && procedure != null) {
         return CobolFIRTree(
-            id = id, env = env, data = data, procedure = procedure,
-            fileComments = fileComments ?: emptyList()
+            id = id, env = env, data = data, procedure = procedure, fileComments = fileComments ?: emptyList()
         )
     }
     error("No valid CobolLine found")
@@ -75,53 +74,82 @@ private fun CobolAnys.asString(): String {
     return siblings().joinToString("")
 }
 
-private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(
-    configuration = config?.let {
-        CobolFIRTree.EnvTree.Configuration(
-            specialNames = it.specialNames?.let {
-                SpecialNames(
-                    specialNames = it.specialNameDeclarationList.map {
-                        SpecialNames.SpecialName(
-                            env = it.specialName.specialNameEnv.text,
-                            value = it.specialName.specialNameValue.text,
-                            comments = it.comments.asComments()
-                        )
-                    },
-                    comments = it.comments.asComments()
-                )
-            },
-            comments = it.comments.asComments()
-        )
-    },
-    inputOutput = input?.let {
-        CobolFIRTree.EnvTree.InputOutput(
-            fileControl = it.fileControl?.let {
-                FileControl(
-                    it.fileConfigList.map {
-                        FileControl.File(
-                            file = it.fileConfigSelect.varName.text,
-                            fileVariable = it.fileConfigAssign.varName.text,
-                            fileStatus = it.fileConfigStatus.varName.text,
-                            comments = it.comments.asComments()
-                        )
-                    },
-                    comments = it.comments.asComments()
-                )
-            },
-            comments = it.comments.asComments()
-        )
-    },
-    comments = comments.asComments()
+private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(configuration = config?.let {
+    CobolFIRTree.EnvTree.Configuration(
+        specialNames = it.specialNames?.let {
+            SpecialNames(
+                specialNames = it.specialNameDeclarationList.map {
+                    SpecialNames.SpecialName(
+                        env = it.specialName.specialNameEnv.text,
+                        value = it.specialName.specialNameValue.text,
+                        comments = it.comments.asComments()
+                    )
+                }, comments = it.comments.asComments()
+            )
+        }, comments = it.comments.asComments()
+    )
+}, inputOutput = input?.let {
+    CobolFIRTree.EnvTree.InputOutput(
+        fileControl = it.fileControl?.let {
+            FileControl(
+                it.fileConfigList.map {
+                    FileControl.File(
+                        file = it.fileConfigSelect.varName.text,
+                        fileVariable = it.fileConfigAssign.varName.text,
+                        fileStatus = it.fileConfigStatus.varName.text,
+                        comments = it.comments.asComments()
+                    )
+                }, comments = it.comments.asComments()
+            )
+        }, comments = it.comments.asComments()
+    )
+}, comments = comments.asComments()
 )
 
-private fun CobolDataDiv.toData() = CobolFIRTree.DataTree(workingStorageSection?.recordList?.map {
-    when (it.number.text.toInt()) {
-        77 -> sa(it)
-        else -> TODO()
+private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
+    val definitions = workingStorageSection?.stmList?.toMutableList()?.let {
+        buildList<CobolFIRTree.DataTree.WorkingStorage> {
+            var currentRecord: Record? = null
+            for (stm in it) {
+                val record = stm.record
+                val sql = stm.execSql
+                if (record != null) {
+                    when (val number = record.number.text.toInt()) {
+                        1 -> {
+                            if (currentRecord != null) {
+                                add(currentRecord)
+                            }
+                            currentRecord = Record(record.varName.text, emptyList())
+                        }
+
+                        77 -> {
+                            if (currentRecord != null) {
+                                add(currentRecord)
+                            }
+                            currentRecord = null
+                            add(sa(record))
+                        }
+
+                        else -> {
+                            requireNotNull(currentRecord)
+                            val elementar = sa(record)
+                            currentRecord = currentRecord.copy(elements = currentRecord.elements + elementar)
+                        }
+                    }
+                } else {
+                    TODO()
+                }
+            }
+            if (currentRecord != null) {
+                add(currentRecord)
+            }
+        }
     }
-} ?: emptyList(),
-    comments = commentsList.asComments()
-)
+
+    return CobolFIRTree.DataTree(
+        workingStorage = definitions ?: emptyList(), comments = commentsList.asComments()
+    )
+}
 
 private fun sa(it: CobolRecord): Elementar {
     val pic = it.pic
@@ -130,9 +158,7 @@ private fun sa(it: CobolRecord): Elementar {
         pic.pic9 != null -> TODO()
         pic.picS9 != null -> TODO()
         pic.picXA != null -> StringElementar(
-            name = it.varName.text,
-            length = pic.number?.text?.toInt() ?: 1,
-            value = it.`var`?.let {
+            name = it.varName.text, length = pic.number?.text?.toInt() ?: 1, value = it.`var`?.let {
                 it.text!!.drop(1).dropLast(1)
             }, comments = it.comments.asComments()
         )
@@ -142,20 +168,15 @@ private fun sa(it: CobolRecord): Elementar {
 }
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree {
-    return CobolFIRTree.ProcedureTree(
-        sentenceList.flatMap {
-            it.proceduresList.map { it.asStatements(dataTree) }
-        },
-        procedureSectionList.map {
-            CobolFIRTree.ProcedureTree.Section(
-                name = it.varName.text,
-                statements = it.sentence.proceduresList.map {
-                    it.asStatements(dataTree)
-                },
-                comments = it.comments.asComments()
-            )
-        },
-        comments = comments.asComments()
+    return CobolFIRTree.ProcedureTree(sentenceList.flatMap {
+        it.proceduresList.map { it.asStatements(dataTree) }
+    }, procedureSectionList.map {
+        CobolFIRTree.ProcedureTree.Section(
+            name = it.varName.text, statements = it.sentence.proceduresList.map {
+                it.asStatements(dataTree)
+            }, comments = it.comments.asComments()
+        )
+    }, comments = comments.asComments()
     )
 }
 
@@ -167,13 +188,13 @@ private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): Cobo
         )
 
         moving != null -> CobolFIRTree.ProcedureTree.Statement.Move(
-            target = dataTree.notNull.find(moving!!.varName), value = moving!!.expr.toExpr(dataTree),
+            target = dataTree.notNull.find(moving!!.varName),
+            value = moving!!.expr.toExpr(dataTree),
             comments = comments.asComments()
         )
 
         performing != null -> CobolFIRTree.ProcedureTree.Statement.Perform(
-            sectionName = performing!!.varName.text,
-            comments = comments.asComments()
+            sectionName = performing!!.varName.text, comments = comments.asComments()
         )
 
         else -> TODO()
@@ -256,15 +277,28 @@ inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R
     return accumulator
 }
 
-private fun CobolFIRTree.DataTree.find(varName: PsiElement): CobolFIRTree.DataTree.WorkingStorage.Elementar {
+private fun CobolFIRTree.DataTree.find(varName: PsiElement): Elementar {
     val name: String = varName.text
-    return workingStorage.find { (it as? CobolFIRTree.DataTree.WorkingStorage.Elementar)?.name == name } as? CobolFIRTree.DataTree.WorkingStorage.Elementar
-        ?: error("Elementar $name not found")
+    for (element in workingStorage) {
+        when (element) {
+            is Elementar -> if (element.name == name) {
+                return element
+            }
+
+            is Record -> {
+                for (elementar in element.elements) {
+                    if (elementar.name == name) {
+                        return elementar
+                    }
+                }
+            }
+        }
+    }
+    error("Elementar $name not found")
 }
 
-private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variable =
-    when (this) {
-        is StringElementar -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
-            target = this
-        )
-    }
+private fun Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variable = when (this) {
+    is StringElementar -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
+        target = this
+    )
+}
