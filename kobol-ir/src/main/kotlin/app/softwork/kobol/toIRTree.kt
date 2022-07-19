@@ -141,4 +141,6 @@ fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
             }
         }
     }
+
+    is CobolFIRTree.DataTree.WorkingStorage.Record -> TODO()
 }

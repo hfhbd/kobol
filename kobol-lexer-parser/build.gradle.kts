@@ -37,11 +37,13 @@ tasks {
         source.set("$projectDir/src/main/kotlin/app/softwork/kobol/Cobol.flex")
         targetDir.set("$buildDir/generated/lexer/main/java/app/softwork/kobol/")
         targetClass.set("CobolLexer")
+        purgeOldFiles.set(true)
     }
     generateParser {
         source.set("$projectDir/src/main/kotlin/app/softwork/kobol/Cobol.bnf")
         targetRoot.set("$buildDir/generated/parser/main/java")
         pathToParser.set("CobolParserGenerated.java")
         pathToPsiRoot.set("")
+        purgeOldFiles.set(true)
     }
 }

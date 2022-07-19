@@ -37,7 +37,7 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         WORKING_STORAGE,
         FILE_LITERAL, FD, RECORD_LITERAL, RECORDING, STANDARD, LABEL,
 
-        PIC_LITERAL, PIC_XA, PIC_S, PIC_9, VALUE,
+        PIC_LITERAL, PIC_XA, PIC_S_9, PIC_9, VALUE,
 
         DATA,
         PROCEDURE -> keyword
@@ -47,5 +47,7 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
 
         TokenType.WHITE_SPACE, ANY -> null
         else -> null
+    }.also {
+        println("$tokenType => $it")
     }.let { arrayOf(it) }
 }
