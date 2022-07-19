@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.7.10" apply false
     id("org.jetbrains.intellij") version "1.7.0" apply false
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
-    id("io.gitlab.arturbosch.detekt") version "1.20.0"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
     `maven-publish`
     id("app.cash.licensee") version "1.5.0" apply false
 }
@@ -24,7 +24,7 @@ detekt {
 }
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.20.0")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
 }
 
 tasks {
