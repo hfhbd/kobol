@@ -95,7 +95,7 @@ class CobolLexerTest {
             123456 05 WORLD PIC X(6) VALUE 'WORLD!'.
             123456 77 WORLD PIC A(6) OCCURS 1.
             123456 77 WORLD PIC A.
-            123456 77 FOO PIC 9(9) VALUE 123456 OCCURS 1 TO 4 DEPENDING ON WORLD.
+            123456 77 FOO PIC 9(9) VALUE 123456 OCCURS 9 TO 9 DEPENDING ON WORLD.
             123456 77 FOO PIC S9(6)V9 VALUE .9.
             123456 77 FOO PIC V9 VALUE .9.
             123456 01 RPICA.
@@ -140,7 +140,7 @@ class CobolLexerTest {
                 123456 05 WORLD PIC X(6) VALUE 'WORLD!'.
                 123456 77 WORLD PIC A(6).
                 123456 77 WORLD PIC A.
-                123456 77 FOO PIC 9(9) VALUE 123456.
+                123456 01 FOO PIC 9(9) VALUE 123456.
                 123456 77 FOO PIC S9(6) VALUE 123456.
                 123456 01 RPICA.
                 123456    05 FOOPIC PIC 9(3).
