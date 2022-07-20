@@ -17,7 +17,7 @@
     varName="regexp:[a-zA-Z]([\w\-_])*"
     space="regexp:\s+"
     comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
-    number="regexp:\+?\d*(\.\d*)?"
+    number="regexp:\+?(\d+(\.\d+)?)|(\.\d+)"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
     twoDigits="regexp:\d{2}"

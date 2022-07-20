@@ -14,7 +14,7 @@ import static app.softwork.kobol.CobolTypes.*;
 %eof{  return;
 %eof}
 
-NUMBER=\+?\d*(\.\d+)?
+NUMBER=\+?(\d+(\.\d+)?)|(\.\d+)
 LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
@@ -242,7 +242,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
                 "TO" {
                     if (yystate() == FD_SA_OCCURS) {
                                   yybegin(FD_SA_PIC);
-                              } else if(yystate() == WORKINGSTORAGE_SA_PIC_LENGTH) {
+                              } else if(yystate() == WORKINGSTORAGE_SA_OCCURS) {
                                   yybegin(WORKINGSTORAGE_SA_PIC);
                               }
                     return TO; }
@@ -311,6 +311,14 @@ VARNAME=[a-zA-Z]([\w\-_])*
           }
           return DOT;
       }
+      "OCCURS" {
+                         if (yystate() == FD_SA_NUMBER_LINE) {
+                             yybegin(FD_SA_OCCURS);
+                         } else if(yystate() == WORKINGSTORAGE_SA_NUMBER_LINE) {
+                             yybegin(WORKINGSTORAGE_SA_OCCURS);
+                         }
+                         return OCCURS;
+                     }
 }
 
 <PROCEDURE> {
