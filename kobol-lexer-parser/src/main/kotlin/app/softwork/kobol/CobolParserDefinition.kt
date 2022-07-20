@@ -14,7 +14,7 @@ object CobolParserDefinition : ParserDefinition {
     override fun createParser(project: Project?) = CobolParser()
     override fun getFileNodeType() = file
 
-    override fun getCommentTokens(): TokenSet = TokenSet.EMPTY;
+    override fun getCommentTokens(): TokenSet = TokenSet.EMPTY
 
     override fun getStringLiteralElements() = stringLiterals
 

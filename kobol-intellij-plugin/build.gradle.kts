@@ -8,11 +8,7 @@ dependencies {
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    if (gradle.startParameter.isOffline) {
-        localPath.set("/Applications/IntelliJ IDEA 2022.1 EAP.app")
-    } else {
-        version.set("2022.1")
-    }
+    version.set("2022.1")
     type.set("IU") // Target IDE Platform
 }
 

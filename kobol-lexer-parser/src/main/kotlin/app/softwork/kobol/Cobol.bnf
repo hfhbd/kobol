@@ -17,7 +17,7 @@
     varName="regexp:[a-zA-Z]([\w\-_])*"
     space="regexp:\s+"
     comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
-    number="regexp:\+?\d+(\.\d*)?"
+    number="regexp:\+?\d*(\.\d*)?"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
     twoDigits="regexp:\d{2}"
@@ -106,29 +106,29 @@ sql ::= 'SQL'
 end_exec ::= 'END-EXEC'
 
 value ::= 'VALUE'
-record ::= comments number varName [pic] [value var] [COMP] DOT
-COMP ::= 'COMP'
-pic ::= picLiteral (picXA | picS9 | pic9) [LP number RP]
+record ::= comments number varName [pic] [COMP | COMP-3] [value var] [occurs_clause] DOT
+occurs_clause ::= OCCURS number [TO number] [DEPENDING ON varName]
+
+pic ::= picLiteral (picXA | picS9 | pic9 | picV9) [length] [decimal_length]
 picLiteral ::= 'PIC'
 picXA ::= 'X' | 'A'
 picS9 ::= 'S9'
 pic9 ::= '9'
+picV9 ::= 'V9'
+decimal_length ::= picV9 [length]
+length ::= LP number RP
 
 procedureDiv ::= comments procedure division DOT [sentence*] [procedureSection*]
 procedure ::= 'PROCEDURE'
 procedureSection ::= comments varName section DOT sentence
 sentence ::= procedures+ DOT
-procedures ::= comments (display | moving | performing)
-performing ::= perform varName
-perform ::= 'PERFORM'
-moving ::= move expr to varName
-move ::= 'MOVE'
-to ::= 'TO'
+procedures ::= comments (displaying | moving | performing)
+performing ::= PERFORM varName
+moving ::= MOVE expr TO varName
 
-expr ::= (var | varName | stringConcat)
+expr ::= var | varName | stringConcat
 
-var ::= string | number
+var ::= string | number | SPACE | LOW-VALUE
 
-displayLiteral ::= 'DISPLAY'
-display ::= displayLiteral stringConcat
+displaying ::= DISPLAY stringConcat
 stringConcat ::= (string | varName) +
