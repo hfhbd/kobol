@@ -318,6 +318,14 @@ VARNAME=[a-zA-Z]([\w\-_])*
                                             }
                                             return LOW_VALUE;
                                         }
+                    "HIGH-VALUE" {
+                                            if (yystate() == FD_SA_NUMBER) {
+                                                yybegin(FD_SA_NUMBER_LINE);
+                                            } else if(yystate() == WORKINGSTORAGE_SA_NUMBER) {
+                                                yybegin(WORKINGSTORAGE_SA_NUMBER_LINE);
+                                            }
+                                            return HIGH_VALUE;
+                                        }
                     "ZEROES" {
                                             if (yystate() == FD_SA_NUMBER) {
                                                 yybegin(FD_SA_NUMBER_LINE);
@@ -397,6 +405,9 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "AT"                            { return AT; }
     "END"                           { return END; }
     "ADD"                           { yybegin(ADD); return CobolTypes.ADD; }
+    "WHEN"                          { return WHEN; }
+    "EVALUATE"                      { return EVALUATE; }
+    "END-EVALUATE"                  { return END_EVALUATE; }
     {VARNAME}                       { return VARNAME; }
 }
 

@@ -99,7 +99,7 @@ linkingSection ::= LINKAGE SECTION DOT record_def*
 procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentence*] [procedureSection*]
 procedureSection ::= comments varName SECTION DOT sentence
 sentence ::= procedures+ DOT
-procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | calling | CONTINUE | reading | adding)
+procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | calling | CONTINUE | reading | adding | eval )
 adding ::= ADD expr TO varNames+
 reading ::= READ varName [AT END procedures] [NOT AT END procedures] END-READ
 calling ::= CALL string [USING varName]
@@ -109,11 +109,12 @@ performing ::= PERFORM varName [UNTIL boolean_expr]
 moving ::= MOVE expr TO varNames+
 varNames ::= varName
 if_clause ::= IF boolean_expr procedures* [ELSE procedures*] END-IF
-
+eval ::= EVALUATE varName whens* END-EVALUATE
+whens ::= WHEN expr procedures+
 boolean_expr ::= expr [NOT] EQUAL expr
 expr ::= var | varName | stringConcat
 
-var ::= string | number | SPACE | LOW-VALUE | ZERO | NULL
+var ::= string | number | SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
 displaying ::= DISPLAY stringConcat
 stringConcat ::= (string | varName) +
