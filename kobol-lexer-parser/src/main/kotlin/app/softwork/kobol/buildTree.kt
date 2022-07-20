@@ -158,7 +158,7 @@ private fun sa(it: CobolRecord): Elementar {
         pic.pic9 != null -> TODO()
         pic.picS9 != null -> TODO()
         pic.picXA != null -> StringElementar(
-            name = it.varName.text, length = pic.number?.text?.toInt() ?: 1, value = it.`var`?.let {
+            name = it.varName.text, length = pic.length?.number?.text?.toInt() ?: 1, value = it.`var`?.let {
                 it.text!!.drop(1).dropLast(1)
             }, comments = it.comments.asComments()
         )
@@ -182,8 +182,8 @@ private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): Cob
 
 private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Statement {
     return when {
-        display != null -> CobolFIRTree.ProcedureTree.Statement.Display(
-            expr = display!!.stringConcat.toExpr(dataTree),
+        displaying != null -> CobolFIRTree.ProcedureTree.Statement.Display(
+            expr = displaying!!.stringConcat.toExpr(dataTree),
             comments = comments.asComments(),
         )
 

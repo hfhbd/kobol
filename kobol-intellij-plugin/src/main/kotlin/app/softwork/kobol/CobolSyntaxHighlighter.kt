@@ -23,7 +23,7 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getTokenHighlights(tokenType: IElementType?) = when (tokenType) {
         COMMENT -> comment
         VARNAME -> vars
-        DISPLAY_LITERAL, MOVE, PERFORM -> function
+        DISPLAY, MOVE, PERFORM -> function
         STRING -> string
         NUMBER -> number
 
@@ -32,7 +32,7 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         ENVIRONMENT,
         CONFIGURATION, SPECIAL_NAMES_LITERAL, IS,
         INPUT_OUTPUT_LITERAL, FILE_CONTROL_LITERAL, FILE_CONFIG_SELECT_LITERAL, FILE_CONFIG_ASSIGN_LITERAL, FILE_LITERAL, FILE_CONFIG_STATUS_STATUS_LITERAL,
-        TO,
+        TO, ON, DEPENDING, OCCURS,
 
         WORKING_STORAGE,
         FILE_LITERAL, FD, RECORD_LITERAL, RECORDING, STANDARD, LABEL,
@@ -47,7 +47,5 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
 
         TokenType.WHITE_SPACE, ANY -> null
         else -> null
-    }.also {
-        println("$tokenType => $it")
     }.let { arrayOf(it) }
 }
