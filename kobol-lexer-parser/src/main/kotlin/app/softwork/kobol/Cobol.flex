@@ -66,6 +66,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state MOVE
 %state ADD
 %state PROCEDURE_SQL
+%state WHEN
+%state LP
 
 %%
 
@@ -202,7 +204,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
                               } else if(yystate() == WORKINGSTORAGE_SA_PIC) {
                                   yybegin(WORKINGSTORAGE_SA_PIC_LENGTH);
                               }
-          return LP; }
+          return CobolTypes.LP; }
       {NUMBER} { return NUMBER;}
       "VALUE" {
           if (yystate() == FD_SA_PIC) {
@@ -384,6 +386,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "DISPLAY"                       { return CobolTypes.DISPLAY; }
     "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
     "PERFORM"                       { return PERFORM; }
+    "END-PERFORM"                   { return END_PERFORM; }
     "UNTIL"                         { return UNTIL; }
     "IF"                            { return IF; }
     "ELSE"                          { return ELSE; }
@@ -396,6 +399,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "EXEC"                          { return EXEC; }
     "SQL"                           { yybegin(PROCEDURE_SQL); return SQL; }
     "OPEN"                          { return OPEN; }
+    "CLOSE"                         { return CLOSE; }
     "INPUT"                         { return INPUT; }
     "OUTPUT"                        { return OUTPUT; }
     "CALL"                          { return CALL; }
@@ -405,9 +409,24 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "AT"                            { return AT; }
     "END"                           { return END; }
     "ADD"                           { yybegin(ADD); return CobolTypes.ADD; }
-    "WHEN"                          { return WHEN; }
+    "WHEN"                          { yybegin(WHEN); return CobolTypes.WHEN; }
     "EVALUATE"                      { return EVALUATE; }
     "END-EVALUATE"                  { return END_EVALUATE; }
+    "("                             { yybegin(LP); return CobolTypes.LP; }
+    "OF"                            { return OF; }
+    "OTHER"                         { return OTHER; }
+    "OR"                            { return OR; }
+    "AND"                           { return AND; }
+    "NEXT"                          { return NEXT; }
+    "SENTENCE"                      { return SENTENCE; }
+    {VARNAME}                       { return VARNAME; }
+}
+
+<LP> {
+    ")" { yybegin(PROCEDURE); return RP; }
+    {NUMBER} { return NUMBER; }
+    ":" { return COLON; }
+    "OF"                            { return OF; }
     {VARNAME}                       { return VARNAME; }
 }
 
@@ -435,9 +454,16 @@ VARNAME=[a-zA-Z]([\w\-_])*
 
 <MOVE, ADD> {
       {NUMBER}                        { return NUMBER; }
-      {LINENUMBER}                    { return NUMBER; }
+      "OF"                            { return OF; }
       "TO"                            { yybegin(PROCEDURE); return CobolTypes.TO; }
       {VARNAME}                       { return VARNAME; }
+}
+
+<WHEN> {
+      {NUMBER}                        { yybegin(PROCEDURE); return NUMBER; }
+      {STRING}                        { yybegin(PROCEDURE); return STRING; }
+      "OF"                            { return OF; }
+      {VARNAME}                       { yybegin(PROCEDURE); return VARNAME; }
 }
 
     {LINENUMBER}                    { return TokenType.WHITE_SPACE; }

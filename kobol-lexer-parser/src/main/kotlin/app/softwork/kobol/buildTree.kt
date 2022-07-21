@@ -172,6 +172,7 @@ private fun sa(it: CobolRecordDef): Elementar? {
                     it.text!!.drop(1).dropLast(1)
                 }, comments = it.comments.asComments()
             )
+
             else -> TODO()
         }
 
@@ -180,11 +181,11 @@ private fun sa(it: CobolRecordDef): Elementar? {
 }
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree {
-    return CobolFIRTree.ProcedureTree(sentenceList.flatMap {
+    return CobolFIRTree.ProcedureTree(sentencesList.flatMap {
         it.proceduresList.flatMap { it.asStatements(dataTree) }
     }, procedureSectionList.map {
         CobolFIRTree.ProcedureTree.Section(
-            name = it.varName.text, statements = it.sentence.proceduresList.flatMap {
+            name = it.varName.text, statements = it.sentences.proceduresList.flatMap {
                 it.asStatements(dataTree)
             }, comments = it.comments.asComments()
         )
@@ -209,11 +210,18 @@ private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): List
             )
         }
 
-        performing != null -> listOf(
-            CobolFIRTree.ProcedureTree.Statement.Perform(
-                sectionName = performing!!.varName.text, comments = comments.asComments()
-            )
-        )
+        performing != null -> {
+            val short = performing!!.performingShort
+            if (short != null) {
+                listOf(
+                    CobolFIRTree.ProcedureTree.Statement.Perform(
+                        sectionName = short.varName.text, comments = comments.asComments()
+                    )
+                )
+            } else {
+                TODO()
+            }
+        }
 
         else -> TODO()
     }
@@ -226,7 +234,7 @@ private val CobolFIRTree.DataTree?.notNull
 
 private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression {
     val `var` = `var`
-    val varName = varName
+    val varName = variable?.varName
     val stringConcat = stringConcat
     return when {
         `var` != null -> when {

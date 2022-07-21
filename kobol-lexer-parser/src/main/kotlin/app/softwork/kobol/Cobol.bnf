@@ -96,25 +96,34 @@ length ::= LP number RP
 
 linkingSection ::= LINKAGE SECTION DOT record_def*
 
-procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentence*] [procedureSection*]
-procedureSection ::= comments varName SECTION DOT sentence
-sentence ::= procedures+ DOT
-procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | calling | CONTINUE | reading | adding | eval )
+procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentences*] [procedureSection*]
+procedureSection ::= comments varName SECTION DOT sentences
+sentences ::= procedures+ DOT
+procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | closing | calling | CONTINUE | reading | nextSentence | adding | eval )
 adding ::= ADD expr TO varNames+
-reading ::= READ varName [AT END procedures] [NOT AT END procedures] END-READ
-calling ::= CALL string [USING varName]
+reading ::= READ varName [AT END procedures+] [NOT AT END procedures+] END-READ
+nextSentence ::= NEXT SENTENCE
+closing ::= CLOSE varName
+calling ::= CALL expr [USING varNames+]
 opening ::= OPEN (INPUT | OUTPUT) varName
 init_clause ::= INITIALIZE varNames+
-performing ::= PERFORM varName [UNTIL boolean_expr]
+performing ::= performing_short | performing_long
+performing_short ::= PERFORM varName [UNTIL boolean_expr]
+performing_long ::= PERFORM UNTIL boolean_expr procedures+ END-PERFORM
 moving ::= MOVE expr TO varNames+
 varNames ::= varName
 if_clause ::= IF boolean_expr procedures* [ELSE procedures*] END-IF
-eval ::= EVALUATE varName whens* END-EVALUATE
-whens ::= WHEN expr procedures+
-boolean_expr ::= expr [NOT] EQUAL expr
-expr ::= var | varName | stringConcat
+eval ::= EVALUATE variable whens* END-EVALUATE
+whens ::= WHEN (expr | OTHER) procedures*
+boolean_expr ::= (boolean_expr_clause OR boolean_expr_clause) | (boolean_expr_clause AND boolean_expr_clause) | boolean_expr_clause
+boolean_expr_clause ::= expr [NOT] EQUAL expr
+expr ::= var | variable | stringConcat
 
 var ::= string | number | SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
+variable ::= varName [LP expr colon expr RP] [of_clause]
+of_clause ::= OF varName
+colon ::= ':'
+
 displaying ::= DISPLAY stringConcat
-stringConcat ::= (string | varName) +
+stringConcat ::= (string | variable) +
