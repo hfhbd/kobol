@@ -18,7 +18,7 @@
     space="regexp:\s+"
     comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
     number="regexp:([+\-])?(\d+(\.\d+)?)|(\.\d+)"
-    string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+    string="regexp:X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
     twoDigits="regexp:\d{2}"
   ]
@@ -124,7 +124,7 @@ eval ::= EVALUATE variable [ALSO variable] whens* END-EVALUATE
 whens ::= comments WHEN ((expr [ALSO expr]) | OTHER) procedures*
 boolean_expr ::= (boolean_expr_clause OR boolean_expr) | (boolean_expr_clause AND boolean_expr) | boolean_expr_clause
 boolean_expr_clause ::= expr (([NOT] EQUAL) | bigger [EQUAL] | smaller [EQUAL] ) expr
-expr ::= math | literal | ([variable] stringConcat) | variable
+expr ::= math | literal | (stringConcat) | variable
 math ::= (literal | variable) (plus | minus) (literal | variable)
 minus ::= '-'
 bigger ::= '>'

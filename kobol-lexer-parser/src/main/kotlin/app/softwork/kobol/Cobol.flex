@@ -18,7 +18,7 @@ NUMBER=([+\-])?(\d+(\.\d+)?)|(\.\d+)
 LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
-STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
+STRING=X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 VARNAME=[a-zA-Z]([\w\-_])*
 
 %state IDENTIFICATION
