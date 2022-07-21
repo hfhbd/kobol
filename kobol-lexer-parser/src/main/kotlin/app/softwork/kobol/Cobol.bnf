@@ -96,7 +96,8 @@ length ::= LP number RP
 
 linkingSection ::= LINKAGE SECTION DOT record_def*
 
-procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentences*] [procedureSection*]
+procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentences*] [procedureSection*] endComments
+endComments ::= comments
 procedureSection ::= comments varName SECTION DOT sentences
 sentences ::= procedures+ DOT
 procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | closing | calling | CONTINUE | reading | nextSentence | adding | eval )
@@ -107,21 +108,23 @@ closing ::= CLOSE varName
 calling ::= CALL expr [USING varNames+]
 opening ::= OPEN (INPUT | OUTPUT) varName
 init_clause ::= INITIALIZE varNames+
-performing ::= performing_short | performing_long
-performing_short ::= PERFORM varName [UNTIL boolean_expr]
-performing_long ::= PERFORM UNTIL boolean_expr procedures+ END-PERFORM
+performing ::= doWhile | while | forEach
+doWhile ::= PERFORM varName [UNTIL boolean_expr]
+while ::= PERFORM UNTIL boolean_expr procedures+ END-PERFORM
+forEach ::= PERFORM VARYING varName FROM number [TO number] BY number UNTIL boolean_expr procedures+ END-PERFORM
 moving ::= MOVE expr TO varNames+
 varNames ::= varName
 if_clause ::= IF boolean_expr procedures* [ELSE procedures*] END-IF
 eval ::= EVALUATE variable whens* END-EVALUATE
 whens ::= WHEN (expr | OTHER) procedures*
 boolean_expr ::= (boolean_expr_clause OR boolean_expr_clause) | (boolean_expr_clause AND boolean_expr_clause) | boolean_expr_clause
-boolean_expr_clause ::= expr [NOT] EQUAL expr
+boolean_expr_clause ::= expr (([NOT] EQUAL) | bigger | smaller) expr
 expr ::= var | variable | stringConcat
-
+bigger ::= '>'
+smaller ::= '<'
 var ::= string | number | SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
-variable ::= varName [LP expr colon expr RP] [of_clause]
+variable ::= varName [LP expr [colon expr] RP] [of_clause]
 of_clause ::= OF varName
 colon ::= ':'
 

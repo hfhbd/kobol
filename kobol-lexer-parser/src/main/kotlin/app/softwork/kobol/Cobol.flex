@@ -68,6 +68,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state PROCEDURE_SQL
 %state WHEN
 %state LP
+%state FROM
 
 %%
 
@@ -392,6 +393,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "ELSE"                          { return ELSE; }
     "END-IF"                        { return END_IF; }
     "="                             { return EQUAL; }
+    ">"                             { yybegin(WHEN); return BIGGER; }
+    "<"                             { yybegin(WHEN); return SMALLER; }
     "EQUAL"                         { return EQUAL; }
     "NOT"                           { return NOT; }
     "GOBACK"                        { return GOBACK; }
@@ -419,7 +422,16 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "AND"                           { return AND; }
     "NEXT"                          { return NEXT; }
     "SENTENCE"                      { return SENTENCE; }
+    "VARYING"                       { return VARYING; }
+    "FROM"                          { yybegin(FROM); return CobolTypes.FROM; }
     {VARNAME}                       { return VARNAME; }
+}
+
+<FROM> {
+    {NUMBER} { return NUMBER; }
+    "TO" { return TO; }
+    "BY" { return BY; }
+    "UNTIL" { yybegin(PROCEDURE); return UNTIL; }
 }
 
 <LP> {

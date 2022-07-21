@@ -211,11 +211,11 @@ private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): List
         }
 
         performing != null -> {
-            val short = performing!!.performingShort
-            if (short != null) {
+            val doWhile = performing!!.doWhile
+            if (doWhile != null) {
                 listOf(
                     CobolFIRTree.ProcedureTree.Statement.Perform(
-                        sectionName = short.varName.text, comments = comments.asComments()
+                        sectionName = doWhile.varName.text, comments = comments.asComments()
                     )
                 )
             } else {
