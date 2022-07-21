@@ -14,7 +14,7 @@ import static app.softwork.kobol.CobolTypes.*;
 %eof{  return;
 %eof}
 
-NUMBER=\+?\d+(\.\d+)?
+NUMBER=\+?(\d+(\.\d+)?)|(\.\d+)
 LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
@@ -38,7 +38,10 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state WORKINGSTORAGE_SA_NAME
 %state WORKINGSTORAGE_SA_PIC
 %state WORKINGSTORAGE_SA_PIC_LENGTH
-%state WORKINGSTORAGE_SA_VAR
+%state WORKINGSTORAGE_SA_OCCURS
+%state WORKINGSTORAGE_SA_TO
+%state WORKINGSTORAGE_SQL
+
 %state CONFIGURATION
 %state SPECIAL_NAMES
 %state SPECIAL_NAMES_START
@@ -54,14 +57,15 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state FD_SA
 %state FD_SA_PIC
 %state FD_SA_PIC_LENGTH
-%state FD_SA_VAR
+%state FD_SA_TO
 %state FD_SA_NUMBER
 %state FD_SA_NUMBER_LINE
-
-%state SQLS
+%state FD_SA_OCCURS
 
 // PROCEDURE
 %state MOVE
+%state ADD
+%state PROCEDURE_SQL
 
 %%
 
@@ -78,12 +82,12 @@ VARNAME=[a-zA-Z]([\w\-_])*
 
 <ENVIRONMENT> {
     "CONFIGURATION"                 { yybegin(CONFIGURATION); return CobolTypes.CONFIGURATION; }
-    "INPUT-OUTPUT"                  { return INPUT_OUTPUT_LITERAL; }
-    "SELECT"                        { return FILE_CONFIG_SELECT_LITERAL; }
-    "ASSIGN"                        { return FILE_CONFIG_ASSIGN_LITERAL; }
-    "FILE"                          { return FILE_LITERAL; }
-    "STATUS"                        { return FILE_CONFIG_STATUS_STATUS_LITERAL; }
-    "FILE-CONTROL"                  { yybegin(FILE_CONTROL_START); return CobolTypes.FILE_CONTROL_LITERAL; }
+    "INPUT-OUTPUT"                  { return INPUT_OUTPUT; }
+    "SELECT"                        { return SELECT; }
+    "ASSIGN"                        { return ASSIGN; }
+    "FILE"                          { return CobolTypes.FILE; }
+    "STATUS"                        { return STATUS; }
+    "FILE-CONTROL"                  { yybegin(FILE_CONTROL_START); return CobolTypes.FILE_CONTROL; }
 
 
     "DATA"                          { yybegin(DATA); return CobolTypes.DATA; }
@@ -91,24 +95,24 @@ VARNAME=[a-zA-Z]([\w\-_])*
 }
 
 <FILE_CONTROL_START> {
-    "SELECT"                        { yybegin(FILE_CONTROL); return FILE_CONFIG_SELECT_LITERAL; }
+    "SELECT"                        { yybegin(FILE_CONTROL); return SELECT; }
 
     "DATA"                          { yybegin(DATA); return CobolTypes.DATA; }
     "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
 }
 
 <FILE_CONTROL> {
-    "ASSIGN"                        { return FILE_CONFIG_ASSIGN_LITERAL; }
-    "FILE"                          { return FILE_LITERAL; }
-    "STATUS"                        { return FILE_CONFIG_STATUS_STATUS_LITERAL; }
-    "TO"                            { return CobolTypes.TO; }
+    "ASSIGN"                        { return ASSIGN; }
+    "FILE"                          { return CobolTypes.FILE; }
+    "STATUS"                        { return STATUS; }
+    "TO"                            { return TO; }
 
     {VARNAME}                       { return VARNAME; }
     "."                             { yybegin(FILE_CONTROL_START); return DOT; }
 }
 
 <CONFIGURATION> {
-    "SPECIAL-NAMES"                 { yybegin(SPECIAL_NAMES_START); return SPECIAL_NAMES_LITERAL; }
+    "SPECIAL-NAMES"                 { yybegin(SPECIAL_NAMES_START); return CobolTypes.SPECIAL_NAMES; }
 }
 
 <SPECIAL_NAMES_START> {
@@ -124,24 +128,23 @@ VARNAME=[a-zA-Z]([\w\-_])*
 
 <DATA> {
    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
-   "FILE"                          { yybegin(FILE); return FILE_LITERAL; }
+   "FILE"                          { yybegin(FILE); return CobolTypes.FILE; }
    "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
 }
 
 <FILE> {
    "FD"                            { yybegin(FD); return CobolTypes.FD; }
    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
-   "01"                            { yybegin(FD_SA_VAR); return NUMBER; }
    {NUMBER}                        { yybegin(FD_SA_PIC); return NUMBER; }
    "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
 }
 
 <FD> {
-   "RECORDING"                     { return RECORDING_LITERAL; }
-   "LABEL"                         { yybegin(FILE_CONTROL_LABEL); return CobolTypes.LABEL_LITERAL; }
-   "RECORD"                        { yybegin(FILE_CONTROL_NEXTNUMBER); return CobolTypes.RECORD_LITERAL; }
+   "RECORDING"                     { return RECORDING; }
+   "LABEL"                         { yybegin(FILE_CONTROL_LABEL); return CobolTypes.LABEL; }
+   "RECORD"                        { yybegin(FILE_CONTROL_NEXTNUMBER); return CobolTypes.RECORD; }
    "DATA"                          { yybegin(FILE_CONTROL_LABEL); return CobolTypes.DATA; }
-   "BLOCK"                         { yybegin(FILE_CONTROL_NEXTNUMBER); return CobolTypes.BLOCK_LITERAL; }
+   "BLOCK"                         { yybegin(FILE_CONTROL_NEXTNUMBER); return CobolTypes.BLOCK; }
    "."                             { yybegin(FILE); return DOT; }
    {VARNAME}                       { return VARNAME; }
 }
@@ -150,44 +153,49 @@ VARNAME=[a-zA-Z]([\w\-_])*
    {NUMBER}                        { yybegin(FD);return NUMBER; }
 }
 <FILE_CONTROL_LABEL> {
-    "RECORD"                       { return CobolTypes.RECORD_LITERAL; }
+    "RECORD"                       { return CobolTypes.RECORD; }
     "STANDARD"                     { yybegin(FD); return STANDARD; }
     {VARNAME}                      { yybegin(FD); return VARNAME; }
 }
 
 <WORKINGSTORAGE> {
    {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
-   "01"                            { yybegin(WORKINGSTORAGE_SA_VAR); return NUMBER; }
    {NUMBER}                        { yybegin(WORKINGSTORAGE_SA_PIC); return NUMBER; }
    "EXEC"                          { return EXEC; }
-   "SQL"                           { yybegin(SQLS); return SQL; }
+   "SQL"                           { yybegin(WORKINGSTORAGE_SQL); return SQL; }
+   "LINKAGE"                       { return LINKAGE; }
    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
 }
 
-<SQLS> {
+<WORKINGSTORAGE_SQL, PROCEDURE_SQL> {
     {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
-    "END-EXEC"                      { yybegin(WORKINGSTORAGE); return END_EXEC; }
+    "END-EXEC"                      {
+          if(yystate() == WORKINGSTORAGE_SQL) {
+            yybegin(WORKINGSTORAGE);
+          } else if(yystate() == PROCEDURE_SQL) {
+            yybegin(PROCEDURE);
+          }
+          return END_EXEC;
+      }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     [^]                             { return CobolTypes.ANY; }
 }
 
-<WORKINGSTORAGE_SA_VAR, FD_SA_VAR> {
-    "." {
-          if (yystate() == FD_SA_VAR) {
-              yybegin(FILE);
-          } else if(yystate() == WORKINGSTORAGE_SA_VAR) {
-              yybegin(WORKINGSTORAGE);
-          }
-          return DOT; }
-    {VARNAME} { return VARNAME; }
-}
-
 <WORKINGSTORAGE_SA_PIC, FD_SA_PIC> {
-      "PIC" { return PIC_LITERAL;}
-      "X" { return PIC_XA;}
-      "A" { return PIC_XA;}
+      "PIC" { return PIC; }
+      "pic" { return PIC; }
+      "X" { return X; }
+      "x" { return X; }
+      "A" { return A;}
+      "a" { return A;}
       "9" { return PIC_9;}
-      "S9" { return PIC_S_9;}
+      "S9" { return S9;}
+      "s9" { return S9;}
+      "V9" { return V9; }
+      "v9" { return V9; }
+      "+" { return PLUS; }
+      "Z" { return Z; }
+      "z" { return Z; }
       "(" {
                     if (yystate() == FD_SA_PIC) {
                                   yybegin(FD_SA_PIC_LENGTH);
@@ -204,7 +212,21 @@ VARNAME=[a-zA-Z]([\w\-_])*
           }
           return VALUE;
       }
+      "OCCURS" {
+          if (yystate() == FD_SA_PIC) {
+                        yybegin(FD_SA_OCCURS);
+                    } else if(yystate() == WORKINGSTORAGE_SA_PIC) {
+                        yybegin(WORKINGSTORAGE_SA_OCCURS);
+                    }
+          return OCCURS; }
+      "DEPENDING" { return DEPENDING; }
+      "REDEFINES" { return REDEFINES; }
+      "ON" { return ON; }
+      "BINARY" { return BINARY; }
+      "USAGE" { return USAGE; }
+      "POINTER" { return POINTER; }
       "COMP" { return COMP; }
+      "COMP-3" { return COMP_3; }
       "." {
           if (yystate() == FD_SA_PIC) {
               yybegin(FILE);
@@ -214,6 +236,42 @@ VARNAME=[a-zA-Z]([\w\-_])*
           return DOT;
       }
           {VARNAME}                       { return VARNAME; }
+}
+
+<WORKINGSTORAGE_SA_TO, FD_SA_TO> {
+{NUMBER} { return NUMBER;}
+      "." {
+          if (yystate() == FD_SA_TO) {
+                        yybegin(FILE);
+                    } else if(yystate() == WORKINGSTORAGE_SA_TO) {
+                        yybegin(WORKINGSTORAGE);
+                    }
+          return DOT; }
+                "DEPENDING" {
+                    if (yystate() == FD_SA_TO) {
+                                  yybegin(FD_SA_PIC);
+                              } else if(yystate() == WORKINGSTORAGE_SA_TO) {
+                                  yybegin(WORKINGSTORAGE_SA_PIC);
+                              }
+                    return DEPENDING; }
+}
+
+<WORKINGSTORAGE_SA_OCCURS, FD_SA_OCCURS> {
+{NUMBER} { return NUMBER;}
+      "." {
+          if (yystate() == FD_SA_OCCURS) {
+                        yybegin(FILE);
+                    } else if(yystate() == WORKINGSTORAGE_SA_OCCURS) {
+                        yybegin(WORKINGSTORAGE);
+                    }
+          return DOT; }
+                "TO" {
+                    if (yystate() == FD_SA_OCCURS) {
+                                  yybegin(FD_SA_TO);
+                              } else if(yystate() == WORKINGSTORAGE_SA_OCCURS) {
+                                  yybegin(WORKINGSTORAGE_SA_TO);
+                              }
+                    return TO; }
 }
 
 <WORKINGSTORAGE_SA_PIC_LENGTH, FD_SA_PIC_LENGTH> {
@@ -236,6 +294,46 @@ VARNAME=[a-zA-Z]([\w\-_])*
           }
           return NUMBER;
       }
+      "SPACE" {
+                        if (yystate() == FD_SA_NUMBER) {
+                            yybegin(FD_SA_NUMBER_LINE);
+                        } else if(yystate() == WORKINGSTORAGE_SA_NUMBER) {
+                            yybegin(WORKINGSTORAGE_SA_NUMBER_LINE);
+                        }
+                        return SPACE;
+                    }
+ "NULL" {
+                        if (yystate() == FD_SA_NUMBER) {
+                            yybegin(FD_SA_NUMBER_LINE);
+                        } else if(yystate() == WORKINGSTORAGE_SA_NUMBER) {
+                            yybegin(WORKINGSTORAGE_SA_NUMBER_LINE);
+                        }
+                        return NULL;
+                    }
+                    "LOW-VALUE" {
+                                            if (yystate() == FD_SA_NUMBER) {
+                                                yybegin(FD_SA_NUMBER_LINE);
+                                            } else if(yystate() == WORKINGSTORAGE_SA_NUMBER) {
+                                                yybegin(WORKINGSTORAGE_SA_NUMBER_LINE);
+                                            }
+                                            return LOW_VALUE;
+                                        }
+                    "ZEROES" {
+                                            if (yystate() == FD_SA_NUMBER) {
+                                                yybegin(FD_SA_NUMBER_LINE);
+                                            } else if(yystate() == WORKINGSTORAGE_SA_NUMBER) {
+                                                yybegin(WORKINGSTORAGE_SA_NUMBER_LINE);
+                                            }
+                                            return ZERO;
+                                        }
+                    "ZERO" {
+                                            if (yystate() == FD_SA_NUMBER) {
+                                                yybegin(FD_SA_NUMBER_LINE);
+                                            } else if(yystate() == WORKINGSTORAGE_SA_NUMBER) {
+                                                yybegin(WORKINGSTORAGE_SA_NUMBER_LINE);
+                                            }
+                                            return ZERO;
+                                        }
       {STRING} {
           if (yystate() == FD_SA_NUMBER) {
               yybegin(FD_SA_NUMBER_LINE);
@@ -263,20 +361,49 @@ VARNAME=[a-zA-Z]([\w\-_])*
           }
           return DOT;
       }
+      "OCCURS" {
+                         if (yystate() == FD_SA_NUMBER_LINE) {
+                             yybegin(FD_SA_OCCURS);
+                         } else if(yystate() == WORKINGSTORAGE_SA_NUMBER_LINE) {
+                             yybegin(WORKINGSTORAGE_SA_OCCURS);
+                         }
+                         return OCCURS;
+                     }
 }
 
 <PROCEDURE> {
-    "DISPLAY"                       { return CobolTypes.DISPLAY_LITERAL; }
+    "USING"                         { return USING; }
+    "DISPLAY"                       { return CobolTypes.DISPLAY; }
     "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
     "PERFORM"                       { return PERFORM; }
-
+    "UNTIL"                         { return UNTIL; }
+    "IF"                            { return IF; }
+    "ELSE"                          { return ELSE; }
+    "END-IF"                        { return END_IF; }
+    "="                             { return EQUAL; }
+    "EQUAL"                         { return EQUAL; }
+    "NOT"                           { return NOT; }
+    "GOBACK"                        { return GOBACK; }
+    "INITIALIZE"                    { return INITIALIZE; }
+    "EXEC"                          { return EXEC; }
+    "SQL"                           { yybegin(PROCEDURE_SQL); return SQL; }
+    "OPEN"                          { return OPEN; }
+    "INPUT"                         { return INPUT; }
+    "OUTPUT"                        { return OUTPUT; }
+    "CALL"                          { return CALL; }
+    "CONTINUE"                      { return CONTINUE; }
+    "READ"                          { return CobolTypes.READ; }
+    "END-READ"                      { return END_READ; }
+    "AT"                            { return AT; }
+    "END"                           { return END; }
+    "ADD"                           { yybegin(ADD); return CobolTypes.ADD; }
     {VARNAME}                       { return VARNAME; }
 }
 
 <IDENTIFICATION> {
     "AUTHOR"                        { yybegin(ANY); return AUTHOR; }
     "INSTALLATION"                  { yybegin(ANY); return INSTALLATION; }
-    "DATE-WRITTEN"                  { yybegin(ANY); return DATE; }
+    "DATE-WRITTEN"                  { yybegin(ANY); return DATE_WRITTEN; }
     "PROGRAM-ID"                    { yybegin(PROGRAMID); return PROGRAM_ID; }
 
     "ENVIRONMENT"                   { yybegin(ENVIRONMENT); return CobolTypes.ENVIRONMENT; }
@@ -295,7 +422,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     [^]                             { return CobolTypes.ANY; }
 }
 
-<MOVE> {
+<MOVE, ADD> {
       {NUMBER}                        { return NUMBER; }
       {LINENUMBER}                    { return NUMBER; }
       "TO"                            { yybegin(PROCEDURE); return CobolTypes.TO; }

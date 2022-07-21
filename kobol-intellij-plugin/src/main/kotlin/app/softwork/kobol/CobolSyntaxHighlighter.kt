@@ -23,21 +23,21 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getTokenHighlights(tokenType: IElementType?) = when (tokenType) {
         COMMENT -> comment
         VARNAME -> vars
-        DISPLAY_LITERAL, MOVE, PERFORM -> function
+        DISPLAY, MOVE, PERFORM -> function
         STRING -> string
         NUMBER -> number
 
         DIVISION, SECTION,
-        IDENTIFICATION, PROGRAM_ID, AUTHOR, DATE, INSTALLATION,
+        IDENTIFICATION, PROGRAM_ID, AUTHOR, DATE_WRITTEN, INSTALLATION,
         ENVIRONMENT,
-        CONFIGURATION, SPECIAL_NAMES_LITERAL, IS,
-        INPUT_OUTPUT_LITERAL, FILE_CONTROL_LITERAL, FILE_CONFIG_SELECT_LITERAL, FILE_CONFIG_ASSIGN_LITERAL, FILE_LITERAL, FILE_CONFIG_STATUS_STATUS_LITERAL,
-        TO,
+        CONFIGURATION, SPECIAL_NAMES, IS,
+        INPUT_OUTPUT, FILE_CONTROL, SELECT, ASSIGN, FILE, STATUS,
+        TO, ON, DEPENDING, OCCURS,
 
         WORKING_STORAGE,
-        FILE_LITERAL, FD, RECORD_LITERAL, RECORDING, STANDARD, LABEL,
+        FILE, FD, RECORD, RECORDING, STANDARD, LABEL,
 
-        PIC_LITERAL, PIC_XA, PIC_S_9, PIC_9, VALUE,
+        PIC, X, A, S9, PIC_9, VALUE,
 
         DATA,
         PROCEDURE -> keyword
@@ -47,7 +47,5 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
 
         TokenType.WHITE_SPACE, ANY -> null
         else -> null
-    }.also {
-        println("$tokenType => $it")
     }.let { arrayOf(it) }
 }

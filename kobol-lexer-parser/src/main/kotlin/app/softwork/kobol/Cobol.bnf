@@ -17,7 +17,7 @@
     varName="regexp:[a-zA-Z]([\w\-_])*"
     space="regexp:\s+"
     comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
-    number="regexp:\+?\d+(\.\d*)?"
+    number="regexp:\+?(\d+(\.\d+)?)|(\.\d+)"
     string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
     twoDigits="regexp:\d{2}"
@@ -39,96 +39,81 @@ LP ::= '('
 RP ::= ')'
 
 
-idDiv ::= identification division DOT programID [other]
-identification ::= 'IDENTIFICATION'
-division ::= 'DIVISION'
+idDiv ::= IDENTIFICATION DIVISION DOT programID_clause [other]
 
-private other ::= (author | installation | date ) *
+private other ::= (author_clause | installation_clause | date_clause ) *
 
-programID ::= comments 'PROGRAM-ID' [DOT] varName DOT
-author ::= comments 'AUTHOR' anys
-installation ::= comments 'INSTALLATION' anys
-date ::= comments 'DATE-WRITTEN' anys
+programID_clause ::= comments PROGRAM-ID [DOT] varName DOT
+author_clause ::= comments AUTHOR anys
+installation_clause ::= comments INSTALLATION anys
+date_clause ::= comments DATE-WRITTEN anys
 
 anys ::= any *
 
-envDiv ::=  comments environment division DOT [config] [input]
-environment ::= 'ENVIRONMENT'
-configuration ::= 'CONFIGURATION'
-config ::= comments configuration section DOT [specialNames]
-specialNamesLiteral ::= 'SPECIAL-NAMES'
-specialNames ::= comments specialNamesLiteral DOT [specialNameDeclaration* DOT]
+envDiv ::=  comments ENVIRONMENT DIVISION DOT [config] [inputSection]
+config ::= comments CONFIGURATION SECTION DOT [specialNames_def]
+specialNames_def ::= comments SPECIAL-NAMES DOT [specialNameDeclaration* DOT]
 specialNameDeclaration ::= comments specialName
-specialName ::= specialNameEnv is specialNameValue
+specialName ::= specialNameEnv IS specialNameValue
 specialNameEnv ::= varName
 specialNameValue ::= varName
-is ::= 'IS'
 
-inputOutputLiteral ::= 'INPUT-OUTPUT'
-input ::= comments inputOutputLiteral section DOT [fileControl]
-fileControlLiteral ::= 'FILE-CONTROL'
-fileControl ::= comments fileControlLiteral DOT [fileConfig*]
+inputSection ::= comments INPUT-OUTPUT SECTION DOT [fileControl_clause]
+fileControl_clause ::= comments FILE-CONTROL DOT fileConfig*
 fileConfig ::= comments fileConfigSelect fileConfigAssign fileConfigStatus DOT
-fileConfigSelectLiteral ::= 'SELECT'
-fileConfigSelect ::= fileConfigSelectLiteral varName
-fileConfigAssignLiteral ::= 'ASSIGN'
-fileConfigAssign ::= fileConfigAssignLiteral [to] varName
-fileLiteral ::= 'FILE'
-fileConfigStatusStatusLiteral ::= 'STATUS'
-fileConfigStatus ::= fileLiteral fileConfigStatusStatusLiteral varName
-section ::= 'SECTION'
+fileConfigSelect ::= SELECT varName
+fileConfigAssign ::= ASSIGN [TO] varName
+fileConfigStatus ::= FILE STATUS varName
 
-dataDiv ::= comments data division DOT comments [fileSection] [workingStorageSection]
-data ::= 'DATA'
+dataDiv ::= comments DATA DIVISION DOT comments [fileSection] [workingStorageSection] [linkingSection]
 
-fileSection ::= comments fileLiteral section DOT fileDescriptions*
-fd ::= 'FD'
-recordingLiteral ::= 'RECORDING'
-labelLiteral ::= 'LABEL'
-blockLiteral ::= 'BLOCK'
-recordLiteral ::= 'RECORD'
-standard ::= 'STANDARD'
-recording ::= recordingLiteral varName
-block ::= blockLiteral number
-fileRecord ::= recordLiteral number
-label ::= labelLiteral recordLiteral standard
-fileDescriptions ::= fileDescription | record*
-fileDescription ::= comments fd varName recording [block] [fileRecord] label dataRecord DOT
-dataRecord ::= data recordLiteral varName
+fileSection ::= comments FILE SECTION DOT fileDescriptions*
+recording_clause ::= RECORDING varName
+block_clause ::= BLOCK number
+fileRecord ::= RECORD number
+label_clause ::= LABEL RECORD STANDARD
+fileDescriptions ::= fileDescription | record_def*
+fileDescription ::= comments FD varName recording_clause [block_clause] [fileRecord] label_clause dataRecord DOT
+dataRecord ::= DATA RECORD varName
 
-workingStorageSection ::= comments workingStorage section DOT stm*
-workingStorage ::= 'WORKING-STORAGE'
+workingStorageSection ::= comments WORKING-STORAGE SECTION DOT stm*
 
-stm ::= record | exec_sql
-exec_sql ::= comments exec sql anys* end_exec DOT
-exec ::= 'EXEC'
-sql ::= 'SQL'
-end_exec ::= 'END-EXEC'
+stm ::= record_def | exec_sql_def
+exec_sql_def ::= comments exec_sql DOT
+exec_sql ::= EXEC SQL anys* END-EXEC
 
-value ::= 'VALUE'
-record ::= comments number varName [pic] [value var] [COMP] DOT
-COMP ::= 'COMP'
-pic ::= picLiteral (picXA | picS9 | pic9) [LP number RP]
-picLiteral ::= 'PIC'
-picXA ::= 'X' | 'A'
-picS9 ::= 'S9'
-pic9 ::= '9'
+record_def ::= comments number [varName] (redefines_clause | pointer_clause | pic_clause )  DOT
+pointer_clause ::= POINTER [VALUE var]
+redefines_clause ::= REDEFINES varName
+pic_clause ::= [PIC pic_def_clause+] [[USAGE] (COMP | COMP-3)] [BINARY] [VALUE var] [occurs_clause]
+occurs_clause ::= OCCURS number [TO number] [DEPENDING ON varName]
+pictures ::= X | A | S9 | pic_9 | V9 | plus | Z | B
+pic_9 ::= '9'
+plus ::= '+'
+pic_def_clause ::= pictures [length]
 
-procedureDiv ::= comments procedure division DOT [sentence*] [procedureSection*]
-procedure ::= 'PROCEDURE'
-procedureSection ::= comments varName section DOT sentence
+length ::= LP number RP
+
+linkingSection ::= LINKAGE SECTION DOT record_def*
+
+procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentence*] [procedureSection*]
+procedureSection ::= comments varName SECTION DOT sentence
 sentence ::= procedures+ DOT
-procedures ::= comments (display | moving | performing)
-performing ::= perform varName
-perform ::= 'PERFORM'
-moving ::= move expr to varName
-move ::= 'MOVE'
-to ::= 'TO'
+procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | calling | CONTINUE | reading | adding)
+adding ::= ADD expr TO varNames+
+reading ::= READ varName [AT END procedures] [NOT AT END procedures] END-READ
+calling ::= CALL string [USING varName]
+opening ::= OPEN (INPUT | OUTPUT) varName
+init_clause ::= INITIALIZE varNames+
+performing ::= PERFORM varName [UNTIL boolean_expr]
+moving ::= MOVE expr TO varNames+
+varNames ::= varName
+if_clause ::= IF boolean_expr procedures* [ELSE procedures*] END-IF
 
-expr ::= (var | varName | stringConcat)
+boolean_expr ::= expr [NOT] EQUAL expr
+expr ::= var | varName | stringConcat
 
-var ::= string | number
+var ::= string | number | SPACE | LOW-VALUE | ZERO | NULL
 
-displayLiteral ::= 'DISPLAY'
-display ::= displayLiteral stringConcat
+displaying ::= DISPLAY stringConcat
 stringConcat ::= (string | varName) +
