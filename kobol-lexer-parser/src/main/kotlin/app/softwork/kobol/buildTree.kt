@@ -168,7 +168,7 @@ private fun sa(it: CobolRecordDef): Elementar? {
         pic == null -> TODO()
         single != null -> when (single.pictures.text) {
             "A", "X" -> StringElementar(
-                name = name, length = single.length?.number?.text?.toInt() ?: 1, value = it.picClause?.`var`?.let {
+                name = name, length = single.length?.number?.text?.toInt() ?: 1, value = it.picClause?.literal?.let {
                     it.text!!.drop(1).dropLast(1)
                 }, comments = it.comments.asComments()
             )
@@ -185,8 +185,10 @@ private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): Cob
         it.proceduresList.flatMap { it.asStatements(dataTree) }
     }, procedureSectionList.map {
         CobolFIRTree.ProcedureTree.Section(
-            name = it.varName.text, statements = it.sentences.proceduresList.flatMap {
-                it.asStatements(dataTree)
+            name = it.varName.text, statements = it.sentencesList.flatMap {
+                it.proceduresList.flatMap {
+                    it.asStatements(dataTree)
+                }
             }, comments = it.comments.asComments()
         )
     }, comments = comments.asComments()
@@ -202,7 +204,7 @@ private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): List
             )
         )
 
-        moving != null -> moving!!.varNamesList.map {
+        moving != null -> moving!!.variableList.map {
             CobolFIRTree.ProcedureTree.Statement.Move(
                 target = dataTree.notNull.find(it),
                 value = moving!!.expr.toExpr(dataTree),
@@ -233,14 +235,14 @@ private val CobolFIRTree.DataTree?.notNull
     }
 
 private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression {
-    val `var` = `var`
+    val literal = literal
     val varName = variable?.varName
     val stringConcat = stringConcat
     return when {
-        `var` != null -> when {
-            `var`.string != null -> `var`.string!!.singleAsString(dataTree)
-            `var`.number != null -> TODO()
-            else -> TODO("$`var`")
+        literal != null -> when {
+            literal.string != null -> literal.string!!.singleAsString(dataTree)
+            literal.number != null -> TODO()
+            else -> TODO("$literal")
         }
 
         varName != null -> dataTree.notNull.find(varName).toVariable()

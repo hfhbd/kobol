@@ -14,7 +14,7 @@ import static app.softwork.kobol.CobolTypes.*;
 %eof{  return;
 %eof}
 
-NUMBER=\+?(\d+(\.\d+)?)|(\.\d+)
+NUMBER=([+\-])?(\d+(\.\d+)?)|(\.\d+)
 LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
@@ -68,7 +68,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state PROCEDURE_SQL
 %state WHEN
 %state LP
-%state FROM
+%state VARYING
 
 %%
 
@@ -148,6 +148,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
    "RECORD"                        { yybegin(FILE_CONTROL_NEXTNUMBER); return CobolTypes.RECORD; }
    "DATA"                          { yybegin(FILE_CONTROL_LABEL); return CobolTypes.DATA; }
    "BLOCK"                         { yybegin(FILE_CONTROL_NEXTNUMBER); return CobolTypes.BLOCK; }
+   "RECORDS"                       { return RECORDS; }
+   "TO"                            { yybegin(FILE_CONTROL_NEXTNUMBER); return TO; }
    "."                             { yybegin(FILE); return DOT; }
    {VARNAME}                       { return VARNAME; }
 }
@@ -383,8 +385,9 @@ VARNAME=[a-zA-Z]([\w\-_])*
 }
 
 <PROCEDURE> {
+    "ACCEPT"                        { return CobolTypes.ACCEPT; }
     "USING"                         { return USING; }
-    "DISPLAY"                       { return CobolTypes.DISPLAY; }
+    "DISPLAY"                       { return DISPLAY; }
     "MOVE"                          { yybegin(MOVE); return CobolTypes.MOVE; }
     "PERFORM"                       { return PERFORM; }
     "END-PERFORM"                   { return END_PERFORM; }
@@ -392,10 +395,12 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "IF"                            { return IF; }
     "ELSE"                          { return ELSE; }
     "END-IF"                        { return END_IF; }
-    "="                             { return EQUAL; }
+    "="                             { yybegin(WHEN); return EQUAL; }
     ">"                             { yybegin(WHEN); return BIGGER; }
     "<"                             { yybegin(WHEN); return SMALLER; }
-    "EQUAL"                         { return EQUAL; }
+    "+"                             { yybegin(WHEN); return PLUS; }
+    "-"                             { yybegin(WHEN); return MINUS; }
+    "EQUAL"                         { yybegin(WHEN); return EQUAL; }
     "NOT"                           { return NOT; }
     "GOBACK"                        { return GOBACK; }
     "INITIALIZE"                    { return INITIALIZE; }
@@ -413,6 +418,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "END"                           { return END; }
     "ADD"                           { yybegin(ADD); return CobolTypes.ADD; }
     "WHEN"                          { yybegin(WHEN); return CobolTypes.WHEN; }
+    "ALSO"                          { yybegin(WHEN); return ALSO; }
     "EVALUATE"                      { return EVALUATE; }
     "END-EVALUATE"                  { return END_EVALUATE; }
     "("                             { yybegin(LP); return CobolTypes.LP; }
@@ -422,16 +428,24 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "AND"                           { return AND; }
     "NEXT"                          { return NEXT; }
     "SENTENCE"                      { return SENTENCE; }
-    "VARYING"                       { return VARYING; }
-    "FROM"                          { yybegin(FROM); return CobolTypes.FROM; }
+    "VARYING"                       { yybegin(VARYING); return CobolTypes.VARYING; }
+    "FROM"                          { return CobolTypes.FROM; }
+    "UNSTRING"                      { return UNSTRING; }
+    "DELIMITED"                     { return DELIMITED; }
+    "BY"                            { return BY; }
+    "INTO"                          { return INTO; }
+    "COMPUTE"                       { return COMPUTE; }
+    "SUBTRACT"                      { yybegin(WHEN); return SUBTRACT; }
     {VARNAME}                       { return VARNAME; }
 }
 
-<FROM> {
+<VARYING> {
+    "FROM" { return FROM; }
     {NUMBER} { return NUMBER; }
     "TO" { return TO; }
     "BY" { return BY; }
     "UNTIL" { yybegin(PROCEDURE); return UNTIL; }
+    {VARNAME}   { return VARNAME; }
 }
 
 <LP> {
@@ -474,7 +488,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
 <WHEN> {
       {NUMBER}                        { yybegin(PROCEDURE); return NUMBER; }
       {STRING}                        { yybegin(PROCEDURE); return STRING; }
-      "OF"                            { return OF; }
+      "="                             { return EQUAL; }
       {VARNAME}                       { yybegin(PROCEDURE); return VARNAME; }
 }
 
