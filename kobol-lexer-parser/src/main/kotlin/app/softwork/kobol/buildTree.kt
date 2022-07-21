@@ -180,20 +180,25 @@ private fun sa(it: CobolRecordDef): Elementar? {
     }
 }
 
-private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree {
-    return CobolFIRTree.ProcedureTree(sentencesList.flatMap {
-        it.proceduresList.flatMap { it.asStatements(dataTree) }
-    }, procedureSectionList.map {
+private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = CobolFIRTree.ProcedureTree(
+    topLevel = sentencesList.flatMap {
+        it.proceduresList.flatMap {
+            it.asStatements(dataTree)
+        }
+    },
+    sections = procedureSectionList.map {
         CobolFIRTree.ProcedureTree.Section(
-            name = it.varName.text, statements = it.sentencesList.flatMap {
+            name = it.varName.text,
+            statements = it.sentencesList.flatMap {
                 it.proceduresList.flatMap {
                     it.asStatements(dataTree)
                 }
-            }, comments = it.comments.asComments()
+            },
+            comments = it.comments.asComments()
         )
-    }, comments = comments.asComments()
-    )
-}
+    },
+    comments = comments.asComments()
+)
 
 private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): List<CobolFIRTree.ProcedureTree.Statement> {
     return when {
@@ -254,7 +259,7 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.Pro
 
 private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression.StringExpression {
     return when (elementType) {
-        CobolTypes.STRING -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral(
+        CobolTypes.STRING, CobolTypes.STRING_VAR -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral(
             value = text.drop(1).dropLast(1)
         )
 
@@ -262,17 +267,17 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): CobolFI
             dataTree.notNull.find(this) as StringElementar
         )
 
+        CobolTypes.VARIABLE -> {
+            this as CobolVariable
+            this.varName.singleAsString(dataTree)
+        }
+
         else -> TODO("$elementType")
     }
 }
 
-private val CobolStringConcat.allChildren: Sequence<PsiElement>
-    get() = generateSequence(firstChild) {
-        it.firstChild ?: it.nextSibling
-    }
-
 private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression.StringExpression {
-    val allChildren = allChildren.toList()
+    val allChildren = children.toList()
     require(allChildren.isNotEmpty())
     if (allChildren.count() == 1) {
         val single = allChildren.single()

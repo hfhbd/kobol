@@ -136,4 +136,5 @@ of_clause ::= OF varName
 colon ::= ':'
 
 displaying ::= DISPLAY stringConcat
-stringConcat ::= (string | variable) +
+stringConcat ::= (stringVar | variable) +
+stringVar ::= string
