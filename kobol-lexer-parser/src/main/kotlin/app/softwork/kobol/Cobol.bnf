@@ -17,8 +17,8 @@
     varName="regexp:[a-zA-Z]([\w\-_])*"
     space="regexp:\s+"
     comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
-    number="regexp:\+?(\d+(\.\d+)?)|(\.\d+)"
-    string="regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+    number="regexp:([+\-])?(\d+(\.\d+)?)|(\.\d+)"
+    string="regexp:X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
     twoDigits="regexp:\d{2}"
   ]
@@ -69,8 +69,8 @@ dataDiv ::= comments DATA DIVISION DOT comments [fileSection] [workingStorageSec
 
 fileSection ::= comments FILE SECTION DOT fileDescriptions*
 recording_clause ::= RECORDING varName
-block_clause ::= BLOCK number
-fileRecord ::= RECORD number
+block_clause ::= BLOCK number [RECORDS]
+fileRecord ::= RECORD number [TO number]
 label_clause ::= LABEL RECORD STANDARD
 fileDescriptions ::= fileDescription | record_def*
 fileDescription ::= comments FD varName recording_clause [block_clause] [fileRecord] label_clause dataRecord DOT
@@ -83,9 +83,9 @@ exec_sql_def ::= comments exec_sql DOT
 exec_sql ::= EXEC SQL anys* END-EXEC
 
 record_def ::= comments number [varName] (redefines_clause | pointer_clause | pic_clause )  DOT
-pointer_clause ::= POINTER [VALUE var]
+pointer_clause ::= POINTER [VALUE literal]
 redefines_clause ::= REDEFINES varName
-pic_clause ::= [PIC pic_def_clause+] [[USAGE] (COMP | COMP-3)] [BINARY] [VALUE var] [occurs_clause]
+pic_clause ::= [PIC pic_def_clause+] [[USAGE] (COMP | COMP-3)] [BINARY] [VALUE literal] [occurs_clause]
 occurs_clause ::= OCCURS number [TO number] [DEPENDING ON varName]
 pictures ::= X | A | S9 | pic_9 | V9 | plus | Z | B
 pic_9 ::= '9'
@@ -96,24 +96,45 @@ length ::= LP number RP
 
 linkingSection ::= LINKAGE SECTION DOT record_def*
 
-procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentence*] [procedureSection*]
-procedureSection ::= comments varName SECTION DOT sentence
-sentence ::= procedures+ DOT
-procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | calling | CONTINUE | reading | adding)
-adding ::= ADD expr TO varNames+
-reading ::= READ varName [AT END procedures] [NOT AT END procedures] END-READ
-calling ::= CALL string [USING varName]
+procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentences+] [procedureSection*] endComments
+endComments ::= comments
+procedureSection ::= comments varName SECTION DOT sentences+
+sentences ::= procedures+ DOT
+procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | closing | calling | CONTINUE | reading | nextSentence | adding | eval | unstringing | accepting | computing | subtracting )
+subtracting ::= SUBTRACT expr FROM variable
+computing ::= COMPUTE variable EQUAL expr
+accepting ::= ACCEPT varName FROM functionName
+functionName ::= varName
+unstringing ::= UNSTRING variable DELIMITED BY expr INTO variable
+adding ::= ADD expr TO variable+
+reading ::= READ varName [AT END procedures+] [NOT AT END procedures+] END-READ
+nextSentence ::= NEXT SENTENCE
+closing ::= CLOSE varName
+calling ::= CALL expr [USING variable+]
 opening ::= OPEN (INPUT | OUTPUT) varName
-init_clause ::= INITIALIZE varNames+
-performing ::= PERFORM varName [UNTIL boolean_expr]
-moving ::= MOVE expr TO varNames+
-varNames ::= varName
-if_clause ::= IF boolean_expr procedures* [ELSE procedures*] END-IF
+init_clause ::= INITIALIZE variable+
+performing ::= doWhile | while | forEach
+doWhile ::= PERFORM varName [UNTIL boolean_expr]
+while ::= PERFORM UNTIL boolean_expr procedures+ END-PERFORM
+forEach ::= PERFORM VARYING varName FROM number [TO number] BY number UNTIL boolean_expr procedures+ END-PERFORM
+moving ::= MOVE expr TO variable+
+// Optional, because a sentence closes all open clauses...
+if_clause ::= IF boolean_expr procedures* [ELSE procedures*] [END-IF]
+eval ::= EVALUATE variable [ALSO variable] whens* END-EVALUATE
+whens ::= comments WHEN ((expr [ALSO expr]) | OTHER) procedures*
+boolean_expr ::= (boolean_expr_clause OR boolean_expr) | (boolean_expr_clause AND boolean_expr) | boolean_expr_clause
+boolean_expr_clause ::= expr (([NOT] EQUAL) | bigger [EQUAL] | smaller [EQUAL] ) expr
+expr ::= math | literal | (stringConcat) | variable
+math ::= (literal | variable) (plus | minus) (literal | variable)
+minus ::= '-'
+bigger ::= '>'
+smaller ::= '<'
+literal ::= string | number | SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
-boolean_expr ::= expr [NOT] EQUAL expr
-expr ::= var | varName | stringConcat
-
-var ::= string | number | SPACE | LOW-VALUE | ZERO | NULL
+variable ::= varName [LP expr [colon expr] RP] [of_clause]
+of_clause ::= OF varName
+colon ::= ':'
 
 displaying ::= DISPLAY stringConcat
-stringConcat ::= (string | varName) +
+stringConcat ::= (stringVar | variable) +
+stringVar ::= string

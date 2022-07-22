@@ -34,7 +34,8 @@ class CobolLexerTest {
             123456 PROCEDURE DIVISION.
             123456 DISPLAY "HELLO"
             123456 DISPLAY 'WORLD'
-            123456 MOVE "42" TO WORLD
+            123456 MOVE "42" 
+            123456 TO WORLD
             123456 MOVE '42' TO WORLD
             123456 DISPLAY 'WORLD'.
         """.trimIndent()
@@ -44,7 +45,8 @@ class CobolLexerTest {
                 WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, DOT
             ),
@@ -218,6 +220,7 @@ class CobolLexerTest {
 
     @Test
     fun simple() {
+        //language=Cobol
         val input = """
             123456 IDENTIFICATION              DIVISION.
             123456******************************************************************
@@ -338,7 +341,6 @@ class CobolLexerTest {
 
     @Test
     fun file() {
-        //language=cobol
         val input = """
             123456 DATA DIVISION.
             123456 FILE SECTION.
@@ -405,6 +407,52 @@ class CobolLexerTest {
         )
     }
 
+    @Test
+    fun conditions() {
+        val input = """
+            123456 PROCEDURE DIVISION.
+            123456 IF var(1:ff) NOT = bar
+            123456     EXEC SQL FOO
+            123456          BAR
+            123456     END-EXEC
+            123456 ELSE 
+            123456     OPEN INPUT aa
+            123456     READ aa
+            123456       AT END 
+            123456          CALL 'a' USING f
+            123456     CLOSE a
+            123456 END-IF
+            123456 EVALUATE z
+            123456     WHEN 1
+            123456        ADD 1 TO a
+            123456 END-EVALUATE
+            123456 GOBACK.
+        """.trimIndent()
+        val all = CobolLexerAdapter.list(input)
+        assertEquals(
+            listOf(
+                listOf(PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE),
+                listOf(IF, WHITE_SPACE, VARNAME, LP, NUMBER, COLON, VARNAME, RP, WHITE_SPACE, NOT, WHITE_SPACE, EQUAL, WHITE_SPACE, VARNAME, WHITE_SPACE),
+                listOf(EXEC, WHITE_SPACE, SQL, WHITE_SPACE, ANY, ANY, ANY, WHITE_SPACE),
+                listOf(ANY, ANY, ANY, WHITE_SPACE),
+                listOf(END_EXEC, WHITE_SPACE),
+                listOf(ELSE, WHITE_SPACE),
+                listOf(OPEN, WHITE_SPACE, INPUT, WHITE_SPACE, VARNAME, WHITE_SPACE),
+                listOf(READ, WHITE_SPACE, VARNAME, WHITE_SPACE),
+                listOf(AT, WHITE_SPACE, END, WHITE_SPACE),
+                listOf(CALL, WHITE_SPACE, STRING, WHITE_SPACE, USING, WHITE_SPACE, VARNAME, WHITE_SPACE),
+                listOf(CLOSE, WHITE_SPACE, VARNAME, WHITE_SPACE),
+                listOf(END_IF, WHITE_SPACE),
+                listOf(EVALUATE, WHITE_SPACE, VARNAME, WHITE_SPACE),
+                listOf(WHEN, WHITE_SPACE, NUMBER, WHITE_SPACE),
+                listOf(ADD, WHITE_SPACE, NUMBER, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE),
+                listOf(END_EVALUATE, WHITE_SPACE),
+                listOf(GOBACK, DOT)
+            ),
+            all
+        )
+    }
+
     private fun FlexAdapter.all(input: String): Sequence<IElementType> = sequence {
         start(input)
         while (true) {
@@ -413,4 +461,19 @@ class CobolLexerTest {
             advance()
         }
     }
+
+    private fun FlexAdapter.list(input: String): List<List<IElementType>> = buildList {
+        var previous: IElementType? = null
+        val list = mutableListOf<IElementType>()
+        for (type in all(input)) {
+            if (previous != null && type == WHITE_SPACE && previous == WHITE_SPACE) {
+                add(list.toList())
+                list.clear()
+            } else {
+                list.add(type)
+            }
+            previous = type
+        }
+        add(list)
+    }.drop(1).filter { it.isNotEmpty() }
 }

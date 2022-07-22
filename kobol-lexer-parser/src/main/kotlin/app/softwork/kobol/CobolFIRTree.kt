@@ -54,26 +54,86 @@ data class CobolFIRTree(
     }
 
     data class DataTree(
-        val workingStorage: List<WorkingStorage>,
+        val fileSection: FileSection? = null,
+        val workingStorage: List<WorkingStorage> = emptyList(),
         val comments: List<String> = emptyList()
     ) {
+        data class FileSection(
+            val descriptions: List<FileDescription> = emptyList(),
+            val comments: List<String> = emptyList()
+        ) {
+            sealed interface FileDescription {
+                val comments: List<String>
+
+                data class FileDefinition(
+                    val name: String,
+                    val recording: String,
+                    val blocks: Int? = null,
+                    val records: IntRange? = null,
+                    val dataRecord: String? = null,
+                    override val comments: List<String> = emptyList()
+                ): FileDescription
+            }
+        }
+
         sealed interface WorkingStorage {
-            data class Record(val name: String, val elements: List<Elementar>): WorkingStorage
+            val comments: List<String>
+
+            data class Record(
+                val name: String,
+                val elements: List<Elementar>,
+                override val comments: List<String> = emptyList()
+            ) : WorkingStorage, FileSection.FileDescription
 
             sealed interface Elementar : WorkingStorage {
                 val name: String
+                val formatter: Formatter?
+                val value: Any?
+
+                data class Pointer(
+                    override val name: String,
+                    override val formatter: Formatter? = null,
+                    override val value: Any? = null,
+                    override val comments: List<String> = emptyList()
+                ): Elementar
 
                 data class StringElementar(
                     override val name: String,
-                    val length: Int,
-                    val value: String? = null,
-                    val comments: List<String> = emptyList()
+                    override val formatter: Formatter,
+                    override val value: String? = null,
+                    override val comments: List<String> = emptyList()
                 ) : Elementar {
                     init {
                         if (value != null) {
                             require(!value.startsWith("\""))
                             require(!value.startsWith("'"))
                         }
+                    }
+                }
+
+                sealed interface Formatter {
+                    @JvmInline
+                    value class Simple(val length: Int): Formatter
+                    data class Custom(val parts: List<Part>): Formatter {
+                        data class Part(val length: Int, val type: Type) {
+                            enum class Type {
+                                Space, Plus, Decimal, Zeros
+                            }
+                        }
+                    }
+                }
+
+                data class NumberElementar(
+                    override val name: String,
+                    override val formatter: Formatter,
+                    override val value: Number? = null,
+                    override val comments: List<String> = emptyList(),
+                    val signed: Boolean = false,
+                    val compressed: Compressed? = null,
+                    val binary: Boolean = false
+                ): Elementar {
+                    enum class Compressed {
+                        COMP, COMP3
                     }
                 }
             }
