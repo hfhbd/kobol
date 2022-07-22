@@ -132,7 +132,7 @@ smaller ::= '<'
 literal ::= string | number | SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
 variable ::= varName [LP expr [colon expr] RP] [of_clause]
-of_clause ::= OF varName
+of_clause ::= (OF | IN) varName
 colon ::= ':'
 
 displaying ::= DISPLAY stringConcat

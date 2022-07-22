@@ -430,6 +430,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     ")"                             { return RP; }
     ":"                             { return COLON; }
     "OF"                            { return OF; }
+    "IN"                            { return IN; }
     "OTHER"                         { return OTHER; }
     "OR"                            { return OR; }
     "AND"                           { return AND; }
