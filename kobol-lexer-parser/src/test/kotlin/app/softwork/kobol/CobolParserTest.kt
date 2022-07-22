@@ -21,24 +21,24 @@ class CobolParserTest {
                         Record(
                             name = "RPI",
                             elements = listOf(
-                                StringElementar(name = "WORLD", value = "WORLD!", length = 6),
-                                StringElementar(name = "ANSWER", length = 6)
+                                StringElementar(name = "WORLD", value = "WORLD!", formatter = Formatter.Simple(6)),
+                                StringElementar(name = "ANSWER", formatter = Formatter.Simple(  6))
                             )
                         ),
-                        StringElementar(name = "FOO", value = "123456", length = 6),
+                        StringElementar(name = "FOO", value = "123456", formatter = Formatter.Simple(6)),
                         Record(
                             name = "RPICA",
                             elements = listOf(
-                                StringElementar(name = "FOOPIC", length = 3)
+                                StringElementar(name = "FOOPIC", formatter = Formatter.Simple(3))
                             )
                         ),
-                        StringElementar(name = "BAR", length = 3)
+                        StringElementar(name = "BAR", formatter = Formatter.Simple(3))
                     )
                 ),
                 procedure = CobolFIRTree.ProcedureTree(
                     topLevel = listOf(
                         Display(
-                            StringVariable(target = StringElementar(name = "WORLD", value = "WORLD!", length = 6))
+                            StringVariable(target = StringElementar(name = "WORLD", value = "WORLD!", formatter = Formatter.Simple(6)))
                         )
                     )
                 )
@@ -90,7 +90,7 @@ class CobolParserTest {
                 ),
                 data = CobolFIRTree.DataTree(
                     workingStorage = listOf(
-                        StringElementar(name = "WORLD", value = "WORLD!", length = 6)
+                        StringElementar(name = "WORLD", value = "WORLD!", formatter = Formatter.Simple(6))
                     )
                 ),
                 procedure = CobolFIRTree.ProcedureTree(
@@ -98,18 +98,18 @@ class CobolParserTest {
                         Display(
                             Concat(
                                 StringLiteral("HELLO"),
-                                StringVariable(target = StringElementar(name = "WORLD", value = "WORLD!", length = 6))
+                                StringVariable(target = StringElementar(name = "WORLD", value = "WORLD!", formatter = Formatter.Simple(6)))
                             ),
                             comments = listOf("Some Comment")
                         ),
                         Move(
                             value = StringLiteral("42"),
-                            target = StringElementar(name = "WORLD", value = "WORLD!", length = 6)
+                            target = StringElementar(name = "WORLD", value = "WORLD!", formatter = Formatter.Simple(6))
                         ),
                         Display(
                             Concat(
                                 StringLiteral("ANSWER"),
-                                StringVariable(target = StringElementar(name = "WORLD", value = "WORLD!", length = 6))
+                                StringVariable(target = StringElementar(name = "WORLD", value = "WORLD!", formatter = Formatter.Simple(6)))
                             )
                         )
                     )
