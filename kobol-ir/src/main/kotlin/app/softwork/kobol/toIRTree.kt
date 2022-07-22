@@ -139,6 +139,9 @@ fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
                     doc = comments
                 )
             }
+
+            is CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar -> TODO()
+            is CobolFIRTree.DataTree.WorkingStorage.Elementar.Pointer -> TODO()
         }
     }
 

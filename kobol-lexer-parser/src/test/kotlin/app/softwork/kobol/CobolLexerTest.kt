@@ -34,7 +34,8 @@ class CobolLexerTest {
             123456 PROCEDURE DIVISION.
             123456 DISPLAY "HELLO"
             123456 DISPLAY 'WORLD'
-            123456 MOVE "42" TO WORLD
+            123456 MOVE "42" 
+            123456 TO WORLD
             123456 MOVE '42' TO WORLD
             123456 DISPLAY 'WORLD'.
         """.trimIndent()
@@ -44,7 +45,8 @@ class CobolLexerTest {
                 WHITE_SPACE, WHITE_SPACE, PROCEDURE, WHITE_SPACE, DIVISION, DOT, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, WHITE_SPACE,
-                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE,
+                WHITE_SPACE, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, MOVE, WHITE_SPACE, STRING, WHITE_SPACE, TO, WHITE_SPACE, VARNAME, WHITE_SPACE,
                 WHITE_SPACE, WHITE_SPACE, DISPLAY, WHITE_SPACE, STRING, DOT
             ),
@@ -218,6 +220,7 @@ class CobolLexerTest {
 
     @Test
     fun simple() {
+        //language=Cobol
         val input = """
             123456 IDENTIFICATION              DIVISION.
             123456******************************************************************
@@ -338,7 +341,6 @@ class CobolLexerTest {
 
     @Test
     fun file() {
-        //language=cobol
         val input = """
             123456 DATA DIVISION.
             123456 FILE SECTION.
@@ -460,7 +462,7 @@ class CobolLexerTest {
         }
     }
 
-    private fun FlexAdapter.list(input: String): List<List<IElementType>> = buildList<List<IElementType>> {
+    private fun FlexAdapter.list(input: String): List<List<IElementType>> = buildList {
         var previous: IElementType? = null
         val list = mutableListOf<IElementType>()
         for (type in all(input)) {

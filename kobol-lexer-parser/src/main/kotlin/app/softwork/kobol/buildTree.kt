@@ -168,9 +168,12 @@ private fun sa(it: CobolRecordDef): Elementar? {
         pic == null -> TODO()
         single != null -> when (single.pictures.text) {
             "A", "X" -> StringElementar(
-                name = name, length = single.length?.number?.text?.toInt() ?: 1, value = it.picClause?.literal?.let {
+                name = name,
+                formatter = Formatter.Simple(single.length?.number?.text?.toInt() ?: 1),
+                value = it.picClause?.literal?.let {
                     it.text!!.drop(1).dropLast(1)
-                }, comments = it.comments.asComments()
+                },
+                comments = it.comments.asComments()
             )
 
             else -> TODO()
@@ -334,4 +337,7 @@ private fun Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variab
     is StringElementar -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
         target = this
     )
+
+    is NumberElementar -> TODO()
+    is Pointer -> TODO()
 }
