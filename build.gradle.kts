@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm") version "1.7.10" apply false
     id("org.jetbrains.intellij") version "1.7.0" apply false
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
-    id("io.gitlab.arturbosch.detekt") version "1.21.0"
     `maven-publish`
     id("app.cash.licensee") version "1.5.0" apply false
 }
@@ -14,36 +13,6 @@ allprojects {
         mavenCentral()
         maven(url = "https://www.jetbrains.com/intellij-repository/releases")
         maven(url = "https://cache-redirector.jetbrains.com/intellij-dependencies")
-    }
-}
-
-detekt {
-    source = files(rootProject.rootDir)
-    parallel = true
-    buildUponDefaultConfig = true
-}
-
-dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
-}
-
-tasks {
-    fun SourceTask.config() {
-        include("**/*.kt")
-        exclude("**/*.kts")
-        exclude("**/resources/**")
-        exclude("**/generated/**")
-        exclude("**/build/**")
-    }
-    withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach {
-        config()
-    }
-    withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-        config()
-
-        reports {
-            sarif.required.set(true)
-        }
     }
 }
 
@@ -70,7 +39,6 @@ subprojects {
         withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
             kotlinOptions {
                 jvmTarget = "11"
-               // freeCompilerArgs += "-Xuse-k2"
             }
         }
     }
