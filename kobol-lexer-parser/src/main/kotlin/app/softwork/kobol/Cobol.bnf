@@ -21,6 +21,11 @@
     string="regexp:X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
     twoDigits="regexp:\d{2}"
+    PIC9='9'
+    PLUS='+'
+    DOT='.'
+    LP='('
+    RP=')'
   ]
 
 //  extends(".*_file")=file
@@ -33,11 +38,6 @@ root ::= program
 program ::= comments idDiv [envDiv] [dataDiv] procedureDiv
 
 comments ::= (comment) *
-
-DOT ::= '.'
-LP ::= '('
-RP ::= ')'
-
 
 idDiv ::= IDENTIFICATION DIVISION DOT programID_clause [other]
 
@@ -87,9 +87,7 @@ pointer_clause ::= POINTER [VALUE literal]
 redefines_clause ::= REDEFINES varName
 pic_clause ::= [PIC pic_def_clause+] [[USAGE] (COMP | COMP-3)] [BINARY] [VALUE literal] [occurs_clause]
 occurs_clause ::= OCCURS number [TO number] [DEPENDING ON varName]
-pictures ::= X | A | S9 | pic_9 | V9 | plus | Z | B
-pic_9 ::= '9'
-plus ::= '+'
+pictures ::= X | A | S9 | PIC9 | V9 | PLUS | Z | B
 pic_def_clause ::= pictures [length]
 
 length ::= LP number RP
