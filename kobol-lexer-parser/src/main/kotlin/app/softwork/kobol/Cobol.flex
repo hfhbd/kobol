@@ -196,7 +196,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
       "x" { return X; }
       "A" { return A;}
       "a" { return A;}
-      "9" { return PIC_9; }
+      "9" { return PIC9; }
       "S9" { return S9;}
       "s9" { return S9;}
       "V9" { return V9; }

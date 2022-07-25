@@ -37,7 +37,7 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         WORKING_STORAGE,
         FILE, FD, RECORD, RECORDING, STANDARD, LABEL,
 
-        PIC, X, A, S9, PIC_9, VALUE,
+        PIC, X, A, S9, PIC9, VALUE,
 
         DATA,
         PROCEDURE -> keyword
