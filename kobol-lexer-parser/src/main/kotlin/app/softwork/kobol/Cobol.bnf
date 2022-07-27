@@ -21,7 +21,6 @@
     string="regexp:X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
     twoDigits="regexp:\d{2}"
-    PIC9='9'
     PLUS='+'
     DOT='.'
     LP='('
@@ -43,7 +42,7 @@ idDiv ::= IDENTIFICATION DIVISION DOT programID_clause [other]
 
 private other ::= (author_clause | installation_clause | date_clause ) *
 
-programID_clause ::= comments PROGRAM-ID [DOT] varName DOT
+programID_clause ::= comments PROGRAM-ID [DOT] id DOT
 author_clause ::= comments AUTHOR anys
 installation_clause ::= comments INSTALLATION anys
 date_clause ::= comments DATE-WRITTEN anys
@@ -53,28 +52,27 @@ anys ::= any *
 envDiv ::=  comments ENVIRONMENT DIVISION DOT [config] [inputSection]
 config ::= comments CONFIGURATION SECTION DOT [specialNames_def]
 specialNames_def ::= comments SPECIAL-NAMES DOT [specialNameDeclaration* DOT]
-specialNameDeclaration ::= comments specialName
-specialName ::= specialNameEnv IS specialNameValue
-specialNameEnv ::= varName
-specialNameValue ::= varName
+specialNameDeclaration ::= comments specialNameEnv IS specialNameValue
+specialNameEnv ::= id
+specialNameValue ::= id
 
 inputSection ::= comments INPUT-OUTPUT SECTION DOT [fileControl_clause]
 fileControl_clause ::= comments FILE-CONTROL DOT fileConfig*
 fileConfig ::= comments fileConfigSelect fileConfigAssign fileConfigStatus DOT
-fileConfigSelect ::= SELECT varName
-fileConfigAssign ::= ASSIGN [TO] varName
-fileConfigStatus ::= FILE STATUS varName
+fileConfigSelect ::= SELECT id
+fileConfigAssign ::= ASSIGN [TO] id
+fileConfigStatus ::= FILE STATUS id
 
 dataDiv ::= comments DATA DIVISION DOT comments [fileSection] [workingStorageSection] [linkingSection]
 
 fileSection ::= comments FILE SECTION DOT fileDescriptions*
-recording_clause ::= RECORDING varName
+recording_clause ::= RECORDING id
 block_clause ::= BLOCK number [RECORDS]
 fileRecord ::= RECORD number [TO number]
 label_clause ::= LABEL RECORD STANDARD
 fileDescriptions ::= fileDescription | record_def*
-fileDescription ::= comments FD varName recording_clause [block_clause] [fileRecord] label_clause dataRecord DOT
-dataRecord ::= DATA RECORD varName
+fileDescription ::= comments FD id recording_clause [block_clause] [fileRecord] label_clause dataRecord DOT
+dataRecord ::= DATA RECORD id
 
 workingStorageSection ::= comments WORKING-STORAGE SECTION DOT stm*
 
@@ -82,39 +80,41 @@ stm ::= record_def | exec_sql_def
 exec_sql_def ::= comments exec_sql DOT
 exec_sql ::= EXEC SQL anys* END-EXEC
 
-record_def ::= comments number [varName] (redefines_clause | pointer_clause | pic_clause )  DOT
+record_def ::= comments number [id] (redefines_clause | pointer_clause | pic_clause )  DOT
 pointer_clause ::= POINTER [VALUE literal]
-redefines_clause ::= REDEFINES varName
-pic_clause ::= [PIC pic_def_clause+] [[USAGE] (COMP | COMP-3)] [BINARY] [VALUE literal] [occurs_clause]
-occurs_clause ::= OCCURS number [TO number] [DEPENDING ON varName]
-pictures ::= X | A | S9 | PIC9 | V9 | PLUS | Z | B
+redefines_clause ::= REDEFINES id
+pic_clause ::= [occurs_clause] [PIC pic_def_clause+] [[USAGE] (COMP | COMP-3 | COMP-5)] [BINARY] [VALUE literal] [occurs_clause]
+occurs_clause ::= OCCURS occurs_clause_number [TIMES] [TO occurs_clause_number_to [TIMES]] [DEPENDING ON id]
+occurs_clause_number ::= number
+occurs_clause_number_to ::= number
+pictures ::= X | A | S9 | 9 | V9 | PLUS | Z | B
 pic_def_clause ::= pictures [length]
 
 length ::= LP number RP
 
 linkingSection ::= LINKAGE SECTION DOT record_def*
 
-procedureDiv ::= comments PROCEDURE DIVISION [USING varName] DOT [sentences+] [procedureSection*] endComments
+procedureDiv ::= comments PROCEDURE DIVISION [USING id] DOT [sentences+] [procedureSection*] endComments
 endComments ::= comments
-procedureSection ::= comments varName SECTION DOT sentences+
+procedureSection ::= comments id SECTION DOT sentences+
 sentences ::= procedures+ DOT
 procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | closing | calling | CONTINUE | reading | nextSentence | adding | eval | unstringing | accepting | computing | subtracting )
 subtracting ::= SUBTRACT expr FROM variable
 computing ::= COMPUTE variable EQUAL expr
-accepting ::= ACCEPT varName FROM functionName
-functionName ::= varName
+accepting ::= ACCEPT id FROM functionName
+functionName ::= id
 unstringing ::= UNSTRING variable DELIMITED BY expr INTO variable
 adding ::= ADD expr TO variable+
-reading ::= READ varName [AT END procedures+] [NOT AT END procedures+] END-READ
+reading ::= READ id [AT END procedures+] [NOT AT END procedures+] END-READ
 nextSentence ::= NEXT SENTENCE
-closing ::= CLOSE varName
+closing ::= CLOSE id
 calling ::= CALL expr [USING variable+]
-opening ::= OPEN (INPUT | OUTPUT) varName
+opening ::= OPEN (INPUT | OUTPUT) id
 init_clause ::= INITIALIZE variable+
 performing ::= doWhile | while | forEach
-doWhile ::= PERFORM varName [UNTIL boolean_expr]
+doWhile ::= PERFORM id [UNTIL boolean_expr]
 while ::= PERFORM UNTIL boolean_expr procedures+ END-PERFORM
-forEach ::= PERFORM VARYING varName FROM number [TO number] BY number UNTIL boolean_expr procedures+ END-PERFORM
+forEach ::= PERFORM VARYING id FROM number [TO number] BY number UNTIL boolean_expr procedures+ END-PERFORM
 moving ::= MOVE expr TO variable+
 // Optional, because a sentence closes all open clauses...
 if_clause ::= IF boolean_expr procedures* [ELSE procedures*] [END-IF]
@@ -127,11 +127,16 @@ math ::= (literal | variable) (plus | minus) (literal | variable)
 minus ::= '-'
 bigger ::= '>'
 smaller ::= '<'
-literal ::= string | number | SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
+literal ::= string | number | [ALL] SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
-variable ::= varName [LP expr [colon expr] RP] [of_clause]
-of_clause ::= (OF | IN) varName
+variable ::= id [LP expr [colon expr] RP] [of_clause]
+of_clause ::= (OF | IN) id
 colon ::= ':'
+
+id ::= varName {
+  mixin="app.softwork.kobol.CobolNamedElementImpl"
+  implements="CobolNamedElement"
+}
 
 displaying ::= DISPLAY stringConcat
 stringConcat ::= (stringVar | variable) +

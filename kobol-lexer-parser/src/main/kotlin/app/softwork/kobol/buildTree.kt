@@ -40,7 +40,7 @@ fun CobolFile.toTree(): CobolFIRTree {
 
 private val commentTokens = TokenSet.create(CobolTypes.COMMENT)
 
-private fun PsiElement.asComments(): List<String> = node.getChildren(commentTokens).map {
+fun PsiElement.asComments(): List<String> = node.getChildren(commentTokens).map {
     it.text.drop(1).trim()
 }
 
@@ -52,7 +52,7 @@ private fun List<CobolComments>.asComments() = mapNotNull {
 }
 
 private fun CobolIdDiv.toID(): CobolFIRTree.ID {
-    val (programID, programmIDComments) = programIDClause.let { it.varName.text to it.comments.asComments() }
+    val (programID, programmIDComments) = programIDClause.let { it.id.varName.text to it.comments.asComments() }
     val (author, authorComments) = authorClauseList.singleOrNull()
         .let { it?.anys?.asString() to it?.comments?.asComments() }
     val (installation, installationComments) = installationClauseList.singleOrNull()
@@ -72,7 +72,9 @@ private fun CobolIdDiv.toID(): CobolFIRTree.ID {
 }
 
 private fun CobolAnys.asString(): String {
-    return siblings().joinToString("")
+    return siblings().joinToString("") {
+        it.text
+    }.removePrefix(".").trim()
 }
 
 private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(configuration = config?.let {
@@ -81,8 +83,8 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(con
             SpecialNames(
                 specialNames = it.specialNameDeclarationList.map {
                     SpecialNames.SpecialName(
-                        env = it.specialName.specialNameEnv.text,
-                        value = it.specialName.specialNameValue.text,
+                        env = it.specialNameEnv.text,
+                        value = it.specialNameValue.text,
                         comments = it.comments.asComments()
                     )
                 }, comments = it.comments.asComments()
@@ -95,9 +97,9 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(con
             FileControl(
                 it.fileConfigList.map {
                     FileControl.File(
-                        file = it.fileConfigSelect.varName.text,
-                        fileVariable = it.fileConfigAssign.varName.text,
-                        fileStatus = it.fileConfigStatus.varName.text,
+                        file = it.fileConfigSelect.id.varName.text,
+                        fileVariable = it.fileConfigAssign.id.varName.text,
+                        fileStatus = it.fileConfigStatus.id.varName.text,
                         comments = it.comments.asComments()
                     )
                 }, comments = it.comments.asComments()
@@ -120,7 +122,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                             if (currentRecord != null) {
                                 add(currentRecord)
                             }
-                            val name = record.varName?.text
+                            val name = record.id?.varName?.text
                             if (name != null) {
                                 currentRecord = Record(name, emptyList())
                             }
@@ -131,7 +133,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                                 add(currentRecord)
                             }
                             currentRecord = null
-                            val sa = sa(record)
+                            val sa = sa(record, emptyList())
                             if (sa != null) {
                                 add(sa)
                             }
@@ -139,7 +141,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
 
                         else -> {
                             requireNotNull(currentRecord)
-                            val elementar = sa(record)
+                            val elementar = sa(record, currentRecord.elements.filterIsInstance<NumberElementar>())
                             if (elementar != null) {
                                 currentRecord = currentRecord.copy(elements = currentRecord.elements + elementar)
                             }
@@ -160,27 +162,125 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
     )
 }
 
-private fun sa(it: CobolRecordDef): Elementar? {
-    val name = it.varName?.text ?: return null
-    val pic: List<CobolPicDefClause>? = it.picClause?.picDefClauseList
+private fun sa(it: CobolRecordDef, previous: List<NumberElementar>): Elementar? {
+    val name = it.id?.varName?.text ?: return null
+    val pic: List<CobolPicDefClause>? = it.picClause?.picDefClauseList?.takeIf { it.isNotEmpty() }
     val single = pic?.singleOrNull()
+    val value = it.picClause?.literal?.text
     return when {
-        pic == null -> TODO()
-        single != null -> when (single.pictures.text) {
-            "A", "X" -> StringElementar(
-                name = name,
-                formatter = Formatter.Simple(single.length?.number?.text?.toInt() ?: 1),
-                value = it.picClause?.literal?.let {
-                    it.text!!.drop(1).dropLast(1)
-                },
-                comments = it.comments.asComments()
-            )
-
-            else -> TODO()
+        pic == null -> {
+            if (it.pointerClause != null) {
+                Pointer(name, it.comments.asComments())
+            } else {
+                EmptyElementar(name, it.comments.asComments())
+            }
         }
 
-        else -> TODO()
+        single != null -> single(
+            single,
+            value = value,
+            name = name,
+            comments = it.comments,
+            occurs = it.picClause!!.occursClauseList,
+            previous = previous
+        )
+
+        else -> {
+            val first = pic.first()
+            val formatter = pic.asFormat()
+            single(
+                first,
+                formatter,
+                value = value,
+                name = name,
+                comments = it.comments,
+                occurs = it.picClause!!.occursClauseList,
+                previous = previous
+            )
+        }
     }
+}
+
+// https://www.ibm.com/docs/en/developer-for-zos/9.1.1?topic=clause-symbols-used-in-picture
+private fun List<CobolPicDefClause>.asFormat(): Formatter.Custom = Formatter.Custom(map {
+    when (val text = it.pictures.text) {
+        "S9" -> Formatter.Custom.Part.Signed(it.length())
+        "9" -> Formatter.Custom.Part.Number(it.length())
+        "X", "A" -> Formatter.Custom.Part.String(it.length())
+        "B" -> Formatter.Custom.Part.Space(it.length())
+        "Z" -> Formatter.Custom.Part.Zero(it.length())
+        "+" -> Formatter.Custom.Part.Plus(it.length())
+        "V9" -> Formatter.Custom.Part.Decimal(it.length())
+        else -> error("Not yet supported: $text")
+    }
+})
+
+fun CobolPicDefClause.length() = length?.number?.text?.toInt() ?: 1
+
+// https://www.ibm.com/docs/en/cobol-zos/6.1?topic=clause-occurs-depending
+private fun List<CobolOccursClause>.toFir(previous: List<NumberElementar>): Occurs? {
+    val occursClause = singleOrNull() ?: return null
+    val from = occursClause.occursClauseNumber.number.text.toInt()
+    val to = occursClause.occursClauseNumberTo?.number?.text?.toInt()
+    val dependOn = occursClause.id?.varName?.text
+
+    return Occurs(
+        from = from,
+        to = to,
+        dependingOn = dependOn?.let {
+            previous.find {
+                it.name == dependOn
+            }
+        },
+    )
+}
+
+private fun single(
+    single: CobolPicDefClause,
+    format: Formatter = Formatter.Simple(single.length()),
+    value: String?,
+    comments: CobolComments,
+    name: String,
+    occurs: List<CobolOccursClause>,
+    previous: List<NumberElementar>
+): Elementar = when (val p = single.pictures.text) {
+    "A", "X" -> StringElementar(
+        name = name,
+        formatter = format,
+        value = value?.drop(1)?.dropLast(1),
+        comments = comments.asComments(),
+        occurs = occurs.toFir(previous)
+    )
+
+    "9" -> {
+        NumberElementar(
+            name = name,
+            formatter = format,
+            value = value?.toDouble(),
+            comments = comments.asComments(),
+            occurs = occurs.toFir(previous)
+        )
+    }
+
+    "S9" -> NumberElementar(
+        name = name,
+        formatter = format,
+        value = value?.toDouble(),
+        signed = true,
+        comments = comments.asComments(),
+        occurs = occurs.toFir(previous)
+    )
+
+    "V9" -> NumberElementar(
+        name = name,
+        formatter = format,
+        value = value?.toDouble(),
+        signed = true,
+        comments = comments.asComments(),
+        occurs = occurs.toFir(previous)
+    )
+
+    else -> TODO(p)
 }
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = CobolFIRTree.ProcedureTree(
@@ -191,7 +291,7 @@ private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = Co
     },
     sections = procedureSectionList.map {
         CobolFIRTree.ProcedureTree.Section(
-            name = it.varName.text,
+            name = it.id.varName.text,
             statements = it.sentencesList.flatMap {
                 it.proceduresList.flatMap {
                     it.asStatements(dataTree)
@@ -225,7 +325,7 @@ private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): List
             if (doWhile != null) {
                 listOf(
                     CobolFIRTree.ProcedureTree.Statement.Perform(
-                        sectionName = doWhile.varName.text, comments = comments.asComments()
+                        sectionName = doWhile.id.varName.text, comments = comments.asComments()
                     )
                 )
             } else {
@@ -244,7 +344,7 @@ private val CobolFIRTree.DataTree?.notNull
 
 private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression {
     val literal = literal
-    val varName = variable?.varName
+    val varName = variable?.id?.varName
     val stringConcat = stringConcat
     return when {
         literal != null -> when {
@@ -272,7 +372,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): CobolFI
 
         CobolTypes.VARIABLE -> {
             this as CobolVariable
-            this.varName.singleAsString(dataTree)
+            id.varName.singleAsString(dataTree)
         }
 
         else -> TODO("$elementType")
@@ -340,4 +440,5 @@ private fun Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variab
 
     is NumberElementar -> TODO()
     is Pointer -> TODO()
+    is EmptyElementar -> TODO()
 }

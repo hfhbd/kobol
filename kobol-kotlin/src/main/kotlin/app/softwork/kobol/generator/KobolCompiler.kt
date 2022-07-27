@@ -86,7 +86,7 @@ private fun KobolIRTree.Expression.toKotlin(): CodeBlock = when (this) {
     is KobolIRTree.Types.Function.Statement.FunctionCall -> call()
 }
 
-private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
+private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
     is KobolIRTree.Expression.StringExpression.StringLiteral -> {
         if (escape) {
             CodeBlock.of("%S", value)
@@ -106,6 +106,8 @@ private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean =
     is KobolIRTree.Expression.StringExpression.Concat -> {
         CodeBlock.of("%L%L", left.toTemplate(escape = false), right.toTemplate(escape = false))
     }
+
+    is KobolIRTree.Types.Function.Statement.FunctionCall -> TODO()
 }
 
 private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {

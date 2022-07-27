@@ -37,5 +37,11 @@
         <lang.syntaxHighlighterFactory
                 language="Cobol"
                 implementationClass="app.softwork.kobol.CobolSyntaxHighlighterFactory"/>
+
+        <completion.contributor
+                language="Cobol"
+                implementationClass="app.softwork.kobol.CobolCompletion"/>
+        <psi.referenceContributor
+                implementation="app.softwork.kobol.CobolReferenceContributor"/>
     </extensions>
 </idea-plugin>
