@@ -64,6 +64,7 @@ private fun CobolFIRTree.ProcedureTree.functions(
 
 fun CobolFIRTree.ProcedureTree.Expression.toIR(): Expression = when (this) {
     is CobolFIRTree.ProcedureTree.Expression.StringExpression -> toIR()
+    is CobolFIRTree.ProcedureTree.Expression.NumberExpression -> TODO()
 }
 
 fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(): Expression.StringExpression =
@@ -120,6 +121,8 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
             comments = comments
         )
     }
+
+    is CobolFIRTree.ProcedureTree.Statement.ForEach -> TODO()
 }
 
 fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
@@ -142,6 +145,7 @@ fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
 
             is CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar -> TODO()
             is CobolFIRTree.DataTree.WorkingStorage.Elementar.Pointer -> TODO()
+            is CobolFIRTree.DataTree.WorkingStorage.Elementar.EmptyElementar -> TODO()
         }
     }
 

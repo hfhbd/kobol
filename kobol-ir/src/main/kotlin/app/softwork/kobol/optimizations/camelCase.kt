@@ -50,7 +50,7 @@ private fun KobolIRTree.Types.Function.Statement.Declaration.updateName(): Kobol
 private fun KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration.updateName() =
     copy(name = name.toCamelCase())
 
-private fun KobolIRTree.Expression.StringExpression.toCamelCase(): KobolIRTree.Expression.StringExpression =
+private fun KobolIRTree.Expression.toCamelCase(): KobolIRTree.Expression.StringExpression =
     when (this) {
         is KobolIRTree.Expression.StringExpression.StringVariable -> copy(
             target = target.updateName()
@@ -62,6 +62,7 @@ private fun KobolIRTree.Expression.StringExpression.toCamelCase(): KobolIRTree.E
         )
 
         is KobolIRTree.Expression.StringExpression.StringLiteral -> this
+        is KobolIRTree.Types.Function.Statement.FunctionCall -> TODO()
     }
 
 private val next = "-(.)".toRegex()

@@ -1,6 +1,5 @@
 package app.softwork.kobol.generator
 
-import org.intellij.lang.annotations.*
 import kotlin.test.*
 
 class CommentTest {

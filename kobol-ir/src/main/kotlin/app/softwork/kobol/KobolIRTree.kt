@@ -40,8 +40,7 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     val function: Function,
                     val parameters: List<Declaration>,
                     override val comments: List<String>
-                ) : Statement,
-                    Expression
+                ) : Statement, Expression
 
                 data class Print(val expr: Expression.StringExpression, override val comments: List<String>) : Statement
             }
@@ -84,7 +83,7 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             data class StringVariable(override val target: Types.Function.Statement.Declaration.StringDeclaration) :
                 StringExpression, Variable
 
-            data class Concat(val left: StringExpression, val right: StringExpression) : StringExpression
+            data class Concat(val left: Expression, val right: Expression) : StringExpression
         }
     }
 }
