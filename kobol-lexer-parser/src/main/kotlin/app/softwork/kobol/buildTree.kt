@@ -4,6 +4,7 @@ import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.Configuration.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.InputOutput.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 import com.intellij.psi.util.*
@@ -52,7 +53,7 @@ private fun List<CobolComments>.asComments() = mapNotNull {
 }
 
 private fun CobolIdDiv.toID(): CobolFIRTree.ID {
-    val (programID, programmIDComments) = programIDClause.let { it.id.varName.text to it.comments.asComments() }
+    val (programID, programmIDComments) = programIDClause.let { it.programIDID.varName.text to it.comments.asComments() }
     val (author, authorComments) = authorClauseList.singleOrNull()
         .let { it?.anys?.asString() to it?.comments?.asComments() }
     val (installation, installationComments) = installationClauseList.singleOrNull()
@@ -97,9 +98,9 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(con
             FileControl(
                 it.fileConfigList.map {
                     FileControl.File(
-                        file = it.fileConfigSelect.id.varName.text,
-                        fileVariable = it.fileConfigAssign.id.varName.text,
-                        fileStatus = it.fileConfigStatus.id.varName.text,
+                        file = it.fileConfigSelect.fileID.varName.text,
+                        fileVariable = it.fileConfigAssign.fileAssignID.varName.text,
+                        fileStatus = it.fileConfigStatus.fileStatusID.varName.text,
                         comments = it.comments.asComments()
                     )
                 }, comments = it.comments.asComments()
@@ -122,7 +123,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                             if (currentRecord != null) {
                                 add(currentRecord)
                             }
-                            val name = record.id?.varName?.text
+                            val name = record.recordID?.varName?.text
                             if (name != null) {
                                 currentRecord = Record(name, emptyList())
                             }
@@ -163,7 +164,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
 }
 
 private fun sa(it: CobolRecordDef, previous: List<NumberElementar>): Elementar? {
-    val name = it.id?.varName?.text ?: return null
+    val name = it.recordID?.varName?.text ?: return null
     val pic: List<CobolPicDefClause>? = it.picClause?.picDefClauseList?.takeIf { it.isNotEmpty() }
     val single = pic?.singleOrNull()
     val value = it.picClause?.literal?.text
@@ -222,7 +223,7 @@ private fun List<CobolOccursClause>.toFir(previous: List<NumberElementar>): Occu
     val occursClause = singleOrNull() ?: return null
     val from = occursClause.occursClauseNumber.number.text.toInt()
     val to = occursClause.occursClauseNumberTo?.number?.text?.toInt()
-    val dependOn = occursClause.id?.varName?.text
+    val dependOn = occursClause.recordID?.varName?.text
 
     return Occurs(
         from = from,
@@ -285,55 +286,125 @@ private fun single(
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = CobolFIRTree.ProcedureTree(
     topLevel = sentencesList.flatMap {
-        it.proceduresList.flatMap {
-            it.asStatements(dataTree)
-        }
+        it.proceduresList.asStatements(dataTree)
     },
     sections = procedureSectionList.map {
-        CobolFIRTree.ProcedureTree.Section(
-            name = it.id.varName.text,
-            statements = it.sentencesList.flatMap {
-                it.proceduresList.flatMap {
-                    it.asStatements(dataTree)
-                }
-            },
+        Section(
+            name = it.sectionID.varName.text,
+            statements = it.sentences.proceduresList.asStatements(dataTree),
             comments = it.comments.asComments()
         )
     },
     comments = comments.asComments()
 )
 
-private fun CobolProcedures.asStatements(dataTree: CobolFIRTree.DataTree?): List<CobolFIRTree.ProcedureTree.Statement> {
-    return when {
-        displaying != null -> listOf(
-            CobolFIRTree.ProcedureTree.Statement.Display(
-                expr = displaying!!.stringConcat.toExpr(dataTree),
-                comments = comments.asComments(),
+private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?): List<Statement> = flatMap { proc ->
+    when {
+        proc.displaying != null -> listOf(
+            Statement.Display(
+                expr = proc.displaying!!.stringConcat.toExpr(dataTree),
+                comments = proc.comments.asComments(),
             )
         )
 
-        moving != null -> moving!!.variableList.map {
-            CobolFIRTree.ProcedureTree.Statement.Move(
-                target = dataTree.notNull.find(it),
-                value = moving!!.expr.toExpr(dataTree),
-                comments = comments.asComments()
+        proc.moving != null -> proc.moving!!.variableList.map {
+            Statement.Move(
+                target = find(it, dataTree.notNull),
+                value = proc.moving!!.expr.toExpr(dataTree),
+                comments = proc.comments.asComments()
             )
         }
 
-        performing != null -> {
-            val doWhile = performing!!.doWhile
+        proc.performing != null -> {
+            val doWhile = proc.performing!!.doWhile
+            val forEach = proc.performing!!.forEach
             if (doWhile != null) {
                 listOf(
-                    CobolFIRTree.ProcedureTree.Statement.Perform(
-                        sectionName = doWhile.id.varName.text, comments = comments.asComments()
+                    Statement.Perform(
+                        sectionName = doWhile.sectionID.varName.text,
+                        comments = proc.comments.asComments(),
+                        until = doWhile.booleanExpr?.toFir(dataTree)
                     )
                 )
-            } else {
-                TODO()
-            }
+            } else if (forEach != null) {
+                listOf(
+                    Statement.ForEach(
+                        variable = Expression.NumberExpression.NumberVariable.Local(
+                            name = forEach.variable.varName.text
+                        ),
+                        from = forEach.number.text.toInt(),
+                        to = forEach.forEachTo?.number?.text?.toInt(),
+                        by = forEach.forEachBy?.number?.text?.toInt(),
+                        until = forEach.booleanExpr.toFir(dataTree),
+                        action = forEach.proceduresList.asStatements(dataTree)
+                    )
+                )
+            } else notPossible()
         }
 
         else -> TODO()
+    }
+}
+
+private fun List<CobolProcedures>.find(variable: CobolVariable, dataTree: CobolFIRTree.DataTree): Elementar {
+    for (proc in this) {
+        val perf = proc.performing
+        if (perf != null) {
+            val forEach = perf.forEach
+            if (forEach != null && forEach.variable.varName.text == variable.text) {
+                return NumberElementar(
+                    name = variable.text,
+                    formatter = Formatter.Local
+                )
+            }
+        }
+    }
+    return dataTree.find(variable)
+}
+
+private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): BooleanExpression {
+    val or = booleanExprOr
+    val and = booleanExprAnd
+    val clause = booleanExprClause
+    return when {
+        or != null -> BooleanExpression.Or(or.booleanExprClause.toFir(dataTree), or.booleanExpr.toFir(dataTree))
+        and != null -> BooleanExpression.And(and.booleanExprClause.toFir(dataTree), and.booleanExpr.toFir(dataTree))
+        clause != null -> clause.toFir(dataTree)
+        else -> notPossible()
+    }
+}
+
+private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): BooleanExpression {
+    val left = booleanExprClauseLeft.expr.toExpr(dataTree)
+    val right = booleanExprClauseRight.expr.toExpr(dataTree)
+
+    val nt = booleanExprClauseNt
+    val bigger = booleanExprClauseBigger
+    val smaller = booleanExprClauseSmaller
+    return when {
+        nt != null -> {
+            val equal = BooleanExpression.Equals(
+                left = left,
+                right = right
+            )
+            if (nt.nt != null) {
+                BooleanExpression.Not(equal)
+            } else equal
+        }
+
+        bigger != null -> BooleanExpression.Greater(
+            left = left as Expression.NumberExpression,
+            right = right as Expression.NumberExpression,
+            equals = bigger.eql != null
+        )
+
+        smaller != null -> BooleanExpression.Smaller(
+            left = left as Expression.NumberExpression,
+            right = right as Expression.NumberExpression,
+            equals = smaller.eql != null
+        )
+
+        else -> notPossible()
     }
 }
 
@@ -342,9 +413,9 @@ private val CobolFIRTree.DataTree?.notNull
         "No DATA DIVISION found"
     }
 
-private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression {
+private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): Expression {
     val literal = literal
-    val varName = variable?.id?.varName
+    val variable = variable
     val stringConcat = stringConcat
     return when {
         literal != null -> when {
@@ -353,33 +424,30 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.Pro
             else -> TODO("$literal")
         }
 
-        varName != null -> dataTree.notNull.find(varName).toVariable()
+        variable != null -> dataTree.notNull.find(variable).toVariable()
 
         stringConcat != null -> stringConcat.toExpr(dataTree)
         else -> TODO("$elementType")
     }
 }
 
-private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression.StringExpression {
-    return when (elementType) {
-        CobolTypes.STRING, CobolTypes.STRING_VAR -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral(
+private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Expression.StringExpression {
+    return when {
+        elementType == CobolTypes.STRING || elementType == CobolTypes.STRING_VAR -> Expression.StringExpression.StringLiteral(
             value = text.drop(1).dropLast(1)
         )
 
-        CobolTypes.VARNAME -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
-            dataTree.notNull.find(this) as StringElementar
-        )
-
-        CobolTypes.VARIABLE -> {
-            this as CobolVariable
-            id.varName.singleAsString(dataTree)
+        this is CobolVariable -> {
+            Expression.StringExpression.StringVariable(
+                dataTree.notNull.find(this) as StringElementar
+            )
         }
 
         else -> TODO("$elementType")
     }
 }
 
-private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIRTree.ProcedureTree.Expression.StringExpression {
+private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): Expression.StringExpression {
     val allChildren = children.toList()
     require(allChildren.isNotEmpty())
     if (allChildren.count() == 1) {
@@ -390,7 +458,7 @@ private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): CobolFIR
     val first = allChildren.first().singleAsString(dataTree)
     val s = allChildren.foldSecond(first) { acc, psi ->
         if (psi.elementType == TokenType.WHITE_SPACE) null
-        else CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat(
+        else Expression.StringExpression.Concat(
             left = acc, right = psi.singleAsString(dataTree)
         )
     }
@@ -413,28 +481,44 @@ inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R
     return accumulator
 }
 
-private fun CobolFIRTree.DataTree.find(varName: PsiElement): Elementar {
-    val name: String = varName.text
-    for (element in workingStorage) {
-        when (element) {
-            is Elementar -> if (element.name == name) {
+private fun CobolFIRTree.DataTree.find(variable: CobolVariable): Elementar {
+    val name: String = variable.varName.text
+    val all = findAll(variable)
+    val of = variable.ofClause
+    if (of == null) {
+        val key = all.keys.singleOrNull()
+        return all[key] ?: error("Elementar $name not found")
+    } else {
+        for ((key, element) in all) {
+            if (key?.name == of.recordID.varName.text) {
                 return element
             }
+        }
+        error("Elementar $name OF ${of.recordID.varName.text} not found")
+    }
+}
 
-            is Record -> {
-                for (elementar in element.elements) {
+fun CobolFIRTree.DataTree.findAll(varName: CobolVariable): Map<Record?, Elementar> {
+    val name: String = varName.varName.text
+    return buildMap {
+        for (element in workingStorage) {
+            when (element) {
+                is Elementar -> if (element.name == name) {
+                    this[null] = element
+                }
+
+                is Record -> for (elementar in element.elements) {
                     if (elementar.name == name) {
-                        return elementar
+                        this[element] = elementar
                     }
                 }
             }
         }
     }
-    error("Elementar $name not found")
 }
 
-private fun Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variable = when (this) {
-    is StringElementar -> CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable(
+private fun Elementar.toVariable(): Expression.Variable = when (this) {
+    is StringElementar -> Expression.StringExpression.StringVariable(
         target = this
     )
 
@@ -442,3 +526,5 @@ private fun Elementar.toVariable(): CobolFIRTree.ProcedureTree.Expression.Variab
     is Pointer -> TODO()
     is EmptyElementar -> TODO()
 }
+
+fun notPossible(): Nothing = error("Should not be possible!")

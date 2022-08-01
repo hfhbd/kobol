@@ -36,13 +36,14 @@ root ::= program
 
 program ::= comments idDiv [envDiv] [dataDiv] procedureDiv
 
-comments ::= (comment) *
+comments ::= comment*
 
 idDiv ::= IDENTIFICATION DIVISION DOT programID_clause [other]
 
 private other ::= (author_clause | installation_clause | date_clause ) *
 
-programID_clause ::= comments PROGRAM-ID [DOT] id DOT
+programID_clause ::= comments PROGRAM-ID [DOT] program_IDID DOT
+program_IDID ::= varName
 author_clause ::= comments AUTHOR anys
 installation_clause ::= comments INSTALLATION anys
 date_clause ::= comments DATE-WRITTEN anys
@@ -53,26 +54,30 @@ envDiv ::=  comments ENVIRONMENT DIVISION DOT [config] [inputSection]
 config ::= comments CONFIGURATION SECTION DOT [specialNames_def]
 specialNames_def ::= comments SPECIAL-NAMES DOT [specialNameDeclaration* DOT]
 specialNameDeclaration ::= comments specialNameEnv IS specialNameValue
-specialNameEnv ::= id
-specialNameValue ::= id
+specialNameEnv ::= varName
+specialNameValue ::= varName
 
 inputSection ::= comments INPUT-OUTPUT SECTION DOT [fileControl_clause]
 fileControl_clause ::= comments FILE-CONTROL DOT fileConfig*
 fileConfig ::= comments fileConfigSelect fileConfigAssign fileConfigStatus DOT
-fileConfigSelect ::= SELECT id
-fileConfigAssign ::= ASSIGN [TO] id
-fileConfigStatus ::= FILE STATUS id
+fileConfigSelect ::= SELECT fileID
+fileID ::= varName
+fileConfigAssign ::= ASSIGN [TO] fileAssignID
+fileAssignID ::= varName
+fileConfigStatus ::= FILE STATUS fileStatusID
+fileStatusID ::= varName
 
 dataDiv ::= comments DATA DIVISION DOT comments [fileSection] [workingStorageSection] [linkingSection]
 
 fileSection ::= comments FILE SECTION DOT fileDescriptions*
-recording_clause ::= RECORDING id
+recording_clause ::= RECORDING varName
 block_clause ::= BLOCK number [RECORDS]
 fileRecord ::= RECORD number [TO number]
 label_clause ::= LABEL RECORD STANDARD
 fileDescriptions ::= fileDescription | record_def*
-fileDescription ::= comments FD id recording_clause [block_clause] [fileRecord] label_clause dataRecord DOT
-dataRecord ::= DATA RECORD id
+fileDescription ::= comments FD fileDescriptionID recording_clause [block_clause] [fileRecord] label_clause dataRecord DOT
+fileDescriptionID ::= varName
+dataRecord ::= DATA RECORD varName
 
 workingStorageSection ::= comments WORKING-STORAGE SECTION DOT stm*
 
@@ -80,11 +85,15 @@ stm ::= record_def | exec_sql_def
 exec_sql_def ::= comments exec_sql DOT
 exec_sql ::= EXEC SQL anys* END-EXEC
 
-record_def ::= comments number [id] (redefines_clause | pointer_clause | pic_clause )  DOT
+record_def ::= comments number [recordID] (redefines_clause | pointer_clause | pic_clause )  DOT
+recordID ::= varName {
+  mixin="app.softwork.kobol.named.RecordIDElementImpl"
+  implements="app.softwork.kobol.named.CobolNamedElement"
+}
 pointer_clause ::= POINTER [VALUE literal]
-redefines_clause ::= REDEFINES id
+redefines_clause ::= REDEFINES recordID
 pic_clause ::= [occurs_clause] [PIC pic_def_clause+] [[USAGE] (COMP | COMP-3 | COMP-5)] [BINARY] [VALUE literal] [occurs_clause]
-occurs_clause ::= OCCURS occurs_clause_number [TIMES] [TO occurs_clause_number_to [TIMES]] [DEPENDING ON id]
+occurs_clause ::= OCCURS occurs_clause_number [TIMES] [TO occurs_clause_number_to [TIMES]] [DEPENDING ON recordID]
 occurs_clause_number ::= number
 occurs_clause_number_to ::= number
 pictures ::= X | A | S9 | 9 | V9 | PLUS | Z | B
@@ -94,48 +103,61 @@ length ::= LP number RP
 
 linkingSection ::= LINKAGE SECTION DOT record_def*
 
-procedureDiv ::= comments PROCEDURE DIVISION [USING id] DOT [sentences+] [procedureSection*] endComments
+procedureDiv ::= comments PROCEDURE DIVISION [USING recordID] DOT [sentences+] [procedureSection*] endComments
 endComments ::= comments
-procedureSection ::= comments id SECTION DOT sentences+
+procedureSection ::= comments sectionID SECTION DOT sentences
 sentences ::= procedures+ DOT
 procedures ::= comments (displaying | moving | performing | if_clause | GOBACK | init_clause | exec_sql | opening | closing | calling | CONTINUE | reading | nextSentence | adding | eval | unstringing | accepting | computing | subtracting )
 subtracting ::= SUBTRACT expr FROM variable
 computing ::= COMPUTE variable EQUAL expr
-accepting ::= ACCEPT id FROM functionName
-functionName ::= id
+accepting ::= ACCEPT variable FROM functionName
+functionName ::= varName
 unstringing ::= UNSTRING variable DELIMITED BY expr INTO variable
 adding ::= ADD expr TO variable+
-reading ::= READ id [AT END procedures+] [NOT AT END procedures+] END-READ
+reading ::= READ fileDescriptionID [AT END procedures+] [NOT AT END procedures+] END-READ
 nextSentence ::= NEXT SENTENCE
-closing ::= CLOSE id
+closing ::= CLOSE fileDescriptionID
 calling ::= CALL expr [USING variable+]
-opening ::= OPEN (INPUT | OUTPUT) id
+opening ::= OPEN (INPUT | OUTPUT) fileDescriptionID
 init_clause ::= INITIALIZE variable+
 performing ::= doWhile | while | forEach
-doWhile ::= PERFORM id [UNTIL boolean_expr]
+doWhile ::= PERFORM sectionID [UNTIL boolean_expr]
 while ::= PERFORM UNTIL boolean_expr procedures+ END-PERFORM
-forEach ::= PERFORM VARYING id FROM number [TO number] BY number UNTIL boolean_expr procedures+ END-PERFORM
+forEach ::= PERFORM VARYING variable FROM number [forEach_to] [forEach_by] UNTIL boolean_expr procedures+ END-PERFORM
+forEach_to ::= TO number
+forEach_by ::= BY number
 moving ::= MOVE expr TO variable+
-// Optional, because a sentence closes all open clauses...
-if_clause ::= IF boolean_expr procedures* [ELSE procedures*] [END-IF]
+if_clause ::= IF boolean_expr procedures* [ELSE procedures*] END-IF
 eval ::= EVALUATE variable [ALSO variable] whens* END-EVALUATE
 whens ::= comments WHEN ((expr [ALSO expr]) | OTHER) procedures*
-boolean_expr ::= (boolean_expr_clause OR boolean_expr) | (boolean_expr_clause AND boolean_expr) | boolean_expr_clause
-boolean_expr_clause ::= expr (([NOT] EQUAL) | bigger [EQUAL] | smaller [EQUAL] ) expr
-expr ::= math | literal | (stringConcat) | variable
+boolean_expr ::= boolean_expr_or | boolean_expr_and | boolean_expr_clause
+boolean_expr_or ::= boolean_expr_clause OR boolean_expr
+boolean_expr_and ::= boolean_expr_clause AND boolean_expr
+boolean_expr_clause ::= boolean_expr_clause_left (boolean_expr_clause_nt | boolean_expr_clause_bigger | boolean_expr_clause_smaller ) boolean_expr_clause_right
+boolean_expr_clause_left ::= expr
+boolean_expr_clause_right ::= expr
+boolean_expr_clause_nt ::= [nt] eql
+boolean_expr_clause_bigger ::= bigger [eql]
+boolean_expr_clause_smaller ::= smaller [eql]
+nt ::= NOT
+eql ::= EQUAL
+expr ::= math | literal | stringConcat | variable
 math ::= (literal | variable) (plus | minus) (literal | variable)
 minus ::= '-'
 bigger ::= '>'
 smaller ::= '<'
 literal ::= string | number | [ALL] SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
-variable ::= id [LP expr [colon expr] RP] [of_clause]
-of_clause ::= (OF | IN) id
+variable ::= varName [LP expr [colon expr] RP] [of_clause] {
+  mixin="app.softwork.kobol.named.CobolVariableElementImpl"
+  implements="app.softwork.kobol.named.CobolNamedElement"
+}
+of_clause ::= (OF | IN) recordID
 colon ::= ':'
 
-id ::= varName {
-  mixin="app.softwork.kobol.CobolNamedElementImpl"
-  implements="CobolNamedElement"
+sectionID ::= varName {
+  mixin="app.softwork.kobol.named.CobolSectionElementImpl"
+  implements="app.softwork.kobol.named.CobolNamedElement"
 }
 
 displaying ::= DISPLAY stringConcat

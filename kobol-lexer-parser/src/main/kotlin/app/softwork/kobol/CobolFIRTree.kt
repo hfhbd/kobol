@@ -113,6 +113,8 @@ data class CobolFIRTree(
                 data class Occurs(val from: Int, val to: Int? = null, val dependingOn: NumberElementar? = null)
 
                 sealed interface Formatter {
+                    object Local: Formatter
+
                     @JvmInline
                     value class Simple(val length: Int) : Formatter
                     data class Custom(val parts: List<Part>) : Formatter {
@@ -156,7 +158,7 @@ data class CobolFIRTree(
                     val binary: Boolean = false
                 ) : Elementar {
                     enum class Compressed {
-                        COMP, COMP3
+                        COMP, COMP3, COMP5
                     }
                 }
 
@@ -195,8 +197,20 @@ data class CobolFIRTree(
             ) : Statement
 
             data class Perform(
-                val sectionName: String, override val comments: List<String> = emptyList()
+                val sectionName: String,
+                override val comments: List<String> = emptyList(),
+                val until: BooleanExpression?
             ) : Statement
+
+            data class ForEach(
+                val variable: Expression.NumberExpression.NumberVariable.Local,
+                val from: Int,
+                val to: Int? = null,
+                val by: Int? = null,
+                val until: BooleanExpression,
+                val action: List<Statement>,
+                override val comments: List<String> = emptyList()
+            ): Statement
         }
 
         sealed interface BooleanExpression {
@@ -235,15 +249,13 @@ data class CobolFIRTree(
 
             sealed interface NumberExpression : Expression {
                 data class NumberLiteral(override val value: Number) : NumberExpression, Literal
-                data class NumberVariable(override val target: DataTree.WorkingStorage.Elementar.NumberElementar) :
-                    Variable, NumberExpression
+                sealed interface NumberVariable: Variable, NumberExpression {
+                    data class Local(val name: String): NumberVariable {
+                        override val target: Nothing get() = error("Use name")
+                    }
+                    data class Data(override val target: DataTree.WorkingStorage.Elementar.NumberElementar): NumberVariable
+                }
             }
         }
     }
 }
-
-class Builder<T> : MutableList<T> by mutableListOf() {
-    operator fun T.unaryPlus() = add(this)
-}
-
-fun <T> build(builder: Builder<T>.() -> Unit) = Builder<T>().apply(builder).toList()

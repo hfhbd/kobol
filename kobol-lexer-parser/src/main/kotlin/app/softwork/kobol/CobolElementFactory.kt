@@ -4,7 +4,7 @@ import com.intellij.openapi.project.*
 import com.intellij.psi.*
 
 object CobolElementFactory {
-    fun createVarName(project: Project, name: String) = createProgram(project, name).idDiv.programIDClause.id.varName
+    fun createVarName(project: Project, name: String) = createProgram(project, name).idDiv.programIDClause.programIDID.varName
 
     private fun createProgram(project: Project, text: String): CobolProgram {
         val name = "dummy.COBOL"

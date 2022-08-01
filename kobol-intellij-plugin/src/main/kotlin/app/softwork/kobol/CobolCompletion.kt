@@ -15,7 +15,7 @@ import kotlin.experimental.*
 class CobolCompletion : CompletionContributor() {
     init {
         extend(CompletionType.BASIC, psiElement(VARNAME)) { parameters, context ->
-            when(parameters.position.text.uppercase()) {
+            when (parameters.position.text.uppercase()) {
                 "DISPLAY" -> LookupElementBuilder.create("Hello")
                 else -> LookupElementBuilder.create("Hello 2")
             }
@@ -23,15 +23,27 @@ class CobolCompletion : CompletionContributor() {
         extend(CompletionType.BASIC, psiElement(WHITE_SPACE).afterSibling(psiElement(DISPLAY))) { parameters, context ->
             LookupElementBuilder.create("Hello DISPLAY")
         }
-        extend(CompletionType.BASIC, psiElement(WHITE_SPACE).afterSibling(psiElement(WHITE_SPACE).afterSibling(psiElement(DISPLAY)))) { parameters, context ->
+        extend(
+            CompletionType.BASIC,
+            psiElement(WHITE_SPACE).afterSibling(psiElement(WHITE_SPACE).afterSibling(psiElement(DISPLAY)))
+        ) { parameters, context ->
             LookupElementBuilder.create("Hello DISPLAY 2")
         }
-        extend(CompletionType.BASIC, psiElement(VARNAME).afterSibling(psiElement(WHITE_SPACE).afterSibling(psiElement(DISPLAY)))) { parameters, context ->
+        extend(
+            CompletionType.BASIC,
+            psiElement(VARNAME).afterSibling(psiElement(WHITE_SPACE).afterSibling(psiElement(DISPLAY)))
+        ) { parameters, context ->
             LookupElementBuilder.create("Hello DISPLAY 2")
         }
 
-        extend(CompletionType.BASIC, psiElement(DISPLAY).afterSibling(psiElement(WHITE_SPACE).afterSibling(psiElement(WHITE_SPACE)))) { parameters, context ->
+        extend(
+            CompletionType.BASIC,
+            psiElement(DISPLAY).afterSibling(psiElement(WHITE_SPACE).afterSibling(psiElement(WHITE_SPACE)))
+        ) { parameters, context ->
             LookupElementBuilder.create("DISPLAY 2")
+        }
+        extend(CompletionType.BASIC, psiElement(PROCEDURES)) { params, _ ->
+            LookupElementBuilder.create("DISPLAY PROCEDURES")
         }
 
         extend(CompletionType.BASIC, psiElement(PROCEDURE), object : CompletionProvider<CompletionParameters>() {
@@ -64,7 +76,6 @@ private fun CompletionContributor.extend(
     })
 }
 
-@OverloadResolutionByLambdaReturnType
 private fun CompletionContributor.extend(
     completionType: CompletionType,
     elementPattern: ElementPattern<PsiElement>,

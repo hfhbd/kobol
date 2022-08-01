@@ -121,6 +121,8 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
             comments = comments
         )
     }
+
+    is CobolFIRTree.ProcedureTree.Statement.ForEach -> TODO()
 }
 
 fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {

@@ -1,4 +1,4 @@
-package app.softwork.kobol
+package app.softwork.kobol.named
 
 import com.intellij.psi.PsiNameIdentifierOwner
 
