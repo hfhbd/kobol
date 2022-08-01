@@ -26,3 +26,11 @@ dependencies {
     testImplementation("com.jetbrains.intellij.platform:lang-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:test-framework:$idea")
 }
+
+licensee {
+    allow("MIT")
+    allowUrl("http://www.jcraft.com/jsch-agent-proxy/LICENSE.txt") // BSD
+    allowUrl("http://www.jcraft.com/jzlib/LICENSE.txt") // BSD
+    allowUrl("https://www.bouncycastle.org/licence.html") // MIT
+    allowUrl("https://creativecommons.org/publicdomain/zero/1.0/")
+}
