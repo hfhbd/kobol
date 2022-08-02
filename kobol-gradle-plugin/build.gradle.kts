@@ -17,6 +17,7 @@ dependencies {
     api("com.hierynomus:sshj:0.33.0")
     implementation("com.jcraft:jsch.agentproxy.sshj:0.0.9")
     implementation("com.jcraft:jsch.agentproxy.pageant:0.0.9")
+    implementation("net.java.dev.jna:jna-platform:5.12.1")
 
     testImplementation(kotlin("test"))
     val idea = "211.7628.21"
