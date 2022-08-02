@@ -19,3 +19,21 @@ fun File.toCobolFile(): CobolFile {
     }
     return file
 }
+
+fun Set<File>.toTree(): List<CobolFIRTree> {
+    return toCobolFile().map { it.toTree() }
+}
+
+fun Set<File>.toCobolFile(): Set<CobolFile> {
+    val intelliJ = CoreEnvironment(this).apply {
+        initializeApplication {
+            registerFileType(CobolFileType, CobolFileType.defaultExtension)
+            registerParserDefinition(CobolParserDefinition)
+        }
+    }
+    return buildSet {
+        intelliJ.forSourceFile<CobolFile> {
+            add(it)
+        }
+    }
+}

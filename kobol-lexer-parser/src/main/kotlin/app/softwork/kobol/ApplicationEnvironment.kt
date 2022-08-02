@@ -42,7 +42,7 @@ private object ApplicationEnvironment {
   }
 }
 
-class CoreEnvironment(sourceFolders: List<File>) {
+class CoreEnvironment(sourceFolders: Iterable<File>) {
   private val fileIndex: CoreFileIndex
 
   private val projectEnvironment = CoreProjectEnvironment(
@@ -101,7 +101,7 @@ class CoreEnvironment(sourceFolders: List<File>) {
 }
 
 private class CoreFileIndex(
-  val sourceFolders: List<File>,
+  val sourceFolders: Iterable<File>,
   private val localFileSystem: VirtualFileSystem,
   project: Project
 ) : ProjectFileIndexImpl(project) {
