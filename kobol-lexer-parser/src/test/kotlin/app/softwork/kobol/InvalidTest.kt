@@ -48,4 +48,4 @@ internal fun String.toTree() =
     toCobolFile().toTree()
 
 internal fun String.toCobolFile() =
-    File.createTempFile("testing", ".cobol").apply { writeText(this@toCobolFile) }.toCobolFile()
+    File.createTempFile("testing", ".cbl").apply { writeText(this@toCobolFile) }.toCobolFile()
