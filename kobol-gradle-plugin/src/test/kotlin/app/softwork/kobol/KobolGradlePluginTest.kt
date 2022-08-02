@@ -32,7 +32,7 @@ class KobolGradlePluginTest {
         val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
             deleteOnExit()
         }
-        val cobolFile = File(tmp, "hello.cobol").apply {
+        val cobolFile = File(tmp, "hello.cbl").apply {
             writeText(input)
         }
         generate(cobolFile, tmp, optimize = false)

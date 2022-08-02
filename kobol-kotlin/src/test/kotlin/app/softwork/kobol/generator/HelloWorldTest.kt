@@ -50,4 +50,4 @@ class HelloWorldTest {
 }
 
 internal fun String.toIR() =
-    File.createTempFile("testing", ".cobol").apply { writeText(this@toIR) }.toIR()
+    File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR()
