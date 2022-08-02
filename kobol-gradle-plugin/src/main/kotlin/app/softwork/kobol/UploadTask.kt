@@ -1,38 +1,40 @@
 package app.softwork.kobol
 
-import com.jcraft.jsch.agentproxy.*
-import com.jcraft.jsch.agentproxy.connector.*
-import net.schmizz.sshj.*
-import net.schmizz.sshj.xfer.FileSystemFile
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.internal.file.copy.*
+import net.schmizz.sshj.xfer.*
+import org.gradle.api.*
+import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
-import org.gradle.workers.internal.*
+import org.gradle.work.*
 
-abstract class UploadTask : AbstractCopyTask() {
-    @get:Input
-    abstract val host: Property<String>
-
-    @get:Input
-    abstract val user: Property<String>
+@DisableCachingByDefault
+abstract class UploadTask : DefaultTask(), SshTask {
+    @get:InputFiles
+    abstract val files: ConfigurableFileCollection
 
     @get:Input
-    abstract val folder: Property<String>
+    abstract val encoding: Property<String>
 
-    override fun createCopyAction() = Upload()
+    init {
+        encoding.convention("ibm-1047")
+    }
 
-    inner class Upload : CopyAction {
-        override fun execute(stream: CopyActionProcessingStream): WorkResult {
-            val ssh = SSHClient()
-            ssh.connect(host.get())
-            val proxy = AgentProxy((PageantConnector()))
-            ssh.auth(user.get(), com.jcraft.jsch.agentproxy.sshj.AuthAgent(proxy, proxy.identities.first()))
-            val sftp = ssh.newSFTPClient()
-            stream.process {
-                sftp.put(FileSystemFile(it.file), "${folder.get()}/${it.file.name}")
+    @TaskAction
+    fun execute() {
+        val encoding = encoding.get()
+        sshClient {
+            newSFTPClient().use { sftp ->
+                for (file in files.files) {
+                    val folder = folder.get()
+                    sftp.mkdirs(folder)
+
+                    val target = "$folder/${file.name}"
+
+                    sftp.put(FileSystemFile(file), target)
+                    exec("iconv -T -f utf-8 -t $encoding $target > $target.conv")
+                    exec("mv $target.conv $target")
+                }
             }
-            return DefaultWorkResult.SUCCESS
         }
     }
 }
