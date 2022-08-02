@@ -19,13 +19,14 @@ dependencies {
     implementation("com.jcraft:jsch.agentproxy.pageant:0.0.9")
     implementation("net.java.dev.jna:jna-platform:5.12.1")
 
-    testImplementation(kotlin("test"))
     val idea = "211.7628.21"
-    testImplementation("com.jetbrains.intellij.java:java-psi:$idea")
-    testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
-    testImplementation("com.jetbrains.intellij.platform:core-ui:$idea")
-    testImplementation("com.jetbrains.intellij.platform:lang-impl:$idea")
-    testImplementation("com.jetbrains.intellij.platform:test-framework:$idea")
+    implementation("com.jetbrains.intellij.java:java-psi:$idea")
+    implementation("com.jetbrains.intellij.platform:core-impl:$idea")
+    implementation("com.jetbrains.intellij.platform:core-ui:$idea")
+    implementation("com.jetbrains.intellij.platform:lang-impl:$idea")
+    implementation("com.jetbrains.intellij.platform:test-framework:$idea")
+
+    testImplementation(kotlin("test"))
 }
 
 licensee {
