@@ -163,10 +163,15 @@ private val KobolIRTree.Types.Function.Statement.Declaration.KType: TypeName
     }
 
 fun generate(file: File, output: File, optimize: Boolean) {
-    val ir = file.toIR().run {
-        if (optimize) {
-            optimize()
-        } else this
+    generate(setOf(file), output, optimize)
+}
+
+fun generate(files: Set<File>, output: File, optimize: Boolean) {
+    for (ir in files.toIR()) {
+        val finished = if (optimize) {
+            ir.optimize()
+        } else ir
+
+        generate(finished).writeTo(directory = output)
     }
-    generate(ir).writeTo(directory = output)
 }

@@ -26,13 +26,18 @@ abstract class KobolTask: SourceTask() {
     @get:Input
     abstract val optimize: Property<Boolean>
 
+    init {
+        optimize.convention(false)
+        outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
+    }
+
     @get:Inject
     internal abstract val workerExecutor: WorkerExecutor
 
     @TaskAction
     internal fun generate() {
         workerExecutor.classLoaderIsolation().submit(ExecuteKobol::class.java) {
-            it.inputFile.set(source.singleFile)
+            it.inputFiles.setFrom(source)
             it.outputFolder.set(outputFolder)
             it.optimize.set(optimize)
         }

@@ -5,6 +5,9 @@ import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
 import java.io.*
 
 fun File.toIR() = toTree().toIRTree()
+fun Set<File>.toIR() = toTree().map {
+    it.toIRTree()
+}
 
 fun CobolFIRTree.toIRTree(): KobolIRTree {
     val types = data?.workingStorage?.map { it.toIR() } ?: emptyList()
