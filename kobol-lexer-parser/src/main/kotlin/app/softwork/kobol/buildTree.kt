@@ -5,6 +5,7 @@ import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.Configuration.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.InputOutput.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 import com.intellij.psi.util.*
@@ -301,14 +302,14 @@ private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = Co
 private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?): List<Statement> = flatMap { proc ->
     when {
         proc.displaying != null -> listOf(
-            Statement.Display(
+            Display(
                 expr = proc.displaying!!.stringConcat.toExpr(dataTree),
                 comments = proc.comments.asComments(),
             )
         )
 
         proc.moving != null -> proc.moving!!.variableList.map {
-            Statement.Move(
+            Move(
                 target = find(it, dataTree.notNull),
                 value = proc.moving!!.expr.toExpr(dataTree),
                 comments = proc.comments.asComments()
@@ -320,7 +321,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             val forEach = proc.performing!!.forEach
             if (doWhile != null) {
                 listOf(
-                    Statement.Perform(
+                    Perform(
                         sectionName = doWhile.sectionID.varName.text,
                         comments = proc.comments.asComments(),
                         until = doWhile.booleanExpr?.toFir(dataTree)
@@ -328,7 +329,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                 )
             } else if (forEach != null) {
                 listOf(
-                    Statement.ForEach(
+                    ForEach(
                         variable = Expression.NumberExpression.NumberVariable.Local(
                             name = forEach.variable.varName.text
                         ),
@@ -340,6 +341,15 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                     )
                 )
             } else notPossible()
+        }
+
+        proc.ctrl != null -> {
+            val ctrl = proc.ctrl!!
+            when (ctrl.firstChild.elementType) {
+                CobolTypes.GOBACK -> listOf(GoBack(proc.comments.asComments()))
+                CobolTypes.CONTINUE -> listOf(Continue(proc.comments.asComments()))
+                else -> TODO()
+            }
         }
 
         else -> TODO()

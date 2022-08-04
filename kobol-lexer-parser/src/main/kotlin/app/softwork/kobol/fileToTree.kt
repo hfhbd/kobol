@@ -21,7 +21,15 @@ fun File.toCobolFile(): CobolFile {
 }
 
 fun Set<File>.toTree(): List<CobolFIRTree> {
-    return toCobolFile().map { it.toTree() }
+    return toCobolFile().map {
+        try {
+            it.toTree()
+        } catch (e: Exception) {
+            throw IllegalStateException(it.virtualFile.presentableUrl, e).apply {
+                stackTrace = e.stackTrace
+            }
+        }
+    }
 }
 
 fun Set<File>.toCobolFile(): Set<CobolFile> {
@@ -32,7 +40,7 @@ fun Set<File>.toCobolFile(): Set<CobolFile> {
         }
     }
     return buildSet {
-        intelliJ.forSourceFile<CobolFile> {
+        intelliJ.forSourceFiles<CobolFile> {
             add(it)
         }
     }

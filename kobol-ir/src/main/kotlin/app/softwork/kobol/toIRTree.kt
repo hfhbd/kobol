@@ -1,7 +1,9 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.KobolIRTree.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
+import app.softwork.kobol.KobolIRTree.Types.Type.*
 import java.io.*
 
 fun File.toIR() = toTree().toIRTree()
@@ -93,16 +95,17 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
     types: List<Types.Type>,
     sections: List<Types.Function>
 ): Types.Function.Statement = when (this) {
-    is CobolFIRTree.ProcedureTree.Statement.Move -> {
+    is Move -> {
         val declaration = types.mapNotNull { type ->
             when (type) {
-                is Types.Type.GlobalVariable -> if (type.declaration.name == target.name) {
+                is GlobalVariable -> if (type.declaration.name == target.name) {
                     type.declaration
                 } else null
 
                 else -> null
             }
         }.single()
+
         Assignment(
             declaration = declaration,
             newValue = value.toIR(),
@@ -110,14 +113,14 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
         )
     }
 
-    is CobolFIRTree.ProcedureTree.Statement.Display -> {
+    is Display -> {
         Print(
             expr = expr.toIR(),
             comments = comments
         )
     }
 
-    is CobolFIRTree.ProcedureTree.Statement.Perform -> {
+    is Perform -> {
         FunctionCall(
             function = sections.single { section -> sectionName == section.name },
             parameters = emptyList(),
@@ -125,7 +128,9 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
         )
     }
 
-    is CobolFIRTree.ProcedureTree.Statement.ForEach -> TODO()
+    is ForEach -> TODO()
+    is Continue -> TODO()
+    is GoBack -> TODO()
 }
 
 fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
