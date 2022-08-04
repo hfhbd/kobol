@@ -113,7 +113,7 @@ data class CobolFIRTree(
                 data class Occurs(val from: Int, val to: Int? = null, val dependingOn: NumberElementar? = null)
 
                 sealed interface Formatter {
-                    object Local: Formatter
+                    object Local : Formatter
 
                     @JvmInline
                     value class Simple(val length: Int) : Formatter
@@ -181,7 +181,13 @@ data class CobolFIRTree(
 
         data class Section(
             val name: String, val statements: List<Statement> = emptyList(), val comments: List<String> = emptyList()
-        )
+        ) {
+            constructor(
+                name: String,
+                comments: List<String> = emptyList(),
+                builder: Builder<Statement>.() -> Unit
+            ) : this(name, build(builder), comments)
+        }
 
         sealed interface Statement {
             val comments: List<String>
@@ -193,13 +199,14 @@ data class CobolFIRTree(
             ) : Statement
 
             data class Display(
-                val expr: Expression.StringExpression, override val comments: List<String> = emptyList()
+                val expr: Expression.StringExpression,
+                override val comments: List<String> = emptyList()
             ) : Statement
 
             data class Perform(
                 val sectionName: String,
                 override val comments: List<String> = emptyList(),
-                val until: BooleanExpression?
+                val until: BooleanExpression? = null
             ) : Statement
 
             data class ForEach(
@@ -210,24 +217,33 @@ data class CobolFIRTree(
                 val until: BooleanExpression,
                 val action: List<Statement>,
                 override val comments: List<String> = emptyList()
-            ): Statement
+            ) : Statement
 
             data class GoBack(
                 override val comments: List<String> = emptyList()
-            ): Statement
+            ) : Statement
 
             data class Continue(
                 override val comments: List<String> = emptyList()
-            ): Statement
+            ) : Statement
         }
 
         sealed interface BooleanExpression {
             data class Equals(val left: Expression, val right: Expression) : BooleanExpression
-            data class Not(val target: BooleanExpression): BooleanExpression
-            data class Or(val left: BooleanExpression, val right: BooleanExpression): BooleanExpression
-            data class And(val left: BooleanExpression, val right: BooleanExpression): BooleanExpression
-            data class Greater(val left: Expression.NumberExpression, val right: Expression.NumberExpression, val equals: Boolean = false): BooleanExpression
-            data class Smaller(val left: Expression.NumberExpression, val right: Expression.NumberExpression, val equals: Boolean = false): BooleanExpression
+            data class Not(val target: BooleanExpression) : BooleanExpression
+            data class Or(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
+            data class And(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
+            data class Greater(
+                val left: Expression.NumberExpression,
+                val right: Expression.NumberExpression,
+                val equals: Boolean = false
+            ) : BooleanExpression
+
+            data class Smaller(
+                val left: Expression.NumberExpression,
+                val right: Expression.NumberExpression,
+                val equals: Boolean = false
+            ) : BooleanExpression
         }
 
         sealed interface Expression {
@@ -257,13 +273,18 @@ data class CobolFIRTree(
 
             sealed interface NumberExpression : Expression {
                 data class NumberLiteral(override val value: Number) : NumberExpression, Literal
-                sealed interface NumberVariable: Variable, NumberExpression {
-                    data class Local(val name: String): NumberVariable {
+                sealed interface NumberVariable : Variable, NumberExpression {
+                    data class Local(val name: String) : NumberVariable {
                         override val target: Nothing get() = error("Use name")
                     }
-                    data class Data(override val target: DataTree.WorkingStorage.Elementar.NumberElementar): NumberVariable
+
+                    data class Data(override val target: DataTree.WorkingStorage.Elementar.NumberElementar) :
+                        NumberVariable
                 }
             }
         }
     }
 }
+
+val String.l get() = CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral(this)
+val Number.l get() = CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberLiteral(this)

@@ -4,12 +4,33 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
     sealed interface Types {
         data class Function(
             val name: String,
-            val parameters: List<Statement.Declaration>,
+            val parameters: List<Statement.Declaration> = emptyList(),
             val returnType: Type,
             val body: List<Statement>,
-            val private: Boolean,
-            val doc: List<String>
+            val private: Boolean = false,
+            val doc: List<String> = emptyList()
         ) : Types {
+
+            fun declaration() = Function(
+                name = name,
+                parameters = parameters,
+                returnType = returnType,
+                body = emptyList(),
+                private = private,
+                doc = doc
+            )
+
+            constructor(
+                name: String,
+                parameters: List<Statement.Declaration> = emptyList(),
+                returnType: Type = Type.Void,
+                private: Boolean = false,
+                doc: List<String> = emptyList(),
+                body: Builder<Statement>.() -> Unit
+            ) : this(
+                name, parameters, returnType, build(body), private, doc
+            )
+
             sealed interface Statement {
                 val comments: List<String>
 
@@ -43,6 +64,8 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 ) : Statement, Expression
 
                 data class Print(val expr: Expression.StringExpression, override val comments: List<String>) : Statement
+
+                data class Exit(override val comments: List<String>) : Statement
             }
         }
 

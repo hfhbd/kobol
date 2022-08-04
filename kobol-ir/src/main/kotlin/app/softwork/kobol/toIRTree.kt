@@ -30,19 +30,19 @@ private fun CobolFIRTree.ProcedureTree.functions(
         Types.Function(
             name = it.name,
             parameters = emptyList(),
-            returnType = Types.Type.Void,
+            returnType = Void,
             body = emptyList(),
             private = false,
             doc = it.comments
         )
     }
 
-    val topLevelStatements = topLevel.map { it.toIR(types, sections) }
+    val topLevelStatements = topLevel.mapNotNull { it.toIR(types, sections) }
 
     val main = Types.Function(
         name = "main",
         parameters = emptyList(),
-        returnType = Types.Type.Void,
+        returnType = Void,
         body = topLevelStatements + sections.map {
             FunctionCall(
                 it,
@@ -57,8 +57,8 @@ private fun CobolFIRTree.ProcedureTree.functions(
         Types.Function(
             name = it.name,
             parameters = emptyList(),
-            returnType = Types.Type.Void,
-            body = it.statements.map { it.toIR(types, sections) },
+            returnType = Void,
+            body = it.statements.mapNotNull { it.toIR(types, sections) },
             private = false,
             doc = it.comments
         )
@@ -86,7 +86,7 @@ fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(): Expression.St
 
         is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable ->
             Expression.StringExpression.StringVariable(
-                (target.toIR() as Types.Type.GlobalVariable).declaration as Declaration.StringDeclaration
+                (target.toIR() as GlobalVariable).declaration as Declaration.StringDeclaration
             )
     }
 
@@ -94,7 +94,7 @@ fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(): Expression.St
 fun CobolFIRTree.ProcedureTree.Statement.toIR(
     types: List<Types.Type>,
     sections: List<Types.Function>
-): Types.Function.Statement = when (this) {
+): Types.Function.Statement? = when (this) {
     is Move -> {
         val declaration = types.mapNotNull { type ->
             when (type) {
@@ -129,15 +129,15 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
     }
 
     is ForEach -> TODO()
-    is Continue -> TODO()
-    is GoBack -> TODO()
+    is Continue -> null
+    is GoBack -> Exit(comments)
 }
 
 fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
     is CobolFIRTree.DataTree.WorkingStorage.Elementar -> {
         when (this) {
             is CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar -> {
-                Types.Type.GlobalVariable(
+                GlobalVariable(
                     declaration = Declaration.StringDeclaration(
                         name = name, value = value?.let {
                             Expression.StringExpression.StringLiteral(it)
