@@ -98,4 +98,63 @@ class SectionTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
+
+    @Test
+    fun calling() {
+        //language=cobol
+        val input = """
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. CALLING.
+            DATA DIVISION.
+            PROCEDURE DIVISION.
+
+            FOO SECTION.
+            DISPLAY "FOO"
+            PERFORM BAR
+            DISPLAY "FOO2"
+            GOBACK.
+
+            BAR SECTION.
+            DISPLAY "BAR"
+            GOBACK.
+
+            C SECTION.
+            DISPLAY "C".
+        """.trimIndent().toIR()
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+        package calling
+        
+        import kotlin.Nothing
+        import kotlin.Unit
+        import kotlin.system.exitProcess
+        
+        public fun FOO(): Nothing {
+          println("FOO")
+          BAR()
+          println("FOO2")
+          return exitProcess(0)
+        }
+        
+        public fun BAR(): Nothing {
+          println("BAR")
+          return exitProcess(0)
+        }
+        
+        public fun C(): Unit {
+          println("C")
+        }
+        
+        public fun main(): Unit {
+          FOO()
+          BAR()
+          C()
+        }
+        
+        """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
 }

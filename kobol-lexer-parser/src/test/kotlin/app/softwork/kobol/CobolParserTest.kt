@@ -143,7 +143,8 @@ class CobolParserTest {
             123456 SPECIAL-NAMES.
             123456     DECIMAL-POINT           IS COMMA.
             123456 PROCEDURE                   DIVISION.
-            123456     DISPLAY "HELLO".
+            123456     DISPLAY "HELLO"
+            123456     GOBACK.
         """.trimIndent()
 
         assertEquals(
@@ -159,9 +160,10 @@ class CobolParserTest {
                         )
                     )
                 ), procedure = CobolFIRTree.ProcedureTree(
-                    topLevel = listOf(
-                        Display(StringLiteral("HELLO"))
-                    )
+                    topLevel = build {
+                        +Display(StringLiteral("HELLO"))
+                        +GoBack()
+                    }
                 )
             ), input.toTree()
         )

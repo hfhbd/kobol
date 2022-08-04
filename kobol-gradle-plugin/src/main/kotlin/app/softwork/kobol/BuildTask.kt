@@ -13,7 +13,7 @@ abstract class BuildTask : AbstractExecTask<BuildTask>(BuildTask::class.java), S
         val workdir = folder.get()
         sshClient {
             for (cmd: String in cmds.get()) {
-                exec("""cd $workdir; PATH=${"$"}PATH:/usr/lpp/IBM/cobol/igyv6r3/bin $cmd""")
+                exec("""cd $workdir; export JAVA_HOME=/usr/lpp/java/current; export PATH=${"$"}PATH:/usr/lpp/IBM/cobol/igyv6r3/bin; $cmd""")
             }
         }
     }

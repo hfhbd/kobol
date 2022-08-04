@@ -1,6 +1,7 @@
 package app.softwork.kobol.generator
 
 import app.softwork.kobol.*
+import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.optimizations.*
 import com.squareup.kotlinpoet.*
@@ -28,34 +29,41 @@ private fun FileSpec.Builder.addFunction(function: KobolIRTree.Types.Function) {
                 addParameter(it.name, it.KType)
             }
             function.body.forEach {
-                if (it !is KobolIRTree.Types.Function.Statement.Declaration && it.comments.isNotEmpty()) {
+                if (it !is Declaration && it.comments.isNotEmpty()) {
                     for (comment in it.comments) {
                         addComment(comment)
                     }
                 }
                 when (it) {
-                    is KobolIRTree.Types.Function.Statement.Assignment -> {
+                    is Assignment -> {
                         assign(it)
                     }
 
-                    is KobolIRTree.Types.Function.Statement.Print -> {
+                    is Print -> {
                         println(it)
                     }
 
-                    is KobolIRTree.Types.Function.Statement.Declaration -> addProperty(it.createProperty())
-                    is KobolIRTree.Types.Function.Statement.FunctionCall -> addCode(it.call())
+                    is Declaration -> addProperty(it.createProperty())
+                    is FunctionCall -> addCode(it.call())
+                    is Exit -> {
+                        addImport("kotlin.system", "exitProcess")
+                        addCode("return exitProcess(0)")
+                    }
                 }
+            }
+            if (function.body.any { it is Exit }) {
+                returns(NOTHING)
             }
             addKdoc(function.doc.joinToString(separator = "\n"))
         }.build()
     )
 }
 
-private fun FunSpec.Builder.assign(it: KobolIRTree.Types.Function.Statement.Assignment) {
+private fun FunSpec.Builder.assign(it: Assignment) {
     addStatement("%N = %L", it.declaration.name, it.newValue.toKotlin())
 }
 
-private fun FunSpec.Builder.println(it: KobolIRTree.Types.Function.Statement.Print) {
+private fun FunSpec.Builder.println(it: Print) {
     when (val expr = it.expr) {
         is KobolIRTree.Expression.StringExpression.StringLiteral -> {
             addStatement("println(%L)", it.expr.toKotlin())
@@ -72,18 +80,14 @@ private fun FunSpec.Builder.println(it: KobolIRTree.Types.Function.Statement.Pri
     }
 }
 
-private fun KobolIRTree.Types.Function.Statement.FunctionCall.call() = CodeBlock.builder().apply {
-    add("%M", MemberName("", function.name))
-    add(
-        parameters.joinToString(prefix = "(", postfix = ")") {
-            it.name
-        }
-    )
+private fun FunctionCall.call() = CodeBlock.builder().apply {
+    val params = parameters.joinToString { it.name }
+    addStatement("%M($params)", MemberName("", function.name))
 }.build()
 
 private fun KobolIRTree.Expression.toKotlin(): CodeBlock = when (this) {
     is KobolIRTree.Expression.StringExpression -> toTemplate()
-    is KobolIRTree.Types.Function.Statement.FunctionCall -> call()
+    is FunctionCall -> call()
 }
 
 private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
@@ -107,7 +111,7 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
         CodeBlock.of("%L%L", left.toTemplate(escape = false), right.toTemplate(escape = false))
     }
 
-    is KobolIRTree.Types.Function.Statement.FunctionCall -> TODO()
+    is FunctionCall -> TODO()
 }
 
 private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
@@ -135,7 +139,7 @@ private fun FileSpec.Builder.addGlobalVariable(data: KobolIRTree.Types.Type.Glob
     )
 }
 
-private fun KobolIRTree.Types.Function.Statement.Declaration.createProperty(): PropertySpec {
+private fun Declaration.createProperty(): PropertySpec {
     val (type, init) = when (this) {
         is StringDeclaration -> {
             val value = value
@@ -157,7 +161,7 @@ private fun KobolIRTree.Types.Function.Statement.Declaration.createProperty(): P
     }.build()
 }
 
-private val KobolIRTree.Types.Function.Statement.Declaration.KType: TypeName
+private val Declaration.KType: TypeName
     get() = when (this) {
         is StringDeclaration -> STRING
     }

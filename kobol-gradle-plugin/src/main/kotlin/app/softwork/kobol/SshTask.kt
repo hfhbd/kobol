@@ -38,6 +38,8 @@ interface SshTask : Task {
             val error = result.errorStream.reader().use { it.readText() }
             "$error " + (result.exitErrorMessage ?: "")
         }
-        logger.quiet(output)
+        if (output.isNotBlank()) {
+            logger.quiet(output)
+        }
     }
 }
