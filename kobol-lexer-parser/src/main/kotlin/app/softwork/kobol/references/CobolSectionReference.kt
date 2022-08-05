@@ -22,7 +22,7 @@ class CobolSectionReference(psiElement: CobolSectionID, range: TextRange) :
         val sections = buildList {
             for (section in procedures.procedureSectionList) {
                 val sectionName = section.sectionID.varName.text
-                val myText = element.varName.text.removeSuffix("IntellijIdeaRulezzz")
+                val myText = element.varName.text.noIdea
                 if (sectionName.startsWith(myText)) {
                     add(
                         LookupElementBuilder.create(sectionName)

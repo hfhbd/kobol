@@ -44,5 +44,17 @@ class CobolReferenceContributor : PsiReferenceContributor() {
                 }
             }
         )
+        registrar.registerReferenceProvider(
+            psiElement(CobolTypes.STRING).withParent(CobolCallingNameProgramID::class.java),
+            object : PsiReferenceProvider() {
+                override fun getReferencesByElement(
+                    element: PsiElement,
+                    context: ProcessingContext
+                ): Array<PsiReference> {
+                    val parent = element.parent as CobolCallingNameProgramID
+                    return arrayOf(CobolProgramIDReference(parent, TextRange.from(0, element.textLength)))
+                }
+            }
+        )
     }
 }

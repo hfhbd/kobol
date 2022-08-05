@@ -16,7 +16,8 @@ class CobolVariableReference(psiElement: CobolVariable, range: TextRange) :
     }.toTypedArray()
 
     override fun getVariants(): Array<LookupElement> = find(incompleteCode = true) {
-        LookupElementBuilder.create(it.recordID!!.varName.text).withIcon(CobolFileType.icon).withTypeText("VARIANT TEST")
+        LookupElementBuilder.create(it.recordID!!.varName.text).withIcon(CobolFileType.icon)
+            .withTypeText("VARIANT TEST")
     }.toTypedArray()
 
     // TODO: ADD LOCAL
@@ -25,8 +26,8 @@ class CobolVariableReference(psiElement: CobolVariable, range: TextRange) :
         val stm: List<CobolStm> =
             file.findChildByClass(CobolProgram::class.java)?.dataDiv?.workingStorageSection?.stmList
                 ?: return emptyList()
-        val myName = myElement.varName.text.removeSuffix("IntellijIdeaRulezzz")
-        val ofName = myElement.ofClause?.recordID?.varName?.text?.removeSuffix("IntellijIdeaRulezzz")
+        val myName = myElement.varName.text.noIdea
+        val ofName = myElement.ofClause?.recordID?.varName?.text?.noIdea
         return buildList {
             var currentRecord: CobolRecordDef? = null
             for (stmt in stm) {
@@ -46,7 +47,7 @@ class CobolVariableReference(psiElement: CobolVariable, range: TextRange) :
 
                 if (currentRecord != null && ofName != null) {
                     if (currentRecord.recordID?.varName?.text == ofName) {
-                       action()
+                        action()
                     }
                 } else {
                     action()
@@ -55,3 +56,5 @@ class CobolVariableReference(psiElement: CobolVariable, range: TextRange) :
         }
     }
 }
+
+internal val String.noIdea get() = removeSuffix("IntellijIdeaRulezzz")
