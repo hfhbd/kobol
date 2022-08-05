@@ -226,6 +226,12 @@ data class CobolFIRTree(
             data class Continue(
                 override val comments: List<String> = emptyList()
             ) : Statement
+
+            data class Call(
+                val name: String,
+                val parameters: List<Expression> = emptyList(),
+                override val comments: List<String> = emptyList()
+            ) : Statement
         }
 
         sealed interface BooleanExpression {

@@ -12,12 +12,59 @@ fun Set<File>.toIR() = toTree().map {
 }
 
 fun CobolFIRTree.toIRTree(): KobolIRTree {
-    val types = data?.workingStorage?.map { it.toIR() } ?: emptyList()
-    val (main, functions) = procedure.functions(types)
+    val dataTypes = data?.workingStorage?.map { it.toIR() } ?: emptyList()
+    val external = procedure.topLevel.mapNotNull {
+        when (it) {
+            is Call -> it
+            else -> null
+        }
+    } + procedure.sections.flatMap {
+        it.statements.mapNotNull {
+            when (it) {
+                is Call -> it
+                else -> null
+            }
+        }
+    }
+    val externalIR = external.toIR()
+
+    val (main, functions) = procedure.functions(dataTypes + externalIR)
     return KobolIRTree(
         name = id.programID.toKotlinName(),
         main = main,
-        types = functions + types
+        types = functions + dataTypes + externalIR
+    )
+}
+
+private fun List<Call>.toIR(): List<Class> = buildMap<String, Class> {
+    for (call in this@toIR) {
+        val name = call.name
+        val old = this[name]
+        val newFunction = call.toIrFunctionDeclaration()
+        if (old == null) {
+            this[name] = Class(
+                name = call.name,
+                constructor = Class.Constructor(emptyList()),
+                members = emptyList(),
+                functions = listOf(newFunction),
+                doc = emptyList(),
+                init = listOf(LoadExternal(call.name))
+            )
+        } else if (newFunction !in old.functions) {
+            this[name] = old.copy(functions = old.functions + newFunction)
+        }
+    }
+}.values.toList()
+
+private fun Call.toIrFunctionDeclaration(): Types.Function {
+    return Types.Function(
+        name = name,
+        parameters = emptyList(),
+        returnType = Void,
+        private = false,
+        external = true,
+        doc = comments,
+        body = emptyList()
     )
 }
 
@@ -131,6 +178,18 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
     is ForEach -> TODO()
     is Continue -> null
     is GoBack -> Exit(comments)
+    is Call -> FunctionCall(
+        function = (types.single {
+            when (it) {
+                is Class -> it.name == name
+                else -> false
+            }
+        } as Class).functions.single {
+            it.name == name
+        },
+        parameters = emptyList(),
+        comments = comments
+    )
 }
 
 fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {

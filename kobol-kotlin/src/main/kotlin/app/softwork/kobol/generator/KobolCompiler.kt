@@ -14,56 +14,56 @@ fun generate(tree: KobolIRTree): FileSpec {
             addType(it)
         }
 
-        addFunction(tree.main)
+        addFunction(tree.main.toKotlin())
     }
     return fileSpec.build()
 }
 
-private fun FileSpec.Builder.addFunction(function: KobolIRTree.Types.Function) {
-    addFunction(
-        FunSpec.builder(function.name).apply {
-            if (function.private) {
-                addModifiers(KModifier.PRIVATE)
-            }
-            function.parameters.forEach {
-                addParameter(it.name, it.KType)
-            }
-            function.body.forEach {
-                if (it !is Declaration && it.comments.isNotEmpty()) {
-                    for (comment in it.comments) {
-                        addComment(comment)
-                    }
-                }
-                when (it) {
-                    is Assignment -> {
-                        assign(it)
-                    }
+private fun KobolIRTree.Types.Function.toKotlin() = FunSpec.builder(name).apply {
+    if (private) {
+        addModifiers(KModifier.PRIVATE)
+    }
+    this@toKotlin.parameters.forEach {
+        addParameter(it.name, it.KType)
+    }
+    if (external) {
+        addModifiers(KModifier.EXTERNAL)
+    } else {
+        body.forEach {
+            addCode(addStatement(it))
+        }
+        addKdoc(doc.joinToString(separator = "\n"))
+        if (body.any { it is Exit }) {
+            returns(NOTHING)
+        }
+    }
+}.build()
 
-                    is Print -> {
-                        println(it)
-                    }
-
-                    is Declaration -> addProperty(it.createProperty())
-                    is FunctionCall -> addCode(it.call())
-                    is Exit -> {
-                        addImport("kotlin.system", "exitProcess")
-                        addCode("return exitProcess(0)")
-                    }
-                }
-            }
-            if (function.body.any { it is Exit }) {
-                returns(NOTHING)
-            }
-            addKdoc(function.doc.joinToString(separator = "\n"))
-        }.build()
-    )
+fun CodeBlock.Builder.addComment(format: String, vararg args: Any): CodeBlock.Builder = apply {
+    add("//·${format.replace(' ', '·')}\n", *args)
 }
 
-private fun FunSpec.Builder.assign(it: Assignment) {
+private fun addStatement(it: KobolIRTree.Types.Function.Statement) = CodeBlock.builder().apply {
+    if (it !is Declaration && it.comments.isNotEmpty()) {
+        for (comment in it.comments) {
+            addComment(comment)
+        }
+    }
+    when (it) {
+        is Assignment -> assign(it)
+        is Print -> println(it)
+        is Declaration -> add(CodeBlock.of("%L", it.createProperty()))
+        is FunctionCall -> add(it.call())
+        is Exit -> addStatement("return %M(0)", MemberName("kotlin.system", "exitProcess", true))
+        is LoadExternal -> addStatement("System.loadLibrary(\"${it.libName}\")")
+    }
+}.build()
+
+private fun CodeBlock.Builder.assign(it: Assignment) {
     addStatement("%N = %L", it.declaration.name, it.newValue.toKotlin())
 }
 
-private fun FunSpec.Builder.println(it: Print) {
+private fun CodeBlock.Builder.println(it: Print) {
     when (val expr = it.expr) {
         is KobolIRTree.Expression.StringExpression.StringLiteral -> {
             addStatement("println(%L)", it.expr.toKotlin())
@@ -82,7 +82,14 @@ private fun FunSpec.Builder.println(it: Print) {
 
 private fun FunctionCall.call() = CodeBlock.builder().apply {
     val params = parameters.joinToString { it.name }
-    addStatement("%M($params)", MemberName("", function.name))
+    if (this@call.function.external) {
+        add("«")
+        add("%M().", MemberName("", function.name))
+        add("%M($params)", MemberName("", function.name))
+        add("\n»")
+    } else {
+        addStatement("%M($params)", MemberName("", function.name))
+    }
 }.build()
 
 private fun KobolIRTree.Expression.toKotlin(): CodeBlock = when (this) {
@@ -116,8 +123,8 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
 
 private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
     when (data) {
-        is KobolIRTree.Types.Function -> addFunction(data)
-        is KobolIRTree.Types.Type.Class -> TODO()
+        is KobolIRTree.Types.Function -> addFunction(data.toKotlin())
+        is KobolIRTree.Types.Type.Class -> addClass(data)
         is KobolIRTree.Types.Type.External -> TODO()
         is KobolIRTree.Types.Type.GlobalVariable -> {
             addGlobalVariable(data)
@@ -125,6 +132,25 @@ private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
 
         KobolIRTree.Types.Type.Void -> Unit
     }
+}
+
+private fun FileSpec.Builder.addClass(data: KobolIRTree.Types.Type.Class) {
+    val classBuilder = TypeSpec.classBuilder(data.name)
+    classBuilder.addKdoc(data.doc.joinToString("\n"))
+
+    if (data.init.isNotEmpty()) {
+        val initBlock = CodeBlock.builder()
+        for (init in data.init) {
+            initBlock.add(addStatement(init))
+        }
+        classBuilder.addInitializerBlock(initBlock.build())
+    }
+
+    for (function in data.functions) {
+        classBuilder.addFunction(function.toKotlin())
+    }
+
+    addType(classBuilder.build())
 }
 
 private fun FileSpec.Builder.addGlobalVariable(data: KobolIRTree.Types.Type.GlobalVariable) {
