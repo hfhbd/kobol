@@ -352,6 +352,22 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             }
         }
 
+        proc.calling != null -> {
+            val calling = proc.calling!!
+
+            val target = calling.callingName.expr.toExpr(dataTree)
+            require(target is Expression.StringExpression.StringLiteral) {
+                "Non hard-coded CALL is not supported due to compiler and linker limitations."
+            }
+            listOf(
+                Call(
+                    name = target.value,
+                    parameters = calling.exprList.map { it.toExpr(dataTree) },
+                    comments = proc.comments.asComments()
+                )
+            )
+        }
+
         else -> TODO()
     }
 }

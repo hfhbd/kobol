@@ -100,7 +100,7 @@ class SectionTest {
     }
 
     @Test
-    fun calling() {
+    fun complexSection() {
         //language=cobol
         val input = """
             IDENTIFICATION DIVISION.
@@ -152,6 +152,45 @@ class SectionTest {
           FOO()
           BAR()
           C()
+        }
+        
+        """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
+
+    @Test
+    fun londonCalling() {
+        //language=cobol
+        val input = """
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. CALLING.
+            DATA DIVISION.
+            PROCEDURE DIVISION.
+           * LONDON CALLING
+                CALL "LONDON"
+                DISPLAY "FOO".
+        """.trimIndent().toIR()
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+        package calling
+        
+        import kotlin.Unit
+        
+        public class LONDON {
+          init {
+            System.loadLibrary("LONDON")
+          }
+        
+          public external fun LONDON(): Unit
+        }
+        
+        public fun main(): Unit {
+          // LONDON CALLING
+          LONDON().LONDON()
+          println("FOO")
         }
         
         """.trimIndent()

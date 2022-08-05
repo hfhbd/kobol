@@ -8,7 +8,8 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             val returnType: Type,
             val body: List<Statement>,
             val private: Boolean = false,
-            val doc: List<String> = emptyList()
+            val doc: List<String> = emptyList(),
+            val external: Boolean = false
         ) : Types {
 
             fun declaration() = Function(
@@ -66,6 +67,10 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 data class Print(val expr: Expression.StringExpression, override val comments: List<String>) : Statement
 
                 data class Exit(override val comments: List<String>) : Statement
+
+                data class LoadExternal(val libName: String) : Statement {
+                    override val comments: List<String> = emptyList()
+                }
             }
         }
 
@@ -81,7 +86,8 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 val constructor: Constructor,
                 val members: List<Function.Statement.Declaration>,
                 val functions: List<Function>,
-                val doc: List<String>
+                val doc: List<String>,
+                val init: List<Function.Statement>
             ) : Type {
                 data class Constructor(val parameters: List<Function.Statement.Declaration>)
             }
