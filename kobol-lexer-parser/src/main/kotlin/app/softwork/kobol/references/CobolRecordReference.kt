@@ -11,7 +11,7 @@ class CobolRecordReference(psiElement: CobolRecordID, range: TextRange) :
         val file = myElement.containingFile as CobolFile
         val stm: List<CobolStm> =
             file.findChildByClass(CobolProgram::class.java)?.dataDiv?.workingStorageSection?.stmList ?: return null
-        val myName = myElement.varName.text.removeSuffix("IntellijIdeaRulezzz")
+        val myName = myElement.varName.text.noIdea
         for (stmt in stm) {
             val record = stmt.recordDef ?: continue
             val recordName = record.recordID?.varName?.text ?: continue
@@ -27,7 +27,7 @@ class CobolRecordReference(psiElement: CobolRecordID, range: TextRange) :
         val file = myElement.containingFile as CobolFile
         val stm: List<CobolStm> =
             file.findChildByClass(CobolProgram::class.java)?.dataDiv?.workingStorageSection?.stmList ?: return emptyArray()
-        val myName = myElement.varName.text.removeSuffix("IntellijIdeaRulezzz")
+        val myName = myElement.varName.text.noIdea
         return buildList {
             for (stmt in stm) {
                 val record = stmt.recordDef ?: continue
