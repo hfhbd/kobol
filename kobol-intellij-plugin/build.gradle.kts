@@ -18,4 +18,28 @@ tasks {
         untilBuild.set("222.*")
         version.set(project.version.toString())
     }
+
+    val copyRepoPlugin by registering(Copy::class) {
+        dependsOn(buildPlugin)
+        copy {
+            from("build/distributions/kobol-intellij-plugin-$version.zip")
+            into("build/customRepo")
+        }
+    }
+
+    val createPluginRepo by registering {
+        dependsOn(copyRepoPlugin, patchPluginXml)
+        doFirst {
+            val xml = File(File(buildDir, "customRepo"), "updatePlugins.xml")
+            xml.writeText(
+                """
+                <plugins>
+                <plugin id="app.softwork.kobol" url="https://hfhbd.github.io/kobol/kobol-intellij-plugin-$version.zip" version="$version">
+                <idea-version since-build="${patchPluginXml.get().sinceBuild.get()}" until-build="${patchPluginXml.get().untilBuild.get()}"/>
+                </plugin>
+                </plugins>
+            """.trimIndent()
+            )
+        }
+    }
 }
