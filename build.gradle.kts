@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.7.10" apply false
+    kotlin("jvm") version "1.7.20-Beta" apply false
     id("org.jetbrains.intellij") version "1.8.0" apply false
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
     `maven-publish`
