@@ -10,7 +10,7 @@ object CobolParserDefinition : ParserDefinition {
     private val comments = TokenSet.create(CobolTypes.COMMENT)
     private val stringLiterals = TokenSet.create(CobolTypes.STRING)
 
-    override fun createLexer(project: Project?) = CobolLexerAdapter
+    override fun createLexer(project: Project?) = CobolLexerAdapter()
     override fun createParser(project: Project?) = CobolParser()
     override fun getFileNodeType() = file
 

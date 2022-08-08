@@ -18,7 +18,7 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
     private val dot = createTextAttributesKey("COBOL_DOT", Default.DOT)
     private val number = createTextAttributesKey("COBOL_NUMBER", Default.NUMBER)
 
-    override fun getHighlightingLexer() = CobolLexerAdapter
+    override fun getHighlightingLexer() = CobolLexerAdapter()
 
     override fun getTokenHighlights(tokenType: IElementType?) = when (tokenType) {
         COMMENT -> comment
