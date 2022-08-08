@@ -9,6 +9,7 @@ grammarKit {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.3")
     compileOnly("com.jetbrains.intellij.java:java-psi:$idea")
     compileOnly("com.jetbrains.intellij.platform:core-impl:$idea")
     compileOnly("com.jetbrains.intellij.platform:core-ui:$idea")

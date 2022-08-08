@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.7.20-Beta" apply false
+    kotlin("plugin.serialization") version "1.7.20-Beta" apply false
     id("org.jetbrains.intellij") version "1.8.0" apply false
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
     `maven-publish`
@@ -20,6 +21,7 @@ allprojects {
 subprojects {
     plugins.apply("maven-publish")
     plugins.apply("org.jetbrains.kotlin.jvm")
+    plugins.apply("org.jetbrains.kotlin.plugin.serialization")
     plugins.apply("app.cash.licensee")
 
     the<app.cash.licensee.LicenseeExtension>().apply {
