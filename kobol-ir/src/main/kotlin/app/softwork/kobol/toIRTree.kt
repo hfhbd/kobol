@@ -63,7 +63,7 @@ private fun Call.toIrFunctionDeclaration(): Types.Function {
         returnType = Void,
         private = false,
         external = true,
-        doc = comments,
+        doc = listOf(),
         body = emptyList()
     )
 }
