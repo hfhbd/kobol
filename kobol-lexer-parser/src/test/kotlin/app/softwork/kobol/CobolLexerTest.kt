@@ -436,7 +436,7 @@ private fun FlexAdapter.list(input: String): List<List<IElementType>> = buildLis
 }.drop(1).filter { it.isNotEmpty() }
 
 private fun assertEquals(@Language("COBOL") cobol: String, builder: Builder<List<IElementType>>.() -> Unit) {
-    assertEquals(build(builder), CobolLexerAdapter.list(cobol))
+    assertEquals(build(builder), CobolLexerAdapter().list(cobol))
 }
 
 private fun Builder<List<IElementType>>.line(vararg types: IElementType) = +listOf(elements = types)
