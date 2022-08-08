@@ -169,6 +169,8 @@ class SectionTest {
            * LONDON CALLING
                 CALL "LONDON"
                 DISPLAY "FOO".
+            FOO SECTION.
+                CALL "LONDON".
         """.trimIndent().toIR()
 
         val output = generate(input)
@@ -178,6 +180,10 @@ class SectionTest {
         package calling
         
         import kotlin.Unit
+        
+        public fun FOO(): Unit {
+          LONDON().LONDON()
+        }
         
         public class LONDON {
           init {
@@ -191,6 +197,7 @@ class SectionTest {
           // LONDON CALLING
           LONDON().LONDON()
           println("FOO")
+          FOO()
         }
         
         """.trimIndent()
