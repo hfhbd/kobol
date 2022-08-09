@@ -310,7 +310,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
 
         proc.moving != null -> proc.moving!!.variableList.map {
             Move(
-                target = find(it, dataTree.notNull),
+                target = dataTree.notNull.find(it),
                 value = proc.moving!!.expr.toExpr(dataTree),
                 comments = proc.comments.asComments()
             )
@@ -330,9 +330,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             } else if (forEach != null) {
                 listOf(
                     ForEach(
-                        variable = Expression.NumberExpression.NumberVariable.Local(
-                            name = forEach.variable.varName.text
-                        ),
+                        variable = dataTree.notNull.find(forEach.variable) as NumberElementar,
                         from = forEach.number.text.toInt(),
                         to = forEach.forEachTo?.number?.text?.toInt(),
                         by = forEach.forEachBy?.number?.text?.toInt(),
@@ -370,22 +368,6 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
 
         else -> TODO()
     }
-}
-
-private fun List<CobolProcedures>.find(variable: CobolVariable, dataTree: CobolFIRTree.DataTree): Elementar {
-    for (proc in this) {
-        val perf = proc.performing
-        if (perf != null) {
-            val forEach = perf.forEach
-            if (forEach != null && forEach.variable.varName.text == variable.text) {
-                return NumberElementar(
-                    name = variable.text,
-                    formatter = Formatter.Local
-                )
-            }
-        }
-    }
-    return dataTree.find(variable)
 }
 
 private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): BooleanExpression {

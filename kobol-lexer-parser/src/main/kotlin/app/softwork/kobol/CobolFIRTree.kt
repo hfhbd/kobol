@@ -258,7 +258,7 @@ data class CobolFIRTree(
 
             @Serializable
             data class ForEach(
-                val variable: Expression.NumberExpression.NumberVariable.Local,
+                val variable: DataTree.WorkingStorage.Elementar.NumberElementar,
                 val from: Int,
                 val to: Int? = null,
                 val by: Int? = null,
@@ -352,17 +352,8 @@ data class CobolFIRTree(
                 data class NumberLiteral(override val value: Double) : NumberExpression, Literal
 
                 @Serializable
-                sealed interface NumberVariable : Variable, NumberExpression {
-
-                    @Serializable
-                    data class Local(val name: String) : NumberVariable {
-                        override val target: Nothing get() = error("Use name")
-                    }
-
-                    @Serializable
-                    data class Data(override val target: DataTree.WorkingStorage.Elementar.NumberElementar) :
-                        NumberVariable
-                }
+                data class NumberVariable(override val target: DataTree.WorkingStorage.Elementar.NumberElementar) :
+                    Variable, NumberExpression
             }
         }
     }
