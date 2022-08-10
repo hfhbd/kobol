@@ -36,10 +36,10 @@ interface SshTask : Task {
         val exitCode: Int? = result.exitStatus
         require(exitCode == 0) {
             val error = result.errorStream.reader().use { it.readText() }
-            "$error " + (result.exitErrorMessage ?: "")
+            "$cmd\n$error " + (result.exitErrorMessage ?: "")
         }
         if (output.isNotBlank()) {
-            logger.quiet(output)
+            logger.quiet("$cmd\n$output")
         }
     }
 }
