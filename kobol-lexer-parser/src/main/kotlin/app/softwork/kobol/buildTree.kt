@@ -317,6 +317,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
         }
 
         proc.performing != null -> {
+            val isWhile = proc.performing!!.`while`
             val doWhile = proc.performing!!.doWhile
             val forEach = proc.performing!!.forEach
             if (doWhile != null) {
@@ -331,11 +332,20 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                 listOf(
                     ForEach(
                         variable = dataTree.notNull.find(forEach.variable) as NumberElementar,
-                        from = forEach.number.text.toInt(),
-                        to = forEach.forEachTo?.number?.text?.toInt(),
-                        by = forEach.forEachBy?.number?.text?.toInt(),
+                        from = forEach.expr.toExpr(dataTree) as Expression.NumberExpression,
+                        to = forEach.forEachTo?.expr?.toExpr(dataTree) as Expression.NumberExpression?,
+                        by = forEach.forEachBy?.expr?.toExpr(dataTree) as Expression.NumberExpression?,
                         until = forEach.booleanExpr.toFir(dataTree),
-                        action = forEach.proceduresList.asStatements(dataTree)
+                        statements = forEach.proceduresList.asStatements(dataTree),
+                        comments = proc.comments.asComments()
+                    )
+                )
+            } else if (isWhile != null) {
+                listOf(
+                    While(
+                        statements = isWhile.proceduresList.asStatements(dataTree),
+                        until = isWhile.booleanExpr.toFir(dataTree),
+                        comments = proc.comments.asComments()
                     )
                 )
             } else notPossible()
@@ -428,7 +438,18 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): Expression {
     return when {
         literal != null -> when {
             literal.string != null -> literal.string!!.singleAsString(dataTree)
-            literal.number != null -> TODO()
+            literal.number != null -> {
+                val number = literal.number!!
+                val elementType = number.elementType
+                when {
+                    elementType == CobolTypes.NUMBER -> Expression.NumberExpression.NumberLiteral(number.text.toDouble())
+                    number is CobolVariable -> Expression.NumberExpression.NumberVariable(
+                        dataTree.notNull.find(number) as NumberElementar
+                    )
+                    else -> TODO()
+                }
+            }
+
             else -> TODO("$literal")
         }
 
@@ -530,7 +551,7 @@ private fun Elementar.toVariable(): Expression.Variable = when (this) {
         target = this
     )
 
-    is NumberElementar -> TODO()
+    is NumberElementar -> Expression.NumberExpression.NumberVariable(this)
     is Pointer -> TODO()
     is EmptyElementar -> TODO()
 }

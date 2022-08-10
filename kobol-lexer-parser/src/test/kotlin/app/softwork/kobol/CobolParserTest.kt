@@ -5,6 +5,8 @@ import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.Custom.Part.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.BooleanExpression.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.NumberExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.StringExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import kotlin.test.*
@@ -37,45 +39,35 @@ class CobolParserTest {
                 123456 DISPLAY FOO
                 123456 DISPLAY FOO OF RPICA.
             """.trimIndent()
-        assertEquals(
-            CobolFIRTree(
-                id = CobolFIRTree.ID(
-                    programID = "HELLO"
-                ),
-                data = CobolFIRTree.DataTree(
-                    workingStorage = build {
-                        +Record(name = "RPI") {
-                            +StringElementar(name = "WORLD", value = "WORLD!", formatter = Simple(6))
-                            +StringElementar(name = "ANSWER", formatter = Simple(6))
-                        }
-                        +StringElementar(name = "FOO", value = "123456", formatter = Simple(6))
-                        +Record(name = "RPICA") {
-                            +StringElementar(name = "FOO", formatter = Simple(3))
-                        }
-                        +StringElementar(name = "BAR", formatter = Simple(3))
-                    }
-                ),
-                procedure = CobolFIRTree.ProcedureTree(
-                    topLevel = build {
-                        +Display(
-                            StringVariable(
-                                target = StringElementar(name = "WORLD", value = "WORLD!", formatter = Simple(6))
-                            )
-                        )
-                        +Display(
-                            StringVariable(
-                                target = StringElementar(name = "FOO", value = "123456", formatter = Simple(6))
-                            )
-                        )
-                        +Display(
-                            StringVariable(
-                                target = StringElementar(name = "FOO", formatter = Simple(3))
-                            )
-                        )
-                    }
+        assertEquals(CobolFIRTree(id = CobolFIRTree.ID(
+            programID = "HELLO"
+        ), data = CobolFIRTree.DataTree(workingStorage = build {
+            +Record(name = "RPI") {
+                +StringElementar(name = "WORLD", value = "WORLD!", formatter = Simple(6))
+                +StringElementar(name = "ANSWER", formatter = Simple(6))
+            }
+            +StringElementar(name = "FOO", value = "123456", formatter = Simple(6))
+            +Record(name = "RPICA") {
+                +StringElementar(name = "FOO", formatter = Simple(3))
+            }
+            +StringElementar(name = "BAR", formatter = Simple(3))
+        }), procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+            +Display(
+                StringVariable(
+                    target = StringElementar(name = "WORLD", value = "WORLD!", formatter = Simple(6))
                 )
-            ), input.toTree()
-        )
+            )
+            +Display(
+                StringVariable(
+                    target = StringElementar(name = "FOO", value = "123456", formatter = Simple(6))
+                )
+            )
+            +Display(
+                StringVariable(
+                    target = StringElementar(name = "FOO", formatter = Simple(3))
+                )
+            )
+        })), input.toTree())
     }
 
     @Test
@@ -112,11 +104,8 @@ class CobolParserTest {
                                 )
                             ), comments = listOf("Some Comment")
                         ), Move(
-                            value = StringLiteral("42"),
-                            target = StringElementar(
-                                name = "WORLD",
-                                value = "WORLD!",
-                                formatter = Simple(6)
+                            value = StringLiteral("42"), target = StringElementar(
+                                name = "WORLD", value = "WORLD!", formatter = Simple(6)
                             )
                         ), Display(
                             Concat(
@@ -147,26 +136,20 @@ class CobolParserTest {
             123456     GOBACK.
         """.trimIndent()
 
-        assertEquals(
-            CobolFIRTree(
-                id = CobolFIRTree.ID(
-                    programID = "HELLO"
-                ), env = CobolFIRTree.EnvTree(
-                    configuration = Configuration(
-                        specialNames = Configuration.SpecialNames(
-                            specialNames = listOf(
-                                Configuration.SpecialNames.SpecialName("DECIMAL-POINT", "COMMA")
-                            )
-                        )
+        assertEquals(CobolFIRTree(id = CobolFIRTree.ID(
+            programID = "HELLO"
+        ), env = CobolFIRTree.EnvTree(
+            configuration = Configuration(
+                specialNames = Configuration.SpecialNames(
+                    specialNames = listOf(
+                        Configuration.SpecialNames.SpecialName("DECIMAL-POINT", "COMMA")
                     )
-                ), procedure = CobolFIRTree.ProcedureTree(
-                    topLevel = build {
-                        +Display(StringLiteral("HELLO"))
-                        +GoBack()
-                    }
                 )
-            ), input.toTree()
-        )
+            )
+        ), procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+            +Display(StringLiteral("HELLO"))
+            +GoBack()
+        })), input.toTree())
     }
 
     @Test
@@ -239,8 +222,7 @@ class CobolParserTest {
             123456 PROCEDURE                   DIVISION.
             123456     DISPLAY "HELLO"WORLD4.
         """.trimIndent()
-        val world4 =
-            StringElementar("WORLD4", formatter = Simple(6), value = "WORLD!", occurs = Occurs(2))
+        val world4 = StringElementar("WORLD4", formatter = Simple(6), value = "WORLD!", occurs = Occurs(2))
         assertEquals(CobolFIRTree(id = CobolFIRTree.ID(
             programID = "HELLO", author = "WEDEMANN / Softwork.app"
         ), data = CobolFIRTree.DataTree(workingStorage = build {
@@ -251,19 +233,13 @@ class CobolParserTest {
                 +Pointer("WORLD3")
                 +world4
                 +NumberElementar(
-                    "FOO5",
-                    formatter = Simple(9),
-                    value = 123456.0,
-                    occurs = Occurs(9, 9, dependingOn = world2)
+                    "FOO5", formatter = Simple(9), value = 123456.0, occurs = Occurs(9, 9, dependingOn = world2)
                 )
             }
 
             +StringElementar("WORLD6", formatter = Simple(1))
             +NumberElementar(
-                "FOO7",
-                formatter = Custom(Signed(6), Decimal(1)),
-                value = .9,
-                signed = true
+                "FOO7", formatter = Custom(Signed(6), Decimal(1)), value = .9, signed = true
             )
             +NumberElementar("FOO8", formatter = Simple(1), value = .9, signed = true)
             +Record("RPICA") {
@@ -276,4 +252,50 @@ class CobolParserTest {
         ), input.toTree()
         )
     }
+
+    @Test
+    fun perform() {
+        //language=cobol
+        val input = """
+            123456 IDENTIFICATION              DIVISION.
+            123456 PROGRAM-ID.                 HELLO.
+            123456 DATA DIVISION.
+            123456 WORKING-STORAGE SECTION.
+            123456 77 WORLD2 PIC 9 VALUE 9.
+            123456 PROCEDURE                   DIVISION.
+            123456 PERFORM FOO UNTIL WORLD2 = 2
+            123456 PERFORM UNTIL WORLD2 = 2 
+            123456     PERFORM FOO
+            123456 END-PERFORM.
+            123456 PERFORM VARYING WORLD2 FROM 1 TO 2 BY 3 UNTIL WORLD2 = 4
+            123456     PERFORM FOO
+            123456 END-PERFORM.
+            123456 FOO SECTION.
+            123456 DISPLAY 'FOO'.
+        """.trimIndent()
+        val world2 = NumberElementar("WORLD2", formatter = Simple(1), value = 9.0)
+        assertEquals(CobolFIRTree(id = CobolFIRTree.ID(programID = "HELLO"),
+            data = CobolFIRTree.DataTree(workingStorage = build {
+                +world2
+            }),
+            procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+                +Perform("FOO", until = Equals(NumberVariable(world2), 2.l))
+                +While(build {
+                    +Perform("FOO")
+                }, until = NumberVariable(world2) eq 2.l)
+                +ForEach(variable = world2,
+                    from = 1.l,
+                    to = 2.l,
+                    by = 3.l,
+                    until = NumberVariable(world2) eq 4.l,
+                    statements = build {
+                        +Perform("FOO")
+                    })
+            }, sections = listOf(CobolFIRTree.ProcedureTree.Section("FOO") {
+                +Display("FOO".l)
+            }))), input.toTree())
+    }
+
+    private infix fun CobolFIRTree.ProcedureTree.Expression.eq(right: CobolFIRTree.ProcedureTree.Expression) =
+        Equals(this, right)
 }

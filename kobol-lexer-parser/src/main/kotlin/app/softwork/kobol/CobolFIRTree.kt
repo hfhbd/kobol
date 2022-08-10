@@ -139,8 +139,15 @@ data class CobolFIRTree(
 
                 @Serializable
                 sealed interface Formatter {
-                    @Serializable
-                    object Local : Formatter
+
+                    val numberType get() = when {
+                        this is Simple -> Int
+                        this is Custom -> {
+                            for (part in parts) {
+                                if ()
+                            }
+                        }
+                    }
 
                     @Serializable
                     @JvmInline
@@ -257,13 +264,20 @@ data class CobolFIRTree(
             ) : Statement
 
             @Serializable
+            data class While(
+                val statements: List<Statement>,
+                override val comments: List<String> = emptyList(),
+                val until: BooleanExpression
+            ) : Statement
+
+            @Serializable
             data class ForEach(
                 val variable: DataTree.WorkingStorage.Elementar.NumberElementar,
-                val from: Int,
-                val to: Int? = null,
-                val by: Int? = null,
+                val from: Expression.NumberExpression,
+                val to: Expression.NumberExpression? = null,
+                val by: Expression.NumberExpression? = null,
                 val until: BooleanExpression,
-                val action: List<Statement>,
+                val statements: List<Statement>,
                 override val comments: List<String> = emptyList()
             ) : Statement
 
