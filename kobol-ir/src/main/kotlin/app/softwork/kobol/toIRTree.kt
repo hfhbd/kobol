@@ -1,12 +1,15 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.ForEach
 import app.softwork.kobol.KobolIRTree.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.KobolIRTree.Types.Type.*
 import java.io.*
 
 fun File.toIR() = toTree().toIRTree()
+
 fun Set<File>.toIR() = toTree().map {
     it.toIRTree()
 }
@@ -30,9 +33,7 @@ fun CobolFIRTree.toIRTree(): KobolIRTree {
 
     val (main, functions) = procedure.functions(dataTypes + externalIR)
     return KobolIRTree(
-        name = id.programID.toKotlinName(),
-        main = main,
-        types = functions + dataTypes + externalIR
+        name = id.programID.toKotlinName(), main = main, types = functions + dataTypes + externalIR
     )
 }
 
@@ -87,18 +88,11 @@ private fun CobolFIRTree.ProcedureTree.functions(
     val topLevelStatements = topLevel.mapNotNull { it.toIR(types, sections) }
 
     val main = Types.Function(
-        name = "main",
-        parameters = emptyList(),
-        returnType = Void,
-        body = topLevelStatements + sections.map {
+        name = "main", parameters = emptyList(), returnType = Void, body = topLevelStatements + sections.map {
             FunctionCall(
-                it,
-                parameters = emptyList(),
-                comments = emptyList()
+                it, parameters = emptyList(), comments = emptyList()
             )
-        },
-        private = false,
-        doc = comments
+        }, private = false, doc = comments
     )
     val sectionsWithResolvedCalls = this@functions.sections.map {
         Types.Function(
@@ -116,31 +110,85 @@ private fun CobolFIRTree.ProcedureTree.functions(
 
 fun CobolFIRTree.ProcedureTree.Expression.toIR(): Expression = when (this) {
     is CobolFIRTree.ProcedureTree.Expression.StringExpression -> toIR()
-    is CobolFIRTree.ProcedureTree.Expression.NumberExpression -> TODO()
+    is CobolFIRTree.ProcedureTree.Expression.NumberExpression -> toIR()
+    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression -> toIR()
 }
 
-fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(): Expression.StringExpression =
-    when (this) {
-        is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral -> Expression.StringExpression.StringLiteral(
-            value = value
+fun CobolFIRTree.ProcedureTree.Expression.BooleanExpression.toIR(): Expression.BooleanExpression = when (this) {
+    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.And -> Expression.BooleanExpression.And(
+        left = left.toIR(), right = right.toIR()
+    )
+
+    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Equals ->
+        Expression.BooleanExpression.Eq(
+            left = left.toIR(), right = right.toIR()
         )
 
-        is CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat ->
-            Expression.StringExpression.Concat(
-                left = left.toIR(),
-                right = right.toIR()
+    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Greater ->
+        Expression.BooleanExpression.Bigger(left = left.toIR(), right = right.toIR(), equals = equals)
+
+    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Not -> Expression.BooleanExpression.Not(
+        condition = target.toIR()
+    )
+
+    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Or -> Expression.BooleanExpression.Or(
+        left = left.toIR(), right = right.toIR()
+    )
+
+    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Smaller -> Expression.BooleanExpression.Smaller(
+        left = left.toIR(), right = right.toIR(), equals = equals
+    )
+}
+
+fun CobolFIRTree.ProcedureTree.Expression.NumberExpression.toIR(): Expression.NumberExpression = when (this) {
+    is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberLiteral -> {
+        val isInt = value.isInt()
+        if (isInt != null) {
+            Expression.NumberExpression.IntExpression.IntLiteral(isInt)
+        } else {
+            Expression.NumberExpression.DoubleExpression.DoubleLiteral(value)
+        }
+    }
+
+    is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberVariable -> {
+        val ir = target.toIR() as GlobalVariable
+
+        when (target.formatter.numberType) {
+            Formatter.NumberType.Int -> Expression.NumberExpression.IntExpression.IntVariable(
+                ir.declaration as Declaration.IntDeclaration
             )
 
-        is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable ->
-            Expression.StringExpression.StringVariable(
-                (target.toIR() as GlobalVariable).declaration as Declaration.StringDeclaration
+            Formatter.NumberType.Double -> Expression.NumberExpression.DoubleExpression.DoubleVariable(
+                ir.declaration as Declaration.DoubleDeclaration
             )
+        }
     }
+}
+
+fun Double.isInt(): Int? = when {
+    this > Int.MAX_VALUE -> null
+    this < Int.MIN_VALUE -> null
+    rem(1) == 0.0 -> toInt()
+    else -> null
+}
+
+fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(): Expression.StringExpression = when (this) {
+    is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral -> Expression.StringExpression.StringLiteral(
+        value = value
+    )
+
+    is CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat -> Expression.StringExpression.Concat(
+        left = left.toIR(), right = right.toIR()
+    )
+
+    is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> Expression.StringExpression.StringVariable(
+        (target.toIR() as GlobalVariable).declaration as Declaration.StringDeclaration
+    )
+}
 
 
 fun CobolFIRTree.ProcedureTree.Statement.toIR(
-    types: List<Types.Type>,
-    sections: List<Types.Function>
+    types: List<Types.Type>, sections: List<Types.Function>
 ): Types.Function.Statement? = when (this) {
     is Move -> {
         val declaration = types.mapNotNull { type ->
@@ -154,65 +202,99 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
         }.single()
 
         Assignment(
-            declaration = declaration,
-            newValue = value.toIR(),
-            comments = comments
+            declaration = declaration, newValue = value.toIR(), comments = comments
         )
     }
 
     is Display -> {
         Print(
-            expr = expr.toIR(),
-            comments = comments
+            expr = expr.toIR(), comments = comments
         )
     }
 
     is Perform -> {
-        FunctionCall(
+        val functionCall = FunctionCall(
             function = sections.single { section -> sectionName == section.name },
             parameters = emptyList(),
             comments = comments
         )
+        val until = until
+        if (until == null) {
+            functionCall
+        } else {
+            DoWhile(
+                functionCall = functionCall,
+                condition = Expression.BooleanExpression.Not(until.toIR()),
+                comments = comments
+            )
+        }
     }
 
-    is ForEach -> TODO()
+    is ForEach -> Types.Function.Statement.ForEach(
+        counter = (variable.toIR() as GlobalVariable).declaration as Declaration.NumberDeclaration,
+        from = from.toIR(),
+        step = by?.toIR(),
+        statements = statements.mapNotNull { it.toIR(types, sections) },
+        condition = Expression.BooleanExpression.Not(until.toIR()),
+        comments = comments
+    )
+
+    is CobolFIRTree.ProcedureTree.Statement.While -> Types.Function.Statement.While(
+        condition = Expression.BooleanExpression.Not(until.toIR()),
+        statements = statements.mapNotNull { it.toIR(types, sections) },
+        comments = comments
+    )
+
     is Continue -> null
     is GoBack -> Exit(comments)
-    is Call -> FunctionCall(
-        function = (types.single {
+    is Call -> {
+        val `class` = types.single {
             when (it) {
                 is Class -> it.name == name
                 else -> false
             }
-        } as Class).functions.single {
+        } as Class
+
+        val function = `class`.functions.single {
             it.name == name
-        },
-        parameters = emptyList(),
-        comments = comments
-    )
+        }
+        FunctionCall(
+            function = function, parameters = emptyList(), comments = comments
+        )
+    }
 }
 
 fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
     is CobolFIRTree.DataTree.WorkingStorage.Elementar -> {
         when (this) {
-            is CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar -> {
-                GlobalVariable(
-                    declaration = Declaration.StringDeclaration(
+            is StringElementar -> GlobalVariable(
+                declaration = Declaration.StringDeclaration(
+                    name = name, value = value?.let {
+                        Expression.StringExpression.StringLiteral(it)
+                    }, mutable = true, private = false, comments = comments
+                ), const = false, doc = comments
+            )
+
+            is NumberElementar -> {
+                val declaration = when (formatter.numberType) {
+                    Formatter.NumberType.Int -> Declaration.IntDeclaration(
                         name = name, value = value?.let {
-                            Expression.StringExpression.StringLiteral(it)
-                        },
-                        mutable = true,
-                        private = false,
-                        comments = comments
-                    ),
-                    const = false,
-                    doc = comments
-                )
+                            Expression.NumberExpression.IntExpression.IntLiteral(it.toInt())
+                        }, mutable = true, private = false, comments = comments
+                    )
+
+                    Formatter.NumberType.Double -> Declaration.DoubleDeclaration(
+                        name = name, value = value?.let {
+                            Expression.NumberExpression.DoubleExpression.DoubleLiteral(it)
+                        }, mutable = true, private = false, comments = comments
+                    )
+                }
+
+                GlobalVariable(declaration = declaration, const = false, doc = comments)
             }
 
-            is CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar -> TODO()
-            is CobolFIRTree.DataTree.WorkingStorage.Elementar.Pointer -> TODO()
-            is CobolFIRTree.DataTree.WorkingStorage.Elementar.EmptyElementar -> TODO()
+            is Pointer -> TODO()
+            is EmptyElementar -> TODO()
         }
     }
 

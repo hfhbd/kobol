@@ -32,28 +32,64 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
         name = name.toCamelCase()
     )
 
-    is KobolIRTree.Types.Function.Statement.FunctionCall -> copy(
-        function = function.copy(name = function.name.toCamelCase())
-    )
+    is KobolIRTree.Types.Function.Statement.FunctionCall -> toCamelCase()
 
     is KobolIRTree.Types.Function.Statement.Print -> copy(
-        expr = expr.toCamelCase()
+        expr = expr.toCamelCase() as KobolIRTree.Expression.StringExpression
     )
 
     is KobolIRTree.Types.Function.Statement.Exit -> this
     is KobolIRTree.Types.Function.Statement.LoadExternal -> this
+    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> copy(
+        name = name.toCamelCase()
+    )
+
+    is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> copy(
+        name = name.toCamelCase()
+    )
+
+    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> copy(
+        name = name.toCamelCase()
+    )
+
+    is KobolIRTree.Types.Function.Statement.DoWhile -> copy(
+        functionCall = functionCall.toCamelCase(),
+        condition = condition.toCamelCase() as KobolIRTree.Expression.BooleanExpression
+    )
+
+    is KobolIRTree.Types.Function.Statement.ForEach -> TODO()
+    is KobolIRTree.Types.Function.Statement.While -> copy(
+        condition = condition.toCamelCase() as KobolIRTree.Expression.BooleanExpression,
+        statements = statements.map { it.updateNames() }
+    )
 }
+
+private fun KobolIRTree.Types.Function.Statement.FunctionCall.toCamelCase() = copy(
+    function = function.copy(name = function.name.toCamelCase())
+)
 
 private fun KobolIRTree.Types.Function.Statement.Declaration.updateName(): KobolIRTree.Types.Function.Statement.Declaration {
     return when (this) {
         is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> updateName()
+        is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> updateName()
+        is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> updateName()
+        is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> updateName()
     }
 }
 
 private fun KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration.updateName() =
     copy(name = name.toCamelCase())
 
-private fun KobolIRTree.Expression.toCamelCase(): KobolIRTree.Expression.StringExpression =
+private fun KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration.updateName() =
+    copy(name = name.toCamelCase())
+
+private fun KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration.updateName() =
+    copy(name = name.toCamelCase())
+
+private fun KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration.updateName() =
+    copy(name = name.toCamelCase())
+
+private fun KobolIRTree.Expression.toCamelCase(): KobolIRTree.Expression =
     when (this) {
         is KobolIRTree.Expression.StringExpression.StringVariable -> copy(
             target = target.updateName()
@@ -66,6 +102,22 @@ private fun KobolIRTree.Expression.toCamelCase(): KobolIRTree.Expression.StringE
 
         is KobolIRTree.Expression.StringExpression.StringLiteral -> this
         is KobolIRTree.Types.Function.Statement.FunctionCall -> TODO()
+
+        is KobolIRTree.Expression.BooleanExpression.And -> TODO()
+        is KobolIRTree.Expression.BooleanExpression.Bigger -> TODO()
+        is KobolIRTree.Expression.BooleanExpression.BooleanLiteral -> TODO()
+        is KobolIRTree.Expression.BooleanExpression.Eq -> TODO()
+        is KobolIRTree.Expression.BooleanExpression.NotEq -> TODO()
+        is KobolIRTree.Expression.BooleanExpression.Not -> TODO()
+        is KobolIRTree.Expression.BooleanExpression.Or -> TODO()
+        is KobolIRTree.Expression.BooleanExpression.Smaller -> TODO()
+        is KobolIRTree.Types.Function.Statement.DoWhile -> TODO()
+        is KobolIRTree.Types.Function.Statement.ForEach -> TODO()
+        is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleLiteral -> TODO()
+        is KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral -> TODO()
+        is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable -> TODO()
+        is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable -> TODO()
+        is KobolIRTree.Types.Function.Statement.While -> TODO()
     }
 
 private val next = "-(.)".toRegex()

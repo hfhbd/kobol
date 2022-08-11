@@ -26,4 +26,16 @@ private fun KobolIRTree.Types.Function.Statement.Declaration.private() = when (t
     is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> copy(
         private = true
     )
+
+    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> copy(
+        private = true
+    )
+
+    is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> copy(
+        private = true
+    )
+
+    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> copy(
+        private = true
+    )
 }

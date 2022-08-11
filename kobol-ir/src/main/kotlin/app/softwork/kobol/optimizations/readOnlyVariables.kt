@@ -31,6 +31,18 @@ fun KobolIRTree.readonlyVariables(): KobolIRTree {
                 is StringDeclaration -> it.copy(
                     declaration = it.declaration.copy(mutable = false)
                 )
+
+                is BooleanDeclaration -> it.copy(
+                    declaration = it.declaration.copy(mutable = false)
+                )
+
+                is DoubleDeclaration -> it.copy(
+                    declaration = it.declaration.copy(mutable = false)
+                )
+
+                is IntDeclaration -> it.copy(
+                    declaration = it.declaration.copy(mutable = false)
+                )
             }
         } else it
     })

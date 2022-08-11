@@ -30,7 +30,7 @@ private fun KobolIRTree.Types.Function.toKotlin() = FunSpec.builder(name).apply 
         addModifiers(KModifier.EXTERNAL)
     } else {
         body.forEach {
-            addCode(addStatement(it))
+            addCode(it.toKotlin())
         }
         addKdoc(doc.joinToString(separator = "\n"))
         if (body.any { it is Exit }) {
@@ -43,21 +43,49 @@ fun CodeBlock.Builder.addComment(format: String, vararg args: Any): CodeBlock.Bu
     add("//·${format.replace(' ', '·')}\n", *args)
 }
 
-private fun addStatement(it: KobolIRTree.Types.Function.Statement) = CodeBlock.builder().apply {
-    if (it !is Declaration && it.comments.isNotEmpty()) {
-        for (comment in it.comments) {
-            addComment(comment)
+@Suppress("NOTHING_TO_INLINE")
+private inline fun KobolIRTree.Types.Function.Statement.toKotlin2(): CodeBlock = toKotlin()
+
+private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder().let { code ->
+    if (this !is Declaration && comments.isNotEmpty()) {
+        for (comment in comments) {
+            code.addComment(comment)
         }
     }
-    when (it) {
-        is Assignment -> assign(it)
-        is Print -> println(it)
-        is Declaration -> add(CodeBlock.of("%L", it.createProperty()))
-        is FunctionCall -> add(it.call())
-        is Exit -> addStatement("return %M(0)", MemberName("kotlin.system", "exitProcess", true))
-        is LoadExternal -> addStatement("System.loadLibrary(\"${it.libName}\")")
+    when (this) {
+        is Assignment -> code.assign(this)
+        is Print -> code.println(this)
+        is Declaration -> code.add(CodeBlock.of("%L", createProperty()))
+        is FunctionCall -> code.add(call())
+        is Exit -> code.addStatement("return %M(0)", MemberName("kotlin.system", "exitProcess", true))
+        is LoadExternal -> code.addStatement("System.loadLibrary(\"$libName\")")
+        is DoWhile -> code.beginControlFlow("do").add(functionCall.call()).unindent()
+            .add("} while (%L)\n", condition.toTemplate())
+
+        is ForEach -> {
+            code.add("%L = %L\n", counter.name, from.toTemplate())
+            code.beginControlFlow("while (%L)", condition.toTemplate())
+            for (stmt in statements) {
+                code.add(stmt.toKotlin2())
+            }
+            val step = step
+            if (step != null) {
+                code.addStatement("%L += %L", counter.name, step.toKotlin())
+            }
+            code.endControlFlow()
+        }
+
+        is While -> {
+            code.beginControlFlow("while (%L)", condition.toTemplate())
+            for (stmt in statements) {
+                val add = stmt.toKotlin2()
+                code.add(add)
+            }
+            code.endControlFlow()
+        }
     }
-}.build()
+    code.build()
+}
 
 private fun CodeBlock.Builder.assign(it: Assignment) {
     addStatement("%N = %L", it.declaration.name, it.newValue.toKotlin())
@@ -94,7 +122,12 @@ private fun FunctionCall.call() = CodeBlock.builder().apply {
 
 private fun KobolIRTree.Expression.toKotlin(): CodeBlock = when (this) {
     is KobolIRTree.Expression.StringExpression -> toTemplate()
+    is KobolIRTree.Expression.NumberExpression -> toTemplate()
+    is KobolIRTree.Expression.BooleanExpression -> toTemplate()
     is FunctionCall -> call()
+    is DoWhile -> TODO()
+    is ForEach -> TODO()
+    is While -> TODO()
 }
 
 private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
@@ -119,6 +152,54 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
     }
 
     is FunctionCall -> TODO()
+    is KobolIRTree.Expression.BooleanExpression.And -> CodeBlock.of(
+        "%L && %L", left.toTemplate(), right.toTemplate()
+    )
+
+    is KobolIRTree.Expression.BooleanExpression.Bigger -> if (equals) {
+        CodeBlock.of(
+            "%L >= %L", left.toTemplate(), right.toTemplate()
+        )
+    } else {
+        CodeBlock.of(
+            "%L > %L", left.toTemplate(), right.toTemplate()
+        )
+    }
+
+    is KobolIRTree.Expression.BooleanExpression.BooleanLiteral -> CodeBlock.of("%L", value)
+    is KobolIRTree.Expression.BooleanExpression.Eq -> CodeBlock.of(
+        "%L == %L", left.toTemplate(), right.toTemplate()
+    )
+
+    is KobolIRTree.Expression.BooleanExpression.Not -> CodeBlock.of(
+        "!(%L)", condition.toTemplate()
+    )
+
+    is KobolIRTree.Expression.BooleanExpression.NotEq -> CodeBlock.of(
+        "%L != %L", left.toTemplate(), right.toTemplate()
+    )
+
+    is KobolIRTree.Expression.BooleanExpression.Or -> CodeBlock.of(
+        "%L || %L", left.toTemplate(), right.toTemplate()
+    )
+
+    is KobolIRTree.Expression.BooleanExpression.Smaller -> if (equals) {
+        CodeBlock.of(
+            "%L <= %L", left.toTemplate(), right.toTemplate()
+        )
+    } else {
+        CodeBlock.of(
+            "%L < %L", left.toTemplate(), right.toTemplate()
+        )
+    }
+
+    is DoWhile -> TODO()
+    is ForEach -> TODO()
+    is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleLiteral -> CodeBlock.of("%L", value)
+    is KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral -> CodeBlock.of("%L", value)
+    is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable -> CodeBlock.of("%L", target.name)
+    is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable -> CodeBlock.of("%L", target.name)
+    is While -> TODO()
 }
 
 private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
@@ -141,7 +222,7 @@ private fun FileSpec.Builder.addClass(data: KobolIRTree.Types.Type.Class) {
     if (data.init.isNotEmpty()) {
         val initBlock = CodeBlock.builder()
         for (init in data.init) {
-            initBlock.add(addStatement(init))
+            initBlock.add(init.toKotlin())
         }
         classBuilder.addInitializerBlock(initBlock.build())
     }
@@ -173,10 +254,30 @@ private fun Declaration.createProperty(): PropertySpec {
                 STRING to value.toKotlin()
             } else STRING.copy(nullable = true) to null
         }
+
+        is BooleanDeclaration -> {
+            val value = value
+            if (value != null) {
+                BOOLEAN to value.toKotlin()
+            } else BOOLEAN.copy(nullable = true) to null
+        }
+
+        is DoubleDeclaration -> {
+            val value = value
+            if (value != null) {
+                DOUBLE to value.toKotlin()
+            } else DOUBLE.copy(nullable = true) to null
+        }
+
+        is IntDeclaration -> {
+            val value = value
+            if (value != null) {
+                INT to value.toKotlin()
+            } else INT.copy(nullable = true) to null
+        }
     }
     return PropertySpec.builder(
-        name = name,
-        type = type
+        name = name, type = type
     ).apply {
         mutable(mutable)
         if (private) {
@@ -190,6 +291,9 @@ private fun Declaration.createProperty(): PropertySpec {
 private val Declaration.KType: TypeName
     get() = when (this) {
         is StringDeclaration -> STRING
+        is BooleanDeclaration -> TODO()
+        is DoubleDeclaration -> TODO()
+        is IntDeclaration -> TODO()
     }
 
 fun generate(file: File, output: File, optimize: Boolean) {
