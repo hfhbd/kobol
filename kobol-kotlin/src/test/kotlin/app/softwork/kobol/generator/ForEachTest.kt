@@ -117,13 +117,13 @@ class ForEachTest {
         public var WORLD: Int = 1
         
         public fun main(): Unit {
-          WORLD = 1.0
-          while (!(WORLD == 42.0)) {
+          WORLD = 1
+          while (!(WORLD == 42)) {
             println("FOO")
-            WORLD += 3.0
+            WORLD += 3
           }
-          WORLD = 1.0
-          while (!(WORLD == 42.0)) {
+          WORLD = 1
+          while (!(WORLD == 42)) {
             println("FOO")
           }
         }

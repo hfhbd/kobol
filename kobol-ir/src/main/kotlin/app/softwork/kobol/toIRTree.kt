@@ -168,7 +168,7 @@ fun CobolFIRTree.ProcedureTree.Expression.NumberExpression.toIR(): Expression.Nu
 fun Double.isInt(): Int? = when {
     this > Int.MAX_VALUE -> null
     this < Int.MIN_VALUE -> null
-    rem(10) == 0.0 -> toInt()
+    rem(1) == 0.0 -> toInt()
     else -> null
 }
 
