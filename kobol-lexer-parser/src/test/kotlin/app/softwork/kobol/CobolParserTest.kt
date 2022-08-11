@@ -5,7 +5,7 @@ import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.Custom.Part.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.*
-import app.softwork.kobol.CobolFIRTree.ProcedureTree.BooleanExpression.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.NumberExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.StringExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
@@ -267,7 +267,7 @@ class CobolParserTest {
             123456 PERFORM UNTIL WORLD2 = 2 
             123456     PERFORM FOO
             123456 END-PERFORM.
-            123456 PERFORM VARYING WORLD2 FROM 1 TO 2 BY 3 UNTIL WORLD2 = 4
+            123456 PERFORM VARYING WORLD2 FROM 1 BY 3 UNTIL WORLD2 = 4
             123456     PERFORM FOO
             123456 END-PERFORM.
             123456 FOO SECTION.
@@ -285,7 +285,6 @@ class CobolParserTest {
                 }, until = NumberVariable(world2) eq 2.l)
                 +ForEach(variable = world2,
                     from = 1.l,
-                    to = 2.l,
                     by = 3.l,
                     until = NumberVariable(world2) eq 4.l,
                     statements = build {

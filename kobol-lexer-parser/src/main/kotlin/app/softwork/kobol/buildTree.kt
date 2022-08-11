@@ -333,7 +333,6 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                     ForEach(
                         variable = dataTree.notNull.find(forEach.variable) as NumberElementar,
                         from = forEach.expr.toExpr(dataTree) as Expression.NumberExpression,
-                        to = forEach.forEachTo?.expr?.toExpr(dataTree) as Expression.NumberExpression?,
                         by = forEach.forEachBy?.expr?.toExpr(dataTree) as Expression.NumberExpression?,
                         until = forEach.booleanExpr.toFir(dataTree),
                         statements = forEach.proceduresList.asStatements(dataTree),
@@ -380,19 +379,19 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
     }
 }
 
-private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): BooleanExpression {
+private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): Expression.BooleanExpression {
     val or = booleanExprOr
     val and = booleanExprAnd
     val clause = booleanExprClause
     return when {
-        or != null -> BooleanExpression.Or(or.booleanExprClause.toFir(dataTree), or.booleanExpr.toFir(dataTree))
-        and != null -> BooleanExpression.And(and.booleanExprClause.toFir(dataTree), and.booleanExpr.toFir(dataTree))
+        or != null -> Expression.BooleanExpression.Or(or.booleanExprClause.toFir(dataTree), or.booleanExpr.toFir(dataTree))
+        and != null -> Expression.BooleanExpression.And(and.booleanExprClause.toFir(dataTree), and.booleanExpr.toFir(dataTree))
         clause != null -> clause.toFir(dataTree)
         else -> notPossible()
     }
 }
 
-private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): BooleanExpression {
+private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): Expression.BooleanExpression {
     val left = booleanExprClauseLeft.expr.toExpr(dataTree)
     val right = booleanExprClauseRight.expr.toExpr(dataTree)
 
@@ -401,22 +400,22 @@ private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): Bool
     val smaller = booleanExprClauseSmaller
     return when {
         nt != null -> {
-            val equal = BooleanExpression.Equals(
+            val equal = Expression.BooleanExpression.Equals(
                 left = left,
                 right = right
             )
             if (nt.nt != null) {
-                BooleanExpression.Not(equal)
+                Expression.BooleanExpression.Not(equal)
             } else equal
         }
 
-        bigger != null -> BooleanExpression.Greater(
+        bigger != null -> Expression.BooleanExpression.Greater(
             left = left as Expression.NumberExpression,
             right = right as Expression.NumberExpression,
             equals = bigger.eql != null
         )
 
-        smaller != null -> BooleanExpression.Smaller(
+        smaller != null -> Expression.BooleanExpression.Smaller(
             left = left as Expression.NumberExpression,
             right = right as Expression.NumberExpression,
             equals = smaller.eql != null

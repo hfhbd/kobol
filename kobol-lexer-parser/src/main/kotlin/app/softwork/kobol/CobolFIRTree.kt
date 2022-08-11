@@ -82,8 +82,7 @@ data class CobolFIRTree(
                     val name: String,
                     val recording: String,
                     val blocks: Int? = null,
-                    @Serializable(with = IntRangeSerializer::class)
-                    val records: IntRange? = null,
+                    @Serializable(with = IntRangeSerializer::class) val records: IntRange? = null,
                     val dataRecord: String? = null,
                     override val comments: List<String> = emptyList()
                 ) : FileDescription
@@ -111,8 +110,7 @@ data class CobolFIRTree(
 
                 @Serializable
                 data class Pointer(
-                    override val name: String,
-                    override val comments: List<String> = emptyList()
+                    override val name: String, override val comments: List<String> = emptyList()
                 ) : Elementar {
                     override val formatter: Nothing? = null
                     override val value: Nothing? = null
@@ -140,13 +138,30 @@ data class CobolFIRTree(
                 @Serializable
                 sealed interface Formatter {
 
-                    val numberType get() = when {
-                        this is Simple -> Int
-                        this is Custom -> {
-                            for (part in parts) {
-                                if ()
+                    val numberType: NumberType
+                        get() {
+                            return when (this) {
+                                is Simple -> NumberType.Int
+                                is Custom -> {
+                                    for (part in parts) {
+                                        when (part) {
+                                            is Custom.Part.Decimal -> return NumberType.Double
+                                            is Custom.Part.Number,
+                                            is Custom.Part.Plus,
+                                            is Custom.Part.Signed -> continue
+
+                                            is Custom.Part.Space,
+                                            is Custom.Part.String,
+                                            is Custom.Part.Zero -> error("Not supported")
+                                        }
+                                    }
+                                    NumberType.Int
+                                }
                             }
                         }
+
+                    enum class NumberType {
+                        Int, Double
                     }
 
                     @Serializable
@@ -211,8 +226,7 @@ data class CobolFIRTree(
 
                 @Serializable
                 data class EmptyElementar(
-                    override val name: String,
-                    override val comments: List<String> = emptyList()
+                    override val name: String, override val comments: List<String> = emptyList()
                 ) : Elementar {
                     override val formatter: Nothing? = null
                     override val value: Nothing? = null
@@ -233,9 +247,7 @@ data class CobolFIRTree(
             val name: String, val statements: List<Statement> = emptyList(), val comments: List<String> = emptyList()
         ) {
             constructor(
-                name: String,
-                comments: List<String> = emptyList(),
-                builder: Builder<Statement>.() -> Unit
+                name: String, comments: List<String> = emptyList(), builder: Builder<Statement>.() -> Unit
             ) : this(name, build(builder), comments)
         }
 
@@ -252,31 +264,29 @@ data class CobolFIRTree(
 
             @Serializable
             data class Display(
-                val expr: Expression.StringExpression,
-                override val comments: List<String> = emptyList()
+                val expr: Expression.StringExpression, override val comments: List<String> = emptyList()
             ) : Statement
 
             @Serializable
             data class Perform(
                 val sectionName: String,
                 override val comments: List<String> = emptyList(),
-                val until: BooleanExpression? = null
+                val until: Expression.BooleanExpression? = null
             ) : Statement
 
             @Serializable
             data class While(
                 val statements: List<Statement>,
                 override val comments: List<String> = emptyList(),
-                val until: BooleanExpression
+                val until: Expression.BooleanExpression
             ) : Statement
 
             @Serializable
             data class ForEach(
                 val variable: DataTree.WorkingStorage.Elementar.NumberElementar,
                 val from: Expression.NumberExpression,
-                val to: Expression.NumberExpression? = null,
                 val by: Expression.NumberExpression? = null,
-                val until: BooleanExpression,
+                val until: Expression.BooleanExpression,
                 val statements: List<Statement>,
                 override val comments: List<String> = emptyList()
             ) : Statement
@@ -300,36 +310,36 @@ data class CobolFIRTree(
         }
 
         @Serializable
-        sealed interface BooleanExpression {
-            @Serializable
-            data class Equals(val left: Expression, val right: Expression) : BooleanExpression
-
-            @Serializable
-            data class Not(val target: BooleanExpression) : BooleanExpression
-
-            @Serializable
-            data class Or(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
-
-            @Serializable
-            data class And(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
-
-            @Serializable
-            data class Greater(
-                val left: Expression.NumberExpression,
-                val right: Expression.NumberExpression,
-                val equals: Boolean = false
-            ) : BooleanExpression
-
-            @Serializable
-            data class Smaller(
-                val left: Expression.NumberExpression,
-                val right: Expression.NumberExpression,
-                val equals: Boolean = false
-            ) : BooleanExpression
-        }
-
-        @Serializable
         sealed interface Expression {
+            @Serializable
+            sealed interface BooleanExpression : Expression {
+                @Serializable
+                data class Equals(val left: Expression, val right: Expression) : BooleanExpression
+
+                @Serializable
+                data class Not(val target: BooleanExpression) : BooleanExpression
+
+                @Serializable
+                data class Or(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
+
+                @Serializable
+                data class And(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
+
+                @Serializable
+                data class Greater(
+                    val left: Expression.NumberExpression,
+                    val right: Expression.NumberExpression,
+                    val equals: Boolean = false
+                ) : BooleanExpression
+
+                @Serializable
+                data class Smaller(
+                    val left: Expression.NumberExpression,
+                    val right: Expression.NumberExpression,
+                    val equals: Boolean = false
+                ) : BooleanExpression
+            }
+
             @Serializable
             sealed interface Literal : Expression {
                 val value: Any

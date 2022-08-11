@@ -41,7 +41,8 @@ class ForEachTest {
           // COMMENT I
           do {
             FOO()
-          } while (WORLD != 'FOO')
+          } while (!(WORLD == "FOO"))
+          FOO()
         }
         
         """.trimIndent()
@@ -77,7 +78,7 @@ class ForEachTest {
         
         public fun main(): Unit {
           // COMMENT I
-          while (WORLD != 'FOO') {
+          while (!(WORLD == "FOO")) {
             println("FOO")
           }
         }
@@ -96,13 +97,7 @@ class ForEachTest {
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC 9(6) VALUE 1.
         123456 PROCEDURE                   DIVISION.
-        123456 PERFORM VARYING WORLD FROM 1 TO 10 BY 3 UNTIL WORLD = 42 
-        123456    DISPLAY 'FOO' 
-        123456 END-PERFORM.
         123456 PERFORM VARYING WORLD FROM 1 BY 3 UNTIL WORLD = 42 
-        123456    DISPLAY 'FOO' 
-        123456 END-PERFORM.
-        123456 PERFORM VARYING WORLD FROM 1 TO 10 UNTIL WORLD = 42 
         123456    DISPLAY 'FOO' 
         123456 END-PERFORM.
         123456 PERFORM VARYING WORLD FROM 1 UNTIL WORLD = 42 
@@ -116,16 +111,21 @@ class ForEachTest {
         val expected = """
         package hello
         
-        import kotlin.String
+        import kotlin.Int
         import kotlin.Unit
         
-        public var WORLD: String = "WORLD!"
+        public var WORLD: Int = 1
         
         public fun main(): Unit {
-          // Some Comment
-          println("HELLO ${'$'}WORLD")
-          WORLD = "42"
-          println("ANSWER${'$'}WORLD")
+          WORLD = 1.0
+          while (!(WORLD == 42.0)) {
+            println("FOO")
+            WORLD += 3.0
+          }
+          WORLD = 1.0
+          while (!(WORLD == 42.0)) {
+            println("FOO")
+          }
         }
         
         """.trimIndent()

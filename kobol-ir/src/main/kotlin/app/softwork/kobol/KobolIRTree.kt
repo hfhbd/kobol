@@ -61,12 +61,12 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     ) : Primitive
 
                     @Serializable
-                    sealed interface NumberDeclaration: Primitive
+                    sealed interface NumberDeclaration : Primitive
 
                     @Serializable
                     data class IntDeclaration(
                         override val name: String,
-                        override val value: Expression.IntExpression?,
+                        override val value: Expression.NumberExpression.IntExpression?,
                         override val mutable: Boolean,
                         override val private: Boolean,
                         override val comments: List<String>
@@ -75,7 +75,7 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     @Serializable
                     data class DoubleDeclaration(
                         override val name: String,
-                        override val value: Expression.DoubleExpression?,
+                        override val value: Expression.NumberExpression.DoubleExpression?,
                         override val mutable: Boolean,
                         override val private: Boolean,
                         override val comments: List<String>
@@ -126,17 +126,17 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 @Serializable
                 data class While(
                     val condition: Expression.BooleanExpression,
-                    val statement: List<Statement> = emptyList(),
+                    val statements: List<Statement> = emptyList(),
                     override val comments: List<String>
                 ) : Statement, Expression
 
                 @Serializable
                 data class ForEach(
                     val counter: Declaration.NumberDeclaration,
-                    val to: Expression.NumberExpression? = null,
+                    val from: Expression.NumberExpression,
                     val step: Expression.NumberExpression? = null,
                     val condition: Expression.BooleanExpression,
-                    val statement: List<Statement> = emptyList(),
+                    val statements: List<Statement> = emptyList(),
                     override val comments: List<String>
                 ) : Statement, Expression
             }
@@ -198,26 +198,27 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
         }
 
         @Serializable
-        sealed interface NumberExpression: Expression
-
-        @Serializable
-        sealed interface IntExpression: NumberExpression {
-            @Serializable
-            data class IntLiteral(override val value: Int) : IntExpression, Literal
+        sealed interface NumberExpression : Expression {
 
             @Serializable
-            data class IntVariable(override val target: Types.Function.Statement.Declaration.IntDeclaration) :
-                IntExpression, Variable
-        }
+            sealed interface IntExpression : NumberExpression {
+                @Serializable
+                data class IntLiteral(override val value: Int) : IntExpression, Literal
 
-        @Serializable
-        sealed interface DoubleExpression: NumberExpression {
-            @Serializable
-            data class DoubleLiteral(override val value: Double) : DoubleExpression, Literal
+                @Serializable
+                data class IntVariable(override val target: Types.Function.Statement.Declaration.IntDeclaration) :
+                    IntExpression, Variable
+            }
 
             @Serializable
-            data class DoubleVariable(override val target: Types.Function.Statement.Declaration.DoubleDeclaration) :
-                DoubleExpression, Variable
+            sealed interface DoubleExpression : NumberExpression {
+                @Serializable
+                data class DoubleLiteral(override val value: Double) : DoubleExpression, Literal
+
+                @Serializable
+                data class DoubleVariable(override val target: Types.Function.Statement.Declaration.DoubleDeclaration) :
+                    DoubleExpression, Variable
+            }
         }
 
         @Serializable
@@ -226,22 +227,27 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             data class BooleanLiteral(override val value: Boolean) : BooleanExpression, Literal
 
             @Serializable
-            data class Eq(val left: Expression, val right: Expression): BooleanExpression
+            data class Eq(val left: Expression, val right: Expression) : BooleanExpression
 
             @Serializable
-            data class Not(val condition: BooleanExpression): BooleanExpression
+            data class NotEq(val left: Expression, val right: Expression) : BooleanExpression
 
             @Serializable
-            data class Or(val left: BooleanExpression, val right: BooleanExpression): BooleanExpression
+            data class Not(val condition: BooleanExpression) : BooleanExpression
 
             @Serializable
-            data class And(val left: BooleanExpression, val right: BooleanExpression): BooleanExpression
+            data class Or(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
 
             @Serializable
-            data class Bigger(val left: BooleanExpression, val right: BooleanExpression, val equals: Boolean = false): BooleanExpression
+            data class And(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
 
             @Serializable
-            data class Smaller(val left: BooleanExpression, val right: BooleanExpression, val equals: Boolean = false): BooleanExpression
+            data class Bigger(val left: NumberExpression, val right: NumberExpression, val equals: Boolean = false) :
+                BooleanExpression
+
+            @Serializable
+            data class Smaller(val left: NumberExpression, val right: NumberExpression, val equals: Boolean = false) :
+                BooleanExpression
         }
     }
 }
