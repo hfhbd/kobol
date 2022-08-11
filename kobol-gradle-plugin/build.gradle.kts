@@ -20,7 +20,7 @@ configurations {
 dependencies {
     implementation(projects.kobolKotlin)
     shade(projects.kobolKotlin)
-    implementation("com.hierynomus:sshj:0.33.0")
+    implementation("com.hierynomus:sshj:0.34.0")
     implementation("com.jcraft:jsch.agentproxy.sshj:0.0.9")
     implementation("com.jcraft:jsch.agentproxy.pageant:0.0.9")
     implementation("net.java.dev.jna:jna-platform:5.12.1")

@@ -14,24 +14,28 @@ abstract class UploadTask : DefaultTask(), SshTask {
     @get:InputFiles
     abstract val files: ConfigurableFileCollection
 
+    @get:Optional
     @get:Input
     abstract val encoding: Property<String>
 
+    @get:Optional
     @get:Input
     abstract val mvsFolder: Property<String>
 
+    @get:Optional
+    @get:Input
+    abstract val keepUTF8: Property<Boolean>
+
+    @get:Optional
     @get:PathSensitive(RELATIVE)
     @get:InputFiles
     abstract val mvsFiles: ConfigurableFileCollection
 
-    init {
-        encoding.convention("ibm-1047")
-    }
-
     @TaskAction
     fun execute() {
-        val encoding = encoding.get()
+        val encoding = encoding.orNull ?: "ibm-1047"
         val copyToMVS = mvsFolder.orNull
+        val keepUTF8 = keepUTF8.orNull ?: false
         sshClient {
             newSFTPClient().use { sftp ->
                 for (file in files) {
@@ -42,6 +46,9 @@ abstract class UploadTask : DefaultTask(), SshTask {
 
                     sftp.put(FileSystemFile(file), target)
                     exec("iconv -T -f utf-8 -t $encoding $target > $target.conv")
+                    if (keepUTF8) {
+                        exec("mv $target $target.utf8")
+                    }
                     exec("mv $target.conv $target")
                     if (copyToMVS != null && file in mvsFiles) {
                         val mvsName = file.nameWithoutExtension.uppercase()
