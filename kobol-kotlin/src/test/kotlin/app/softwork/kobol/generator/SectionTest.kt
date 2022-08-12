@@ -187,7 +187,7 @@ class SectionTest {
         
         public class LONDON {
           init {
-            System.loadLibrary("LONDON")
+            System.loadLibrary("london")
           }
         
           public external fun LONDON(): Unit
