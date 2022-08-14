@@ -368,6 +368,9 @@ data class CobolFIRTree(
 
                 @Serializable
                 data class Concat(val left: Expression, val right: Expression) : StringExpression
+
+                @Serializable
+                data class Interpolation(val value: Expression): StringExpression
             }
 
             @Serializable

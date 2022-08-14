@@ -195,6 +195,9 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
 
             @Serializable
             data class Concat(val left: Expression, val right: Expression) : StringExpression
+
+            @Serializable
+            data class Interpolation(val expr: Expression): StringExpression
         }
 
         @Serializable

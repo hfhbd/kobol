@@ -384,8 +384,16 @@ private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): Expression
     val and = booleanExprAnd
     val clause = booleanExprClause
     return when {
-        or != null -> Expression.BooleanExpression.Or(or.booleanExprClause.toFir(dataTree), or.booleanExpr.toFir(dataTree))
-        and != null -> Expression.BooleanExpression.And(and.booleanExprClause.toFir(dataTree), and.booleanExpr.toFir(dataTree))
+        or != null -> Expression.BooleanExpression.Or(
+            or.booleanExprClause.toFir(dataTree),
+            or.booleanExpr.toFir(dataTree)
+        )
+
+        and != null -> Expression.BooleanExpression.And(
+            and.booleanExprClause.toFir(dataTree),
+            and.booleanExpr.toFir(dataTree)
+        )
+
         clause != null -> clause.toFir(dataTree)
         else -> notPossible()
     }
@@ -445,6 +453,7 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): Expression {
                     number is CobolVariable -> Expression.NumberExpression.NumberVariable(
                         dataTree.notNull.find(number) as NumberElementar
                     )
+
                     else -> TODO()
                 }
             }
@@ -466,9 +475,13 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
         )
 
         this is CobolVariable -> {
-            Expression.StringExpression.StringVariable(
-                dataTree.notNull.find(this) as StringElementar
-            )
+            when (val elementar = dataTree.notNull.find(this)) {
+                is StringElementar -> Expression.StringExpression.StringVariable(elementar)
+                is EmptyElementar -> notPossible()
+                is NumberElementar -> Expression.StringExpression.Interpolation(Expression.NumberExpression.NumberVariable(elementar))
+
+                is Pointer -> TODO()
+            }
         }
 
         else -> TODO("$elementType")

@@ -184,6 +184,7 @@ fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(): Expression.St
     is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> Expression.StringExpression.StringVariable(
         (target.toIR() as GlobalVariable).declaration as Declaration.StringDeclaration
     )
+    is CobolFIRTree.ProcedureTree.Expression.StringExpression.Interpolation -> Expression.StringExpression.Interpolation(value.toIR())
 }
 
 

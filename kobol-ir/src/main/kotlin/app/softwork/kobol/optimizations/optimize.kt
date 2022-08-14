@@ -7,3 +7,4 @@ fun KobolIRTree.optimize() =
         .readonlyVariables()
         .constVariables()
         .camelCase()
+        .booleanExpressions()

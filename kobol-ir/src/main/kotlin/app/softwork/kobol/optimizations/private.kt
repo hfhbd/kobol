@@ -13,6 +13,7 @@ fun KobolIRTree.private(): KobolIRTree = copy(types = types.map { type ->
             body = type.body.map {
                 when (it) {
                     is KobolIRTree.Types.Function.Statement.Assignment -> it.copy(declaration = it.declaration.private())
+                    is KobolIRTree.Types.Function.Statement.ForEach -> it.copy(counter = it.counter.private() as KobolIRTree.Types.Function.Statement.Declaration.NumberDeclaration)
                     else -> it
                 }
             }

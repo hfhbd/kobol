@@ -52,6 +52,10 @@ private fun KobolIRTree.Types.Function.Statement.Declaration.findWriteUsages(
     functions: List<KobolIRTree.Types.Function>
 ): List<KobolIRTree.Types.Function> = functions.filter {
     it.body.any {
-        it is KobolIRTree.Types.Function.Statement.Assignment && it.declaration == this
+        when {
+            it is KobolIRTree.Types.Function.Statement.Assignment && it.declaration == this -> true
+            it is KobolIRTree.Types.Function.Statement.ForEach && it.counter == this -> true
+            else -> false
+        }
     }
 }
