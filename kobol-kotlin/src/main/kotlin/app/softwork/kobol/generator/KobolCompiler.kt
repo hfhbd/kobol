@@ -105,6 +105,11 @@ private fun CodeBlock.Builder.println(it: Print) {
             val template = expr.toTemplate()
             addStatement("println(\"%L\")", template)
         }
+
+        is KobolIRTree.Expression.StringExpression.Interpolation -> {
+            val template = expr.expr.toTemplate()
+            addStatement("println(%L)", template)
+        }
     }
 }
 
@@ -200,6 +205,7 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
     is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable -> CodeBlock.of("%L", target.name)
     is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable -> CodeBlock.of("%L", target.name)
     is While -> TODO()
+    is KobolIRTree.Expression.StringExpression.Interpolation -> expr.toTemplate(escape)
 }
 
 private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {

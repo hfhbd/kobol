@@ -208,6 +208,7 @@ class OptimizationTest {
         123456 DATE-WRITTEN TODAY.
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
+        123456 77 FOO PIC 9 VALUE 1.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 77 HELLO PIC X(6) VALUE 'HELLO'.
         123456 PROCEDURE                   DIVISION.
@@ -216,6 +217,9 @@ class OptimizationTest {
         123456 FOO SECTION.
         123456* Some Comment
         123456     MOVE "42" TO WORLD
+        123456     PERFORM VARYING FOO FROM 1 BY 1 UNTIL WORLD = "42"
+        123456         DISPLAY FOO
+        123456     END-PERFORM
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
@@ -227,14 +231,22 @@ class OptimizationTest {
         val expected = """
         package hello
         
+        import kotlin.Int
         import kotlin.String
         import kotlin.Unit
         
         private fun foo(): Unit {
           // Some Comment
           world = "42"
+          foo = 1
+          while (world != "42") {
+            println(foo)
+            foo += 1
+          }
           println("ANSWER${'$'}world")
         }
+        
+        private var foo: Int = 1
         
         private var world: String = "WORLD!"
         
