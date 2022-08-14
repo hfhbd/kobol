@@ -107,16 +107,8 @@ private fun CodeBlock.Builder.println(it: Print) {
         }
 
         is KobolIRTree.Expression.StringExpression.Interpolation -> {
-            val template = expr.expr.toTemplate(escape = false)
-            when (expr.expr) {
-                is KobolIRTree.Expression.Literal, is KobolIRTree.Expression.Variable -> {
-                    addStatement("println(%L)", template)
-                }
-
-                else -> {
-                    addStatement("println(\"%L\")", template)
-                }
-            }
+            val template = expr.expr.toTemplate()
+            addStatement("println(%L)", template)
         }
     }
 }
