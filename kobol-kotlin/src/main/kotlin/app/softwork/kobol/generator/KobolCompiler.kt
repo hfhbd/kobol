@@ -19,25 +19,28 @@ fun generate(tree: KobolIRTree): FileSpec {
     return fileSpec.build()
 }
 
-private fun KobolIRTree.Types.Function.toKotlin() = FunSpec.builder(name).apply {
-    if (private) {
-        addModifiers(KModifier.PRIVATE)
-    }
-    this@toKotlin.parameters.forEach {
-        addParameter(it.name, it.KType)
-    }
-    if (external) {
-        addModifiers(KModifier.EXTERNAL)
-    } else {
-        body.forEach {
-            addCode(it.toKotlin())
+private fun KobolIRTree.Types.Function.toKotlin(): FunSpec {
+    val name = if (external) "invoke" else name
+    return FunSpec.builder(name).apply {
+        if (private) {
+            addModifiers(KModifier.PRIVATE)
         }
-        addKdoc(doc.joinToString(separator = "\n"))
-        if (body.any { it is Exit }) {
-            returns(NOTHING)
+        this@toKotlin.parameters.forEach {
+            addParameter(it.name, it.KType)
         }
-    }
-}.build()
+        if (external) {
+            addModifiers(KModifier.EXTERNAL, KModifier.OPERATOR)
+        } else {
+            body.forEach {
+                addCode(it.toKotlin())
+            }
+            addKdoc(doc.joinToString(separator = "\n"))
+            if (body.any { it is Exit }) {
+                returns(NOTHING)
+            }
+        }
+    }.build()
+}
 
 fun CodeBlock.Builder.addComment(format: String, vararg args: Any): CodeBlock.Builder = apply {
     add("//·${format.replace(' ', '·')}\n", *args)
@@ -115,14 +118,7 @@ private fun CodeBlock.Builder.println(it: Print) {
 
 private fun FunctionCall.call() = CodeBlock.builder().apply {
     val params = parameters.joinToString { it.name }
-    if (this@call.function.external) {
-        add("«")
-        add("%M().", MemberName("", function.name))
-        add("%M($params)", MemberName("", function.name))
-        add("\n»")
-    } else {
-        addStatement("%M($params)", MemberName("", function.name))
-    }
+    addStatement("%M($params)", MemberName("", function.name))
 }.build()
 
 private fun KobolIRTree.Expression.toKotlin(): CodeBlock = when (this) {
@@ -222,7 +218,11 @@ private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
 }
 
 private fun FileSpec.Builder.addClass(data: KobolIRTree.Types.Type.Class) {
-    val classBuilder = TypeSpec.classBuilder(data.name)
+    val classBuilder = if (data.isObject) {
+        TypeSpec.objectBuilder(data.name)
+    } else {
+        TypeSpec.classBuilder(data.name)
+    }
     classBuilder.addKdoc(data.doc.joinToString("\n"))
 
     if (data.init.isNotEmpty()) {

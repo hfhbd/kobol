@@ -49,7 +49,8 @@ private fun List<Call>.toIR(): List<Class> = buildMap<String, Class> {
                 members = emptyList(),
                 functions = listOf(newFunction),
                 doc = emptyList(),
-                init = listOf(LoadExternal(call.name.lowercase()))
+                init = listOf(LoadExternal(call.name.lowercase())),
+                isObject = true
             )
         } else if (newFunction !in old.functions) {
             this[name] = old.copy(functions = old.functions + newFunction)
