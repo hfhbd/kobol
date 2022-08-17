@@ -182,20 +182,20 @@ class SectionTest {
         import kotlin.Unit
         
         public fun FOO(): Unit {
-          LONDON().LONDON()
+          LONDON()
         }
         
-        public class LONDON {
+        public object LONDON {
           init {
             System.loadLibrary("london")
           }
         
-          public external fun LONDON(): Unit
+          public external operator fun invoke(): Unit
         }
         
         public fun main(): Unit {
           // LONDON CALLING
-          LONDON().LONDON()
+          LONDON()
           println("FOO")
           FOO()
         }
