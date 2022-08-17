@@ -158,7 +158,8 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 val members: List<Function.Statement.Declaration>,
                 val functions: List<Function>,
                 val doc: List<String>,
-                val init: List<Function.Statement>
+                val init: List<Function.Statement>,
+                val isObject: Boolean
             ) : Type {
                 @Serializable
                 data class Constructor(val parameters: List<Function.Statement.Declaration>)
