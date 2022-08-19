@@ -375,6 +375,18 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             )
         }
 
+        proc.ifClause != null -> {
+            val ifClause = proc.ifClause!!
+            listOf(
+                If(
+                    condition = ifClause.booleanExpr.toFir(dataTree),
+                    statements = ifClause.proceduresList.asStatements(dataTree),
+                    elseStatements = ifClause.ifElse?.proceduresList?.asStatements(dataTree) ?: emptyList(),
+                    comments = proc.comments.asComments()
+                )
+            )
+        }
+
         else -> TODO()
     }
 }
@@ -478,7 +490,11 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
             when (val elementar = dataTree.notNull.find(this)) {
                 is StringElementar -> Expression.StringExpression.StringVariable(elementar)
                 is EmptyElementar -> notPossible()
-                is NumberElementar -> Expression.StringExpression.Interpolation(Expression.NumberExpression.NumberVariable(elementar))
+                is NumberElementar -> Expression.StringExpression.Interpolation(
+                    Expression.NumberExpression.NumberVariable(
+                        elementar
+                    )
+                )
 
                 is Pointer -> TODO()
             }

@@ -292,6 +292,14 @@ data class CobolFIRTree(
             ) : Statement
 
             @Serializable
+            data class If(
+                val condition: Expression.BooleanExpression,
+                val statements: List<Statement>,
+                val elseStatements: List<Statement> = emptyList(),
+                override val comments: List<String> = emptyList()
+            ) : Statement
+
+            @Serializable
             data class GoBack(
                 override val comments: List<String> = emptyList()
             ) : Statement
@@ -370,7 +378,7 @@ data class CobolFIRTree(
                 data class Concat(val left: Expression, val right: Expression) : StringExpression
 
                 @Serializable
-                data class Interpolation(val value: Expression): StringExpression
+                data class Interpolation(val value: Expression) : StringExpression
             }
 
             @Serializable

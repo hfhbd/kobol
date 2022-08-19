@@ -139,6 +139,14 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     val statements: List<Statement> = emptyList(),
                     override val comments: List<String>
                 ) : Statement, Expression
+
+                @Serializable
+                data class If(
+                    val condition: Expression.BooleanExpression,
+                    val statements: List<Statement>,
+                    val elseStatements: List<Statement> = emptyList(),
+                    override val comments: List<String> = emptyList()
+                ): Statement, Expression
             }
         }
 
