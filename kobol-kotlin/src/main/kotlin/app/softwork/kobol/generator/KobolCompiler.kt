@@ -289,7 +289,7 @@ private fun Declaration.createProperty(): PropertySpec {
         if (private) {
             addModifiers(KModifier.PRIVATE)
         }
-        initializer(init)
+        initializer(init ?: CodeBlock.of("null"))
         addKdoc(comments.joinToString(separator = "\n"))
     }.build()
 }
