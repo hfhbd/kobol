@@ -75,6 +75,44 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
         statements = statements.map { it.updateNames() },
         elseStatements = elseStatements.map { it.updateNames() }
     )
+
+    is KobolIRTree.Types.Function.Statement.When -> toCamelCase()
+}
+
+private fun KobolIRTree.Types.Function.Statement.When.toCamelCase(): KobolIRTree.Types.Function.Statement.When {
+    return when (this) {
+        is KobolIRTree.Types.Function.Statement.When.Single -> copy(
+            cases = cases.map {
+                it.copy(
+                    condition = it.condition.toCamelCase(),
+                    action = it.action.map { it.updateNames() }
+                )
+            },
+            elseCase = elseCase?.let {
+                it.copy(
+                    action = it.action.map {
+                        it.updateNames()
+                    }
+                )
+            }
+        )
+
+        is KobolIRTree.Types.Function.Statement.When.Multiple -> copy(
+            cases = cases.map {
+                it.copy(
+                    condition = it.condition.toCamelCase() as KobolIRTree.Expression.BooleanExpression,
+                    action = it.action.map { it.updateNames() }
+                )
+            },
+            elseCase = elseCase?.let {
+                it.copy(
+                    action = it.action.map {
+                        it.updateNames()
+                    }
+                )
+            }
+        )
+    }
 }
 
 private fun KobolIRTree.Types.Function.Statement.FunctionCall.toCamelCase() = copy(
@@ -125,6 +163,7 @@ private fun KobolIRTree.Expression.toCamelCase(): KobolIRTree.Expression =
             left = left.toCamelCase() as KobolIRTree.Expression.NumberExpression,
             right = right.toCamelCase() as KobolIRTree.Expression.NumberExpression
         )
+
         is KobolIRTree.Expression.BooleanExpression.Eq -> copy(
             left = left.toCamelCase(), right = right.toCamelCase()
         )
@@ -179,6 +218,8 @@ private fun KobolIRTree.Expression.toCamelCase(): KobolIRTree.Expression =
             statements = statements.map { it.updateNames() },
             elseStatements = elseStatements.map { it.updateNames() }
         )
+
+        is KobolIRTree.Types.Function.Statement.When -> toCamelCase()
     }
 
 private val next = "-(.)".toRegex()

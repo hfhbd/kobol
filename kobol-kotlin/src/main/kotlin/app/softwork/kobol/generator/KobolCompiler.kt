@@ -86,6 +86,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder(
             }
             code.endControlFlow()
         }
+
         is If -> {
             code.beginControlFlow("if (%L)", condition.toTemplate())
             for (stmt in statements) {
@@ -98,6 +99,34 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder(
                     val add = stmt.toKotlin2()
                     code.add(add)
                 }
+            }
+            code.endControlFlow()
+        }
+
+        is When -> {
+            when (this) {
+                is When.Single -> code.beginControlFlow("when (%L)", expr.toTemplate())
+                is When.Multiple -> code.beginControlFlow("when")
+            }
+
+            for (case in cases) {
+                when (case) {
+                    is When.Single.Case -> code.beginControlFlow("%L ->", case.condition.toTemplate())
+                    is When.Multiple.Case -> code.beginControlFlow("%L ->", case.condition.toTemplate())
+                }
+
+                for (stmt in case.action) {
+                    code.add("%L", stmt.toKotlin2())
+                }
+                code.endControlFlow()
+            }
+            val elseCase = elseCase
+            if (elseCase != null) {
+                code.beginControlFlow("else ->")
+                for (stmt in elseCase.action) {
+                    code.add("%L", stmt.toKotlin2())
+                }
+                code.endControlFlow()
             }
             code.endControlFlow()
         }
@@ -145,6 +174,7 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
     is ForEach -> TODO()
     is While -> TODO()
     is If -> TODO()
+    is When -> TODO()
 }
 
 private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
@@ -167,6 +197,7 @@ private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean =
     is KobolIRTree.Expression.StringExpression.Concat -> {
         CodeBlock.of("%L%L", left.toTemplate(escape = false), right.toTemplate(escape = false))
     }
+
     is KobolIRTree.Expression.StringExpression.Interpolation -> expr.toTemplate(escape)
 }
 

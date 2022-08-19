@@ -50,7 +50,41 @@ private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTr
         is KobolIRTree.Types.Function.Statement.Print -> this
         is KobolIRTree.Types.Function.Statement.While -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.If -> booleanExpressions()
+        is KobolIRTree.Types.Function.Statement.When -> booleanExpressions()
     }
+
+private fun KobolIRTree.Types.Function.Statement.When.booleanExpressions(): KobolIRTree.Types.Function.Statement.When {
+    return when (this) {
+        is KobolIRTree.Types.Function.Statement.When.Single -> copy(
+            expr = expr.booleanExpressions(),
+            cases = cases.map {
+                it.copy(
+                    condition = it.condition.booleanExpressions(),
+                    action = it.action.map { it.booleanExpressions() }
+                )
+            },
+            elseCase = elseCase?.let {
+                it.copy(
+                    action = it.action.map { it.booleanExpressions() }
+                )
+            }
+        )
+
+        is KobolIRTree.Types.Function.Statement.When.Multiple -> copy(
+            cases = cases.map {
+                it.copy(
+                    condition = it.condition.booleanExpressions() as BooleanExpression,
+                    action = it.action.map { it.booleanExpressions() }
+                )
+            },
+            elseCase = elseCase?.let {
+                it.copy(
+                    action = it.action.map { it.booleanExpressions() }
+                )
+            }
+        )
+    }
+}
 
 private fun KobolIRTree.Types.Function.Statement.Declaration.booleanExpressions() = when (this) {
     is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> copy(
@@ -71,6 +105,7 @@ private fun KobolIRTree.Expression.booleanExpressions(): KobolIRTree.Expression 
     is KobolIRTree.Types.Function.Statement.FunctionCall -> booleanExpressions()
     is KobolIRTree.Types.Function.Statement.While -> booleanExpressions()
     is KobolIRTree.Types.Function.Statement.If -> booleanExpressions()
+    is KobolIRTree.Types.Function.Statement.When -> booleanExpressions()
 }
 
 private fun KobolIRTree.Types.Function.Statement.DoWhile.booleanExpressions() = copy(
@@ -122,6 +157,7 @@ internal fun BooleanExpression.optimize(): BooleanExpression = when (this) {
                 BooleanLiteral(result)
             } else NotEq(left, right)
         }
+
         is NotEq -> {
             val left = condition.left.booleanExpressions()
             val right = condition.right.booleanExpressions()
@@ -136,6 +172,7 @@ internal fun BooleanExpression.optimize(): BooleanExpression = when (this) {
             val right = condition.right.optimize()
             Or(Not(left), Not(right))
         }
+
         is Or -> {
             val left = condition.left.optimize()
             val right = condition.right.optimize()
