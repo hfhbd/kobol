@@ -387,6 +387,30 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             )
         }
 
+        proc.eval != null -> {
+            val eval = proc.eval!!
+
+            listOf(
+                Eval(
+                    values = eval.exprList.map { it.toExpr(dataTree) },
+                    conditions = eval.whensList.map {
+                        Eval.Condition(
+                            conditions = it.exprList.map { it.toExpr(dataTree) },
+                            action = it.proceduresList.asStatements(dataTree),
+                            comments = it.comments.asComments()
+                        )
+                    },
+                    other = eval.whenOther?.let {
+                        Eval.Other(
+                            action = it.proceduresList.asStatements(dataTree),
+                            comments = it.comments.asComments()
+                        )
+                    },
+                    comments = proc.comments.asComments()
+                )
+            )
+        }
+
         else -> TODO()
     }
 }

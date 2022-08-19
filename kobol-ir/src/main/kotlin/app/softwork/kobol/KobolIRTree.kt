@@ -146,7 +146,56 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     val statements: List<Statement>,
                     val elseStatements: List<Statement> = emptyList(),
                     override val comments: List<String> = emptyList()
-                ): Statement, Expression
+                ) : Statement, Expression
+
+
+                @Serializable
+                sealed interface When : Statement, Expression {
+                    val cases: List<Cases>
+                    val elseCase: Else?
+
+                    @Serializable
+                    sealed interface Cases {
+                        val action: List<Statement>
+                        val comments: List<String>
+                    }
+
+                    @Serializable
+                    data class Single(
+                        val expr: Expression,
+                        override val cases: List<Case>,
+                        override val elseCase: Else?,
+                        override val comments: List<String>
+                    ) : When {
+
+                        @Serializable
+                        data class Case(
+                            val condition: Expression,
+                            override val action: List<Statement>,
+                            override val comments: List<String> = emptyList()
+                        ) : Cases
+                    }
+
+                    @Serializable
+                    data class Else(
+                        val action: List<Statement>,
+                        val comments: List<String> = emptyList()
+                    )
+
+                    @Serializable
+                    data class Multiple(
+                        override val cases: List<Case>,
+                        override val elseCase: Else?,
+                        override val comments: List<String> = emptyList()
+                    ) : When {
+                        @Serializable
+                        data class Case(
+                            val condition: Expression.BooleanExpression,
+                            override val action: List<Statement>,
+                            override val comments: List<String> = emptyList()
+                        ) : Cases
+                    }
+                }
             }
         }
 
@@ -206,7 +255,7 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             data class Concat(val left: Expression, val right: Expression) : StringExpression
 
             @Serializable
-            data class Interpolation(val expr: Expression): StringExpression
+            data class Interpolation(val expr: Expression) : StringExpression
         }
 
         @Serializable
@@ -254,12 +303,18 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             data class And(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
 
             @Serializable
-            data class Bigger(val left: NumberExpression, val right: NumberExpression, val equals: Boolean = false) :
-                BooleanExpression
+            data class Bigger(
+                val left: NumberExpression,
+                val right: NumberExpression,
+                val equals: Boolean = false
+            ) : BooleanExpression
 
             @Serializable
-            data class Smaller(val left: NumberExpression, val right: NumberExpression, val equals: Boolean = false) :
-                BooleanExpression
+            data class Smaller(
+                val left: NumberExpression,
+                val right: NumberExpression,
+                val equals: Boolean = false
+            ) : BooleanExpression
         }
     }
 }

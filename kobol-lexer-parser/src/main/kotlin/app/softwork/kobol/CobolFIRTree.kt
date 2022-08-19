@@ -300,6 +300,27 @@ data class CobolFIRTree(
             ) : Statement
 
             @Serializable
+            data class Eval(
+                val values: List<Expression>,
+                val conditions: List<Condition>,
+                val other: Other?,
+                override val comments: List<String> = emptyList()
+            ) : Statement {
+                @Serializable
+                data class Condition(
+                    val conditions: List<Expression>,
+                    val action: List<Statement>,
+                    val comments: List<String> = emptyList()
+                )
+
+                @Serializable
+                data class Other(
+                    val action: List<Statement>,
+                    val comments: List<String> = emptyList()
+                )
+            }
+
+            @Serializable
             data class GoBack(
                 override val comments: List<String> = emptyList()
             ) : Statement
@@ -335,15 +356,15 @@ data class CobolFIRTree(
 
                 @Serializable
                 data class Greater(
-                    val left: Expression.NumberExpression,
-                    val right: Expression.NumberExpression,
+                    val left: NumberExpression,
+                    val right: NumberExpression,
                     val equals: Boolean = false
                 ) : BooleanExpression
 
                 @Serializable
                 data class Smaller(
-                    val left: Expression.NumberExpression,
-                    val right: Expression.NumberExpression,
+                    val left: NumberExpression,
+                    val right: NumberExpression,
                     val equals: Boolean = false
                 ) : BooleanExpression
             }

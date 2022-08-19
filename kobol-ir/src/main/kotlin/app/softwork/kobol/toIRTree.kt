@@ -277,6 +277,49 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
             comments = comments
         )
     }
+
+    is Eval -> {
+        val elseCase = other?.let {
+            When.Else(
+                action = it.action.mapNotNull { it.toIR(types, sections) },
+                comments = it.comments
+            )
+        }
+        when (values.size) {
+            1 -> When.Single(
+                expr = values.single().toIR(),
+                cases = conditions.map {
+                    When.Single.Case(
+                        condition = it.conditions.single().toIR(),
+                        action = it.action.mapNotNull { it.toIR(types, sections) },
+                        comments = it.comments
+                    )
+                },
+                elseCase = elseCase,
+                comments = comments
+            )
+
+            else -> When.Multiple(
+                cases = conditions.map {
+                    When.Multiple.Case(
+                        condition = it.conditions.map { it.toIR() }
+                            .mapIndexed { index, expr ->
+                                Expression.BooleanExpression.Eq(
+                                    values[index].toIR(),
+                                    expr
+                                ) as Expression.BooleanExpression
+                            }.reduce { left, right ->
+                                Expression.BooleanExpression.And(left, right)
+                            },
+                        action = it.action.mapNotNull { it.toIR(types, sections) },
+                        comments = it.comments
+                    )
+                },
+                elseCase = elseCase,
+                comments = comments
+            )
+        }
+    }
 }
 
 fun CobolFIRTree.DataTree.WorkingStorage.toIR(): Types.Type = when (this) {
