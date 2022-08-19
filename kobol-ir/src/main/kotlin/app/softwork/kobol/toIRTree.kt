@@ -3,6 +3,7 @@ package app.softwork.kobol
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.ForEach
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.If
 import app.softwork.kobol.KobolIRTree.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.KobolIRTree.Types.Type.*
@@ -185,7 +186,10 @@ fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(): Expression.St
     is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> Expression.StringExpression.StringVariable(
         (target.toIR() as GlobalVariable).declaration as Declaration.StringDeclaration
     )
-    is CobolFIRTree.ProcedureTree.Expression.StringExpression.Interpolation -> Expression.StringExpression.Interpolation(value.toIR())
+
+    is CobolFIRTree.ProcedureTree.Expression.StringExpression.Interpolation -> Expression.StringExpression.Interpolation(
+        value.toIR()
+    )
 }
 
 
@@ -262,6 +266,15 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
         }
         FunctionCall(
             function = function, parameters = emptyList(), comments = comments
+        )
+    }
+
+    is If -> {
+        Types.Function.Statement.If(
+            condition = condition.toIR(),
+            statements = statements.mapNotNull { it.toIR(types, sections) },
+            elseStatements = elseStatements.mapNotNull { it.toIR(types, sections) },
+            comments = comments
         )
     }
 }
