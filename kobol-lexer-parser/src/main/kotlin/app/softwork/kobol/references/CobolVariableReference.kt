@@ -20,7 +20,6 @@ class CobolVariableReference(psiElement: CobolVariable, range: TextRange) :
             .withTypeText("VARIANT TEST")
     }.toTypedArray()
 
-    // TODO: ADD LOCAL
     private fun <T> find(incompleteCode: Boolean = false, action: (CobolRecordDef) -> T): List<T> {
         val file = myElement.containingFile as CobolFile
         val stm: List<CobolStm> =
