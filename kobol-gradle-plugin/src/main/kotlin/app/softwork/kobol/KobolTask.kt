@@ -29,6 +29,12 @@ abstract class KobolTask: SourceTask() {
     init {
         optimize.convention(false)
         outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
+
+        project.plugins.withId("org.jetbrains.kotlin.jvm") {
+            val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
+            val kotlin = srcSet.extensions.getByName("kotlin") as SourceDirectorySet
+            kotlin.srcDir(outputFolder.dir("kotlin"))
+        }
     }
 
     @get:Inject
@@ -36,11 +42,6 @@ abstract class KobolTask: SourceTask() {
 
     @TaskAction
     internal fun generate() {
-        project.plugins.withId("org.jetbrains.kotlin.jvm") {
-            val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
-            val kotlin = srcSet.extensions.getByName("kotlin") as SourceDirectorySet
-            kotlin.srcDir(outputFolder.dir("kotlin"))
-        }
         workerExecutor.classLoaderIsolation().submit(ExecuteKobol::class.java) {
             it.inputFiles.setFrom(source)
             it.outputFolder.set(outputFolder)
