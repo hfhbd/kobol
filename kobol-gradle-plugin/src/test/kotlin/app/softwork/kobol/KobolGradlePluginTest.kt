@@ -1,13 +1,15 @@
 package app.softwork.kobol
 
 import app.softwork.kobol.generator.*
+import org.gradle.testkit.runner.*
 import java.io.*
 import java.nio.file.*
+import kotlin.io.path.*
 import kotlin.test.*
 
 class KobolGradlePluginTest {
     @Test
-    fun test() {
+    fun testConverting() {
         //language=cobol
         val input = """
             123456 IDENTIFICATION              DIVISION.
@@ -39,5 +41,65 @@ class KobolGradlePluginTest {
         val packageFolder = File(tmp, "kotlin/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
+    }
+
+    @Test
+    fun srcDir() {
+        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
+            deleteOnExit()
+        }
+        val buildFile = File(tmp, "build.gradle.kts")
+        //language=kotlin
+        buildFile.writeText(
+            """
+            plugins {
+                kotlin("jvm") version "1.7.20-Beta" 
+                id("app.softwork.kobol")
+            }
+
+            repositories {
+                mavenCentral()
+            }
+            
+            tasks {
+              convertCobolToKotlin {
+                source("hello.cbl")
+              }
+            }
+        """.trimIndent()
+        )
+
+        File(tmp, "hello.cbl").writeText(
+            //language=cobol
+            """
+            |000010 IDENTIFICATION DIVISION.
+            |000020 PROGRAM-ID. HELLO.
+            |000030 PROCEDURE DIVISION.
+            |000040     DISPLAY "HELLO".
+        """.trimMargin()
+        )
+
+        val kotlinSrc = (tmp.toPath() / "src" / "main" / "kotlin" / "hello").toFile()
+        kotlinSrc.mkdirs()
+        File(kotlinSrc, "Test.kt").writeText(
+            //language=kotlin
+            """
+            package hello
+            
+            fun foo() {
+              main()
+            }
+        """.trimIndent()
+        )
+
+        val result = GradleRunner.create()
+            .withProjectDir(tmp)
+            .withArguments("convertCobolToKotlin", "assemble", "--stacktrace")
+            .forwardOutput()
+            .withPluginClasspath()
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":convertCobolToKotlin")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":assemble")?.outcome)
     }
 }
