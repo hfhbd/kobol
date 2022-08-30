@@ -7,7 +7,7 @@ import kotlin.test.*
 
 class KobolGradlePluginTest {
     @Test
-    fun test() {
+    fun testConverting() {
         //language=cobol
         val input = """
             123456 IDENTIFICATION              DIVISION.
