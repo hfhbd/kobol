@@ -94,12 +94,11 @@ class KobolGradlePluginTest {
 
         val result = GradleRunner.create()
             .withProjectDir(tmp)
-            .withArguments("convertCobolToKotlin", "assemble", "--stacktrace")
+            .withArguments("assemble", "--stacktrace")
             .forwardOutput()
             .withPluginClasspath()
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":convertCobolToKotlin")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, result.task(":assemble")?.outcome)
     }
 }
