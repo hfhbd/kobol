@@ -36,6 +36,11 @@ abstract class KobolTask: SourceTask() {
 
     @TaskAction
     internal fun generate() {
+        project.plugins.withId("org.jetbrains.kotlin.jvm") {
+            val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
+            val kotlin = srcSet.extensions.getByName("kotlin") as SourceDirectorySet
+            kotlin.srcDir(outputFolder.file("kotlin"))
+        }
         workerExecutor.classLoaderIsolation().submit(ExecuteKobol::class.java) {
             it.inputFiles.setFrom(source)
             it.outputFolder.set(outputFolder)
