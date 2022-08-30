@@ -1,10 +1,8 @@
 package app.softwork.kobol
 
 import app.softwork.kobol.generator.*
-import org.gradle.testkit.runner.*
 import java.io.*
 import java.nio.file.*
-import kotlin.io.path.*
 import kotlin.test.*
 
 class KobolGradlePluginTest {
