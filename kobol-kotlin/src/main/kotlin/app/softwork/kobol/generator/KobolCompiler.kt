@@ -359,6 +359,7 @@ fun generate(files: Set<File>, output: File, optimize: Boolean) {
             ir.optimize()
         } else ir
 
-        generate(finished).writeTo(directory = output)
+        val kotlin = generate(finished)
+        kotlin.writeTo(directory = File(output, "kotlin"))
     }
 }

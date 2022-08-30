@@ -1,7 +1,6 @@
 package app.softwork.kobol
 
 import org.gradle.api.*
-import org.gradle.api.tasks.*
 
 class KobolGradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -12,11 +11,6 @@ class KobolGradlePlugin : Plugin<Project> {
         target.tasks.register("buildCobol", BuildTask::class.java) {
             it.dependsOn(upload)
             it.group = "kobol"
-        }
-        target.plugins.withId("org.jetbrains.kotlin.jvm") {
-            val srcSet = target.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
-            val kotlin = srcSet.extensions.getByName("kotlin") as org.gradle.api.file.SourceDirectorySet
-            kotlin.srcDir("build/generated/kobol")
         }
     }
 }
