@@ -12,17 +12,12 @@ gradlePlugin {
     }
 }
 
-val shade = if (System.getenv("CI") == "true") {
-    configurations.create("shade").also {
-        configurations {
-            compileOnly.get().extendsFrom(it)
-        }
-    }
-} else configurations.implementation.get()
+val shade = configurations.create("shade")
+configurations {
+    compileOnly.get().extendsFrom(shade)
+}
 
 dependencies {
-    implementation("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:1.7.20-Beta")
-
     implementation(projects.kobolKotlin)
     shade(projects.kobolKotlin)
     implementation("com.hierynomus:sshj:0.34.0")
@@ -42,7 +37,6 @@ dependencies {
     testImplementation("com.jetbrains.intellij.platform:core-ui:$idea")
     testImplementation("com.jetbrains.intellij.platform:lang-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:test-framework:$idea")
-    testImplementation(gradleTestKit())
 }
 
 licensee {

@@ -4,7 +4,6 @@ import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 import org.gradle.workers.*
-import org.jetbrains.kotlin.gradle.dsl.*
 import javax.inject.*
 
 @CacheableTask
@@ -32,8 +31,9 @@ abstract class KobolTask: SourceTask() {
         outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
 
         project.plugins.withId("org.jetbrains.kotlin.jvm") {
-            val kotlin = project.extensions.getByName("kotlin") as KotlinProjectExtension
-            kotlin.sourceSets.getByName("main").kotlin.srcDir(outputFolder.dir("kotlin"))
+            val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
+            val kotlin = srcSet.extensions.getByName("kotlin") as SourceDirectorySet
+            kotlin.srcDir(outputFolder.dir("kotlin"))
         }
     }
 
