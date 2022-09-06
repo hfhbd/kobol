@@ -105,12 +105,15 @@ data class CobolFIRTree(
             @Serializable
             sealed interface Elementar : WorkingStorage {
                 val name: String
+                val recordName: String?
                 val formatter: Formatter?
                 val value: Any?
 
                 @Serializable
                 data class Pointer(
-                    override val name: String, override val comments: List<String> = emptyList()
+                    override val name: String,
+                    override val recordName: String?,
+                    override val comments: List<String> = emptyList()
                 ) : Elementar {
                     override val formatter: Nothing? = null
                     override val value: Nothing? = null
@@ -119,6 +122,7 @@ data class CobolFIRTree(
                 @Serializable
                 data class StringElementar(
                     override val name: String,
+                    override val recordName: String?,
                     override val formatter: Formatter,
                     override val value: String? = null,
                     val occurs: Occurs? = null,
@@ -210,6 +214,7 @@ data class CobolFIRTree(
                 @Serializable
                 data class NumberElementar(
                     override val name: String,
+                    override val recordName: String?,
                     override val formatter: Formatter,
                     override val value: Double? = null,
                     val occurs: Occurs? = null,
@@ -226,7 +231,9 @@ data class CobolFIRTree(
 
                 @Serializable
                 data class EmptyElementar(
-                    override val name: String, override val comments: List<String> = emptyList()
+                    override val name: String,
+                    override val recordName: String?,
+                    override val comments: List<String> = emptyList()
                 ) : Elementar {
                     override val formatter: Nothing? = null
                     override val value: Nothing? = null

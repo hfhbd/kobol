@@ -9,6 +9,7 @@ class ConstTest {
         val readonly = KobolIRTree.Types.Type.GlobalVariable(
             declaration = KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration(
                 name = "foo",
+                className = null,
                 mutable = false,
                 private = false,
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
@@ -26,6 +27,7 @@ class ConstTest {
         val mutable = KobolIRTree.Types.Type.GlobalVariable(
             declaration = KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration(
                 name = "foo",
+                className = null,
                 mutable = true,
                 private = false,
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
