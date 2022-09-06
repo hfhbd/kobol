@@ -135,7 +135,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder(
 }
 
 private fun CodeBlock.Builder.assign(it: Assignment) {
-    addStatement("%N = %L", it.declaration.name, it.newValue.toTemplate())
+    addStatement("%L = %L", it.declaration.member(), it.newValue.toTemplate())
 }
 
 private fun CodeBlock.Builder.println(it: Print) {
@@ -145,7 +145,7 @@ private fun CodeBlock.Builder.println(it: Print) {
         }
 
         is KobolIRTree.Expression.StringExpression.StringVariable -> {
-            addStatement("println(${expr.target.name})")
+            addStatement("println(%L)", expr.target.member())
         }
 
         is KobolIRTree.Expression.StringExpression.Concat -> {
@@ -167,7 +167,7 @@ private fun FunctionCall.call() = CodeBlock.builder().apply {
 
 private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
     is KobolIRTree.Expression.StringExpression -> toTemplate(escape)
-    is KobolIRTree.Expression.NumberExpression -> toTemplate()
+    is KobolIRTree.Expression.NumberExpression -> toTemplate(escape)
     is KobolIRTree.Expression.BooleanExpression -> toTemplate()
     is FunctionCall -> call()
     is DoWhile -> TODO()
@@ -175,6 +175,13 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
     is While -> TODO()
     is If -> TODO()
     is When -> TODO()
+}
+
+private fun Declaration.member(): Any {
+    val className = className
+    return if (className != null) {
+        MemberName("", "$className.$name")
+    } else name
 }
 
 private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
@@ -188,9 +195,12 @@ private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean =
 
     is KobolIRTree.Expression.StringExpression.StringVariable -> {
         if (escape) {
-            CodeBlock.of("%L", target.name)
+            CodeBlock.of("%L", target.member())
         } else {
-            CodeBlock.of("$%L", target.name)
+            val memberName = target.member()
+            if (memberName is MemberName) {
+                CodeBlock.of("${"$"}{%L}", memberName)
+            } else CodeBlock.of("$%L", memberName)
         }
     }
 
@@ -244,11 +254,19 @@ private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = w
     }
 }
 
-private fun KobolIRTree.Expression.NumberExpression.toTemplate(): CodeBlock = when (this) {
+private fun KobolIRTree.Expression.NumberExpression.toTemplate(escape: Boolean = false): CodeBlock = when (this) {
     is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleLiteral -> CodeBlock.of("%L", value)
     is KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral -> CodeBlock.of("%L", value)
-    is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable -> CodeBlock.of("%L", target.name)
-    is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable -> CodeBlock.of("%L", target.name)
+    is KobolIRTree.Expression.NumberExpression.NumberVariable -> {
+        if (escape) {
+            CodeBlock.of("%L", target.member())
+        } else {
+            val memberName = target.member()
+            if (memberName is MemberName) {
+                CodeBlock.of("${"$"}{%L}", memberName)
+            } else CodeBlock.of("$%L", memberName)
+        }
+    }
 }
 
 private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
@@ -278,6 +296,10 @@ private fun FileSpec.Builder.addClass(data: KobolIRTree.Types.Type.Class) {
             initBlock.add(init.toKotlin())
         }
         classBuilder.addInitializerBlock(initBlock.build())
+    }
+
+    for (member in data.members) {
+        classBuilder.addProperty(member.createProperty())
     }
 
     for (function in data.functions) {

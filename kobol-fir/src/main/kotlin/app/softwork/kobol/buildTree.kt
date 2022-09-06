@@ -126,7 +126,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                             }
                             val name = record.recordID?.varName?.text
                             if (name != null) {
-                                currentRecord = Record(name, emptyList())
+                                currentRecord = Record(name, emptyList(), record.comments.asComments())
                             }
                         }
 
@@ -135,7 +135,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                                 add(currentRecord)
                             }
                             currentRecord = null
-                            val sa = sa(record, emptyList())
+                            val sa = sa(record, recordName = null, emptyList())
                             if (sa != null) {
                                 add(sa)
                             }
@@ -143,7 +143,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
 
                         else -> {
                             requireNotNull(currentRecord)
-                            val elementar = sa(record, currentRecord.elements.filterIsInstance<NumberElementar>())
+                            val elementar = sa(record, currentRecord.name, currentRecord.elements.filterIsInstance<NumberElementar>())
                             if (elementar != null) {
                                 currentRecord = currentRecord.copy(elements = currentRecord.elements + elementar)
                             }
@@ -164,7 +164,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
     )
 }
 
-private fun sa(it: CobolRecordDef, previous: List<NumberElementar>): Elementar? {
+private fun sa(it: CobolRecordDef, recordName: String?, previous: List<NumberElementar>): Elementar? {
     val name = it.recordID?.varName?.text ?: return null
     val pic: List<CobolPicDefClause>? = it.picClause?.picDefClauseList?.takeIf { it.isNotEmpty() }
     val single = pic?.singleOrNull()
@@ -172,9 +172,9 @@ private fun sa(it: CobolRecordDef, previous: List<NumberElementar>): Elementar? 
     return when {
         pic == null -> {
             if (it.pointerClause != null) {
-                Pointer(name, it.comments.asComments())
+                Pointer(name, recordName, it.comments.asComments())
             } else {
-                EmptyElementar(name, it.comments.asComments())
+                EmptyElementar(name, recordName, it.comments.asComments())
             }
         }
 
@@ -182,6 +182,7 @@ private fun sa(it: CobolRecordDef, previous: List<NumberElementar>): Elementar? 
             single,
             value = value,
             name = name,
+            recordName = recordName,
             comments = it.comments,
             occurs = it.picClause!!.occursClauseList,
             previous = previous
@@ -195,6 +196,7 @@ private fun sa(it: CobolRecordDef, previous: List<NumberElementar>): Elementar? 
                 formatter,
                 value = value,
                 name = name,
+                recordName = recordName,
                 comments = it.comments,
                 occurs = it.picClause!!.occursClauseList,
                 previous = previous
@@ -243,11 +245,13 @@ private fun single(
     value: String?,
     comments: CobolComments,
     name: String,
+    recordName: String?,
     occurs: List<CobolOccursClause>,
     previous: List<NumberElementar>
 ): Elementar = when (val p = single.pictures.text) {
     "A", "X" -> StringElementar(
         name = name,
+        recordName = recordName,
         formatter = format,
         value = value?.drop(1)?.dropLast(1),
         comments = comments.asComments(),
@@ -257,6 +261,7 @@ private fun single(
     "9" -> {
         NumberElementar(
             name = name,
+            recordName = recordName,
             formatter = format,
             value = value?.toDouble(),
             comments = comments.asComments(),
@@ -266,6 +271,7 @@ private fun single(
 
     "S9" -> NumberElementar(
         name = name,
+        recordName = recordName,
         formatter = format,
         value = value?.toDouble(),
         signed = true,
@@ -275,6 +281,7 @@ private fun single(
 
     "V9" -> NumberElementar(
         name = name,
+        recordName = recordName,
         formatter = format,
         value = value?.toDouble(),
         signed = true,
