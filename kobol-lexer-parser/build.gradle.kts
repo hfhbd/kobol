@@ -20,6 +20,7 @@ dependencies {
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:core-ui:$idea")
     testImplementation("com.jetbrains.intellij.platform:lang-impl:$idea")
+    testImplementation(projects.kobolFir)
 }
 
 sourceSets["main"].java.srcDirs("$buildDir/generated/lexer/main/java", "$buildDir/generated/parser/main/java")
