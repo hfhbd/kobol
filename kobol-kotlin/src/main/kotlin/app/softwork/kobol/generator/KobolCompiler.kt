@@ -177,11 +177,22 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
     is When -> TODO()
 }
 
-private fun Declaration.member(): Any {
+private fun Declaration.member(): MemberName {
     val className = className
     return if (className != null) {
-        MemberName("", "$className.$name")
-    } else name
+        MemberName(ClassName("", className), name)
+    } else MemberName("", name)
+}
+
+private fun KobolIRTree.Expression.Variable.toCodeBlock(escape: Boolean): CodeBlock {
+    return if (escape) {
+        CodeBlock.of("%L", target.member())
+    } else {
+        val memberName = target.member()
+        if (memberName.enclosingClassName != null) {
+            CodeBlock.of("${"$"}{%M}", memberName)
+        } else CodeBlock.of("$%M", memberName)
+    }
 }
 
 private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
@@ -193,16 +204,7 @@ private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean =
         }
     }
 
-    is KobolIRTree.Expression.StringExpression.StringVariable -> {
-        if (escape) {
-            CodeBlock.of("%L", target.member())
-        } else {
-            val memberName = target.member()
-            if (memberName is MemberName) {
-                CodeBlock.of("${"$"}{%L}", memberName)
-            } else CodeBlock.of("$%L", memberName)
-        }
-    }
+    is KobolIRTree.Expression.StringExpression.StringVariable -> toCodeBlock(escape)
 
     is KobolIRTree.Expression.StringExpression.Concat -> {
         CodeBlock.of("%L%L", left.toTemplate(escape = false), right.toTemplate(escape = false))
@@ -257,16 +259,7 @@ private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = w
 private fun KobolIRTree.Expression.NumberExpression.toTemplate(escape: Boolean = false): CodeBlock = when (this) {
     is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleLiteral -> CodeBlock.of("%L", value)
     is KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral -> CodeBlock.of("%L", value)
-    is KobolIRTree.Expression.NumberExpression.NumberVariable -> {
-        if (escape) {
-            CodeBlock.of("%L", target.member())
-        } else {
-            val memberName = target.member()
-            if (memberName is MemberName) {
-                CodeBlock.of("${"$"}{%L}", memberName)
-            } else CodeBlock.of("$%L", memberName)
-        }
-    }
+    is KobolIRTree.Expression.NumberExpression.NumberVariable -> toCodeBlock(escape)
 }
 
 private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
