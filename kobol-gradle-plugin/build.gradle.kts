@@ -19,6 +19,7 @@ configurations {
 
 dependencies {
     implementation(projects.kobolKotlin)
+    implementation(projects.kobolFlowGraph)
     shade(projects.kobolKotlin)
     implementation("com.hierynomus:sshj:0.34.0")
     implementation("com.jcraft:jsch.agentproxy.sshj:0.0.9")

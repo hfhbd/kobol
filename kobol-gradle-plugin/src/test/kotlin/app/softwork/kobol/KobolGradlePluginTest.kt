@@ -8,8 +8,20 @@ import kotlin.test.*
 class KobolGradlePluginTest {
     @Test
     fun testConverting() {
-        //language=cobol
-        val input = """
+        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
+            deleteOnExit()
+        }
+        val cobolFile = File(tmp, "hello.cbl").apply {
+            writeText(input)
+        }
+        generate(cobolFile, tmp, optimize = false)
+        val packageFolder = File(tmp, "kotlin/hello")
+        assertTrue(packageFolder.exists())
+        assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
+    }
+
+    //language=cobol
+    private val input = """
             123456 IDENTIFICATION              DIVISION.
             123456******************************************************************
             123456 PROGRAM-ID.                 HELLO.
@@ -29,15 +41,17 @@ class KobolGradlePluginTest {
             123456     MOVE "42" TO WORLD
             123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
+
+    @Test
+    fun testFlowGraph() {
         val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
             deleteOnExit()
         }
         val cobolFile = File(tmp, "hello.cbl").apply {
             writeText(input)
         }
-        generate(cobolFile, tmp, optimize = false)
-        val packageFolder = File(tmp, "kotlin/hello")
-        assertTrue(packageFolder.exists())
-        assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
+
+        flowGraph(setOf(cobolFile), tmp)
+        assertTrue("hello.puml" in tmp.list())
     }
 }
