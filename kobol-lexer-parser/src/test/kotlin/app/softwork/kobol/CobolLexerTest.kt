@@ -377,6 +377,7 @@ class CobolLexerTest {
             123456     READ aa
             123456       AT END 
             123456          CALL 'a' USING f
+            123456       WRITE aa
             123456     CLOSE a
             123456 END-IF
             123456 EVALUATE z
@@ -396,6 +397,7 @@ class CobolLexerTest {
             line(READ, sp, VARNAME, sp)
             line(AT, sp, END, sp)
             line(CALL, sp, STRING, sp, USING, sp, VARNAME, sp)
+            line(WRITE, sp, VARNAME, sp)
             line(CLOSE, sp, VARNAME, sp)
             line(END_IF, sp)
             line(EVALUATE, sp, VARNAME, sp)

@@ -23,7 +23,7 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getTokenHighlights(tokenType: IElementType?) = when (tokenType) {
         COMMENT -> comment
         VARNAME -> vars
-        DISPLAY, MOVE, PERFORM, CALL, ADD -> function
+        DISPLAY, MOVE, PERFORM, CALL, ADD, WRITE, READ -> function
         STRING -> string
         NUMBER, ZERO, SPACE, LOW_VALUE, HIGH_VALUE -> number
 
@@ -33,6 +33,8 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         CONFIGURATION, SPECIAL_NAMES, IS,
         INPUT_OUTPUT, FILE_CONTROL, SELECT, ASSIGN, FILE, STATUS,
         TO, ON, DEPENDING, OCCURS,
+
+        IF, THEN, ELSE, END_IF,
 
         WORKING_STORAGE,
         FILE, FD, RECORD, RECORDING, STANDARD, LABEL,

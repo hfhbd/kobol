@@ -251,6 +251,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "CONTINUE"                      { return CONTINUE; }
     "READ"                          { return READ; }
     "END-READ"                      { return END_READ; }
+    "WRITE"                         { return WRITE; }
+    "END-WRITE"                     { return END_WRITE; }
     "AT"                            { return AT; }
     "END"                           { return END; }
     "ADD"                           { return ADD; }
