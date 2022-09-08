@@ -1,7 +1,7 @@
 dependencies {
     implementation(projects.kobolFir)
 
-    val idea = "211.7628.21"
+    val idea = "222.3739.54"
     testImplementation(kotlin("test"))
     testImplementation("com.jetbrains.intellij.java:java-psi:$idea")
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")

@@ -2,7 +2,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.0")
     implementation(projects.kobolLexerParser)
 
-    val idea = "211.7628.21"
+    val idea = "222.3739.54"
     compileOnly("com.jetbrains.intellij.java:java-psi:$idea")
     compileOnly("com.jetbrains.intellij.platform:core-impl:$idea")
     compileOnly("com.jetbrains.intellij.platform:core-ui:$idea")
