@@ -10,3 +10,5 @@ include(":kobol-java")
 
 include(":kobol-gradle-plugin")
 include(":kobol-intellij-plugin")
+
+include(":kobol-flow-graph")

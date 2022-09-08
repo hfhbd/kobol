@@ -229,6 +229,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "END-PERFORM"                   { return END_PERFORM; }
     "UNTIL"                         { return UNTIL; }
     "IF"                            { return IF; }
+    "THEN"                          { return THEN; }
     "ELSE"                          { return ELSE; }
     "END-IF"                        { return END_IF; }
     "="                             { return EQUAL; }
