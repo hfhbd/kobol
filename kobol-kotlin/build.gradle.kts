@@ -4,7 +4,6 @@ dependencies {
 
     testImplementation(kotlin("test"))
     val idea = "222.3739.54"
-    testImplementation("com.jetbrains.intellij.java:java-psi:$idea")
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:project-model-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")
