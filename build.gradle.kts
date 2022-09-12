@@ -15,6 +15,8 @@ allprojects {
         mavenCentral()
         maven(url = "https://www.jetbrains.com/intellij-repository/releases")
         maven(url = "https://cache-redirector.jetbrains.com/intellij-dependencies")
+        maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies/")
+        maven(url = "https://maven.pkg.jetbrains.space/public/p/ktor/eap")
     }
 }
 
@@ -31,7 +33,11 @@ subprojects {
     configurations.all {
         exclude(group = "com.jetbrains.rd")
         exclude(group = "com.github.jetbrains", module = "jetCheck")
+        exclude(group = "com.jetbrains.infra")
         exclude(group = "org.roaringbitmap")
+        exclude(group = "ai.grazie.spell")
+        exclude(group = "ai.grazie.utils")
+        exclude(group = "ai.grazie.nlp")
     }
     tasks {
         // Set the JVM compatibility versions
