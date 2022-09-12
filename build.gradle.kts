@@ -8,9 +8,9 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2" apply false
 }
 
-group = "app.softwork"
-
 allprojects {
+    group = "app.softwork"
+
     repositories {
         mavenCentral()
         maven(url = "https://www.jetbrains.com/intellij-repository/releases")

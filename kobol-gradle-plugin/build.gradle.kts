@@ -20,20 +20,18 @@ configurations {
 dependencies {
     implementation(projects.kobolKotlin)
     implementation(projects.kobolFlowGraph)
-    shade(projects.kobolKotlin)
+    implementation(projects.kobolKotlin)
     implementation("com.hierynomus:sshj:0.34.0")
     implementation("com.jcraft:jsch.agentproxy.sshj:0.0.9")
     implementation("com.jcraft:jsch.agentproxy.pageant:0.0.9")
     implementation("net.java.dev.jna:jna-platform:5.12.1")
 
     val idea = "222.3739.54"
-    shade("com.jetbrains.intellij.java:java-psi:$idea")
     shade("com.jetbrains.intellij.platform:core-impl:$idea")
     shade("com.jetbrains.intellij.platform:project-model-impl:$idea")
     shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
 
     testImplementation(kotlin("test"))
-    testImplementation("com.jetbrains.intellij.java:java-psi:$idea")
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:project-model-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")
