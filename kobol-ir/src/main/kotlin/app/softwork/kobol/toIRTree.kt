@@ -302,11 +302,11 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
                 cases = conditions.map {
                     When.Multiple.Case(
                         condition = it.conditions.map { it.toIR(types) }
-                            .mapIndexed { index, expr ->
+                            .mapIndexed<Expression, Expression.BooleanExpression> { index, expr ->
                                 Expression.BooleanExpression.Eq(
                                     values[index].toIR(types),
                                     expr
-                                ) as Expression.BooleanExpression
+                                )
                             }.reduce { left, right ->
                                 Expression.BooleanExpression.And(left, right)
                             },
