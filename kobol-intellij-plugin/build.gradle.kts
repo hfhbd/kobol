@@ -8,14 +8,14 @@ dependencies {
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    version.set("2022.1")
+    version.set("2022.2")
     type.set("IU") // Target IDE Platform
 }
 
 tasks {
     patchPluginXml {
-        sinceBuild.set("221")
-        untilBuild.set("222.*")
+        sinceBuild.set("222")
+        untilBuild.set("223.*")
         version.set(project.version.toString())
     }
 

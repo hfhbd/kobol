@@ -54,6 +54,7 @@ tasks.shadowJar {
     configurations = listOf(shade)
 
     include("*.jar")
+    include("misc/*.properties")
     include("app/softwork/kobol/**")
 
     include("org/intellij/**")
