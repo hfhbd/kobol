@@ -352,12 +352,14 @@ class CobolLexerTest {
             123456 WORKING-STORAGE SECTION.
             123456 EXEC SQL FOO
             123456 BAR
+            123456 BAR
             123456 END-EXEC.
         """.trimIndent()
         ) {
             line(DATA, sp, DIVISION, DOT, sp)
             line(WORKING_STORAGE, sp, SECTION, DOT, sp)
             line(EXEC, sp, SQL, sp, ANY, ANY, ANY, sp)
+            line(ANY, ANY, ANY, sp)
             line(ANY, ANY, ANY, sp)
             line(END_EXEC, DOT)
         }
