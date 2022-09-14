@@ -36,11 +36,10 @@ class HelloWorldTest {
         public class Hello {
           public static String WORLD = "WORLD!";
         
-          public static void main(Array<String> args) {
+          public static void main(String[] args) {
+            // Some Comment
             System.out.println("HELLO " + WORLD);
             WORLD = "42";
-            System.out.println("ANSWER" + WORLD);
-            System.exit(1);
             System.out.println("ANSWER" + WORLD);
           }
         }
