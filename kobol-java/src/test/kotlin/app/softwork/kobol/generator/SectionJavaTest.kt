@@ -2,7 +2,7 @@ package app.softwork.kobol.generator
 
 import kotlin.test.*
 
-class SectionTest {
+class SectionJavaTest {
     @Test
     fun performSection() {
         //language=cobol
@@ -24,28 +24,27 @@ class SectionTest {
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
-        val output = generate(input)
+        val output = generate(input).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package hello
+        package hello;
         
-        import kotlin.String
-        import kotlin.Unit
+        public class Hello {
+          public static String WORLD = "WORLD!";
         
-        public fun FOO(): Unit {
-          // Some Comment
-          WORLD = "42"
-          println("ANSWER${'$'}WORLD")
-        }
+          public static String HELLO = "HELLO";
         
-        public var WORLD: String = "WORLD!"
+          public static void main(String[] args) {
+            System.out.println(HELLO + WORLD);
+            FOO();
+          }
         
-        public var HELLO: String = "HELLO"
-        
-        public fun main(): Unit {
-          println("${'$'}HELLO${'$'}WORLD")
-          FOO()
+          public static void FOO() {
+            // Some Comment
+            WORLD = "42";
+            System.out.println("ANSWER" + WORLD);
+          }
         }
         
         """.trimIndent()
@@ -72,27 +71,26 @@ class SectionTest {
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
-        val output = generate(input)
+        val output = generate(input).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package hello
+        package hello;
         
-        import kotlin.String
-        import kotlin.Unit
+        public class Hello {
+          public static String WORLD = "WORLD!";
         
-        public fun FOO(): Unit {
-          // Some Comment
-          WORLD = "42"
-          println("ANSWER${'$'}WORLD")
-        }
+          public static String HELLO = "HELLO";
         
-        public var WORLD: String = "WORLD!"
+          public static void main(String[] args) {
+            FOO();
+          }
         
-        public var HELLO: String = "HELLO"
-        
-        public fun main(): Unit {
-          FOO()
+          public static void FOO() {
+            // Some Comment
+            WORLD = "42";
+            System.out.println("ANSWER" + WORLD);
+          }
         }
         
         """.trimIndent()
@@ -122,36 +120,34 @@ class SectionTest {
             DISPLAY "C".
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val output = generate(input).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package calling
+        package calling;
         
-        import kotlin.Nothing
-        import kotlin.Unit
-        import kotlin.system.exitProcess
+        public class Calling {
+          public static void main(String[] args) {
+            FOO();
+            BAR();
+            C();
+          }
         
-        public fun FOO(): Nothing {
-          println("FOO")
-          BAR()
-          println("FOO2")
-          return exitProcess(0)
-        }
+          public static void FOO() {
+            System.out.println("FOO");
+            BAR();
+            System.out.println("FOO2");
+            System.exit(0);
+          }
         
-        public fun BAR(): Nothing {
-          println("BAR")
-          return exitProcess(0)
-        }
+          public static void BAR() {
+            System.out.println("BAR");
+            System.exit(0);
+          }
         
-        public fun C(): Unit {
-          println("C")
-        }
-        
-        public fun main(): Unit {
-          FOO()
-          BAR()
-          C()
+          public static void C() {
+            System.out.println("C");
+          }
         }
         
         """.trimIndent()
@@ -173,34 +169,42 @@ class SectionTest {
                 CALL "LONDON".
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val (londonJava, output) = generate(input).map { it.toString() }
 
-        //language=kotlin
-        val expected = """
-        package calling
+        //language=java
+        val london = """
+        package calling;
         
-        import kotlin.Unit
-        
-        public fun FOO(): Unit {
-          LONDON()
-        }
-        
-        public object LONDON {
-          init {
-            System.loadLibrary("london")
+        public class LONDON {
+          static {
+            System.loadLibrary("london");
           }
         
-          public external operator fun invoke(): Unit
-        }
-        
-        public fun main(): Unit {
-          // LONDON CALLING
-          LONDON()
-          println("FOO")
-          FOO()
+          public static native void invoke();
         }
         
         """.trimIndent()
-        assertEquals(expected, output.toString())
+
+        assertEquals(london, londonJava)
+
+        //language=java
+        val expected = """
+        package calling;
+        
+        public class Calling {
+          public static void main(String[] args) {
+            // LONDON CALLING
+            LONDON.invoke();
+            System.out.println("FOO");
+            FOO();
+          }
+        
+          public static void FOO() {
+            LONDON.invoke();
+          }
+        }
+        
+        """.trimIndent()
+        assertEquals(expected, output)
     }
 }

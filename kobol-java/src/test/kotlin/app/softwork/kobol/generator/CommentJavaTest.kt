@@ -2,7 +2,7 @@ package app.softwork.kobol.generator
 
 import kotlin.test.*
 
-class CommentTest {
+class CommentJavaTest {
     @Test
     fun comments() {
         //language=cobol
@@ -63,49 +63,44 @@ class CommentTest {
         123456* DISPLAY ANSWER II
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
-        val output = generate(input)
+        val output = generate(input).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package hello
+        package hello;
         
-        import kotlin.String
-        import kotlin.Unit
+        public class Hello {
+          /**
+           * HELLO I
+           * HELLO II
+           */
+          public static String HELLO = "HELLO";
         
-        /**
-         * FOO I
-         * FOO II
-         */
-        public fun FOO(): Unit {
-          // MOVE I
-          // MOVE II
-          WORLD = HELLO
-          // DISPLAY ANSWER I
-          // DISPLAY ANSWER II
-          println("ANSWER${'$'}WORLD")
-        }
+          /**
+           * WORLD I
+           * WORLD II
+           */
+          public static String WORLD = "WORLD!";
         
-        /**
-         * HELLO I
-         * HELLO II
-         */
-        public var HELLO: String = "HELLO"
+          public static void main(String[] args) {
+            // DISPLAY I
+            // DISPLAY II
+            System.out.println(HELLO + WORLD);
+            FOO();
+          }
         
-        /**
-         * WORLD I
-         * WORLD II
-         */
-        public var WORLD: String = "WORLD!"
-        
-        /**
-         * PROCEDURE I
-         * PROCEDURE II
-         */
-        public fun main(): Unit {
-          // DISPLAY I
-          // DISPLAY II
-          println("${'$'}HELLO${'$'}WORLD")
-          FOO()
+          /**
+           * FOO I
+           * FOO II
+           */
+          public static void FOO() {
+            // MOVE I
+            // MOVE II
+            WORLD = HELLO;
+            // DISPLAY ANSWER I
+            // DISPLAY ANSWER II
+            System.out.println("ANSWER" + WORLD);
+          }
         }
         
         """.trimIndent()

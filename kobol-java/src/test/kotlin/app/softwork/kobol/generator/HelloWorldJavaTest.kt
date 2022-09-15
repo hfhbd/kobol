@@ -4,7 +4,7 @@ import app.softwork.kobol.*
 import java.io.*
 import kotlin.test.*
 
-class HelloWorldTest {
+class HelloWorldJavaTest {
     @Test
     fun helloWorld() {
         //language=cobol
@@ -25,13 +25,11 @@ class HelloWorldTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val output = generate(input).single()
 
         //language=java
         val expected = """
         package hello;
-        
-        import java.lang.String;
         
         public class Hello {
           public static String WORLD = "WORLD!";

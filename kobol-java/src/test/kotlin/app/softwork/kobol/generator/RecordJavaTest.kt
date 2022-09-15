@@ -2,7 +2,7 @@ package app.softwork.kobol.generator
 
 import kotlin.test.*
 
-class RecordTest {
+class RecordJavaTest {
     @Test
     fun simpleRecord() {
         //language=cobol
@@ -29,40 +29,53 @@ class RecordTest {
         123456  DISPLAY "HELLO " WORLD OF BAR.
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val (foo, bar, output) = generate(input)
 
-        //language=kotlin
-        val expected = """
-        package hello
+        assertEquals(//language=java
+            """
+        package hello;
         
-        import kotlin.Int
-        import kotlin.String
-        import kotlin.Unit
-        
-        public object FOO {
+        public class FOO {
           /**
            * WORLD I
            * WORLD II
            */
-          public var WORLD: Int? = null
+          public static Integer WORLD = null;
         }
+        
+        """.trimIndent(), foo.toString()
+        )
+
+
+        assertEquals(//language=java
+        """
+        package hello;
         
         /**
          * BAR I
          * BAR II
          */
-        public object BAR {
-          public var WORLD: String = "BAR"
+        public class BAR {
+          public static String WORLD = "BAR";
         }
         
-        public fun main(): Unit {
-          FOO.WORLD = 42
-          // Some Comment
-          println("HELLO ${'$'}{FOO.WORLD}")
-          println("HELLO ${'$'}{BAR.WORLD}")
+        """.trimIndent(), bar.toString()
+        )
+
+
+        assertEquals(//language=java
+        """
+        package hello;
+        
+        public class Hello {
+          public static void main(String[] args) {
+            FOO.WORLD = 42;
+            // Some Comment
+            System.out.println("HELLO " + FOO.WORLD);
+            System.out.println("HELLO " + BAR.WORLD);
+          }
         }
         
-        """.trimIndent()
-        assertEquals(expected, output.toString())
+        """.trimIndent(), output.toString())
     }
 }

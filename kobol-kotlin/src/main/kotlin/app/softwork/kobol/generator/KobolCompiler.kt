@@ -93,6 +93,15 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder(
                 val add = stmt.toKotlin2()
                 code.add(add)
             }
+
+            for (elseIf in elseIfs) {
+                code.nextControlFlow("else if (%L)", elseIf.condition.toTemplate())
+                for (stmt in elseIf.statements) {
+                    val add = stmt.toKotlin2()
+                    code.add(add)
+                }
+            }
+
             if (elseStatements.isNotEmpty()) {
                 code.nextControlFlow("else")
                 for (stmt in elseStatements) {

@@ -2,7 +2,7 @@ package app.softwork.kobol.generator
 
 import kotlin.test.*
 
-class ForEachTest {
+class ForEachJavaTest {
     @Test
     fun doWhile() {
         //language=cobol
@@ -22,27 +22,26 @@ class ForEachTest {
         123456   DISPLAY 'FOO'.
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val output = generate(input).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package hello
+        package hello;
         
-        import kotlin.String
-        import kotlin.Unit
+        public class Hello {
+          public static String WORLD = "WORLD!";
         
-        public fun FOO(): Unit {
-          println("FOO")
-        }
+          public static void main(String[] args) {
+            // COMMENT I
+            do {
+              FOO();
+            } while (!(WORLD.equals("FOO")));
+            FOO();
+          }
         
-        public var WORLD: String = "WORLD!"
-        
-        public fun main(): Unit {
-          // COMMENT I
-          do {
-            FOO()
-          } while (!(WORLD == "FOO"))
-          FOO()
+          public static void FOO() {
+            System.out.println("FOO");
+          }
         }
         
         """.trimIndent()
@@ -65,21 +64,20 @@ class ForEachTest {
         123456 END-PERFORM.
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val output = generate(input).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package hello
+        package hello;
         
-        import kotlin.String
-        import kotlin.Unit
+        public class Hello {
+          public static String WORLD = "WORLD!";
         
-        public var WORLD: String = "WORLD!"
-        
-        public fun main(): Unit {
-          // COMMENT I
-          while (!(WORLD == "FOO")) {
-            println("FOO")
+          public static void main(String[] args) {
+            // COMMENT I
+            while (!(WORLD.equals("FOO"))) {
+              System.out.println("FOO");
+            }
           }
         }
         
@@ -105,26 +103,22 @@ class ForEachTest {
         123456 END-PERFORM.
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val output = generate(input).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package hello
+        package hello;
         
-        import kotlin.Int
-        import kotlin.Unit
+        public class Hello {
+          public static int WORLD = 1;
         
-        public var WORLD: Int = 1
-        
-        public fun main(): Unit {
-          WORLD = 1
-          while (!(WORLD == 42)) {
-            println("FOO")
-            WORLD += 3
-          }
-          WORLD = 1
-          while (!(WORLD == 42)) {
-            println("FOO")
+          public static void main(String[] args) {
+            for (WORLD = 1; !(WORLD == 42); WORLD += 3) {
+              System.out.println("FOO");
+            }
+            for (WORLD = 1; !(WORLD == 42); WORLD++) {
+              System.out.println("FOO");
+            }
           }
         }
         

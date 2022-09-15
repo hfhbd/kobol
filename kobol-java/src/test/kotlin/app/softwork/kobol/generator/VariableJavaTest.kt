@@ -2,7 +2,7 @@ package app.softwork.kobol.generator
 
 import kotlin.test.*
 
-class VariableTest {
+class VariableJavaTest {
     @Test
     fun noValueAtStart() {
         //language=cobol
@@ -23,23 +23,22 @@ class VariableTest {
         123456  DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val output = generate(input).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package hello
+        package hello;
         
-        import kotlin.String
-        import kotlin.Unit
+        public class Hello {
+          public static String WORLD = null;
         
-        public var WORLD: String? = null
-        
-        public fun main(): Unit {
-          WORLD = "WORLD!"
-          // Some Comment
-          println("HELLO ${'$'}WORLD")
-          WORLD = "42"
-          println("ANSWER${'$'}WORLD")
+          public static void main(String[] args) {
+            WORLD = "WORLD!";
+            // Some Comment
+            System.out.println("HELLO " + WORLD);
+            WORLD = "42";
+            System.out.println("ANSWER" + WORLD);
+          }
         }
         
         """.trimIndent()

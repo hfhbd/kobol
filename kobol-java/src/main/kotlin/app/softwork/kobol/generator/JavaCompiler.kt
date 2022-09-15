@@ -9,13 +9,34 @@ import java.io.*
 import javax.lang.model.element.*
 import javax.lang.model.element.Modifier.*
 
-fun generate(tree: KobolIRTree): JavaFile {
+fun generate(tree: KobolIRTree): List<JavaFile> {
+    val java8 = true
+    val tree = if (java8) {
+        tree.whenToIf()
+    } else tree
+    return generateJava(tree)
+}
+
+private fun generateJava(tree: KobolIRTree): List<JavaFile> {
+    val external = tree.types.mapNotNull {
+        if (it is KobolIRTree.Types.Type.Class && it.isObject) {
+            it
+        } else null
+    }
     val main = tree.main.main(tree.name)
     tree.types.forEach {
-        main.addType(it)
+        if (it !in external) {
+            main.addType(it)
+        }
     }
     val fileSpec = JavaFile.builder(tree.name, main.build())
-    return fileSpec.build()
+    fileSpec.skipJavaLangImports(true)
+
+    val externalTypes = external.map {
+        JavaFile.builder(tree.name, it.toJava()).skipJavaLangImports(true)
+    }
+
+    return (externalTypes + fileSpec).map { it.build() }
 }
 
 private fun KobolIRTree.Types.Function.main(className: String): TypeSpec.Builder {
@@ -36,8 +57,11 @@ private fun KobolIRTree.Types.Function.main(className: String): TypeSpec.Builder
 private fun KobolIRTree.Types.Function.toJava(): MethodSpec {
     val name = if (external) "invoke" else name
     return MethodSpec.methodBuilder(name).apply {
+        addModifiers(STATIC)
         if (private) {
             addModifiers(PRIVATE)
+        } else {
+            addModifiers(PUBLIC)
         }
         this@toJava.parameters.forEach {
             addParameter(it.Type, it.name)
@@ -67,25 +91,27 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
         }
     }
     when (this) {
-        is Assignment -> code.addStatement("\$N = \$L", this.declaration.member(), this.newValue.toTemplate())
+        is Assignment -> code.addStatement("\$L = \$L", declaration.member(), this.newValue.toTemplate())
 
         is Print -> code.println(this)
         is Declaration -> code.add(CodeBlock.of("\$L", createProperty()))
         is FunctionCall -> code.add(call())
-        is Exit -> code.addStatement("return System.exit(0);")
+        is Exit -> code.addStatement("System.exit(0)")
         is LoadExternal -> code.addStatement("System.loadLibrary(\"$libName\")")
         is DoWhile -> code.beginControlFlow("do").add(functionCall.call()).unindent()
-            .add("} while (\$L)\n", condition.toTemplate())
+            .add("} while (\$L);\n", condition.toTemplate())
 
         is ForEach -> {
-            code.add("\$L = \$L\n", counter.name, from.toTemplate())
-            code.beginControlFlow("while (\$L)", condition.toTemplate())
+            val init = CodeBlock.of("\$L = \$L", counter.name, from.toTemplate())
+            val condition = condition.toTemplate()
+            val step = step
+            val stepBlock = if (step != null) {
+                CodeBlock.of("\$L += \$L", counter.name, step.toTemplate())
+            } else CodeBlock.of("\$L++", counter.name)
+
+            code.beginControlFlow("for (\$L; \$L; \$L)", init, condition, stepBlock)
             for (stmt in statements) {
                 code.add(stmt.toJava2())
-            }
-            val step = step
-            if (step != null) {
-                code.addStatement("\$L += \$L", counter.name, step.toTemplate())
             }
             code.endControlFlow()
         }
@@ -170,7 +196,12 @@ private fun CodeBlock.Builder.println(it: Print) {
 
 private fun FunctionCall.call() = CodeBlock.builder().apply {
     val params = parameters.joinToString { it.name }
-    addStatement("\$N($params)", MethodSpec.methodBuilder(function.name).build())
+    val method = MethodSpec.methodBuilder(function.name).build()
+    if (function.external) {
+        addStatement("\$N.invoke($params)", method)
+    } else {
+        addStatement("\$N($params)", method)
+    }
 }.build()
 
 private fun KobolIRTree.Expression.toTemplate(): CodeBlock = when (this) {
@@ -185,16 +216,16 @@ private fun KobolIRTree.Expression.toTemplate(): CodeBlock = when (this) {
     is When -> TODO()
 }
 
-private fun Declaration.member(): FieldSpec {
+private fun Declaration.member(): CodeBlock {
     val className = className
     return if (className != null) {
-        FieldSpec.builder(ClassName.get("", className), name).build()
-    } else FieldSpec.builder(ClassName.get("", ""), name).build()
+        CodeBlock.of("$className.$name")
+    } else CodeBlock.of(name)
 }
 
 private fun KobolIRTree.Expression.Variable.toCodeBlock(): CodeBlock {
     val memberName = target.member()
-    return CodeBlock.of("\$N", memberName)
+    return CodeBlock.of("\$L", memberName)
 }
 
 private fun KobolIRTree.Expression.StringExpression.toTemplate(): CodeBlock = when (this) {
@@ -227,17 +258,33 @@ private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = w
     }
 
     is KobolIRTree.Expression.BooleanExpression.BooleanLiteral -> CodeBlock.of("\$L", value)
-    is KobolIRTree.Expression.BooleanExpression.Eq -> CodeBlock.of(
-        "\$L == \$L", left.toTemplate(), right.toTemplate()
-    )
+    is KobolIRTree.Expression.BooleanExpression.Eq -> {
+        if (left is KobolIRTree.Expression.StringExpression || right is KobolIRTree.Expression.StringExpression) {
+            CodeBlock.of(
+                "\$L.equals(\$L)", left.toTemplate(), right.toTemplate()
+            )
+        } else {
+            CodeBlock.of(
+                "\$L == \$L", left.toTemplate(), right.toTemplate()
+            )
+        }
+    }
 
     is KobolIRTree.Expression.BooleanExpression.Not -> CodeBlock.of(
         "!(\$L)", condition.toTemplate()
     )
 
-    is KobolIRTree.Expression.BooleanExpression.NotEq -> CodeBlock.of(
-        "\$L != \$L", left.toTemplate(), right.toTemplate()
-    )
+    is KobolIRTree.Expression.BooleanExpression.NotEq -> {
+        if (left is KobolIRTree.Expression.StringExpression || right is KobolIRTree.Expression.StringExpression) {
+            CodeBlock.of(
+                "!\$L.equals(\$L)", left.toTemplate(), right.toTemplate()
+            )
+        } else {
+            CodeBlock.of(
+                "\$L != \$L", left.toTemplate(), right.toTemplate()
+            )
+        }
+    }
 
     is KobolIRTree.Expression.BooleanExpression.Or -> CodeBlock.of(
         "\$L || \$L", left.toTemplate(), right.toTemplate()
@@ -263,7 +310,7 @@ private fun KobolIRTree.Expression.NumberExpression.toTemplate(): CodeBlock = wh
 private fun TypeSpec.Builder.addType(data: KobolIRTree.Types) {
     when (data) {
         is KobolIRTree.Types.Function -> addMethod(data.toJava())
-        is KobolIRTree.Types.Type.Class -> addClass(data)
+        is KobolIRTree.Types.Type.Class -> addType(data.toJava())
         is KobolIRTree.Types.Type.External -> TODO()
         is KobolIRTree.Types.Type.GlobalVariable -> {
             addGlobalVariable(data)
@@ -273,32 +320,30 @@ private fun TypeSpec.Builder.addType(data: KobolIRTree.Types) {
     }
 }
 
-private fun TypeSpec.Builder.addClass(data: KobolIRTree.Types.Type.Class) {
-    val classBuilder = TypeSpec.classBuilder(data.name)
-    if (data.isObject) {
-        classBuilder.addModifiers(STATIC)
-    }
+private fun KobolIRTree.Types.Type.Class.toJava() = TypeSpec.classBuilder(name).apply {
+    addModifiers(PUBLIC)
+    addJavadoc(doc.joinToString("\n"))
 
-    classBuilder.addJavadoc(data.doc.joinToString("\n"))
-
-    if (data.init.isNotEmpty()) {
+    if (init.isNotEmpty()) {
         val initBlock = CodeBlock.builder()
-        for (init in data.init) {
+        for (init in init) {
             initBlock.add(init.toJava())
         }
-        classBuilder.addInitializerBlock(initBlock.build())
+        if (isObject) {
+            addStaticBlock(initBlock.build())
+        } else {
+            addInitializerBlock(initBlock.build())
+        }
     }
 
-    for (member in data.members) {
-        classBuilder.addField(member.createProperty())
+    for (member in members) {
+        addField(member.createProperty())
     }
 
-    for (function in data.functions) {
-        classBuilder.addMethod(function.toJava())
+    for (function in functions) {
+        addMethod(function.toJava())
     }
-
-    addType(classBuilder.build())
-}
+}.build()
 
 private fun TypeSpec.Builder.addGlobalVariable(data: KobolIRTree.Types.Type.GlobalVariable) {
     val declaration = data.declaration
@@ -307,11 +352,14 @@ private fun TypeSpec.Builder.addGlobalVariable(data: KobolIRTree.Types.Type.Glob
 
 private fun Declaration.createProperty(): FieldSpec {
     val (type, init) = when (this) {
-        is StringDeclaration -> String::class.java to value?.toTemplate()
-        is BooleanDeclaration -> Boolean::class.java to value?.toTemplate()
-        is DoubleDeclaration -> Double::class.java to value?.toTemplate()
-
-        is IntDeclaration -> Int::class.java to value?.toTemplate()
+        is StringDeclaration -> ClassName.get("java.lang", "String") to value?.toTemplate()
+        is BooleanDeclaration, is DoubleDeclaration, is IntDeclaration -> {
+            if (value != null) {
+                Type to value?.toTemplate()
+            } else {
+                Type.box() to null
+            }
+        }
     }
     return FieldSpec.builder(type, name).apply {
         if (!mutable) {
@@ -348,7 +396,8 @@ fun generate(files: Set<File>, output: File, optimize: Boolean) {
             ir.optimize()
         } else ir
 
-        val java = generate(finished)
-        java.writeTo(File(output, "java"))
+        generate(finished).forEach {
+            it.writeTo(File(output, "java"))
+        }
     }
 }
