@@ -150,7 +150,7 @@ private fun CodeBlock.Builder.assign(it: Assignment) {
 private fun CodeBlock.Builder.println(it: Print) {
     when (val expr = it.expr) {
         is KobolIRTree.Expression.StringExpression.StringLiteral -> {
-            addStatement("println(%L)", it.expr.toTemplate())
+            addStatement("println(%L)", expr.toTemplate())
         }
 
         is KobolIRTree.Expression.StringExpression.StringVariable -> {
