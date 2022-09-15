@@ -1,11 +1,10 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.java
 
 import app.softwork.kobol.*
-import org.intellij.lang.annotations.*
 import java.io.*
 import kotlin.test.*
 
-class HelloWorldTest {
+class HelloWorldJavaTest {
     @Test
     fun helloWorld() {
         //language=cobol
@@ -26,22 +25,21 @@ class HelloWorldTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
 
-        val output = generate(input)
+        val output = generate(input, java8 = true).single()
 
-        //language=kotlin
+        //language=java
         val expected = """
-        package hello
+        package hello;
         
-        import kotlin.String
-        import kotlin.Unit
+        public class Hello {
+          public static String WORLD = "WORLD!";
         
-        public var WORLD: String = "WORLD!"
-        
-        public fun main(): Unit {
-          // Some Comment
-          println("HELLO ${'$'}WORLD")
-          WORLD = "42"
-          println("ANSWER${'$'}WORLD")
+          public static void main(String[] args) {
+            // Some Comment
+            System.out.println("HELLO " + WORLD);
+            WORLD = "42";
+            System.out.println("ANSWER" + WORLD);
+          }
         }
         
         """.trimIndent()
