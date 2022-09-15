@@ -31,7 +31,7 @@ class KobolGradlePluginTest {
         app.softwork.kobol.generator.java.generate(cobolFile, tmp, optimize = false, java8 = true)
         val packageFolder = File(tmp, "java/hello")
         assertTrue(packageFolder.exists())
-        assertEquals(listOf("hello.java"), packageFolder.list()?.toList())
+        assertEquals(listOf("Hello.java"), packageFolder.list()?.toList())
     }
 
     //language=cobol
