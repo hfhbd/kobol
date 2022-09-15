@@ -1,4 +1,4 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.java
 
 import kotlin.test.*
 
@@ -24,7 +24,7 @@ class SectionJavaTest {
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
-        val output = generate(input).single()
+        val output = generate(input, java8 = true).single()
 
         //language=java
         val expected = """
@@ -71,7 +71,7 @@ class SectionJavaTest {
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
-        val output = generate(input).single()
+        val output = generate(input, java8 = true).single()
 
         //language=java
         val expected = """
@@ -120,7 +120,7 @@ class SectionJavaTest {
             DISPLAY "C".
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input, java8 = true).single()
 
         //language=java
         val expected = """
@@ -169,7 +169,7 @@ class SectionJavaTest {
                 CALL "LONDON".
         """.trimIndent().toIR()
 
-        val (londonJava, output) = generate(input).map { it.toString() }
+        val (londonJava, output) = generate(input, java8 = true).map { it.toString() }
 
         //language=java
         val london = """

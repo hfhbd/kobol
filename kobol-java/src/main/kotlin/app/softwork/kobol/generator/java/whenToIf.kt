@@ -1,4 +1,4 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.java
 
 import app.softwork.kobol.*
 import app.softwork.kobol.KobolIRTree.Expression.BooleanExpression.*

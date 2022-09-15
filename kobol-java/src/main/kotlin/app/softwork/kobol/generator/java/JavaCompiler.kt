@@ -1,4 +1,4 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.java
 
 import app.softwork.kobol.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
@@ -9,8 +9,7 @@ import java.io.*
 import javax.lang.model.element.*
 import javax.lang.model.element.Modifier.*
 
-fun generate(tree: KobolIRTree): List<JavaFile> {
-    val java8 = true
+fun generate(tree: KobolIRTree, java8: Boolean): List<JavaFile> {
     val tree = if (java8) {
         tree.whenToIf()
     } else tree
@@ -386,17 +385,17 @@ private val Declaration.Type: TypeName
         is IntDeclaration -> TypeName.INT
     }
 
-fun generate(file: File, output: File, optimize: Boolean) {
-    generate(setOf(file), output, optimize)
+fun generate(file: File, output: File, optimize: Boolean, java8: Boolean) {
+    generate(setOf(file), output, optimize, java8)
 }
 
-fun generate(files: Set<File>, output: File, optimize: Boolean) {
+fun generate(files: Set<File>, output: File, optimize: Boolean, java8: Boolean) {
     for (ir in files.toIR()) {
         val finished = if (optimize) {
             ir.optimize()
         } else ir
 
-        generate(finished).forEach {
+        generate(finished, java8).forEach {
             it.writeTo(File(output, "java"))
         }
     }

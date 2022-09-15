@@ -1,4 +1,4 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.java
 
 import kotlin.test.*
 
@@ -23,7 +23,7 @@ class VariableJavaTest {
         123456  DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input, java8 = true).single()
 
         //language=java
         val expected = """

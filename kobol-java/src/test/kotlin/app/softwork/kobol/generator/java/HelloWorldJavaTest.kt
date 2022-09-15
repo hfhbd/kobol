@@ -1,4 +1,4 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.java
 
 import app.softwork.kobol.*
 import java.io.*
@@ -25,7 +25,7 @@ class HelloWorldJavaTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input, java8 = true).single()
 
         //language=java
         val expected = """

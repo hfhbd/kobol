@@ -6,6 +6,10 @@ import org.gradle.work.*
 
 @DisableCachingByDefault
 abstract class BuildTask : AbstractExecTask<BuildTask>(BuildTask::class.java), SshTask {
+    init {
+        group = "kobol"
+    }
+
     @get:Input
     abstract val cmds: ListProperty<String>
 

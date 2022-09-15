@@ -1,6 +1,7 @@
-package app.softwork.kobol.generator.optimization
+package app.softwork.kobol.generator.kotlin.optimization
 
 import app.softwork.kobol.generator.*
+import app.softwork.kobol.generator.kotlin.*
 import app.softwork.kobol.optimizations.*
 import org.intellij.lang.annotations.*
 import kotlin.test.*

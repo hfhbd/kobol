@@ -1,8 +1,8 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.kotlin
 
 import kotlin.test.*
 
-class ConditionJavaTest {
+class ConditionTest {
     @Test
     fun testingIf() {
         //language=cobol
@@ -25,23 +25,24 @@ class ConditionJavaTest {
         123456 END-IF.
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input)
 
-        //language=java
+        //language=kotlin
         val expected = """
-        package helloif;
+        package helloif
         
-        public class Helloif {
-          public static String WORLD = "WORLD!";
+        import kotlin.String
+        import kotlin.Unit
         
-          public static void main(String[] args) {
-            if (WORLD.equals("WORLD!")) {
-              // Some Comment
-              System.out.println("HELLO " + WORLD);
-            } else {
-              WORLD = "42";
-              System.out.println("ANSWER" + WORLD);
-            }
+        public var WORLD: String = "WORLD!"
+        
+        public fun main(): Unit {
+          if (WORLD == "WORLD!") {
+            // Some Comment
+            println("HELLO ${'$'}WORLD")
+          } else {
+            WORLD = "42"
+            println("ANSWER${'$'}WORLD")
           }
         }
         
@@ -74,30 +75,35 @@ class ConditionJavaTest {
         123456 END-EVALUATE.
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input)
 
-        //language=java
+        //language=kotlin
         val expected = """
-        package eval;
+        package eval
         
-        public class Eval {
-          public static String FOO = "WORLD!";
+        import kotlin.Int
+        import kotlin.String
+        import kotlin.Unit
         
-          public static String BAR = "WORLD!";
+        public var FOO: String = "WORLD!"
         
-          public static int WORLD = 1;
+        public var BAR: String = "WORLD!"
         
-          public static void main(String[] args) {
-            if (FOO.equals("") && WORLD == 1 && BAR.equals("")) {
-              System.out.println("right");
-              System.out.println("two");
-            } else {
-              System.out.println("else");
-              System.out.println("else2");
+        public var WORLD: Int = 1
+        
+        public fun main(): Unit {
+          when {
+            FOO == "" && WORLD == 1 && BAR == "" -> {
+              println("right")
+              println("two")
+            }
+            else -> {
+              println("else")
+              println("else2")
             }
           }
         }
-
+        
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
@@ -126,24 +132,29 @@ class ConditionJavaTest {
         123456 END-EVALUATE.
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input)
 
-        //language=java
+        //language=kotlin
         val expected = """
-        package eval;
+        package eval
         
-        public class Eval {
-          public static String FOO = "WORLD!";
+        import kotlin.Int
+        import kotlin.String
+        import kotlin.Unit
         
-          public static int WORLD = 1;
+        public var FOO: String = "WORLD!"
         
-          public static void main(String[] args) {
-            if (FOO.equals("")) {
-              System.out.println("right");
-              System.out.println("right2");
-            } else {
-              System.out.println("else");
-              System.out.println("else2");
+        public var WORLD: Int = 1
+        
+        public fun main(): Unit {
+          when (FOO) {
+            "" -> {
+              println("right")
+              println("right2")
+            }
+            else -> {
+              println("else")
+              println("else2")
             }
           }
         }

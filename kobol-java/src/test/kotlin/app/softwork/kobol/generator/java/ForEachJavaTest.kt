@@ -1,4 +1,4 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.java
 
 import kotlin.test.*
 
@@ -22,7 +22,7 @@ class ForEachJavaTest {
         123456   DISPLAY 'FOO'.
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input, java8 = true).single()
 
         //language=java
         val expected = """
@@ -64,7 +64,7 @@ class ForEachJavaTest {
         123456 END-PERFORM.
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input, java8 = true).single()
 
         //language=java
         val expected = """
@@ -103,7 +103,7 @@ class ForEachJavaTest {
         123456 END-PERFORM.
         """.trimIndent().toIR()
 
-        val output = generate(input).single()
+        val output = generate(input, java8 = true).single()
 
         //language=java
         val expected = """

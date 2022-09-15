@@ -10,6 +10,10 @@ import org.gradle.work.*
 
 @DisableCachingByDefault
 abstract class UploadTask : DefaultTask(), SshTask {
+    init {
+        group = "kobol"
+    }
+
     @get:PathSensitive(RELATIVE)
     @get:InputFiles
     abstract val files: ConfigurableFileCollection

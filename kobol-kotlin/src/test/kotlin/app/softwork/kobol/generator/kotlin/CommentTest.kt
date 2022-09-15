@@ -1,8 +1,8 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.kotlin
 
 import kotlin.test.*
 
-class CommentJavaTest {
+class CommentTest {
     @Test
     fun comments() {
         //language=cobol
@@ -63,44 +63,49 @@ class CommentJavaTest {
         123456* DISPLAY ANSWER II
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent().toIR()
-        val output = generate(input).single()
+        val output = generate(input)
 
-        //language=java
+        //language=kotlin
         val expected = """
-        package hello;
+        package hello
         
-        public class Hello {
-          /**
-           * HELLO I
-           * HELLO II
-           */
-          public static String HELLO = "HELLO";
+        import kotlin.String
+        import kotlin.Unit
         
-          /**
-           * WORLD I
-           * WORLD II
-           */
-          public static String WORLD = "WORLD!";
+        /**
+         * FOO I
+         * FOO II
+         */
+        public fun FOO(): Unit {
+          // MOVE I
+          // MOVE II
+          WORLD = HELLO
+          // DISPLAY ANSWER I
+          // DISPLAY ANSWER II
+          println("ANSWER${'$'}WORLD")
+        }
         
-          public static void main(String[] args) {
-            // DISPLAY I
-            // DISPLAY II
-            System.out.println(HELLO + WORLD);
-            FOO();
-          }
+        /**
+         * HELLO I
+         * HELLO II
+         */
+        public var HELLO: String = "HELLO"
         
-          /**
-           * FOO I
-           * FOO II
-           */
-          public static void FOO() {
-            // MOVE I
-            // MOVE II
-            WORLD = HELLO;
-            // DISPLAY ANSWER I
-            // DISPLAY ANSWER II
-            System.out.println("ANSWER" + WORLD);
-          }
+        /**
+         * WORLD I
+         * WORLD II
+         */
+        public var WORLD: String = "WORLD!"
+        
+        /**
+         * PROCEDURE I
+         * PROCEDURE II
+         */
+        public fun main(): Unit {
+          // DISPLAY I
+          // DISPLAY II
+          println("${'$'}HELLO${'$'}WORLD")
+          FOO()
         }
         
         """.trimIndent()

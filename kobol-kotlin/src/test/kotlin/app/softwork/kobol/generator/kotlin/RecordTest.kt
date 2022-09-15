@@ -1,8 +1,8 @@
-package app.softwork.kobol.generator
+package app.softwork.kobol.generator.kotlin
 
 import kotlin.test.*
 
-class RecordJavaTest {
+class RecordTest {
     @Test
     fun simpleRecord() {
         //language=cobol
@@ -29,53 +29,40 @@ class RecordJavaTest {
         123456  DISPLAY "HELLO " WORLD OF BAR.
         """.trimIndent().toIR()
 
-        val (foo, bar, output) = generate(input)
+        val output = generate(input)
 
-        assertEquals(//language=java
-            """
-        package hello;
+        //language=kotlin
+        val expected = """
+        package hello
         
-        public class FOO {
+        import kotlin.Int
+        import kotlin.String
+        import kotlin.Unit
+        
+        public object FOO {
           /**
            * WORLD I
            * WORLD II
            */
-          public static Integer WORLD = null;
+          public var WORLD: Int? = null
         }
-        
-        """.trimIndent(), foo.toString()
-        )
-
-
-        assertEquals(//language=java
-        """
-        package hello;
         
         /**
          * BAR I
          * BAR II
          */
-        public class BAR {
-          public static String WORLD = "BAR";
+        public object BAR {
+          public var WORLD: String = "BAR"
         }
         
-        """.trimIndent(), bar.toString()
-        )
-
-
-        assertEquals(//language=java
-        """
-        package hello;
-        
-        public class Hello {
-          public static void main(String[] args) {
-            FOO.WORLD = 42;
-            // Some Comment
-            System.out.println("HELLO " + FOO.WORLD);
-            System.out.println("HELLO " + BAR.WORLD);
-          }
+        public fun main(): Unit {
+          FOO.WORLD = 42
+          // Some Comment
+          println("HELLO ${'$'}{FOO.WORLD}")
+          println("HELLO ${'$'}{BAR.WORLD}")
         }
         
-        """.trimIndent(), output.toString())
+        """.trimIndent()
+        assertEquals(expected, output.toString())
     }
 }
