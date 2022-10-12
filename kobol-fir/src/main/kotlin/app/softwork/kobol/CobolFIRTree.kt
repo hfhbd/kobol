@@ -67,6 +67,7 @@ data class CobolFIRTree(
     data class DataTree(
         val fileSection: FileSection? = null,
         val workingStorage: List<WorkingStorage> = emptyList(),
+        val linkingSection: List<WorkingStorage> = emptyList(),
         val comments: List<String> = emptyList()
     ) {
         @Serializable

@@ -111,44 +111,53 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(con
 }, comments = comments.asComments()
 )
 
+private fun MutableList<CobolFIRTree.DataTree.WorkingStorage>.record(
+    record: CobolRecordDef,
+    currentRecord: Record?
+): Record? {
+    var currentRecord1 = currentRecord
+    when (record.number.text.toInt()) {
+        1 -> {
+            if (currentRecord1 != null) {
+                add(currentRecord1)
+            }
+            val name = record.recordID?.varName?.text
+            if (name != null) {
+                currentRecord1 = Record(name, emptyList(), record.comments.asComments())
+            }
+        }
+
+        77 -> {
+            if (currentRecord1 != null) {
+                add(currentRecord1)
+            }
+            currentRecord1 = null
+            val sa = sa(record, recordName = null, emptyList())
+            if (sa != null) {
+                add(sa)
+            }
+        }
+
+        else -> {
+            requireNotNull(currentRecord1)
+            val elementar = sa(record, currentRecord1.name, currentRecord1.elements.filterIsInstance<NumberElementar>())
+            if (elementar != null) {
+                currentRecord1 = currentRecord1.copy(elements = currentRecord1.elements + elementar)
+            }
+        }
+    }
+    return currentRecord1
+}
+
 private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
-    val definitions = workingStorageSection?.stmList?.toMutableList()?.let {
-        buildList<CobolFIRTree.DataTree.WorkingStorage> {
+    val definitions = workingStorageSection?.stmList?.let {
+        buildList {
             var currentRecord: Record? = null
             for (stm in it) {
                 val record = stm.recordDef
                 val sql = stm.execSqlDef
                 if (record != null) {
-                    when (record.number.text.toInt()) {
-                        1 -> {
-                            if (currentRecord != null) {
-                                add(currentRecord)
-                            }
-                            val name = record.recordID?.varName?.text
-                            if (name != null) {
-                                currentRecord = Record(name, emptyList(), record.comments.asComments())
-                            }
-                        }
-
-                        77 -> {
-                            if (currentRecord != null) {
-                                add(currentRecord)
-                            }
-                            currentRecord = null
-                            val sa = sa(record, recordName = null, emptyList())
-                            if (sa != null) {
-                                add(sa)
-                            }
-                        }
-
-                        else -> {
-                            requireNotNull(currentRecord)
-                            val elementar = sa(record, currentRecord.name, currentRecord.elements.filterIsInstance<NumberElementar>())
-                            if (elementar != null) {
-                                currentRecord = currentRecord.copy(elements = currentRecord.elements + elementar)
-                            }
-                        }
-                    }
+                    currentRecord = record(record, currentRecord)
                 } else {
                     TODO()
                 }
@@ -158,9 +167,22 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
             }
         }
     }
+    val linkage = linkingSection?.recordDefList?.let {
+        buildList {
+            var currentRecord: Record? = null
+            for (record: CobolRecordDef in it) {
+                currentRecord = record(record, currentRecord)
+            }
+            if (currentRecord != null) {
+                add(currentRecord!!)
+            }
+        }
+    }
 
     return CobolFIRTree.DataTree(
-        workingStorage = definitions ?: emptyList(), comments = commentsList.asComments()
+        workingStorage = definitions ?: emptyList(),
+        linkingSection = linkage ?: emptyList(),
+        comments = commentsList.asComments()
     )
 }
 
@@ -317,8 +339,8 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
 
         proc.moving != null -> proc.moving!!.variableList.map {
             Move(
-                target = dataTree.notNull.find(it),
-                value = proc.moving!!.expr.toExpr(dataTree),
+                target = dataTree.notNull.find(it) as Elementar,
+                value = proc.moving!!.expr.toExpr(dataTree).single(),
                 comments = proc.comments.asComments()
             )
         }
@@ -376,7 +398,9 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             listOf(
                 Call(
                     name = target.drop(1).dropLast(1),
-                    parameters = calling.exprList.map { it.toExpr(dataTree) },
+                    parameters = calling.exprList.flatMap {
+                        it.toExpr(dataTree)
+                    },
                     comments = proc.comments.asComments()
                 )
             )
@@ -399,10 +423,10 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
 
             listOf(
                 Eval(
-                    values = eval.exprList.map { it.toExpr(dataTree) },
+                    values = eval.exprList.flatMap { it.toExpr(dataTree) },
                     conditions = eval.whensList.map {
                         Eval.Condition(
-                            conditions = it.exprList.map { it.toExpr(dataTree) },
+                            conditions = it.exprList.flatMap { it.toExpr(dataTree) },
                             action = it.proceduresList.asStatements(dataTree),
                             comments = it.comments.asComments()
                         )
@@ -443,8 +467,8 @@ private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): Expression
 }
 
 private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): Expression.BooleanExpression {
-    val left = booleanExprClauseLeft.expr.toExpr(dataTree)
-    val right = booleanExprClauseRight.expr.toExpr(dataTree)
+    val left = booleanExprClauseLeft.expr.toExpr(dataTree).single()
+    val right = booleanExprClauseRight.expr.toExpr(dataTree).single()
 
     val nt = booleanExprClauseNt
     val bigger = booleanExprClauseBigger
@@ -481,20 +505,22 @@ private val CobolFIRTree.DataTree?.notNull
         "No DATA DIVISION found"
     }
 
-private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): Expression {
+private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?, linkingOnly: Boolean = false): List<Expression> {
     val literal = literal
     val variable = variable
     val stringConcat = stringConcat
     return when {
         literal != null -> when {
-            literal.string != null -> literal.string!!.singleAsString(dataTree)
+            literal.string != null -> listOf(literal.string!!.singleAsString(dataTree))
             literal.number != null -> {
                 val number = literal.number!!
                 val elementType = number.elementType
                 when {
-                    elementType == CobolTypes.NUMBER -> Expression.NumberExpression.NumberLiteral(number.text.toDouble())
-                    number is CobolVariable -> Expression.NumberExpression.NumberVariable(
-                        dataTree.notNull.find(number) as NumberElementar
+                    elementType == CobolTypes.NUMBER -> listOf(Expression.NumberExpression.NumberLiteral(number.text.toDouble()))
+                    number is CobolVariable -> listOf(
+                        Expression.NumberExpression.NumberVariable(
+                            dataTree.notNull.find(number) as NumberElementar
+                        )
                     )
 
                     else -> TODO()
@@ -504,9 +530,17 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): Expression {
             else -> TODO("$literal")
         }
 
-        variable != null -> dataTree.notNull.find(variable).toVariable()
+        variable != null -> {
+            when (val found =
+                if (linkingOnly) dataTree.notNull.findInLinking(variable)
+                else dataTree.notNull.find(variable)
+            ) {
+                is Record -> found.elements.map { it.toVariable() }
+                is Elementar -> listOf(found.toVariable())
+            }
+        }
 
-        stringConcat != null -> stringConcat.toExpr(dataTree)
+        stringConcat != null -> listOf(stringConcat.toExpr(dataTree))
         else -> TODO("$elementType")
     }
 }
@@ -526,7 +560,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
                         elementar
                     )
                 )
-
+                is Record -> notPossible()
                 is Pointer -> TODO()
             }
         }
@@ -569,40 +603,47 @@ inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R
     return accumulator
 }
 
-private fun CobolFIRTree.DataTree.find(variable: CobolVariable): Elementar {
+private fun CobolFIRTree.DataTree.findInLinking(variable: CobolVariable): CobolFIRTree.DataTree.WorkingStorage {
     val name: String = variable.varName.text
-    val all = findAll(variable)
-    val of = variable.ofClause
-    if (of == null) {
-        val key = all.keys.singleOrNull()
-        return all[key] ?: error("Elementar $name not found")
-    } else {
-        for ((key, element) in all) {
-            if (key?.name == of.recordID.varName.text) {
-                return element
-            }
-        }
-        error("Elementar $name OF ${of.recordID.varName.text} not found")
-    }
+    val of = variable.ofClause?.recordID?.varName?.text
+
+    return linkingSection.find(name, of) ?: error("Record with name $name not found in LINKAGE SECTION")
 }
 
-fun CobolFIRTree.DataTree.findAll(varName: CobolVariable): Map<Record?, Elementar> {
-    val name: String = varName.varName.text
-    return buildMap {
-        for (element in workingStorage) {
-            when (element) {
-                is Elementar -> if (element.name == name) {
-                    this[null] = element
+private fun List<CobolFIRTree.DataTree.WorkingStorage>.find(
+    name: String,
+    of: String?
+): CobolFIRTree.DataTree.WorkingStorage? {
+    for (record in this) {
+        when (record) {
+            is Record -> {
+                if (of == null && record.name == name) {
+                    return record
                 }
-
-                is Record -> for (elementar in element.elements) {
-                    if (elementar.name == name) {
-                        this[element] = elementar
+                if (of != null && record.name == of) {
+                    for (elementar in record.elements) {
+                        if (elementar.name == name) {
+                            return elementar
+                        }
                     }
                 }
             }
+
+            is Elementar -> {
+                if (of == null && record.name == name) {
+                    return record
+                }
+            }
         }
     }
+    return null
+}
+
+private fun CobolFIRTree.DataTree.find(variable: CobolVariable): CobolFIRTree.DataTree.WorkingStorage {
+    val name: String = variable.varName.text
+    val of = variable.ofClause?.recordID?.varName?.text
+
+    return workingStorage.find(name, of) ?: error("Record with name $name not found")
 }
 
 private fun Elementar.toVariable(): Expression.Variable = when (this) {

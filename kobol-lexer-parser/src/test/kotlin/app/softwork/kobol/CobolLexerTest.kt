@@ -281,6 +281,25 @@ class CobolLexerTest {
     }
 
     @Test
+    fun linkage() {
+        assertEquals(
+            """
+            123456 DATA DIVISION.
+            123456 LINKAGE SECTION.
+            123456 01 FOO.
+            123456 05 BAR PIC X.
+            123456 PROCEDURE DIVISION USING FOO.
+        """.trimIndent()
+        ) {
+            line(DATA, sp, DIVISION, DOT, sp)
+            line(LINKAGE, sp, SECTION, DOT, sp)
+            line(NUMBER, sp, VARNAME, DOT, sp)
+            line(NUMBER, sp, VARNAME, sp, PIC, sp, X, DOT, sp)
+            line(PROCEDURE, sp, DIVISION, sp, USING, sp, VARNAME, DOT)
+        }
+    }
+
+    @Test
     fun fileConfig() {
         assertEquals(
             """
