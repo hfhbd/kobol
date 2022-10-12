@@ -23,7 +23,6 @@ tasks {
         enabled = false
      }
 
-
     val copyRepoPlugin by registering(Copy::class) {
         dependsOn(buildPlugin)
         copy {
