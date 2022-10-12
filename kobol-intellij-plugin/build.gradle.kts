@@ -19,6 +19,11 @@ tasks {
         version.set(project.version.toString())
     }
 
+    buildSearchableOptions {
+        enabled = false
+     }
+
+
     val copyRepoPlugin by registering(Copy::class) {
         dependsOn(buildPlugin)
         copy {
