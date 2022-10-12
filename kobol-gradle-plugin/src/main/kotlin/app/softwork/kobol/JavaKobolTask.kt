@@ -36,8 +36,8 @@ abstract class JavaKobolTask: SourceTask() {
 
         project.plugins.withId("org.jetbrains.kotlin.jvm") {
             val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
-            val kotlin = srcSet.extensions.getByName("kotlin") as SourceDirectorySet
-            kotlin.srcDir(outputFolder.dir("java"))
+            val java = srcSet.extensions.getByName("java") as SourceDirectorySet
+            java.srcDir(outputFolder.dir("java"))
         }
     }
 
