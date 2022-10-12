@@ -2,7 +2,7 @@ plugins {
     id("org.jetbrains.grammarkit")
 }
 
-val idea = "222.4345.14"
+val idea = "222.4345.23"
 
 grammarKit {
     intellijRelease.set(idea)
