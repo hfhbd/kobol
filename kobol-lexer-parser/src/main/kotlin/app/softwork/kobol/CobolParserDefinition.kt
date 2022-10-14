@@ -5,9 +5,8 @@ import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 
-object CobolParserDefinition : ParserDefinition {
+class CobolParserDefinition : ParserDefinition {
     private val file = IFileElementType(CobolLanguage)
-    private val comments = TokenSet.create(CobolTypes.COMMENT)
     private val stringLiterals = TokenSet.create(CobolTypes.STRING)
 
     override fun createLexer(project: Project?) = CobolLexerAdapter()
