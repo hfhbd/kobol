@@ -4,7 +4,7 @@ import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.util.*
 import javax.swing.*
 
-object CobolFileType : LanguageFileType(CobolLanguage) {
+class CobolFileType : LanguageFileType(CobolLanguage) {
     override fun getName() = "Cobol File"
     override fun getDescription() = "Cobol File"
 
