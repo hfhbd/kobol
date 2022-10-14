@@ -361,8 +361,8 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                 listOf(
                     ForEach(
                         variable = dataTree.notNull.find(forEach.variable) as NumberElementar,
-                        from = forEach.expr.toExpr(dataTree) as Expression.NumberExpression,
-                        by = forEach.forEachBy?.expr?.toExpr(dataTree) as Expression.NumberExpression?,
+                        from = forEach.expr.toExpr(dataTree).single() as Expression.NumberExpression,
+                        by = forEach.forEachBy?.expr?.toExpr(dataTree)?.single() as Expression.NumberExpression?,
                         until = forEach.booleanExpr.toFir(dataTree),
                         statements = forEach.proceduresList.asStatements(dataTree),
                         comments = proc.comments.asComments()
@@ -395,12 +395,13 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             requireNotNull(target) {
                 "Non hard-coded CALL is not supported due to compiler and linker limitations."
             }
+            val parameters = calling.callingParameter?.exprList?.flatMap {
+                it.toExpr(dataTree)
+            } ?: emptyList()
             listOf(
                 Call(
                     name = target.drop(1).dropLast(1),
-                    parameters = calling.exprList.flatMap {
-                        it.toExpr(dataTree)
-                    },
+                    parameters = parameters,
                     comments = proc.comments.asComments()
                 )
             )
@@ -560,6 +561,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
                         elementar
                     )
                 )
+
                 is Record -> notPossible()
                 is Pointer -> TODO()
             }
@@ -620,7 +622,7 @@ private fun List<CobolFIRTree.DataTree.WorkingStorage>.find(
                 if (of == null && record.name == name) {
                     return record
                 }
-                if (of != null && record.name == of) {
+                if ((of != null && record.name == of) || of == null) {
                     for (elementar in record.elements) {
                         if (elementar.name == name) {
                             return elementar
@@ -643,7 +645,7 @@ private fun CobolFIRTree.DataTree.find(variable: CobolVariable): CobolFIRTree.Da
     val name: String = variable.varName.text
     val of = variable.ofClause?.recordID?.varName?.text
 
-    return workingStorage.find(name, of) ?: error("Record with name $name not found")
+    return workingStorage.find(name, of) ?: error("Elementar $name not found")
 }
 
 private fun Elementar.toVariable(): Expression.Variable = when (this) {
