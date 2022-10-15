@@ -370,16 +370,16 @@ class CobolLexerTest {
             123456 DATA DIVISION.
             123456 WORKING-STORAGE SECTION.
             123456 EXEC SQL FOO
-            123456 BAR
-            123456 BAR
+            123456 BAR BAR
+            123456 BAR BAR
             123456 END-EXEC.
         """.trimIndent()
         ) {
             line(DATA, sp, DIVISION, DOT, sp)
             line(WORKING_STORAGE, sp, SECTION, DOT, sp)
-            line(EXEC, sp, SQL, sp, ANY, ANY, ANY, sp)
-            line(ANY, ANY, ANY, sp)
-            line(ANY, ANY, ANY, sp)
+            line(EXEC, sp, SQL, SP, ANY, ANY, ANY, SP)
+            line(ANY, ANY, ANY, SP, ANY, ANY, ANY, SP)
+            line(ANY, ANY, ANY, SP, ANY, ANY, ANY, SP)
             line(END_EXEC, DOT)
         }
     }
@@ -410,8 +410,8 @@ class CobolLexerTest {
         ) {
             line(PROCEDURE, sp, DIVISION, DOT, sp)
             line(IF, sp, VARNAME, LP, NUMBER, COLON, VARNAME, RP, sp, NOT, sp, EQUAL, sp, VARNAME, sp)
-            line(EXEC, sp, SQL, sp, ANY, ANY, ANY, sp)
-            line(ANY, ANY, ANY, sp)
+            line(EXEC, sp, SQL, SP, ANY, ANY, ANY, SP)
+            line(ANY, ANY, ANY, SP)
             line(END_EXEC, sp)
             line(ELSE, sp)
             line(OPEN, sp, INPUT, sp, VARNAME, sp)
@@ -443,10 +443,10 @@ private fun FlexAdapter.list(input: String): List<List<IElementType>> = buildLis
     var previous: IElementType? = null
     val list = mutableListOf<IElementType>()
     for (type in all(input)) {
-        if (previous != null && type == sp && previous == sp) {
+        if (previous != null && (type == sp || type == SP) && (previous == sp || previous == SP)) {
             add(list.toList())
             list.clear()
-        } else if (previous != null && type == COMMENT && previous == sp) {
+        } else if (previous != null && type == COMMENT && (previous == sp || previous == SP)) {
             add(list.toList())
             list.clear()
             list.add(type)

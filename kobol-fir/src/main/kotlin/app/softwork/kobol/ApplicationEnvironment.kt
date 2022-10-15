@@ -18,6 +18,7 @@ package app.softwork.kobol
 
 import com.intellij.core.*
 import com.intellij.openapi.diagnostic.*
+import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.roots.*
 import com.intellij.openapi.roots.impl.*
@@ -29,95 +30,91 @@ import java.util.concurrent.atomic.*
 import kotlin.contracts.*
 
 private object ApplicationEnvironment {
-  private val logger = object : DefaultLogger("") {
-    override fun warn(message: String?, t: Throwable?) = Unit
-    override fun error(message: Any?) = Unit
-  }
-  var initialized = AtomicBoolean(false)
-
-  val coreApplicationEnvironment: CoreApplicationEnvironment by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
-    CoreApplicationEnvironment(Disposer.newDisposable()).apply {
-      Logger.setFactory { logger }
+    private val logger = object : DefaultLogger("") {
+        override fun warn(message: String?, t: Throwable?) = Unit
+        override fun error(message: Any?) = Unit
     }
-  }
+    var initialized = AtomicBoolean(false)
+
+    val coreApplicationEnvironment: CoreApplicationEnvironment by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+        CoreApplicationEnvironment(Disposer.newDisposable()).apply {
+            Logger.setFactory { logger }
+        }
+    }
 }
 
 class CoreEnvironment(sourceFolders: Iterable<File>) {
-  private val fileIndex: CoreFileIndex
+    private val fileIndex: CoreFileIndex
 
-  private val projectEnvironment = CoreProjectEnvironment(
-    ApplicationEnvironment.coreApplicationEnvironment.parentDisposable,
-    ApplicationEnvironment.coreApplicationEnvironment
-  )
-
-  private val localFileSystem = VirtualFileManager.getInstance().getFileSystem(
-    StandardFileSystems.FILE_PROTOCOL
-  )
-
-  init {
-    projectEnvironment.registerProjectComponent(
-      ProjectRootManager::class.java,
-      ProjectRootManagerImpl(projectEnvironment.project)
+    private val projectEnvironment = CoreProjectEnvironment(
+        ApplicationEnvironment.coreApplicationEnvironment.parentDisposable,
+        ApplicationEnvironment.coreApplicationEnvironment
     )
 
-    projectEnvironment.project.registerService(
-      DirectoryIndex::class.java,
-      DirectoryIndexImpl(projectEnvironment.project)
+    private val localFileSystem = VirtualFileManager.getInstance().getFileSystem(
+        StandardFileSystems.FILE_PROTOCOL
     )
 
-    fileIndex = CoreFileIndex(sourceFolders, localFileSystem, projectEnvironment.project)
-    projectEnvironment.project.registerService(ProjectFileIndex::class.java, fileIndex)
-  }
+    init {
+        projectEnvironment.registerProjectComponent(
+            ProjectRootManager::class.java, ProjectRootManagerImpl(projectEnvironment.project)
+        )
 
-  fun<T: PsiFile> forSourceFiles(action: (T) -> Unit) {
-    val psiManager = PsiManager.getInstance(projectEnvironment.project)
-    fileIndex.iterateContent { file ->
-      @Suppress("UNCHECKED_CAST")
-      val psiFile = psiManager.findFile(file) as? T ?: return@iterateContent true
-      action(psiFile)
-      return@iterateContent true
-    }
-  }
+        projectEnvironment.project.registerService(
+            DirectoryIndex::class.java, DirectoryIndexImpl(projectEnvironment.project)
+        )
 
-  @OptIn(ExperimentalContracts::class)
-  fun<T: PsiFile> forSourceFile(action: (T) -> Unit) {
-    contract {
-      callsInPlace(action, InvocationKind.AT_MOST_ONCE)
+        fileIndex = CoreFileIndex(sourceFolders, localFileSystem, projectEnvironment.project)
+        projectEnvironment.project.registerService(ProjectFileIndex::class.java, fileIndex)
     }
-    val psiManager = PsiManager.getInstance(projectEnvironment.project)
-    fileIndex.iterateContent { file ->
-      @Suppress("UNCHECKED_CAST")
-      val psiFile = psiManager.findFile(file) as? T ?: return@iterateContent true
-      action(psiFile)
-      return@iterateContent false
-    }
-  }
 
-  fun initializeApplication(block: CoreApplicationEnvironment.() -> Unit) {
-    if (!ApplicationEnvironment.initialized.getAndSet(true)) {
-      ApplicationEnvironment.coreApplicationEnvironment.block()
+    fun <T : PsiFile> forSourceFiles(classes: Class<T>, action: (T) -> Unit) {
+        val psiManager = PsiManager.getInstance(projectEnvironment.project)
+        fileIndex.iterateContent { file ->
+            val psiFile = psiManager.findFile(file) ?: return@iterateContent true
+            if (classes.isInstance(psiFile)) {
+                action(psiFile as T)
+            }
+            return@iterateContent true
+        }
     }
-  }
+
+    @OptIn(ExperimentalContracts::class)
+    fun <T : PsiFile> forSourceFile(action: (T) -> Unit) {
+        contract {
+            callsInPlace(action, InvocationKind.AT_MOST_ONCE)
+        }
+        val psiManager = PsiManager.getInstance(projectEnvironment.project)
+        fileIndex.iterateContent { file ->
+            @Suppress("UNCHECKED_CAST") val psiFile = psiManager.findFile(file) as? T ?: return@iterateContent true
+            action(psiFile)
+            return@iterateContent false
+        }
+    }
+
+    fun initializeApplication(block: CoreApplicationEnvironment.() -> Unit) {
+        if (!ApplicationEnvironment.initialized.getAndSet(true)) {
+            ApplicationEnvironment.coreApplicationEnvironment.block()
+        }
+    }
 }
 
 private class CoreFileIndex(
-  val sourceFolders: Iterable<File>,
-  private val localFileSystem: VirtualFileSystem,
-  project: Project
+    val sourceFolders: Iterable<File>, private val localFileSystem: VirtualFileSystem, project: Project
 ) : ProjectFileIndexImpl(project) {
-  override fun iterateContent(iterator: ContentIterator): Boolean {
-    return sourceFolders.all {
-      val file = localFileSystem.findFileByPath(it.absolutePath)
-        ?: throw NullPointerException("File ${it.absolutePath} not found")
-      iterateContentUnderDirectory(file, iterator)
+    override fun iterateContent(iterator: ContentIterator): Boolean {
+        return sourceFolders.all {
+            val file = localFileSystem.findFileByPath(it.absolutePath)
+                ?: throw NullPointerException("File ${it.absolutePath} not found")
+            iterateContentUnderDirectory(file, iterator)
+        }
     }
-  }
 
-  override fun iterateContentUnderDirectory(file: VirtualFile, iterator: ContentIterator): Boolean {
-    if (file.isDirectory) {
-      file.children.forEach { if (!iterateContentUnderDirectory(it, iterator)) return false }
-      return true
+    override fun iterateContentUnderDirectory(file: VirtualFile, iterator: ContentIterator): Boolean {
+        if (file.isDirectory) {
+            file.children.forEach { if (!iterateContentUnderDirectory(it, iterator)) return false }
+            return true
+        }
+        return iterator.processFile(file)
     }
-    return iterator.processFile(file)
-  }
 }

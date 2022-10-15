@@ -185,7 +185,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
               return CobolTypes.ANY;
           }
           return TokenType.WHITE_SPACE; }
-    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
+    {WHITE_SPACE}                   { return CobolTypes.SP; }
     [^]                             { return CobolTypes.ANY; }
 }
 
@@ -227,6 +227,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
           }
           return DOT;
       }
+      "SYNC" { return SYNC; }
           {VARNAME}                       { return VARNAME; }
 }
 

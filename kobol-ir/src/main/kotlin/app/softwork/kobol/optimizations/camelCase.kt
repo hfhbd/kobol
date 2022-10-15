@@ -28,11 +28,13 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
         declaration = declaration.updateName()
     )
 
-    is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> copy(
-        name = name.toCamelCase()
-    )
+    is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> updateName()
 
     is KobolIRTree.Types.Function.Statement.FunctionCall -> toCamelCase()
+    is KobolIRTree.Types.Function.Statement.FunctionCall.Fluent -> copy(
+        previous = previous.updateNames(),
+        action = action.toCamelCase(),
+    )
 
     is KobolIRTree.Types.Function.Statement.Print -> copy(
         expr = expr.toCamelCase() as KobolIRTree.Expression.StringExpression
@@ -40,17 +42,9 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
 
     is KobolIRTree.Types.Function.Statement.Exit -> this
     is KobolIRTree.Types.Function.Statement.LoadExternal -> this
-    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> copy(
-        name = name.toCamelCase()
-    )
-
-    is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> copy(
-        name = name.toCamelCase()
-    )
-
-    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> copy(
-        name = name.toCamelCase()
-    )
+    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> updateName()
+    is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> updateName()
+    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> updateName()
 
     is KobolIRTree.Types.Function.Statement.DoWhile -> copy(
         functionCall = functionCall.toCamelCase(),
@@ -77,6 +71,7 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
     )
 
     is KobolIRTree.Types.Function.Statement.When -> toCamelCase()
+    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> copy(name = name.toCamelCase())
 }
 
 private fun KobolIRTree.Types.Function.Statement.When.toCamelCase(): KobolIRTree.Types.Function.Statement.When {
@@ -119,13 +114,12 @@ private fun KobolIRTree.Types.Function.Statement.FunctionCall.toCamelCase() = co
     function = function.copy(name = function.name.toCamelCase())
 )
 
-private fun KobolIRTree.Types.Function.Statement.Declaration.updateName(): KobolIRTree.Types.Function.Statement.Declaration {
-    return when (this) {
-        is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> updateName()
-        is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> updateName()
-        is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> updateName()
-        is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> updateName()
-    }
+private fun KobolIRTree.Types.Function.Statement.Declaration.updateName() = when (this) {
+    is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> updateName()
+    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> updateName()
+    is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> updateName()
+    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> updateName()
+    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> copy(name = name.toCamelCase())
 }
 
 private fun KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration.updateName() =
@@ -153,6 +147,10 @@ private fun KobolIRTree.Expression.toCamelCase(): KobolIRTree.Expression =
 
         is KobolIRTree.Expression.Literal -> this
         is KobolIRTree.Types.Function.Statement.FunctionCall -> toCamelCase()
+        is KobolIRTree.Types.Function.Statement.FunctionCall.Fluent -> copy(
+            previous = previous.updateNames(),
+            action = action.toCamelCase(),
+        )
 
         is KobolIRTree.Expression.BooleanExpression.And -> copy(
             left = left.toCamelCase() as KobolIRTree.Expression.BooleanExpression,

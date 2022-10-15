@@ -40,7 +40,6 @@ tasks {
     }
 
     generateLexer {
-        classpath.from(grammar)
         source.set("$projectDir/src/main/kotlin/app/softwork/kobol/Cobol.flex")
         targetDir.set("$buildDir/generated/lexer/main/java/app/softwork/kobol/")
         targetClass.set("CobolLexer")

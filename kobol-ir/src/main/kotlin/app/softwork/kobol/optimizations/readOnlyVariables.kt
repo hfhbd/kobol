@@ -43,12 +43,16 @@ fun KobolIRTree.readonlyVariables(): KobolIRTree {
                 is IntDeclaration -> it.copy(
                     declaration = it.declaration.copy(mutable = false)
                 )
+
+                is ObjectDeclaration -> it.copy(
+                    declaration = it.declaration.copy(mutable = false)
+                )
             }
         } else it
     })
 }
 
-private fun KobolIRTree.Types.Function.Statement.Declaration.findWriteUsages(
+internal fun KobolIRTree.Types.Function.Statement.Declaration.findWriteUsages(
     functions: List<KobolIRTree.Types.Function>
 ): List<KobolIRTree.Types.Function> = functions.filter {
     it.body.any {

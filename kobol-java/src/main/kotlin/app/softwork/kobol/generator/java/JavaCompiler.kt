@@ -95,6 +95,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
         is Print -> code.println(this)
         is Declaration -> code.add(CodeBlock.of("\$L", createProperty()))
         is FunctionCall -> code.add(call())
+        is FunctionCall.Fluent -> code.add(previous.toJava2()).add(".").add(action.call()).build()
         is Exit -> code.addStatement("System.exit(0)")
         is LoadExternal -> code.addStatement("System.loadLibrary(\"$libName\")")
         is DoWhile -> code.beginControlFlow("do").add(functionCall.call()).unindent()
@@ -222,6 +223,7 @@ private fun KobolIRTree.Expression.toTemplate(): CodeBlock = when (this) {
     is KobolIRTree.Expression.NumberExpression -> toTemplate()
     is KobolIRTree.Expression.BooleanExpression -> toTemplate()
     is FunctionCall -> call()
+    is FunctionCall.Fluent -> CodeBlock.builder().add(previous.toJava2()).add(".").add(action.call()).build()
     is DoWhile -> TODO()
     is ForEach -> TODO()
     is While -> TODO()
@@ -324,7 +326,6 @@ private fun TypeSpec.Builder.addType(data: KobolIRTree.Types) {
     when (data) {
         is KobolIRTree.Types.Function -> addMethod(data.toJava())
         is KobolIRTree.Types.Type.Class -> addType(data.toJava())
-        is KobolIRTree.Types.Type.External -> TODO()
         is KobolIRTree.Types.Type.GlobalVariable -> {
             addGlobalVariable(data)
         }
@@ -365,7 +366,7 @@ private fun TypeSpec.Builder.addGlobalVariable(data: KobolIRTree.Types.Type.Glob
 
 private fun Declaration.createProperty(): FieldSpec {
     val (type, init) = when (this) {
-        is StringDeclaration -> ClassName.get("java.lang", "String") to value?.toTemplate()
+        is StringDeclaration -> Type to value?.toTemplate()
         is BooleanDeclaration, is DoubleDeclaration, is IntDeclaration -> {
             if (value != null) {
                 Type to value?.toTemplate()
@@ -373,6 +374,8 @@ private fun Declaration.createProperty(): FieldSpec {
                 Type.box() to null
             }
         }
+
+        is ObjectDeclaration -> Type to value?.toTemplate()
     }
     return FieldSpec.builder(type, name).apply {
         if (!mutable) {
@@ -397,6 +400,7 @@ private val Declaration.Type: TypeName
         is BooleanDeclaration -> TypeName.BOOLEAN
         is DoubleDeclaration -> TypeName.DOUBLE
         is IntDeclaration -> TypeName.INT
+        is ObjectDeclaration -> ClassName.get(type.packageName ?: "", type.name)
     }
 
 fun generate(file: File, output: File, optimize: Boolean, java8: Boolean) {

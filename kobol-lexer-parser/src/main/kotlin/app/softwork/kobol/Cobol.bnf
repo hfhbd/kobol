@@ -15,12 +15,11 @@
   tokens=[
     lineNumber="regexp:\r?\n\d{6}(\s|\*)"
     varName="regexp:[a-zA-Z]([\w\-_])*"
-    space="regexp:\s+"
     comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
     number="regexp:([+\-])?(\d+(\.\d+)?)|(\.\d+)"
     string="regexp:X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
     any="regexp:.*\."
-    twoDigits="regexp:\d{2}"
+    SP="regexp:\s+"
     PLUS='+'
     DOT='.'
     LP='('
@@ -83,16 +82,19 @@ workingStorageSection ::= comments WORKING-STORAGE SECTION DOT stm*
 
 stm ::= record_def | exec_sql_def
 exec_sql_def ::= comments exec_sql DOT
-exec_sql ::= EXEC SQL anys* END-EXEC
+exec_sql ::= EXEC SQL sqls* END-EXEC
 
-record_def ::= comments number [recordID] (redefines_clause | pointer_clause | pic_clause )  DOT
+sqls ::= any | SP
+
+record_def ::= comments number [recordID] [SYNC] (redefines_clause | pointer_clause | pic_clause )  DOT
 recordID ::= varName {
   mixin="app.softwork.kobol.named.RecordIDElementImpl"
   implements="app.softwork.kobol.named.CobolNamedElement"
 }
 pointer_clause ::= POINTER [VALUE literal]
 redefines_clause ::= REDEFINES recordID
-pic_clause ::= [occurs_clause] [PIC pic_def_clause+] [[USAGE] (COMP | COMP-3 | COMP-5)] [BINARY] [VALUE literal] [occurs_clause]
+pic_clause ::= [occurs_clause] [PIC pic_def_clause+] [USAGE [IS]] [compressed] [BINARY] [VALUE literal] [occurs_clause]
+compressed ::= COMP | COMP-3 | COMP-5
 occurs_clause ::= OCCURS occurs_clause_number [TIMES] [TO occurs_clause_number_to [TIMES]] [DEPENDING ON recordID]
 occurs_clause_number ::= number
 occurs_clause_number_to ::= number

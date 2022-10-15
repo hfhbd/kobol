@@ -1,7 +1,9 @@
 package app.softwork.kobol.generator.kotlin
 
 import app.softwork.kobol.*
+import app.softwork.kobol.sqldelightprecompiler.*
 import java.io.*
+import java.nio.file.*
 import kotlin.test.*
 
 class HelloWorldTest {
@@ -48,5 +50,12 @@ class HelloWorldTest {
     }
 }
 
-internal fun String.toIR() =
-    File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR()
+internal fun String.toIR(vararg including: Pair<String, String>): KobolIRTree {
+    val temp = Files.createTempDirectory("testing").toFile()
+    val files = including.map { (name, content) ->
+        File(temp, "$name.cbl").apply { writeText(content) }
+    }
+    return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR(
+        sqlPrecompiler = SqlDelightPrecompiler(dbName = "DB", temp, "sql", "sql.sq")
+    ).single()
+}

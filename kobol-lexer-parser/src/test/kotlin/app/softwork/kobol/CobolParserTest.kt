@@ -4,6 +4,7 @@ import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.Custom.Part.*
+import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.Compressed.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.NumberExpression.*
@@ -288,6 +289,124 @@ class CobolParserTest {
                     +Display("FOO".l)
                 }))
             ), input.toTree()
+        )
+    }
+
+    @Test
+    fun sql() {
+        //language=cobol
+        val input = """
+            123456 IDENTIFICATION              DIVISION.
+            123456 PROGRAM-ID.                 HELLO.
+            123456 DATA DIVISION.
+            123456 WORKING-STORAGE SECTION.
+            123456 77 BAR PIC 9 VALUE 1.
+            123456 77 BARRESULT PIC 9 VALUE 1.
+            123456       EXEC SQL
+            123456         INCLUDE SQLCA
+            123456       END-EXEC.
+            123456       EXEC SQL
+            123456         INCLUDE LINES
+            123456       END-EXEC.
+            123456 PROCEDURE                   DIVISION.
+            123456 EXEC SQL
+            123456 SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1;
+            123456 SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1;
+            123456 SET :FOO = 42;
+            123456 END-EXEC
+            123456
+            123456 EXEC SQL
+            123456 SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC;
+            123456 SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC;
+            123456 END-EXEC
+            123456 DISPLAY FOO 
+            123456 DISPLAY SQLSTATE.
+        """.trimIndent()
+
+        val sqlca = """
+            01 SQLCA SYNC.
+                05 SQLCAID PIC X(8) VALUE "SQLCA   ".
+                05 SQLCABC PIC S9(9) COMP-5 VALUE 136.
+                05 SQLCODE PIC S9(9) COMP-5.
+                05 SQLERRM.
+                05 SQLERRP PIC X(8).
+                05 SQLERRD OCCURS 6 TIMES PIC S9(9) COMP-5.
+                05 SQLWARN.
+                    10 SQLWARN0 PIC X.
+                    10 SQLWARN1 PIC X.
+                    10 SQLWARN2 PIC X.
+                    10 SQLWARN3 PIC X.
+                    10 SQLWARN4 PIC X.
+                    10 SQLWARN5 PIC X.
+                    10 SQLWARN6 PIC X.
+                    10 SQLWARN7 PIC X.
+                    10 SQLWARN8 PIC X.
+                    10 SQLWARN9 PIC X.
+                    10 SQLWARNA PIC X.
+                05 SQLSTATE PIC X(5).
+        """.trimIndent()
+
+        val lines = """
+            123456 77 FOO PIC 9 VALUE 1.
+        """.trimIndent()
+
+        val sqlState = StringElementar("SQLSTATE", "SQLCA", Simple(5))
+        val foo = NumberElementar("FOO", recordName = null, value = 1.0, formatter = Simple(1))
+        val bar = NumberElementar("BAR", recordName = null, value = 1.0, formatter = Simple(1))
+        val barResult = NumberElementar("BARRESULT", recordName = null, value = 1.0, formatter = Simple(1))
+
+        assertEquals(CobolFIRTree(id = CobolFIRTree.ID(programID = "HELLO"),
+            data = CobolFIRTree.DataTree(workingStorage = build {
+                +bar
+                +barResult
+                +Record("SQLCA") {
+                    +StringElementar("SQLCAID",  recordName = "SQLCA",value = "SQLCA   ", formatter = Simple(8))
+                    +NumberElementar(
+                        "SQLCABC",  recordName = "SQLCA",value = 136.0, signed = true, compressed = COMP5, formatter = Simple(9)
+                    )
+                    +NumberElementar("SQLCODE",  recordName = "SQLCA",signed = true, compressed = COMP5, formatter = Simple(9))
+                    +EmptyElementar("SQLERRM", recordName = "SQLCA")
+                    +StringElementar("SQLERRP", recordName = "SQLCA", Simple(8))
+                    +NumberElementar("SQLERRD", recordName = "SQLCA", Simple(9), signed = true, compressed = COMP5, occurs = Occurs(6))
+                    +EmptyElementar("SQLWARN", recordName = "SQLCA")
+                    repeat(10) {
+                        +StringElementar("SQLWARN$it", recordName = "SQLCA", Simple(1))
+                    }
+                    +StringElementar("SQLWARNA", recordName = "SQLCA", Simple(1))
+                    +sqlState
+                }
+                +foo
+            }),
+            procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                    "SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1",
+                    hostVariables = listOf(NumberVariable(foo)),
+                    parameter = emptyList()
+                )
+                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                    "SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1",
+                    hostVariables = listOf(NumberVariable(foo)),
+                    parameter = emptyList()
+                )
+                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                    "SET :FOO = 42",
+                    hostVariables = listOf(NumberVariable(foo)),
+                    parameter = emptyList()
+                )
+                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                    "SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC",
+                    hostVariables = listOf(NumberVariable(foo)),
+                    parameter = listOf()
+                )
+                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                    "SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC",
+                    hostVariables = listOf(NumberVariable(foo), NumberVariable(barResult)),
+                    parameter = listOf(NumberVariable(bar), NumberVariable(foo))
+                )
+                +Display(Interpolation(NumberVariable(foo)))
+                +Display(StringVariable(sqlState))
+            })
+        ), input.toTree("SQLCA" to sqlca, "LINES" to lines)
         )
     }
 

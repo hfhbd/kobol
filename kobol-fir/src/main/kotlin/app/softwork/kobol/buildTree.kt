@@ -6,9 +6,12 @@ import app.softwork.kobol.CobolFIRTree.EnvTree.Configuration.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.InputOutput.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
+import com.alecstrong.sql.psi.core.*
+import com.alecstrong.sql.psi.core.psi.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 import com.intellij.psi.util.*
+import com.intellij.testFramework.*
 
 fun CobolFile.toTree(): CobolFIRTree {
     var fileComments: List<String>? = null
@@ -42,7 +45,7 @@ fun CobolFile.toTree(): CobolFIRTree {
 
 private val commentTokens = TokenSet.create(CobolTypes.COMMENT)
 
-fun PsiElement.asComments(): List<String> = node.getChildren(commentTokens).map {
+fun CobolComments.asComments(): List<String> = node.getChildren(commentTokens).map {
     it.text.drop(1).trim()
 }
 
@@ -156,15 +159,22 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
             for (stm in it) {
                 val record = stm.recordDef
                 val sql = stm.execSqlDef
+
                 if (record != null) {
                     currentRecord = record(record, currentRecord)
-                } else {
-                    TODO()
+                } else if (sql != null) {
+                    val sqlString = sql.execSql.children.joinToString("") {
+                        it.text
+                    }.trim()
+                    val include = """INCLUDE (.*)""".toRegex()
+                    include.findAll(sqlString).forEach {
+                        for (record in CobolElementFactory.includeSQL(project, it.groups[1]!!.value)) {
+                            currentRecord = record(record, currentRecord)
+                        }
+                    }
                 }
             }
-            if (currentRecord != null) {
-                add(currentRecord)
-            }
+            currentRecord?.let { add(it) }
         }
     }
     val linkage = linkingSection?.recordDefList?.let {
@@ -201,27 +211,30 @@ private fun sa(it: CobolRecordDef, recordName: String?, previous: List<NumberEle
         }
 
         single != null -> single(
-            single,
+            single.pictures.text,
+            format = Formatter.Simple(single.length()),
             value = value,
             name = name,
             recordName = recordName,
             comments = it.comments,
             occurs = it.picClause!!.occursClauseList,
-            previous = previous
+            previous = previous,
+            compressed = it.picClause!!.compressed?.text
         )
 
         else -> {
             val first = pic.first()
             val formatter = pic.asFormat()
             single(
-                first,
+                first.pictures.text,
                 formatter,
                 value = value,
                 name = name,
                 recordName = recordName,
                 comments = it.comments,
                 occurs = it.picClause!!.occursClauseList,
-                previous = previous
+                previous = previous,
+                compressed = it.picClause!!.compressed?.text
             )
         }
     }
@@ -262,15 +275,16 @@ private fun List<CobolOccursClause>.toFir(previous: List<NumberElementar>): Occu
 }
 
 private fun single(
-    single: CobolPicDefClause,
-    format: Formatter = Formatter.Simple(single.length()),
+    type: String,
+    format: Formatter,
     value: String?,
     comments: CobolComments,
     name: String,
     recordName: String?,
     occurs: List<CobolOccursClause>,
-    previous: List<NumberElementar>
-): Elementar = when (val p = single.pictures.text) {
+    previous: List<NumberElementar>,
+    compressed: String?
+): Elementar = when (type) {
     "A", "X" -> StringElementar(
         name = name,
         recordName = recordName,
@@ -287,7 +301,10 @@ private fun single(
             formatter = format,
             value = value?.toDouble(),
             comments = comments.asComments(),
-            occurs = occurs.toFir(previous)
+            occurs = occurs.toFir(previous),
+            compressed = compressed?.let {
+                NumberElementar.Compressed.valueOf(it.replace("-", ""))
+            }
         )
     }
 
@@ -298,7 +315,8 @@ private fun single(
         value = value?.toDouble(),
         signed = true,
         comments = comments.asComments(),
-        occurs = occurs.toFir(previous)
+        occurs = occurs.toFir(previous),
+        compressed = compressed?.let { NumberElementar.Compressed.valueOf(it.replace("-", "")) }
     )
 
     "V9" -> NumberElementar(
@@ -308,10 +326,11 @@ private fun single(
         value = value?.toDouble(),
         signed = true,
         comments = comments.asComments(),
-        occurs = occurs.toFir(previous)
+        occurs = occurs.toFir(previous),
+        compressed = compressed?.let { NumberElementar.Compressed.valueOf(it.replace("-", "")) }
     )
 
-    else -> TODO(p)
+    else -> TODO()
 }
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = CobolFIRTree.ProcedureTree(
@@ -407,6 +426,65 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             )
         }
 
+        proc.execSql != null -> {
+            val sql = proc.execSql!!.sqlsList.joinToString("") {
+                val any = it.any
+                if (any != null) {
+                    any.text
+                } else {
+                    " "
+                }
+            }.trim()
+
+            val file = LightVirtualFile("sql.inlinesql", SqlInlineLanguage, sql)
+            val sqlFile = PsiManager.getInstance(proc.project).findFile(file) as InlineSqlFile
+            val sqlErrors = buildList {
+                val annotator = object : SqlAnnotationHolder {
+                    override fun createErrorAnnotation(element: PsiElement, s: String) {
+                        add("$s at $element")
+                    }
+                }
+
+                fun PsiElement.annotateRecursively(annotator: SqlAnnotationHolder) {
+                    if (this is SqlAnnotatedElement) {
+                        annotate(annotator)
+                    }
+                    children.forEach {
+                        it.annotateRecursively(annotator)
+                    }
+                }
+                PsiTreeUtil.findChildOfType(sqlFile, PsiErrorElement::class.java)?.let { error ->
+                    annotator.createErrorAnnotation(error, error.errorDescription)
+                }
+               // sqlFile.annotateRecursively(annotator)
+            }
+            if (sqlErrors.isNotEmpty()) {
+                error(sqlErrors)
+            }
+            val sqlStmts = sqlFile.sqlStmtList?.stmtList ?: emptyList()
+
+            sqlStmts.map {
+                val hostVariables = it.asSequence().filter {
+                    it is SqlHostVariableId
+                }.map { it.text }.toList()
+
+                val bindParameter = it.asSequence().filter {
+                    it is SqlBindParameter
+                }.map { it.text.drop(1) }.toList()
+
+                Statement.Sql(
+                    sql = it.text,
+                    comments = proc.comments.asComments(),
+                    hostVariables = hostVariables.map {
+                        (dataTree.notNull.workingStorage.find(it, null) as Elementar).toVariable()
+                    },
+                    parameter = bindParameter.map {
+                        (dataTree.notNull.workingStorage.find(it, null) as Elementar).toVariable()
+                    }
+                )
+            }
+        }
+
         proc.ifClause != null -> {
             val ifClause = proc.ifClause!!
             listOf(
@@ -444,6 +522,13 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
         }
 
         else -> TODO()
+    }
+}
+
+private fun PsiElement.asSequence(): Sequence<PsiElement> = sequence {
+    yield(this@asSequence)
+    for (child: PsiElement in children) {
+        yieldAll(child.asSequence())
     }
 }
 
@@ -538,6 +623,7 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?, linkingOnly: Bool
             ) {
                 is Record -> found.elements.map { it.toVariable() }
                 is Elementar -> listOf(found.toVariable())
+                is CobolFIRTree.DataTree.WorkingStorage.Sql -> notPossible()
             }
         }
 
@@ -563,6 +649,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
                 )
 
                 is Record -> notPossible()
+                is CobolFIRTree.DataTree.WorkingStorage.Sql -> notPossible()
                 is Pointer -> TODO()
             }
         }
@@ -589,7 +676,7 @@ private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): Expressi
     return s
 }
 
-inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R?): R {
+private inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R, T) -> R?): R {
     var accumulator = initial
     var first = true
     for (element in this) {
@@ -630,6 +717,8 @@ private fun List<CobolFIRTree.DataTree.WorkingStorage>.find(
                     }
                 }
             }
+
+            is CobolFIRTree.DataTree.WorkingStorage.Sql -> Unit
 
             is Elementar -> {
                 if (of == null && record.name == name) {

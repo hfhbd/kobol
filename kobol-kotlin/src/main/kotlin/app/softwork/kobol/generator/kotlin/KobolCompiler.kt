@@ -60,6 +60,8 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder(
         is Print -> code.println(this)
         is Declaration -> code.add(CodeBlock.of("%L", createProperty()))
         is FunctionCall -> code.add(call())
+        is FunctionCall.Fluent -> code.add(previous.toKotlin2()).add(".").add(action.call())
+
         is Exit -> code.addStatement("return %M(0)", MemberName("kotlin.system", "exitProcess", true))
         is LoadExternal -> code.addStatement("System.loadLibrary(\"$libName\")")
         is DoWhile -> code.beginControlFlow("do").add(functionCall.call()).unindent()
@@ -144,7 +146,11 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder(
 }
 
 private fun CodeBlock.Builder.assign(it: Assignment) {
-    addStatement("%L = %L", it.declaration.member(), it.newValue.toTemplate())
+    val (member, klass) = it.declaration.member()
+    if (klass != null) {
+        addStatement("%N.%M = %L", klass, member, it.newValue.toTemplate())
+    }
+    else addStatement("%L = %L", member, it.newValue.toTemplate())
 }
 
 private fun CodeBlock.Builder.println(it: Print) {
@@ -154,7 +160,7 @@ private fun CodeBlock.Builder.println(it: Print) {
         }
 
         is KobolIRTree.Expression.StringExpression.StringVariable -> {
-            addStatement("println(%L)", expr.target.member())
+            addStatement("println(%L)", expr.target.member().first)
         }
 
         is KobolIRTree.Expression.StringExpression.Concat -> {
@@ -194,6 +200,7 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
     is KobolIRTree.Expression.NumberExpression -> toTemplate(escape)
     is KobolIRTree.Expression.BooleanExpression -> toTemplate()
     is FunctionCall -> call()
+    is FunctionCall.Fluent -> CodeBlock.builder().add(previous.toKotlin2()).add(".").add(action.call()).build()
     is DoWhile -> TODO()
     is ForEach -> TODO()
     is While -> TODO()
@@ -201,20 +208,24 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
     is When -> TODO()
 }
 
-private fun Declaration.member(): MemberName {
+private fun Declaration.member(): Pair<MemberName, TypeSpec?> {
     val className = className
-    return if (className != null) {
-        MemberName(ClassName("", className), name)
-    } else MemberName("", name)
+    val member = MemberName("", name)
+    return member to if (className != null) {
+        TypeSpec.classBuilder(className).build()
+    } else null
 }
 
 private fun KobolIRTree.Expression.Variable.toCodeBlock(escape: Boolean): CodeBlock {
     return if (escape) {
-        CodeBlock.of("%L", target.member())
+        val (memberName, klass) = target.member()
+        if (klass != null) {
+            CodeBlock.of("%N.%L", klass, memberName)
+        } else CodeBlock.of("%L", memberName)
     } else {
-        val memberName = target.member()
-        if (memberName.enclosingClassName != null) {
-            CodeBlock.of("${"$"}{%M}", memberName)
+        val (memberName, klass) = target.member()
+        if (klass != null) {
+            CodeBlock.of("${"$"}{%N.%M}", klass, memberName)
         } else CodeBlock.of("$%M", memberName)
     }
 }
@@ -290,7 +301,6 @@ private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
     when (data) {
         is KobolIRTree.Types.Function -> addFunction(data.toKotlin())
         is KobolIRTree.Types.Type.Class -> addClass(data)
-        is KobolIRTree.Types.Type.External -> TODO()
         is KobolIRTree.Types.Type.GlobalVariable -> {
             addGlobalVariable(data)
         }
@@ -331,7 +341,7 @@ private fun FileSpec.Builder.addGlobalVariable(data: KobolIRTree.Types.Type.Glob
 
     addProperty(
         declaration.createProperty().toBuilder().apply {
-            if (data.const) {
+            if (declaration is Primitive && declaration.const) {
                 addModifiers(KModifier.CONST)
             }
         }.build()
@@ -367,6 +377,13 @@ private fun Declaration.createProperty(): PropertySpec {
                 INT to value.toTemplate()
             } else INT.copy(nullable = true) to null
         }
+
+        is ObjectDeclaration -> {
+            val value = value
+            if (value == null) {
+                KType.copy(nullable = true) to null
+            } else KType to value.toTemplate()
+        }
     }
     return PropertySpec.builder(
         name = name, type = type
@@ -386,6 +403,7 @@ private val Declaration.KType: TypeName
         is BooleanDeclaration -> BOOLEAN
         is DoubleDeclaration -> DOUBLE
         is IntDeclaration -> INT
+        is ObjectDeclaration -> ClassName(type.packageName ?: "", type.name)
     }
 
 fun generate(file: File, output: File, optimize: Boolean) {

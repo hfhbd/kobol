@@ -43,6 +43,8 @@ object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
 
         USING,
 
+        EXEC, END_EXEC, SQL,
+
         DATA,
         PROCEDURE -> keyword
 

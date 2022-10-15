@@ -26,7 +26,6 @@ private fun KobolIRTree.Types.booleanExpressions(): KobolIRTree.Types {
             }
         )
 
-        is KobolIRTree.Types.Type.External -> this
         is KobolIRTree.Types.Type.GlobalVariable -> copy(declaration = declaration.booleanExpressions())
         KobolIRTree.Types.Type.Void -> this
     }
@@ -46,6 +45,11 @@ private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTr
         is KobolIRTree.Types.Function.Statement.Exit -> this
         is KobolIRTree.Types.Function.Statement.ForEach -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.FunctionCall -> booleanExpressions()
+        is KobolIRTree.Types.Function.Statement.FunctionCall.Fluent -> copy(
+            previous = previous.booleanExpressions(),
+            action = action.booleanExpressions(),
+        )
+
         is KobolIRTree.Types.Function.Statement.LoadExternal -> this
         is KobolIRTree.Types.Function.Statement.Print -> this
         is KobolIRTree.Types.Function.Statement.While -> booleanExpressions()
@@ -53,8 +57,8 @@ private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTr
         is KobolIRTree.Types.Function.Statement.When -> booleanExpressions()
     }
 
-private fun KobolIRTree.Types.Function.Statement.When.booleanExpressions(): KobolIRTree.Types.Function.Statement.When {
-    return when (this) {
+private fun KobolIRTree.Types.Function.Statement.When.booleanExpressions(): KobolIRTree.Types.Function.Statement.When =
+    when (this) {
         is KobolIRTree.Types.Function.Statement.When.Single -> copy(
             expr = expr.booleanExpressions(),
             cases = cases.map {
@@ -84,7 +88,6 @@ private fun KobolIRTree.Types.Function.Statement.When.booleanExpressions(): Kobo
             }
         )
     }
-}
 
 private fun KobolIRTree.Types.Function.Statement.Declaration.booleanExpressions() = when (this) {
     is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> copy(
@@ -94,6 +97,7 @@ private fun KobolIRTree.Types.Function.Statement.Declaration.booleanExpressions(
     is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> this
     is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> this
     is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> this
+    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> this
 }
 
 private fun KobolIRTree.Expression.booleanExpressions(): KobolIRTree.Expression = when (this) {
@@ -106,6 +110,10 @@ private fun KobolIRTree.Expression.booleanExpressions(): KobolIRTree.Expression 
     is KobolIRTree.Types.Function.Statement.While -> booleanExpressions()
     is KobolIRTree.Types.Function.Statement.If -> booleanExpressions()
     is KobolIRTree.Types.Function.Statement.When -> booleanExpressions()
+    is KobolIRTree.Types.Function.Statement.FunctionCall.Fluent -> copy(
+        previous = previous.booleanExpressions(),
+        action = action.booleanExpressions(),
+    )
 }
 
 private fun KobolIRTree.Types.Function.Statement.DoWhile.booleanExpressions() = copy(

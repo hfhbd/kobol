@@ -39,4 +39,8 @@ private fun KobolIRTree.Types.Function.Statement.Declaration.private() = when (t
     is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> copy(
         private = true
     )
+
+    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> copy(
+        private = true
+    )
 }

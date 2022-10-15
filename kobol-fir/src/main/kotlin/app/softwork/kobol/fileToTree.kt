@@ -1,5 +1,13 @@
 package app.softwork.kobol
 
+import app.softwork.sqldelight.db2dialect.*
+import app.softwork.sqldelight.db2dialect.grammar.*
+import com.alecstrong.sql.psi.core.*
+import com.intellij.lang.*
+import com.intellij.openapi.project.*
+import com.intellij.psi.*
+import com.intellij.psi.stubs.*
+import com.intellij.psi.tree.*
 import java.io.*
 
 fun File.toTree(): CobolFIRTree {
@@ -11,6 +19,9 @@ fun File.toCobolFile(): CobolFile {
         initializeApplication {
             registerFileType(CobolFileType, CobolFileType.defaultExtension)
             registerParserDefinition(CobolParserDefinition)
+
+            registerFileType(InlineSqlFileType, InlineSqlFileType.defaultExtension)
+            registerParserDefinition(Db2ParserDefinition())
         }
     }
     lateinit var file: CobolFile
@@ -20,7 +31,7 @@ fun File.toCobolFile(): CobolFile {
     return file
 }
 
-fun Set<File>.toTree(): List<CobolFIRTree> {
+fun Iterable<File>.toTree(): List<CobolFIRTree> {
     return toCobolFile().map {
         try {
             it.toTree()
@@ -32,15 +43,39 @@ fun Set<File>.toTree(): List<CobolFIRTree> {
     }
 }
 
-fun Set<File>.toCobolFile(): Set<CobolFile> {
+private class Db2ParserDefinition : SqlParserDefinition() {
+    override fun createFile(viewProvider: FileViewProvider) = InlineSqlFile(viewProvider)
+    override fun createParser(project: Project): SqlParser {
+        SqlParserUtil.reset()
+
+        SqlParserUtil.reset()
+        Db2ParserUtil.reset()
+        Db2ParserUtil.overrideSqlParser()
+
+        return SqlParser()
+    }
+
+    override fun getFileNodeType(): IFileElementType = FILE
+
+    override fun getLanguage(): Language = SqlInlineLanguage
+
+    companion object {
+        val FILE = ILightStubFileElementType<PsiFileStub<InlineSqlFile>>(SqlInlineLanguage)
+    }
+}
+
+fun Iterable<File>.toCobolFile(): Set<CobolFile> {
     val intelliJ = CoreEnvironment(this).apply {
         initializeApplication {
             registerFileType(CobolFileType, CobolFileType.defaultExtension)
             registerParserDefinition(CobolParserDefinition)
+
+            registerFileType(InlineSqlFileType, InlineSqlFileType.defaultExtension)
+            registerParserDefinition(Db2ParserDefinition())
         }
     }
     return buildSet {
-        intelliJ.forSourceFiles<CobolFile> {
+        intelliJ.forSourceFiles(CobolFile::class.java) {
             add(it)
         }
     }
