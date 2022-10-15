@@ -2,7 +2,7 @@ plugins {
     id("org.jetbrains.grammarkit")
 }
 
-val idea = "222.4345.23"
+val idea = "222.4345.24"
 
 grammarKit {
     intellijRelease.set(idea)
@@ -35,12 +35,7 @@ dependencies {
 sourceSets["main"].java.srcDirs("$buildDir/generated/lexer/main/java", "$buildDir/generated/parser/main/java")
 
 tasks {
-    withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
-    }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
         dependsOn(generateParser, generateLexer)
     }
 

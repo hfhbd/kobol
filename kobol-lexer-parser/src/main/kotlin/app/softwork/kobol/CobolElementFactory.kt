@@ -9,7 +9,7 @@ object CobolElementFactory {
     private fun createProgram(project: Project, text: String): CobolProgram {
         val name = "dummy.cbl"
         val cobolText = """123456 IDENTIFICATION DIVISION. PROGRAM-ID. $text. PROCEDURE DIVISION. CONTINUE."""
-        val file = PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType, cobolText) as CobolFile
+        val file = PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType(), cobolText) as CobolFile
         for (child in file.children) {
             if (child is CobolProgram) {
                 return child
