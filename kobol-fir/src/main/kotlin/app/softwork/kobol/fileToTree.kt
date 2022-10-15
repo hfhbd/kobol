@@ -9,8 +9,8 @@ fun File.toTree(): CobolFIRTree {
 fun File.toCobolFile(): CobolFile {
     val intelliJ = CoreEnvironment(listOf(this)).apply {
         initializeApplication {
-            registerFileType(CobolFileType(), CobolFileType.defaultExtension)
-            registerParserDefinition(CobolParserDefinition())
+            registerFileType(CobolFileType, CobolFileType.defaultExtension)
+            registerParserDefinition(CobolParserDefinition)
         }
     }
     lateinit var file: CobolFile
@@ -35,8 +35,8 @@ fun Set<File>.toTree(): List<CobolFIRTree> {
 fun Set<File>.toCobolFile(): Set<CobolFile> {
     val intelliJ = CoreEnvironment(this).apply {
         initializeApplication {
-            registerFileType(CobolFileType(), CobolFileType.defaultExtension)
-            registerParserDefinition(CobolParserDefinition())
+            registerFileType(CobolFileType, CobolFileType.defaultExtension)
+            registerParserDefinition(CobolParserDefinition)
         }
     }
     return buildSet {
