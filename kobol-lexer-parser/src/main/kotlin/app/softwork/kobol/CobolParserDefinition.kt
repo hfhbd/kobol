@@ -5,7 +5,7 @@ import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 
-class CobolParserDefinition : ParserDefinition {
+object CobolParserDefinition : ParserDefinition {
     private val file = IFileElementType(CobolLanguage)
     private val stringLiterals = TokenSet.create(CobolTypes.STRING)
 
