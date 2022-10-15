@@ -197,10 +197,15 @@ private fun FunctionCall.call() = CodeBlock.builder().apply {
     val params = CodeBlock.builder().apply {
         for (parameter in parameters) {
             val className = parameter.className
-            if (className != null) {
-                add("$className.${parameter.name}")
+            val toAdd = if (className != null) {
+                "$className.${parameter.name}"
             } else {
-                add(parameter.name)
+                parameter.name
+            }
+            if (parameter == parameters.last()) {
+                add(toAdd)
+            } else {
+                add("$toAdd, ")
             }
         }
     }.build()

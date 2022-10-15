@@ -59,6 +59,7 @@ class CallTest {
         |      WORKING-STORAGE SECTION.
         |      01 FOO.
         |      05 BAR PIC 9 VALUE 5.
+        |      05 C PIC X VALUE 'X'.
         |      PROCEDURE DIVISION.
         |     * LONDON CALLING
         |          CALL "LONDON" USING FOO.
@@ -74,14 +75,17 @@ class CallTest {
         |package calling
         |
         |import kotlin.Int
+        |import kotlin.String
         |import kotlin.Unit
         |
         |public fun FOO(): Unit {
-        |  LONDON(FOO.BAR)
+        |  LONDON(FOO.BAR, FOO.C)
         |}
         |
         |public object FOO {
         |  public var BAR: Int = 5
+        |
+        |  public var C: String = "X"
         |}
         |
         |public object LONDON {
@@ -89,12 +93,12 @@ class CallTest {
         |    System.loadLibrary("london")
         |  }
         |
-        |  public external operator fun invoke(BAR: Int): Unit
+        |  public external operator fun invoke(BAR: Int, C: String): Unit
         |}
         |
         |public fun main(): Unit {
         |  // LONDON CALLING
-        |  LONDON(FOO.BAR)
+        |  LONDON(FOO.BAR, FOO.C)
         |  println("FOO")
         |  FOO()
         |}
