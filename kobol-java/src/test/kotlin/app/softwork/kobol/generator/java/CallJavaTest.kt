@@ -67,6 +67,7 @@ class CallJavaTest {
         |      WORKING-STORAGE SECTION.
         |      01 FOO.
         |      05 BAR PIC 9 VALUE 5.
+        |      05 C PIC X VALUE 'X'.
         |      PROCEDURE DIVISION.
         |     * LONDON CALLING
         |          CALL "LONDON" USING FOO.
@@ -83,6 +84,8 @@ class CallJavaTest {
         
         public class FOO {
           public static int BAR = 5;
+        
+          public static String C = "X";
         }
         
         """.trimIndent()
@@ -97,7 +100,7 @@ class CallJavaTest {
             System.loadLibrary("london");
           }
         
-          public static native void invoke(int BAR);
+          public static native void invoke(int BAR, String C);
         }
         
         """.trimIndent()
@@ -110,13 +113,13 @@ class CallJavaTest {
         public class Calling {
           public static void main(String[] args) {
             // LONDON CALLING
-            LONDON.invoke(FOO.BAR);
+            LONDON.invoke(FOO.BAR, FOO.C);
             System.out.println("FOO");
             FOO();
           }
         
           public static void FOO() {
-            LONDON.invoke(FOO.BAR);
+            LONDON.invoke(FOO.BAR, FOO.C);
           }
         }
         

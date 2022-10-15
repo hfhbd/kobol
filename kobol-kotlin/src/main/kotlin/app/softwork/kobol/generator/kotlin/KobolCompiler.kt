@@ -181,7 +181,7 @@ private fun FunctionCall.call() = CodeBlock.builder().apply {
             if (parameter == parameters.last()) {
                 add("%M", member)
             } else {
-                add("%M,", member)
+                add("%M, ", member)
 
             }
         }
