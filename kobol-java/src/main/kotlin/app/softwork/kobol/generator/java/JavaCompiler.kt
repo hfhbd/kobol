@@ -194,12 +194,21 @@ private fun CodeBlock.Builder.println(it: Print) {
 }
 
 private fun FunctionCall.call() = CodeBlock.builder().apply {
-    val params = parameters.joinToString { it.name }
+    val params = CodeBlock.builder().apply {
+        for (parameter in parameters) {
+            val className = parameter.className
+            if (className != null) {
+                add("$className.${parameter.name}")
+            } else {
+                add(parameter.name)
+            }
+        }
+    }.build()
     val method = MethodSpec.methodBuilder(function.name).build()
     if (function.external) {
-        addStatement("\$N.invoke($params)", method)
+        addStatement("\$N.invoke(\$L)", method, params)
     } else {
-        addStatement("\$N($params)", method)
+        addStatement("\$N(\$L)", method, params)
     }
 }.build()
 

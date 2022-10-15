@@ -22,7 +22,6 @@ import static app.softwork.kobol.CobolTypes.*;
 %init}
 
 NUMBER=([+\-])?(\d+(\.\d+)?)|(\.\d+)
-LINENUMBER=\d{6}
 WHITE_SPACE=\s+
 END_OF_LINE_COMMENT=\*.*
 STRING=X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
@@ -129,12 +128,18 @@ VARNAME=[a-zA-Z]([\w\-_])*
    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
    "FILE"                          { yybegin(FILE); return CobolTypes.FILE; }
    "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
+   "LINKAGE"                       { yybegin(WORKINGSTORAGE); return LINKAGE; }
 }
 
 <FILE> {
    "FD"                            { yybegin(FD); return CobolTypes.FD; }
-   {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
-   {NUMBER}                        { yybegin(FD_SA_PIC); return number(); }
+   {NUMBER}                        {
+          IElementType number = number();
+          if (number == NUMBER) {
+              yybegin(FD_SA_PIC);
+          }
+          return number();
+      }
    "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
 }
 
@@ -153,8 +158,13 @@ VARNAME=[a-zA-Z]([\w\-_])*
 }
 
 <WORKINGSTORAGE> {
-   {LINENUMBER}                    { return TokenType.WHITE_SPACE; }
-   {NUMBER}                        { yybegin(WORKINGSTORAGE_SA_PIC); return number(); }
+   {NUMBER}                        {
+          IElementType number = number();
+          if (number == NUMBER) {
+              yybegin(WORKINGSTORAGE_SA_PIC);
+          }
+          return number;
+      }
    "EXEC"                          { return EXEC; }
    "SQL"                           { yybegin(WORKINGSTORAGE_SQL); return SQL; }
    "LINKAGE"                       { return LINKAGE; }

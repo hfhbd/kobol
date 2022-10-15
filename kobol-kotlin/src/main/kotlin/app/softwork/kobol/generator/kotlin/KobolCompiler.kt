@@ -170,8 +170,23 @@ private fun CodeBlock.Builder.println(it: Print) {
 }
 
 private fun FunctionCall.call() = CodeBlock.builder().apply {
-    val params = parameters.joinToString { it.name }
-    addStatement("%M($params)", MemberName("", function.name))
+    val params = CodeBlock.builder().apply {
+        for (parameter in parameters) {
+            val className = parameter.className
+            val member = if (className != null) {
+                MemberName(ClassName("", className), parameter.name)
+            } else {
+                MemberName("", parameter.name)
+            }
+            if (parameter == parameters.last()) {
+                add("%M", member)
+            } else {
+                add("%M,", member)
+
+            }
+        }
+    }.build()
+    addStatement("%M(%L)", MemberName("", function.name), params)
 }.build()
 
 private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
@@ -368,9 +383,9 @@ private fun Declaration.createProperty(): PropertySpec {
 private val Declaration.KType: TypeName
     get() = when (this) {
         is StringDeclaration -> STRING
-        is BooleanDeclaration -> TODO()
-        is DoubleDeclaration -> TODO()
-        is IntDeclaration -> TODO()
+        is BooleanDeclaration -> BOOLEAN
+        is DoubleDeclaration -> DOUBLE
+        is IntDeclaration -> INT
     }
 
 fun generate(file: File, output: File, optimize: Boolean) {
