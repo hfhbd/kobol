@@ -14,13 +14,19 @@ abstract class UploadTask : DefaultTask(), SshTask {
         group = "kobol"
     }
 
+    @get:Incremental
     @get:PathSensitive(RELATIVE)
     @get:InputFiles
+    @get:IgnoreEmptyDirectories
     abstract val files: ConfigurableFileCollection
 
     @get:Optional
     @get:Input
     abstract val encoding: Property<String>
+
+    init {
+        encoding.convention("ibm-1047")
+    }
 
     @get:Optional
     @get:Input
@@ -30,22 +36,30 @@ abstract class UploadTask : DefaultTask(), SshTask {
     @get:Input
     abstract val keepUTF8: Property<Boolean>
 
+    init {
+        keepUTF8.convention(false)
+    }
+
     @get:Optional
     @get:PathSensitive(RELATIVE)
     @get:InputFiles
     abstract val mvsFiles: ConfigurableFileCollection
 
     @TaskAction
-    fun execute() {
-        val encoding = encoding.orNull ?: "ibm-1047"
+    fun execute(inputChanges: InputChanges) {
+        val encoding = encoding.get()
         val copyToMVS = mvsFolder.orNull
-        val keepUTF8 = keepUTF8.orNull ?: false
+        val keepUTF8 = keepUTF8.get()
+        val folder = folder.get()
+
         sshClient {
             newSFTPClient().use { sftp ->
-                for (file in files) {
-                    val folder = folder.get()
+                for (change in inputChanges.getFileChanges(files)) {
+                    if (change.fileType == FileType.DIRECTORY) continue
+
                     sftp.mkdirs(folder)
 
+                    val file = change.file
                     val target = "$folder/${file.name}"
 
                     sftp.put(FileSystemFile(file), target)
