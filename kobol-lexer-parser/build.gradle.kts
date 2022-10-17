@@ -14,7 +14,7 @@ val grammar = configurations.create("grammar") {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
     grammar("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     compileOnly("com.jetbrains.intellij.platform:core-impl:$idea")
