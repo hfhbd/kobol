@@ -1,5 +1,5 @@
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
     implementation(projects.kobolLexerParser)
 
     val idea = "222.4345.24"
