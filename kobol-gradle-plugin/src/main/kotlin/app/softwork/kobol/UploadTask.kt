@@ -96,7 +96,7 @@ abstract class UploadTask : DefaultTask(), SshTask {
                         val mvsName = file.nameWithoutExtension.uppercase()
                         exec("""cp $target "//'$copyToMVS($mvsName)'" """)
                     }
-                    file.copyTo(uploaded, true)
+                    file.copyTo(File(uploaded, file.name), true)
                 }
             }
         }
