@@ -12,6 +12,13 @@ allprojects {
     group = "app.softwork"
 
     repositories {
+        maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {
+            name = "GitHubPackages"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
         mavenCentral()
         maven(url = "https://www.jetbrains.com/intellij-repository/releases")
         maven(url = "https://cache-redirector.jetbrains.com/intellij-dependencies")
