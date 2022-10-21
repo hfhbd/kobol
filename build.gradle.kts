@@ -15,8 +15,8 @@ allprojects {
         maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {
             name = "GitHubPackages"
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("STUPID_TOKEN")
+                username = "hfhbd"
+                password = "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"
             }
         }
         mavenCentral()
