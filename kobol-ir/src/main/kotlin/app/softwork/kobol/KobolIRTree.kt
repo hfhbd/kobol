@@ -50,7 +50,6 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     val mutable: Boolean
                     val private: Boolean
                     val value: Expression?
-                    val className: String?
 
                     @Serializable
                     sealed interface Primitive : Declaration {
@@ -60,12 +59,11 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     @Serializable
                     data class StringDeclaration(
                         override val name: String,
-                        override val className: String?,
                         override val value: Expression.StringExpression?,
                         override val mutable: Boolean,
                         override val private: Boolean,
                         override val comments: List<String>,
-                        override val const: Boolean
+                        override val const: Boolean,
                     ) : Primitive
 
                     @Serializable
@@ -74,7 +72,6 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     @Serializable
                     data class IntDeclaration(
                         override val name: String,
-                        override val className: String?,
                         override val value: Expression.NumberExpression.IntExpression?,
                         override val mutable: Boolean,
                         override val private: Boolean,
@@ -85,7 +82,6 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     @Serializable
                     data class DoubleDeclaration(
                         override val name: String,
-                        override val className: String?,
                         override val value: Expression.NumberExpression.DoubleExpression?,
                         override val mutable: Boolean,
                         override val private: Boolean,
@@ -96,7 +92,6 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     @Serializable
                     data class BooleanDeclaration(
                         override val name: String,
-                        override val className: String?,
                         override val value: Expression.BooleanExpression?,
                         override val mutable: Boolean,
                         override val private: Boolean,
@@ -111,31 +106,31 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                         override val name: String,
                         override val mutable: Boolean,
                         override val private: Boolean,
-                        override val value: Expression?,
-                        override val className: String?
+                        override val value: Expression?
                     ) : Declaration
                 }
 
                 @Serializable
                 data class Assignment(
-                    val declaration: Declaration,
+                    val declaration: Statement,
                     val newValue: Expression,
                     override val comments: List<String>
                 ) : Statement
 
                 @Serializable
+                data class Use(
+                    val target: Statement,
+                    val action: Statement,
+                    override val comments: List<String>
+                ) : Statement, Expression
+
+                @Serializable
                 data class FunctionCall(
                     val function: Function,
-                    val parameters: List<Declaration>,
+                    val parameters: List<Expression>,
                     override val comments: List<String>
-                ) : Statement, Expression {
-                    @Serializable
-                    data class Fluent(
-                        val previous: Statement,
-                        val action: FunctionCall,
-                        override val comments: List<String>
-                    ) : Statement, Expression
-                }
+                ) : Statement, Expression
+
                 @Serializable
                 data class Print(
                     val expr: Expression.StringExpression,
@@ -189,7 +184,6 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                         val comments: List<String> = emptyList()
                     )
                 }
-
 
                 @Serializable
                 sealed interface When : Statement, Expression {
@@ -247,7 +241,9 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             data class GlobalVariable(
                 val declaration: Function.Statement.Declaration,
                 val doc: List<String>
-            ) : Type
+            ) : Type, Expression.Variable {
+                override val target: Function.Statement.Declaration = declaration
+            }
 
             @Serializable
             data class Class(
@@ -262,6 +258,20 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
             ) : Type {
                 @Serializable
                 data class Constructor(val parameters: List<Function.Statement.Declaration>)
+
+                fun variable(): Expression.ObjectVariable {
+                    require(isObject)
+                    return Expression.ObjectVariable(
+                        Function.Statement.Declaration.ObjectDeclaration(
+                            name = name,
+                            comments = emptyList(),
+                            type = this,
+                            mutable = false,
+                            private = false,
+                            value = null
+                        )
+                    )
+                }
             }
 
             @Serializable
@@ -282,13 +292,25 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
         }
 
         @Serializable
+        data class ObjectVariable(
+            override val target: Types.Function.Statement.Declaration.ObjectDeclaration
+        ) : Variable
+
+        @Serializable
         sealed interface StringExpression : Expression {
             @Serializable
             data class StringLiteral(override val value: String) : StringExpression, Literal
 
             @Serializable
             data class StringVariable(override val target: Types.Function.Statement.Declaration.StringDeclaration) :
-                StringExpression, Variable
+                StringExpression, Variable {
+                @Serializable
+                data class Use(
+                    val target: ObjectVariable,
+                    val variable: StringVariable,
+                    override val comments: List<String>
+                ) : Types.Function.Statement, StringExpression by variable
+            }
 
             @Serializable
             data class Concat(val left: Expression, val right: Expression) : StringExpression
@@ -310,7 +332,14 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
 
                 @Serializable
                 data class IntVariable(override val target: Types.Function.Statement.Declaration.IntDeclaration) :
-                    IntExpression, NumberVariable
+                    IntExpression, NumberVariable {
+                    @Serializable
+                    data class Use(
+                        val target: ObjectVariable,
+                        val variable: IntVariable,
+                        override val comments: List<String>
+                    ) : Types.Function.Statement, IntExpression by variable
+                }
             }
 
             @Serializable
@@ -320,7 +349,14 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
 
                 @Serializable
                 data class DoubleVariable(override val target: Types.Function.Statement.Declaration.DoubleDeclaration) :
-                    DoubleExpression, NumberVariable
+                    DoubleExpression, NumberVariable {
+                    @Serializable
+                    data class Use(
+                        val target: ObjectVariable,
+                        val variable: DoubleVariable,
+                        override val comments: List<String>
+                    ) : Types.Function.Statement, DoubleExpression by variable
+                }
             }
         }
 
@@ -362,7 +398,7 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
 }
 
 fun KobolIRTree.Types.Function.Statement.Declaration.variable() = when (this) {
-    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> error("Not yet supported")
+    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> KobolIRTree.Expression.ObjectVariable(this)
     is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> error("Not yet supported")
     is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable(
         this

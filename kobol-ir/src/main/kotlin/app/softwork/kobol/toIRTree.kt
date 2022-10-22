@@ -82,7 +82,7 @@ private fun Call.toIrFunctionDeclaration(types: List<Types.Type>): Types.Functio
 
 private fun Expression.inferDeclaration(): Declaration = when (this) {
     is BooleanExpression -> BooleanDeclaration(
-        name = "expr", className = null, value = null, mutable = false, private = false, comments = emptyList(),
+        name = "expr", value = null, mutable = false, private = false, comments = emptyList(),
         const = true
     )
 
@@ -90,9 +90,7 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
         name = when (this) {
             is Literal -> "expr"
             is Variable -> target.name
-        }, className = when (this) {
-            is Literal -> null
-            is Variable -> target.className
+            is DoubleExpression.DoubleVariable.Use -> variable.target.name
         }, value = null, mutable = false, private = false, comments = emptyList(),
         const = true
     )
@@ -101,9 +99,7 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
         name = when (this) {
             is Literal -> "expr"
             is Variable -> target.name
-        }, className = when (this) {
-            is Literal -> null
-            is Variable -> target.className
+            is IntExpression.IntVariable.Use -> variable.target.name
         }, value = null, mutable = false, private = false, comments = emptyList(),
         const = true
     )
@@ -111,15 +107,15 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
     is StringExpression -> StringDeclaration(
         name = when (this) {
             is Variable -> target.name
+            is StringExpression.StringVariable.Use -> variable.target.name
             else -> "expr"
-        }, className = when (this) {
-            is Variable -> target.className
-            else -> null
         }, value = null, mutable = false, private = false, comments = emptyList(),
         const = true
     )
 
     is Types.Function.Statement -> TODO()
+    is GlobalVariable -> declaration
+    is ObjectVariable -> target
 }
 
 internal fun String.toKotlinName(): String = lowercase().replace("-", "_")
@@ -196,7 +192,7 @@ fun CobolFIRTree.ProcedureTree.Expression.BooleanExpression.toIR(types: List<Typ
         )
     }
 
-fun CobolFIRTree.ProcedureTree.Expression.NumberExpression.toIR(types: List<Types.Type>): Expression.NumberExpression =
+fun CobolFIRTree.ProcedureTree.Expression.NumberExpression.toIR(types: List<Types.Type>): NumberExpression =
     when (this) {
         is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberLiteral -> {
             val isInt = value.isInt()
@@ -208,16 +204,28 @@ fun CobolFIRTree.ProcedureTree.Expression.NumberExpression.toIR(types: List<Type
         }
 
         is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberVariable -> {
-            val declaration = types.declaration(target)
+            when (val declaration = types.declaration(target)) {
+                is Declaration -> {
+                    when (target.formatter.numberType) {
+                        Formatter.NumberType.Int -> IntExpression.IntVariable(
+                            declaration as IntDeclaration
+                        )
 
-            when (target.formatter.numberType) {
-                Formatter.NumberType.Int -> IntExpression.IntVariable(
-                    declaration as IntDeclaration
-                )
+                        Formatter.NumberType.Double -> DoubleExpression.DoubleVariable(
+                            declaration as DoubleDeclaration
+                        )
+                    }
+                }
 
-                Formatter.NumberType.Double -> DoubleExpression.DoubleVariable(
-                    declaration as DoubleDeclaration
-                )
+                is IntExpression.IntVariable.Use -> {
+                    declaration
+                }
+
+                is DoubleExpression.DoubleVariable.Use -> {
+                    declaration
+                }
+
+                else -> TODO()
             }
         }
     }
@@ -240,9 +248,16 @@ fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(
         left = left.toIR(types), right = right.toIR(types)
     )
 
-    is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> StringExpression.StringVariable(
-        types.declaration(target) as StringDeclaration
-    )
+    is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> {
+        when (val dec = types.declaration(target)) {
+            is StringDeclaration -> {
+                StringExpression.StringVariable(dec)
+            }
+
+            is StringExpression.StringVariable.Use -> dec
+            else -> StringExpression.Interpolation(dec as Expression)
+        }
+    }
 
     is CobolFIRTree.ProcedureTree.Expression.StringExpression.Interpolation -> StringExpression.Interpolation(
         value.toIR(types)
@@ -251,15 +266,35 @@ fun CobolFIRTree.ProcedureTree.Expression.StringExpression.toIR(
 
 private fun List<Types.Type>.declaration(target: CobolFIRTree.DataTree.WorkingStorage.Elementar) = mapNotNull { type ->
     when (type) {
-        is GlobalVariable -> if (type.declaration.name == target.name) {
-            type.declaration
+        is GlobalVariable ->
+            if (type.declaration.name == target.name) {
+                type.declaration
+            } else null
+
+        is Class -> if (type.name == target.recordName) {
+            val member = type.members.singleOrNull { it.name == target.name } ?: return@mapNotNull null
+            when (member) {
+                is ObjectDeclaration -> TODO()
+                is BooleanDeclaration -> TODO()
+                is DoubleDeclaration -> TODO()
+                is IntDeclaration -> IntExpression.IntVariable.Use(
+                    type.variable(),
+                    member.variable() as IntExpression.IntVariable,
+                    emptyList()
+                )
+
+                is StringDeclaration -> StringExpression.StringVariable.Use(
+                    type.variable(),
+                    member.variable() as StringExpression.StringVariable,
+                    emptyList()
+                )
+            }
+
         } else null
 
-        is Class -> if (type.name == target.recordName) type.members.singleOrNull { it.name == target.name } else null
         else -> null
     }
 }.single()
-
 
 fun CobolFIRTree.ProcedureTree.Statement.toIR(
     types: List<Types.Type>, sections: List<Types.Function>, sqlPrecompiler: SqlPrecompiler?
@@ -327,7 +362,7 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
         listOf(
             FunctionCall(
                 function = function, parameters = parameters.map {
-                    it.toIR(types).inferDeclaration()
+                    it.toIR(types)
                 }, comments = comments
             )
         )
@@ -390,11 +425,11 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
     }
 }
 
-private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration(className: String? = null) = when (this) {
+private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when (this) {
     is StringElementar -> StringDeclaration(
         name = name, value = value?.let {
             StringExpression.StringLiteral(it)
-        }, mutable = true, private = false, comments = comments, className = className, const = false
+        }, mutable = true, private = false, comments = comments, const = false
     )
 
     is NumberElementar -> {
@@ -402,13 +437,13 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration(className
             Formatter.NumberType.Int -> IntDeclaration(
                 name = name, value = value?.let {
                     IntExpression.IntLiteral(it.toInt())
-                }, mutable = true, private = false, comments = comments, className = className, const = false
+                }, mutable = true, private = false, comments = comments, const = false
             )
 
             Formatter.NumberType.Double -> DoubleDeclaration(
                 name = name, value = value?.let {
                     DoubleExpression.DoubleLiteral(it)
-                }, mutable = true, private = false, comments = comments, className = className, const = false
+                }, mutable = true, private = false, comments = comments, const = false
             )
         }
     }
@@ -442,7 +477,7 @@ private fun CobolFIRTree.DataTree.WorkingStorage.toIR(sqlPrecompiler: SqlPrecomp
     is CobolFIRTree.DataTree.WorkingStorage.Record -> IRResult.Typ(
         Class(
             name = name, constructor = Class.Constructor(parameters = emptyList()), members = elements.map {
-                it.declaration(className = name)
+                it.declaration()
             }, functions = emptyList(), doc = comments, init = emptyList(), isObject = true
         )
     )

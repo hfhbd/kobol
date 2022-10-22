@@ -167,10 +167,19 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                         it.text
                     }.trim()
                     val include = """INCLUDE (.*)""".toRegex()
-                    include.findAll(sqlString).forEach {
-                        for (record in CobolElementFactory.includeSQL(project, it.groups[1]!!.value)) {
-                            currentRecord = record(record, currentRecord)
+                    if (sqlString.contains(include)) {
+                        include.findAll(sqlString).forEach {
+                            for (record in CobolElementFactory.includeSQL(project, it.groups[1]!!.value)) {
+                                currentRecord = record(record, currentRecord)
+                            }
                         }
+                    } else {
+                        add(
+                            CobolFIRTree.DataTree.WorkingStorage.Sql(
+                                sql = sqlString,
+                                comments = sql.comments.asComments()
+                            )
+                        )
                     }
                 }
             }
@@ -456,7 +465,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                 PsiTreeUtil.findChildOfType(sqlFile, PsiErrorElement::class.java)?.let { error ->
                     annotator.createErrorAnnotation(error, error.errorDescription)
                 }
-               // sqlFile.annotateRecursively(annotator)
+                // sqlFile.annotateRecursively(annotator)
             }
             if (sqlErrors.isNotEmpty()) {
                 error(sqlErrors)
@@ -480,6 +489,12 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                     },
                     parameter = bindParameter.map {
                         (dataTree.notNull.workingStorage.find(it, null) as Elementar).toVariable()
+                    },
+                    type = when {
+                        it.insertStmt != null -> Statement.Sql.SqlType.Insert
+                        it.compoundSelectStmt != null -> Statement.Sql.SqlType.Select
+                        it.deleteStmtLimited != null -> Statement.Sql.SqlType.Delete
+                        else -> Statement.Sql.SqlType.Execute
                     }
                 )
             }

@@ -357,8 +357,13 @@ data class CobolFIRTree(
                 val sql: String,
                 val hostVariables: List<Expression.Variable>,
                 val parameter: List<Expression.Variable>,
-                override val comments: List<String> = emptyList()
-            ) : Statement
+                override val comments: List<String> = emptyList(),
+                val type: SqlType
+            ) : Statement {
+                enum class SqlType {
+                    Select, Insert, Delete, Execute
+                }
+            }
         }
 
         @Serializable

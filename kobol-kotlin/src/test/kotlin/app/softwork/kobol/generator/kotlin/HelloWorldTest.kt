@@ -56,6 +56,6 @@ internal fun String.toIR(vararg including: Pair<String, String>): KobolIRTree {
         File(temp, "$name.cbl").apply { writeText(content) }
     }
     return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR(
-        sqlPrecompiler = SqlDelightPrecompiler(dbName = "DB", temp, "sql", "sql.sq")
+        sqlPrecompiler = SqlDelightPrecompiler(dbName = "DB", temp, "sql", "sql")
     ).single()
 }
