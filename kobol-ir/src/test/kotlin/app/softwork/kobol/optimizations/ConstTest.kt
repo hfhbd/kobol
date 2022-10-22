@@ -9,16 +9,25 @@ class ConstTest {
         val readonly = KobolIRTree.Types.Type.GlobalVariable(
             declaration = KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration(
                 name = "foo",
-                className = null,
                 mutable = false,
                 private = false,
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
-                comments = emptyList()
+                comments = emptyList(),
+                const = false,
             ),
-            const = false,
             doc = emptyList()
         )
-        val expected = readonly.copy(const = true)
+        val expected = KobolIRTree.Types.Type.GlobalVariable(
+            declaration = KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration(
+                name = "foo",
+                mutable = false,
+                private = false,
+                value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
+                comments = emptyList(),
+                const = true,
+            ),
+            doc = emptyList()
+        )
         assertEquals(expected, readonly.constVariable())
     }
 
@@ -27,13 +36,12 @@ class ConstTest {
         val mutable = KobolIRTree.Types.Type.GlobalVariable(
             declaration = KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration(
                 name = "foo",
-                className = null,
                 mutable = true,
                 private = false,
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
-                comments = emptyList()
+                comments = emptyList(),
+                const = false,
             ),
-            const = false,
             doc = emptyList()
         )
         assertEquals(mutable, mutable.constVariable())

@@ -95,12 +95,19 @@ data class CobolFIRTree(
             val comments: List<String>
 
             @Serializable
+            data class Sql(val sql: String, override val comments: List<String> = emptyList()) : WorkingStorage
+
+            @Serializable
             data class Record(
                 val name: String,
                 val elements: List<Elementar> = emptyList(),
                 override val comments: List<String> = emptyList()
             ) : WorkingStorage, FileSection.FileDescription {
-                constructor(name: String, elements: Builder<Elementar>.() -> Unit) : this(name, build(elements))
+                constructor(
+                    name: String,
+                    comments: List<String> = emptyList(),
+                    elements: Builder<Elementar>.() -> Unit
+                ) : this(name, build(elements), comments)
             }
 
             @Serializable
@@ -344,6 +351,19 @@ data class CobolFIRTree(
                 val parameters: List<Expression> = emptyList(),
                 override val comments: List<String> = emptyList()
             ) : Statement
+
+            @Serializable
+            data class Sql(
+                val sql: String,
+                val hostVariables: List<Expression.Variable>,
+                val parameter: List<Expression.Variable>,
+                override val comments: List<String> = emptyList(),
+                val type: SqlType
+            ) : Statement {
+                enum class SqlType {
+                    Select, Insert, Delete, Execute
+                }
+            }
         }
 
         @Serializable

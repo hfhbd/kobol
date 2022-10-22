@@ -1,5 +1,6 @@
 dependencies {
     implementation(projects.kobolIr)
+    implementation(projects.kobolSqldelightPrecompiler)
     implementation("com.squareup:kotlinpoet:1.12.0")
 
     testImplementation(kotlin("test"))

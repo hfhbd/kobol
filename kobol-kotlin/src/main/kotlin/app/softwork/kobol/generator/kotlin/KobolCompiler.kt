@@ -46,8 +46,7 @@ fun CodeBlock.Builder.addComment(format: String, vararg args: Any): CodeBlock.Bu
     add("//·${format.replace(' ', '·')}\n", *args)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-private inline fun KobolIRTree.Types.Function.Statement.toKotlin2(): CodeBlock = toKotlin()
+private fun KobolIRTree.Types.Function.Statement.toKotlin2(): CodeBlock = toKotlin()
 
 private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder().let { code ->
     if (this !is Declaration && comments.isNotEmpty()) {
@@ -56,13 +55,32 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder(
         }
     }
     when (this) {
+        is Use -> {
+            val target = target
+            val betterTarget = if (target is Declaration) {
+                CodeBlock.of("%M", target.member())
+            } else target.toKotlin2()
+            val action = action
+            val betterAction = if (action is Declaration) {
+                CodeBlock.of("%M", action.member())
+            } else action.toKotlin2()
+            code.add(
+                "%L.%L", betterTarget, betterAction
+            )
+        }
+
+        is KobolIRTree.Expression.StringExpression.StringVariable.Use -> code.add("%L", toTemplate())
+        is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable.Use -> code.add("%L", toTemplate())
+        is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable.Use -> code.add("%L", toTemplate())
+
         is Assignment -> code.assign(this)
         is Print -> code.println(this)
         is Declaration -> code.add(CodeBlock.of("%L", createProperty()))
-        is FunctionCall -> code.add(call())
+        is FunctionCall -> code.addStatement("%L", call())
+
         is Exit -> code.addStatement("return %M(0)", MemberName("kotlin.system", "exitProcess", true))
         is LoadExternal -> code.addStatement("System.loadLibrary(\"$libName\")")
-        is DoWhile -> code.beginControlFlow("do").add(functionCall.call()).unindent()
+        is DoWhile -> code.beginControlFlow("do").addStatement("%L", functionCall.call()).unindent()
             .add("} while (%L)\n", condition.toTemplate())
 
         is ForEach -> {
@@ -144,13 +162,19 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin() = CodeBlock.builder(
 }
 
 private fun CodeBlock.Builder.assign(it: Assignment) {
-    addStatement("%L = %L", it.declaration.member(), it.newValue.toTemplate())
+    val dec = it.declaration
+    val member = if (dec is Declaration) {
+        CodeBlock.of("%M", dec.member())
+    } else {
+        dec.toKotlin()
+    }
+    addStatement("%L = %L", member, it.newValue.toTemplate())
 }
 
 private fun CodeBlock.Builder.println(it: Print) {
     when (val expr = it.expr) {
         is KobolIRTree.Expression.StringExpression.StringLiteral -> {
-            addStatement("println(%L)", expr.toTemplate())
+            addStatement("println(%L)", expr.toTemplate(insideString = false))
         }
 
         is KobolIRTree.Expression.StringExpression.StringVariable -> {
@@ -158,7 +182,7 @@ private fun CodeBlock.Builder.println(it: Print) {
         }
 
         is KobolIRTree.Expression.StringExpression.Concat -> {
-            val template = expr.toTemplate()
+            val template = expr.toTemplate(insideString = true)
             addStatement("println(\"%L\")", template)
         }
 
@@ -166,32 +190,31 @@ private fun CodeBlock.Builder.println(it: Print) {
             val template = expr.expr.toTemplate()
             addStatement("println(%L)", template)
         }
+
+        is KobolIRTree.Expression.StringExpression.StringVariable.Use -> {
+            addStatement("println(%L)", expr.toTemplate())
+        }
     }
 }
 
 private fun FunctionCall.call() = CodeBlock.builder().apply {
     val params = CodeBlock.builder().apply {
         for (parameter in parameters) {
-            val className = parameter.className
-            val member = if (className != null) {
-                MemberName(ClassName("", className), parameter.name)
-            } else {
-                MemberName("", parameter.name)
-            }
+            val member = parameter.toTemplate()
             if (parameter == parameters.last()) {
-                add("%M", member)
+                add("%L", member)
             } else {
-                add("%M, ", member)
+                add("%L, ", member)
 
             }
         }
     }.build()
-    addStatement("%M(%L)", MemberName("", function.name), params)
+    add("%M(%L)", MemberName("", function.name), params)
 }.build()
 
-private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
-    is KobolIRTree.Expression.StringExpression -> toTemplate(escape)
-    is KobolIRTree.Expression.NumberExpression -> toTemplate(escape)
+private fun KobolIRTree.Expression.toTemplate(insideString: Boolean = false): CodeBlock = when (this) {
+    is KobolIRTree.Expression.StringExpression -> toTemplate(insideString)
+    is KobolIRTree.Expression.NumberExpression -> toTemplate(insideString)
     is KobolIRTree.Expression.BooleanExpression -> toTemplate()
     is FunctionCall -> call()
     is DoWhile -> TODO()
@@ -199,42 +222,53 @@ private fun KobolIRTree.Expression.toTemplate(escape: Boolean = true): CodeBlock
     is While -> TODO()
     is If -> TODO()
     is When -> TODO()
+    is KobolIRTree.Types.Type.GlobalVariable -> toCodeBlock(insideString)
+    is Use -> CodeBlock.builder().add(target.toKotlin2()).add(".").add(action.toKotlin2()).build()
+    is KobolIRTree.Expression.ObjectVariable -> toCodeBlock(insideString)
 }
 
-private fun Declaration.member(): MemberName {
-    val className = className
-    return if (className != null) {
-        MemberName(ClassName("", className), name)
-    } else MemberName("", name)
-}
+private fun Declaration.member(): MemberName = MemberName("", name)
 
-private fun KobolIRTree.Expression.Variable.toCodeBlock(escape: Boolean): CodeBlock {
-    return if (escape) {
-        CodeBlock.of("%L", target.member())
+private fun KobolIRTree.Expression.Variable.toCodeBlock(insideString: Boolean): CodeBlock {
+    return if (insideString) {
+        val memberName = target.member()
+        CodeBlock.of("$%M", memberName)
     } else {
         val memberName = target.member()
-        if (memberName.enclosingClassName != null) {
-            CodeBlock.of("${"$"}{%M}", memberName)
-        } else CodeBlock.of("$%M", memberName)
+        CodeBlock.of("%M", memberName)
     }
 }
 
-private fun KobolIRTree.Expression.StringExpression.toTemplate(escape: Boolean = true): CodeBlock = when (this) {
+private fun KobolIRTree.Expression.StringExpression.toTemplate(insideString: Boolean): CodeBlock = when (this) {
     is KobolIRTree.Expression.StringExpression.StringLiteral -> {
-        if (escape) {
-            CodeBlock.of("%S", value)
-        } else {
+        if (insideString) {
             CodeBlock.of("%L", value)
+        } else {
+            CodeBlock.of("%S", value)
         }
     }
 
-    is KobolIRTree.Expression.StringExpression.StringVariable -> toCodeBlock(escape)
-
-    is KobolIRTree.Expression.StringExpression.Concat -> {
-        CodeBlock.of("%L%L", left.toTemplate(escape = false), right.toTemplate(escape = false))
+    is KobolIRTree.Expression.StringExpression.StringVariable -> {
+        toCodeBlock(insideString)
     }
 
-    is KobolIRTree.Expression.StringExpression.Interpolation -> expr.toTemplate(escape)
+    is KobolIRTree.Expression.StringExpression.Concat -> {
+        CodeBlock.of(
+            "%L%L",
+            left.toTemplate(insideString = insideString),
+            right.toTemplate(insideString = insideString)
+        )
+    }
+
+    is KobolIRTree.Expression.StringExpression.Interpolation -> {
+        expr.toTemplate(insideString)
+    }
+
+    is KobolIRTree.Expression.StringExpression.StringVariable.Use -> CodeBlock.of(
+        if (insideString) "\${%L.%L}" else "%L.%L",
+        target.toTemplate(false),
+        variable.toTemplate(false)
+    )
 }
 
 private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = when (this) {
@@ -280,17 +314,28 @@ private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = w
     }
 }
 
-private fun KobolIRTree.Expression.NumberExpression.toTemplate(escape: Boolean = false): CodeBlock = when (this) {
+private fun KobolIRTree.Expression.NumberExpression.toTemplate(insideString: Boolean = false): CodeBlock = when (this) {
     is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleLiteral -> CodeBlock.of("%L", value)
     is KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral -> CodeBlock.of("%L", value)
-    is KobolIRTree.Expression.NumberExpression.NumberVariable -> toCodeBlock(escape)
+    is KobolIRTree.Expression.NumberExpression.NumberVariable -> toCodeBlock(insideString)
+    is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable.Use -> CodeBlock.of(
+        if (insideString) "\${%L.%L}" else "%L.%L",
+        target.toTemplate(false),
+        variable.toTemplate(false)
+    )
+
+    is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable.Use ->
+        CodeBlock.of(
+            if (insideString) "\${%L.%L}" else "%L.%L",
+            target.toTemplate(false),
+            variable.toTemplate(false)
+        )
 }
 
 private fun FileSpec.Builder.addType(data: KobolIRTree.Types) {
     when (data) {
         is KobolIRTree.Types.Function -> addFunction(data.toKotlin())
         is KobolIRTree.Types.Type.Class -> addClass(data)
-        is KobolIRTree.Types.Type.External -> TODO()
         is KobolIRTree.Types.Type.GlobalVariable -> {
             addGlobalVariable(data)
         }
@@ -331,7 +376,7 @@ private fun FileSpec.Builder.addGlobalVariable(data: KobolIRTree.Types.Type.Glob
 
     addProperty(
         declaration.createProperty().toBuilder().apply {
-            if (data.const) {
+            if (declaration is Primitive && declaration.const) {
                 addModifiers(KModifier.CONST)
             }
         }.build()
@@ -367,6 +412,13 @@ private fun Declaration.createProperty(): PropertySpec {
                 INT to value.toTemplate()
             } else INT.copy(nullable = true) to null
         }
+
+        is ObjectDeclaration -> {
+            val value = value
+            if (value == null) {
+                KType.copy(nullable = true) to null
+            } else KType to value.toTemplate()
+        }
     }
     return PropertySpec.builder(
         name = name, type = type
@@ -386,6 +438,7 @@ private val Declaration.KType: TypeName
         is BooleanDeclaration -> BOOLEAN
         is DoubleDeclaration -> DOUBLE
         is IntDeclaration -> INT
+        is ObjectDeclaration -> ClassName(type.packageName ?: "", type.name)
     }
 
 fun generate(file: File, output: File, optimize: Boolean) {

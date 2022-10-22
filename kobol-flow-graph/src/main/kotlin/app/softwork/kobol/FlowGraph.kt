@@ -46,6 +46,7 @@ private fun StringBuilder.toUml(statement: CobolFIRTree.ProcedureTree.Statement)
             is CobolFIRTree.ProcedureTree.Statement.Move -> +":MOVE ${value.toUml()} TO ${target.toUml()};"
             is CobolFIRTree.ProcedureTree.Statement.Perform -> TODO()
             is CobolFIRTree.ProcedureTree.Statement.While -> TODO()
+            is CobolFIRTree.ProcedureTree.Statement.Sql -> TODO()
         }
     }
 }

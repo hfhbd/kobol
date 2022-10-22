@@ -2,6 +2,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
     implementation(projects.kobolLexerParser)
 
+    implementation("com.alecstrong.sql.psi:core:0.42.42-SNAPSHOT")
+    implementation("app.softwork:sqldelight-db2-dialect:0.0.2")
+
     val idea = "222.4345.24"
     compileOnly("com.jetbrains.intellij.platform:core-impl:$idea")
     compileOnly("com.jetbrains.intellij.platform:project-model-impl:$idea")
