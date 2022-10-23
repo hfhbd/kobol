@@ -1,5 +1,6 @@
 package app.softwork.kobol
 
+import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
@@ -7,21 +8,22 @@ import org.gradle.workers.*
 import javax.inject.*
 
 @CacheableTask
-abstract class KobolTask: SourceTask() {
+abstract class KobolTask: DefaultTask() {
     init {
         group = "Kobol"
     }
 
-    @InputFiles
-    @SkipWhenEmpty
-    @IgnoreEmptyDirectories
-    @PathSensitive(PathSensitivity.RELATIVE)
-    override fun getSource(): FileTree {
-        return super.getSource()
-    }
+    @get:InputFiles
+    @get:SkipWhenEmpty
+    @get:IgnoreEmptyDirectories
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val sources: ConfigurableFileCollection
 
     @get:OutputDirectory
     abstract val outputFolder: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val sqlFolder: DirectoryProperty
 
     @get:Input
     abstract val optimize: Property<Boolean>
@@ -43,7 +45,7 @@ abstract class KobolTask: SourceTask() {
     @TaskAction
     internal fun generate() {
         workerExecutor.classLoaderIsolation().submit(ExecuteKobol::class.java) {
-            it.inputFiles.setFrom(source)
+            it.inputFiles.setFrom(sources)
             it.outputFolder.set(outputFolder)
             it.optimize.set(optimize)
         }

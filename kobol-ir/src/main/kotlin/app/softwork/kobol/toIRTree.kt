@@ -12,19 +12,21 @@ import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.KobolIRTree.Types.Type.*
 import java.io.*
 
-fun File.toIR(sqlPrecompiler: SqlPrecompiler? = null) = toTree().toIRTree(sqlPrecompiler)
+fun File.toIR(sqlPrecompiler: ((String) -> SqlPrecompiler)? = null) = toTree().toIRTree(sqlPrecompiler)
 
-fun Iterable<File>.toIR(sqlPrecompiler: SqlPrecompiler? = null) = toTree().map {
+fun Iterable<File>.toIR(sqlPrecompiler: ((String) -> SqlPrecompiler)? = null) = toTree().map {
     it.toIRTree(sqlPrecompiler)
 }
 
-fun CobolFIRTree.toIRTree(sqlPrecompiler: SqlPrecompiler? = null): KobolIRTree {
+fun CobolFIRTree.toIRTree(sqlPrecompiler: ((String) -> SqlPrecompiler)? = null): KobolIRTree {
+    val name = id.programID.toKotlinName()
+    val sqlCompiler = sqlPrecompiler?.invoke(name)
     val dataTypes = mutableListOf<Types.Type>()
     val sqlInit = mutableListOf<Types.Function.Statement>()
     val workingStorage = data?.workingStorage
     if (workingStorage != null) {
         for (data in workingStorage) {
-            when (val ir = data.toIR(sqlPrecompiler)) {
+            when (val ir = data.toIR(sqlCompiler)) {
                 is IRResult.Typ -> dataTypes.add(ir.type)
                 is IRResult.SqlInit -> sqlInit.addAll(ir.sqlInit)
             }
@@ -45,9 +47,9 @@ fun CobolFIRTree.toIRTree(sqlPrecompiler: SqlPrecompiler? = null): KobolIRTree {
     }
     val externalIR = external.toIR(dataTypes)
 
-    val (main, functions) = procedure.functions(dataTypes + externalIR, sqlInit, sqlPrecompiler)
+    val (main, functions) = procedure.functions(dataTypes + externalIR, sqlInit, sqlCompiler)
     return KobolIRTree(
-        name = id.programID.toKotlinName(), main = main, types = functions + dataTypes + externalIR
+        name = name, main = main, types = functions + dataTypes + externalIR
     )
 }
 

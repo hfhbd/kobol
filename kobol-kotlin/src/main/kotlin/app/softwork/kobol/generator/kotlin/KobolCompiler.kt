@@ -441,12 +441,12 @@ private val Declaration.KType: TypeName
         is ObjectDeclaration -> ClassName(type.packageName ?: "", type.name)
     }
 
-fun generate(file: File, output: File, optimize: Boolean) {
-    generate(setOf(file), output, optimize)
+fun generate(file: File, output: File, optimize: Boolean, sqlPrecompiler: ((String) -> SqlPrecompiler)? = null) {
+    generate(setOf(file), output, optimize, sqlPrecompiler)
 }
 
-fun generate(files: Set<File>, output: File, optimize: Boolean) {
-    for (ir in files.toIR()) {
+fun generate(files: Set<File>, output: File, optimize: Boolean, sqlPrecompiler: ((String) -> SqlPrecompiler)? = null) {
+    for (ir in files.toIR(sqlPrecompiler)) {
         val finished = if (optimize) {
             ir.optimize()
         } else ir
