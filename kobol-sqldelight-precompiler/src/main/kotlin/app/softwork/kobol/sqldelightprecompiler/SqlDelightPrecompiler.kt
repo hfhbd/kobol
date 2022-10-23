@@ -154,12 +154,12 @@ class SqlDelightPrecompiler(
     )
 
     private val convertRegex = """\s(.)""".toRegex()
-
-    private val invalid = """[,:.()]""".toRegex()
     private val String.convert
         get() = lowercase().replace(convertRegex) {
             it.groups[1]!!.value.single().uppercase()
-        }.replace(invalid, "")
+        }.filter {
+            it.isLetterOrDigit()
+        }
 
     override fun convert(
         sql: CobolFIRTree.ProcedureTree.Statement.Sql,

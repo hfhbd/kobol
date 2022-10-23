@@ -389,13 +389,13 @@ class CobolParserTest {
                     "SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1",
                     hostVariables = listOf(NumberVariable(foo)),
                     parameter = emptyList(),
-                    type = Execute
+                    type = Select
                 )
                 +CobolFIRTree.ProcedureTree.Statement.Sql(
                     "SET :FOO = 42",
                     hostVariables = listOf(NumberVariable(foo)),
                     parameter = emptyList(),
-                    type = Execute
+                    type = Select
                 )
                 +CobolFIRTree.ProcedureTree.Statement.Sql(
                     "SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC",

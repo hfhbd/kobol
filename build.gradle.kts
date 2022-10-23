@@ -16,7 +16,7 @@ allprojects {
             name = "GitHubPackages"
             credentials {
                 username = "hfhbd"
-                password = "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"
+                password = "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"
             }
         }
         mavenCentral()

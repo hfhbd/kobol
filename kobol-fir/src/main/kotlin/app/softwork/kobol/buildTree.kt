@@ -492,7 +492,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                     },
                     type = when {
                         it.insertStmt != null -> Statement.Sql.SqlType.Insert
-                        it.compoundSelectStmt != null -> Statement.Sql.SqlType.Select
+                        it.compoundSelectStmt != null || it.setStmt != null -> Statement.Sql.SqlType.Select
                         it.deleteStmtLimited != null -> Statement.Sql.SqlType.Delete
                         else -> Statement.Sql.SqlType.Execute
                     }
