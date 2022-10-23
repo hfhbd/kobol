@@ -6,7 +6,7 @@ class SqlTest {
     @Test
     fun selectInto() {
         //language=cobol
-        val input = """
+        val (input, sql) = """
         123456 IDENTIFICATION DIVISION.
         123456 PROGRAM-ID. SQL.
         123456 DATA DIVISION.
@@ -17,12 +17,14 @@ class SqlTest {
         123456 PROCEDURE DIVISION.
         123456* Get AVG of 42
         123456 EXEC SQL
-        123456   SELECT AVG(42, :BAR), 42 INTO :FOO, :BAZ FROM SYSIBM.SYSDUMMY1;
+        123456 SELECT AVG(42, :BAR), 42 
+        123456  INTO :FOO, :BAZ 
+        123456 FROM SYSIBM.SYSDUMMY1;
         123456 END-EXEC
         123456 DISPLAY FOO
         123456 DISPLAY BAR
         123456 DISPLAY BAZ.
-        """.trimIndent().toIR()
+        """.trimIndent().toIRWithSql()
 
         val output = generate(input)
 
@@ -44,12 +46,12 @@ class SqlTest {
           /**
            * Get AVG of 42
            */
-          val selectAvg42bar42IntofoobazFromSysibmsysdummy1: SelectAvg42bar42IntofoobazFromSysibmsysdummy1 =
-              db.sqlQueries.selectAvg42bar42IntofoobazFromSysibmsysdummy1(BAR)
+          val selectAvg42bar42intofoobazFromSysibmsysdummy1: SelectAvg42bar42intofoobazFromSysibmsysdummy1 =
+              db.sqlQueries.selectAvg42bar42intofoobazFromSysibmsysdummy1(BAR)
           .executeAsOne()
         
-          FOO = selectAvg42bar42IntofoobazFromSysibmsysdummy1.FOO
-          BAZ = selectAvg42bar42IntofoobazFromSysibmsysdummy1.BAZ
+          FOO = selectAvg42bar42intofoobazFromSysibmsysdummy1.FOO
+          BAZ = selectAvg42bar42intofoobazFromSysibmsysdummy1.BAZ
           println(FOO)
           println(BAR)
           println(BAZ)
@@ -57,12 +59,25 @@ class SqlTest {
         
         """.trimIndent()
         assertEquals(expected, output.toString())
+
+        assertEquals(
+            """
+            |/**
+            | * Get AVG of 42
+            | */
+            |selectAvg42bar42intofoobazFromSysibmsysdummy1:
+            |SELECT AVG(42, :BAR), 42
+            | INTO :FOO, :BAZ
+            |FROM SYSIBM.SYSDUMMY1;
+            |
+        """.trimMargin(), sql.queries.single().toString()
+        )
     }
 
     @Test
     fun createTable() {
         //language=cobol
-        val input = """
+        val (input, sql) = """
         123456 IDENTIFICATION DIVISION.
         123456 PROGRAM-ID. SQL.
         123456 DATA DIVISION.
@@ -71,8 +86,8 @@ class SqlTest {
         123456* TABLE COMMENT II
         123456 EXEC SQL
         123456 CREATE TABLE foo(
-        123456 id INTEGER,
-        123456 a INTEGER
+        123456  id INTEGER,
+        123456  a INTEGER
         123546 );
         123456 END-EXEC.
         123456 77 FOO PIC 9(2).
@@ -99,7 +114,7 @@ class SqlTest {
         123456 END-EXEC
         123456 DISPLAY FOO
         123456 DISPLAY BAR.
-        """.trimIndent().toIR()
+        """.trimIndent().toIRWithSql()
 
         val output = generate(input)
 
@@ -149,5 +164,47 @@ class SqlTest {
         
         """.trimIndent()
         assertEquals(expected, output.toString())
+
+        assertEquals(
+            """
+            |/**
+            | * TABLE COMMENT
+            | * TABLE COMMENT II
+            | */
+            |CREATE TABLE foo(
+            | id INTEGER,
+            | a INTEGER
+            |);
+            |
+        """.trimMargin(), sql.migrations.single().toString()
+        )
+
+        assertEquals(
+            """
+            |/**
+            | * INSERT COMMENT
+            | * INSERT COMMENT II
+            | */
+            |insertIntoFooValues12:
+            |INSERT INTO foo VALUES (1, 2);
+            |
+            |/**
+            | * COMMENT
+            | * COMMENT II
+            | */
+            |selectIdAIntofoobarFromFoo:
+            |SELECT id, a INTO :FOO, :BAR FROM foo;
+            |
+            |selectIdAIntofoobarFromFoo_:
+            |SELECT id, a INTO :FOO, :BAR FROM foo;
+            |
+            |setfoobarSelectIdAFromFoo:
+            |SET :FOO, :BAR = SELECT id, a FROM foo;
+            |
+            |insertIntoFooValuesfoobar:
+            |INSERT INTO foo VALUES (:FOO, :BAR);
+            |
+        """.trimMargin(), sql.queries.single().toString()
+        )
     }
 }

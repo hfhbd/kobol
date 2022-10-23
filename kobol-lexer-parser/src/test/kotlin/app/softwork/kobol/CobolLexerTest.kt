@@ -371,7 +371,7 @@ class CobolLexerTest {
             123456 WORKING-STORAGE SECTION.
             123456 EXEC SQL FOO
             123456 BAR BAR
-            123456 BAR BAR
+            123456  BAR BAR
             123456 END-EXEC.
         """.trimIndent()
         ) {
