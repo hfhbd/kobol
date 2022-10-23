@@ -2,6 +2,7 @@ package app.softwork.kobol.generator.kotlin
 
 import app.softwork.kobol.*
 import app.softwork.kobol.sqldelightprecompiler.*
+import app.softwork.sqldelightwriter.*
 import java.io.*
 import java.nio.file.*
 import kotlin.test.*
@@ -55,9 +56,21 @@ internal fun String.toIR(vararg including: Pair<String, String>): KobolIRTree {
     val files = including.map { (name, content) ->
         File(temp, "$name.cbl").apply { writeText(content) }
     }
-    return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR(
+    return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR().single()
+}
+
+internal fun String.toIRWithSql(vararg including: Pair<String, String>): Pair<KobolIRTree, SqFiles> {
+    val temp = Files.createTempDirectory("testing").toFile()
+    val files = including.map { (name, content) ->
+        File(temp, "$name.cbl").apply { writeText(content) }
+    }
+    var sqlCompiler: SqlDelightPrecompiler? = null
+    val kobol = (files + File(temp, "testing.cbl").apply { writeText(this@toIRWithSql) }).toIR(
         sqlPrecompiler = {
-            SqlDelightPrecompiler(dbName = "DB", temp, it, it)
+            sqlCompiler = SqlDelightPrecompiler(dbName = "DB", temp, it, it)
+            sqlCompiler!!
         }
     ).single()
+
+    return kobol to sqlCompiler!!.files!!
 }

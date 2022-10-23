@@ -165,7 +165,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                 } else if (sql != null) {
                     val sqlString = sql.execSql.children.joinToString("") {
                         it.text
-                    }.trim()
+                    }.trim().replace("\n ", "\n")
                     val include = """INCLUDE (.*)""".toRegex()
                     if (sqlString.contains(include)) {
                         include.findAll(sqlString).forEach {
@@ -436,14 +436,9 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
         }
 
         proc.execSql != null -> {
-            val sql = proc.execSql!!.sqlsList.joinToString("") {
-                val any = it.any
-                if (any != null) {
-                    any.text
-                } else {
-                    " "
-                }
-            }.trim()
+            val sql = proc.execSql!!.children.joinToString("") {
+                it.text
+            }.trim().replace(" \n ", "\n")
 
             val file = LightVirtualFile("sql.inlinesql", SqlInlineLanguage, sql)
             val sqlFile = PsiManager.getInstance(proc.project).findFile(file) as InlineSqlFile

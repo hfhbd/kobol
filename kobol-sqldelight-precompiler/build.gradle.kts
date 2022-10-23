@@ -1,8 +1,8 @@
 dependencies {
-    implementation(projects.kobolIr)
-    implementation(projects.kobolFir)
+    api(projects.kobolIr)
+    api(projects.kobolFir)
 
-    implementation("app.softwork:sqldelight-writer:0.0.5")
+    api("app.softwork:sqldelight-writer:0.0.5")
 
     testImplementation(kotlin("test"))
 }

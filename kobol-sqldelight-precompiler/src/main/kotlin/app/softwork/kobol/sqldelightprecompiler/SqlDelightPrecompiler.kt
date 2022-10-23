@@ -16,7 +16,8 @@ class SqlDelightPrecompiler(
     val packageName: String,
     val fileName: String
 ) : SqlPrecompiler {
-    private var files: SqFiles? = null
+    var files: SqFiles? = null
+        private set
 
     override fun generatedTypes(): List<KobolIRTree.Types> = generatedTypes + driver
 
@@ -112,12 +113,14 @@ class SqlDelightPrecompiler(
         val firstCall = files == null
         files = writeSq(packageName, existingFiles = files) {
             migrationFile(1) {
-                val javaDoc = sqlInit.comments.joinToString(
-                    prefix = "/**",
-                    postfix = " */${System.lineSeparator()}",
-                    separator = "\n"
-                ) { " * $it" }
-                val sqlWithJavaDoc = javaDoc + sqlInit.sql + ";"
+                val javaDoc = if (sqlInit.comments.isNotEmpty()) {
+                    sqlInit.comments.joinToString(
+                        prefix = "/**\n",
+                        postfix = " */\n",
+                        separator = ""
+                    ) { " * $it\n" }
+                } else ""
+                val sqlWithJavaDoc = javaDoc + sqlInit.sql
                 +sqlWithJavaDoc
             }
         }
@@ -249,6 +252,7 @@ class SqlDelightPrecompiler(
                             )
                         }
                     }
+
                     is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> {
                         KobolIRTree.Expression.StringExpression.StringVariable.Use(
                             obj,
