@@ -30,7 +30,6 @@ class SqlTest {
         val expected = """
         package sql
         
-        import `selectAvg(42bar)42IntofoobazFromSysibmsysdummy1`
         import kotlin.Int
         import kotlin.Unit
         
@@ -45,13 +44,12 @@ class SqlTest {
           /**
            * Get AVG of 42
            */
-          val `selectAvg(42bar)42IntofoobazFromSysibmsysdummy1`:
-              `selectAvg(42bar)42IntofoobazFromSysibmsysdummy1` =
-              db.sqlQueries.`selectAvg(42bar)42IntofoobazFromSysibmsysdummy1`(BAR)
+          val selectAvg42bar42IntofoobazFromSysibmsysdummy1: SelectAvg42bar42IntofoobazFromSysibmsysdummy1 =
+              db.sqlQueries.selectAvg42bar42IntofoobazFromSysibmsysdummy1(BAR)
           .executeAsOne()
         
-          FOO = `selectAvg(42bar)42IntofoobazFromSysibmsysdummy1`.FOO
-          BAZ = `selectAvg(42bar)42IntofoobazFromSysibmsysdummy1`.BAZ
+          FOO = selectAvg42bar42IntofoobazFromSysibmsysdummy1.FOO
+          BAZ = selectAvg42bar42IntofoobazFromSysibmsysdummy1.BAZ
           println(FOO)
           println(BAR)
           println(BAZ)
@@ -102,7 +100,6 @@ class SqlTest {
         
         import kotlin.Int
         import kotlin.Unit
-        import selectIdAIntofoobarFromFoo
         
         public var FOO: Int? = null
         
@@ -113,12 +110,12 @@ class SqlTest {
           DB.Schema.migrate(driver, 0, 1)
           // INSERT COMMENT
           // INSERT COMMENT II
-          db.sqlQueries.`insertIntoFooValues(12)`()
+          db.sqlQueries.insertIntoFooValues12()
           /**
            * COMMENT
            * COMMENT II
            */
-          val selectIdAIntofoobarFromFoo: selectIdAIntofoobarFromFoo =
+          val selectIdAIntofoobarFromFoo: SelectIdAIntofoobarFromFoo =
               db.sqlQueries.selectIdAIntofoobarFromFoo()
           .executeAsOne()
         
