@@ -48,6 +48,7 @@ fun CobolFIRTree.toIRTree(sqlPrecompiler: ((String) -> SqlPrecompiler)? = null):
     val externalIR = external.toIR(dataTypes)
 
     val (main, functions) = procedure.functions(dataTypes + externalIR, sqlInit, sqlCompiler)
+    sqlCompiler?.close()
     return KobolIRTree(
         name = name, main = main, types = functions + dataTypes + externalIR
     )

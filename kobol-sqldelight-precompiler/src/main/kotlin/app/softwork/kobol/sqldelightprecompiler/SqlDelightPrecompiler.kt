@@ -117,7 +117,7 @@ class SqlDelightPrecompiler(
                     postfix = " */${System.lineSeparator()}",
                     separator = "\n"
                 ) { " * $it" }
-                val sqlWithJavaDoc = javaDoc + sqlInit.sql
+                val sqlWithJavaDoc = javaDoc + sqlInit.sql + ";"
                 +sqlWithJavaDoc
             }
         }
@@ -155,7 +155,7 @@ class SqlDelightPrecompiler(
 
     private val convertRegex = """\s(.)""".toRegex()
 
-    private val invalid = """[,:.]""".toRegex()
+    private val invalid = """[,:.()]""".toRegex()
     private val String.convert
         get() = lowercase().replace(convertRegex) {
             it.groups[1]!!.value.single().uppercase()
@@ -174,7 +174,7 @@ class SqlDelightPrecompiler(
                     queryName += "_"
                 }
                 query(name = queryName, kdoc = sql.comments) {
-                    +sql.sql
+                    +"${sql.sql};"
                 }
             }
         }
@@ -207,7 +207,7 @@ class SqlDelightPrecompiler(
             if (first) listOf(db, call) else listOf(call)
         } else {
             val result = Class(
-                name = queryName,
+                name = queryName.replaceFirstChar { if (it.isLowerCase()) it.titlecaseChar() else it },
                 constructor = Class.Constructor(emptyList()),
                 functions = emptyList(),
                 members = sql.hostVariables.map {
@@ -219,7 +219,7 @@ class SqlDelightPrecompiler(
                 isObject = false,
                 init = emptyList(),
                 doc = emptyList(),
-                packageName = null
+                packageName = fileName
             )
 
             val callResult = ObjectDeclaration(

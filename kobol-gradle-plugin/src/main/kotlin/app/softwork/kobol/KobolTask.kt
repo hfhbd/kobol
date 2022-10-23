@@ -22,6 +22,7 @@ abstract class KobolTask: DefaultTask() {
     @get:OutputDirectory
     abstract val outputFolder: DirectoryProperty
 
+    @get:Optional
     @get:OutputDirectory
     abstract val sqlFolder: DirectoryProperty
 
@@ -48,6 +49,7 @@ abstract class KobolTask: DefaultTask() {
             it.inputFiles.setFrom(sources)
             it.outputFolder.set(outputFolder)
             it.optimize.set(optimize)
+            it.sqlFolder.set(sqlFolder)
         }
     }
 }
