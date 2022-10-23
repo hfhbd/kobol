@@ -112,7 +112,7 @@ class SqlDelightPrecompiler(
     override fun convert(sqlInit: WorkingStorage.Sql): List<Function.Statement> {
         val firstCall = files == null
         files = writeSq(packageName, existingFiles = files) {
-            migrationFile(1) {
+            migrationFile(0) {
                 val javaDoc = if (sqlInit.comments.isNotEmpty()) {
                     sqlInit.comments.joinToString(
                         prefix = "/**\n",
