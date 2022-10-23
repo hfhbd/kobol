@@ -88,6 +88,15 @@ class SqlTest {
         123456 EXEC SQL
         123456   SELECT id, a INTO :FOO, :BAR FROM foo;
         123456 END-EXEC
+        123456 EXEC SQL
+        123456   SELECT id, a INTO :FOO, :BAR FROM foo;
+        123456 END-EXEC
+        123456 EXEC SQL
+        123456   SET :FOO, :BAR = SELECT id, a FROM foo;
+        123456 END-EXEC
+        123456 EXEC SQL
+        123456   INSERT INTO foo VALUES (:FOO, :BAR);
+        123456 END-EXEC
         123456 DISPLAY FOO
         123456 DISPLAY BAR.
         """.trimIndent().toIR()
@@ -121,6 +130,19 @@ class SqlTest {
         
           FOO = selectIdAIntofoobarFromFoo.FOO
           BAR = selectIdAIntofoobarFromFoo.BAR
+          val selectIdAIntofoobarFromFoo_: SelectIdAIntofoobarFromFoo_ =
+              db.sqlQueries.selectIdAIntofoobarFromFoo_()
+          .executeAsOne()
+        
+          FOO = selectIdAIntofoobarFromFoo_.FOO
+          BAR = selectIdAIntofoobarFromFoo_.BAR
+          val setfoobarSelectIdAFromFoo: SetfoobarSelectIdAFromFoo =
+              db.sqlQueries.setfoobarSelectIdAFromFoo()
+          .executeAsOne()
+        
+          FOO = setfoobarSelectIdAFromFoo.FOO
+          BAR = setfoobarSelectIdAFromFoo.BAR
+          db.sqlQueries.insertIntoFooValuesfoobar(FOO, BAR)
           println(FOO)
           println(BAR)
         }
