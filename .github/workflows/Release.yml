@@ -1,15 +1,15 @@
-name: CD
+name: Release
 
 on:
-  push:
-    branches: [ main ]
+  release:
+    types: [created]
 
 concurrency:
   group: "cd"
   cancel-in-progress: false
 
 jobs:
-  cd:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Set environment for version
-        run: version="0.0.${{ github.run_number }}"; echo "version=${version}" >> $GITHUB_ENV
+        run: long="${{ github.ref }}"; version=${long#"refs/tags/v"}; echo "version=${version}" >> $GITHUB_ENV
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
       - uses: actions/configure-pages@v2
