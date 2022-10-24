@@ -65,29 +65,25 @@ data class CobolFIRTree(
 
     @Serializable
     data class DataTree(
-        val fileSection: FileSection? = null,
+        val fileSection: List<FileSection> = emptyList(),
         val workingStorage: List<WorkingStorage> = emptyList(),
         val linkingSection: List<WorkingStorage> = emptyList(),
         val comments: List<String> = emptyList()
     ) {
         @Serializable
         data class FileSection(
-            val descriptions: List<FileDescription> = emptyList(), val comments: List<String> = emptyList()
+            val descriptions: FileDescription,
+            val records: List<WorkingStorage.Record>,
         ) {
             @Serializable
-            sealed interface FileDescription {
-                val comments: List<String>
-
-                @Serializable
-                data class FileDefinition(
-                    val name: String,
-                    val recording: String,
-                    val blocks: Int? = null,
-                    @Serializable(with = IntRangeSerializer::class) val records: IntRange? = null,
-                    val dataRecord: String? = null,
-                    override val comments: List<String> = emptyList()
-                ) : FileDescription
-            }
+            data class FileDescription(
+                val name: String,
+                val dataRecord: String,
+                val recording: String? = null,
+                val blocks: Int? = null,
+                @Serializable(with = IntRangeSerializer::class) val records: IntRange? = null,
+                val comments: List<String> = emptyList()
+            )
         }
 
         @Serializable
@@ -102,7 +98,7 @@ data class CobolFIRTree(
                 val name: String,
                 val elements: List<Elementar> = emptyList(),
                 override val comments: List<String> = emptyList()
-            ) : WorkingStorage, FileSection.FileDescription {
+            ) : WorkingStorage {
                 constructor(
                     name: String,
                     comments: List<String> = emptyList(),

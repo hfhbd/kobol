@@ -141,6 +141,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
           return number();
       }
    "WORKING-STORAGE"               { yybegin(WORKINGSTORAGE); return WORKING_STORAGE; }
+   "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
 }
 
 <FD> {
