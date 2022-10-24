@@ -152,6 +152,17 @@ private fun MutableList<CobolFIRTree.DataTree.WorkingStorage>.record(
     return currentRecord1
 }
 
+private fun List<CobolRecordDef>.toRecords() = buildList {
+    var currentRecord: Record? = null
+    for (record: CobolRecordDef in this@toRecords) {
+        currentRecord = record(record, currentRecord)
+    }
+    if (currentRecord != null) {
+        add(currentRecord)
+    }
+} as List<Record>
+
+
 private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
     val definitions = workingStorageSection?.stmList?.let {
         buildList {
@@ -186,19 +197,31 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
             currentRecord?.let { add(it) }
         }
     }
-    val linkage = linkingSection?.recordDefList?.let {
-        buildList {
-            var currentRecord: Record? = null
-            for (record: CobolRecordDef in it) {
-                currentRecord = record(record, currentRecord)
-            }
-            if (currentRecord != null) {
-                add(currentRecord!!)
-            }
+    val linkage = linkingSection?.recordDefList?.toRecords()
+
+    val fileSection = fileSection?.let {
+        it.fileDescriptionsList.map {
+            CobolFIRTree.DataTree.FileSection(
+                descriptions = it.fileDescription.let {
+                    CobolFIRTree.DataTree.FileSection.FileDescription(
+                        name = it.fileDescriptionID.varName.text,
+                        dataRecord = it.dataRecord.varName.text,
+                        recording = it.recordingClause.varName.text,
+                        blocks = it.blockClause?.number?.text?.toInt(),
+                        records = it.fileRecord?.number?.text?.toInt()?.let { start ->
+                            val other = it.fileRecord!!.fileRecordTo?.number?.text?.toInt() ?: start
+                            start.rangeTo(other)
+                        },
+                        comments = it.comments.asComments()
+                    )
+                },
+                it.recordDefList.toRecords()
+            )
         }
     }
 
     return CobolFIRTree.DataTree(
+        fileSection = fileSection ?: emptyList(),
         workingStorage = definitions ?: emptyList(),
         linkingSection = linkage ?: emptyList(),
         comments = commentsList.asComments()

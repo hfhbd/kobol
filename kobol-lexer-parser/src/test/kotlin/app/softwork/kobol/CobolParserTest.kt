@@ -26,8 +26,8 @@ class CobolParserTest {
                 123456 FD FOO
                 123456     RECORDING               V
                 123456     LABEL RECORD            STANDARD
-                123456     DATA RECORD             BAR.
-                123456 01 BAR.
+                123456     DATA RECORD             BAR-1.
+                123456 01 BAR-1.
                 123456    05 FOO PIC X(3).
                 123456    05 BAR PIC A(3).            
                 123456 WORKING-STORAGE SECTION.
@@ -49,7 +49,23 @@ class CobolParserTest {
 
         assertEquals(CobolFIRTree(id = CobolFIRTree.ID(
             programID = "HELLO"
-        ), data = CobolFIRTree.DataTree(workingStorage = build {
+        ), data = CobolFIRTree.DataTree(
+            fileSection = build {
+                +CobolFIRTree.DataTree.FileSection(
+                    descriptions = CobolFIRTree.DataTree.FileSection.FileDescription(
+                        name = "FOO",
+                        dataRecord = "BAR-1",
+                        recording = "V"
+                    ),
+                    records = build {
+                        +Record("BAR-1") {
+                            +StringElementar(name = "FOO", recordName = "BAR-1", value = null, formatter = Simple(3))
+                            +StringElementar(name = "BAR", recordName = "BAR-1", value = null, formatter = Simple(3))
+                        }
+                    }
+                )
+            },
+            workingStorage = build {
             +Record(name = "RPI") {
                 +world
                 +StringElementar(name = "ANSWER", recordName = "RPI", formatter = Simple(6))
