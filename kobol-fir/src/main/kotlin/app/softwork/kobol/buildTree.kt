@@ -331,7 +331,11 @@ private fun single(
             name = name,
             recordName = recordName,
             formatter = format,
-            value = value?.toDouble(),
+            value = value?.let {
+                if (it.startsWith("ZERO")) {
+                    0.0
+                } else it.toDouble()
+            },
             comments = comments.asComments(),
             occurs = occurs.toFir(previous),
             compressed = compressed?.let {
@@ -344,7 +348,11 @@ private fun single(
         name = name,
         recordName = recordName,
         formatter = format,
-        value = value?.toDouble(),
+        value = value?.let {
+            if (it.startsWith("ZERO")) {
+                0.0
+            } else it.toDouble()
+        },
         signed = true,
         comments = comments.asComments(),
         occurs = occurs.toFir(previous),
@@ -355,14 +363,18 @@ private fun single(
         name = name,
         recordName = recordName,
         formatter = format,
-        value = value?.toDouble(),
+        value = value?.let {
+            if (it.startsWith("ZERO")) {
+                0.0
+            } else it.toDouble()
+        },
         signed = true,
         comments = comments.asComments(),
         occurs = occurs.toFir(previous),
         compressed = compressed?.let { NumberElementar.Compressed.valueOf(it.replace("-", "")) }
     )
 
-    else -> TODO()
+    else -> TODO(type)
 }
 
 private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = CobolFIRTree.ProcedureTree(
