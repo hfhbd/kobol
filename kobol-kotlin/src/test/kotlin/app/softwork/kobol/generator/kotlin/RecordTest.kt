@@ -21,7 +21,7 @@ class RecordTest {
         123456* BAR I
         123456* BAR II
         123456 01 BAR.
-        123456 05 WORLD PIC X(6) VALUE "BAR".
+        123456 05 WORLD PIC x(6) VALUE "BAR".
         123456 PROCEDURE                   DIVISION.
         123456  MOVE 42 TO WORLD OF FOO
         123456  * Some Comment
