@@ -95,7 +95,7 @@ class ForEachTest {
         123456 PROGRAM-ID.                 HELLO.
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
-        123456 77 WORLD PIC 9(6) VALUE 1.
+        123456 77 WORLD PIC 9(6) VALUE ZERO.
         123456 PROCEDURE                   DIVISION.
         123456 PERFORM VARYING WORLD FROM 1 BY 3 UNTIL WORLD = 42 
         123456    DISPLAY 'FOO' 
@@ -114,7 +114,7 @@ class ForEachTest {
         import kotlin.Int
         import kotlin.Unit
         
-        public var WORLD: Int = 1
+        public var WORLD: Int = 0
         
         public fun main(): Unit {
           WORLD = 1
