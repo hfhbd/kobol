@@ -316,7 +316,7 @@ private fun single(
     occurs: List<CobolOccursClause>,
     previous: List<NumberElementar>,
     compressed: String?
-): Elementar = when (type) {
+): Elementar = when (type.uppercase()) {
     "A", "X" -> StringElementar(
         name = name,
         recordName = recordName,
@@ -356,7 +356,9 @@ private fun single(
         signed = true,
         comments = comments.asComments(),
         occurs = occurs.toFir(previous),
-        compressed = compressed?.let { NumberElementar.Compressed.valueOf(it.replace("-", "")) }
+        compressed = compressed?.let {
+            NumberElementar.Compressed.valueOf(it.replace("-", ""))
+        }
     )
 
     "V9" -> NumberElementar(
@@ -371,7 +373,9 @@ private fun single(
         signed = true,
         comments = comments.asComments(),
         occurs = occurs.toFir(previous),
-        compressed = compressed?.let { NumberElementar.Compressed.valueOf(it.replace("-", "")) }
+        compressed = compressed?.let {
+            NumberElementar.Compressed.valueOf(it.replace("-", ""))
+        }
     )
 
     else -> TODO(type)
