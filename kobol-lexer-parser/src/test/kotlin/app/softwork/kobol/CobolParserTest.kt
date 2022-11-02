@@ -169,7 +169,8 @@ class CobolParserTest {
             123456 FILE-CONTROL.
             123456* FOO I
             123456* FOO II
-            123456     SELECT FOO-FILE ASSIGN FOO FILE STATUS FOO-STATUS.
+            123456     SELECT FOO-FILE ASSIGN FOO FILE STATUS IS FOO-STATUS.
+            123456     SELECT FOO-FILE2 ASSIGN TO 'FOO' FILE STATUS IS FOO-STATUS.
             123456 PROCEDURE                   DIVISION.
             123456     DISPLAY "HELLO".
         """.trimIndent()
@@ -187,6 +188,11 @@ class CobolParserTest {
                                     fileVariable = "FOO",
                                     fileStatus = "FOO-STATUS",
                                     comments = listOf("FOO I", "FOO II")
+                                ),
+                                InputOutput.FileControl.File(
+                                    file = "FOO-FILE2",
+                                    fileVariable = "FOO",
+                                    fileStatus = "FOO-STATUS"
                                 )
                             ), comments = listOf("FILE I", "FILE II")
                         ), comments = listOf("INPUT I", "INPUT II")
