@@ -74,9 +74,10 @@ block_clause ::= BLOCK [CONTAINS] number [RECORDS]
 fileRecord ::= RECORD [IS] [VARYING] number [fileRecordTo]
 fileRecordTo ::= TO number [fileDepend]
 fileDepend ::= DEPENDING [ON] varName
-label_clause ::= LABEL RECORD (STANDARD | varName)
+label_clause ::= LABEL (RECORD | RECORDS) [ARE] (STANDARD | varName)
 fileDescriptions ::= fileDescription record_def+
-fileDescription ::= comments FD fileDescriptionID recording_clause [block_clause] [fileRecord] label_clause dataRecord DOT
+fileDescription ::= comments FD fileDescriptionID (fileDescriptors)+ DOT
+fileDescriptors ::= recording_clause | block_clause | fileRecord | label_clause | dataRecord
 fileDescriptionID ::= varName
 dataRecord ::= DATA RECORD [IS] varName
 
