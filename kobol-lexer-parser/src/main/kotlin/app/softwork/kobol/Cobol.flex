@@ -120,6 +120,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "FILE"                          { return CobolTypes.FILE; }
     "STATUS"                        { return STATUS; }
     "TO"                            { return TO; }
+    "IS"                            { return IS; }
     "."                             { yybegin(FILE_CONTROL_START); return DOT; }
     {VARNAME}                       { return VARNAME; }
 }
@@ -152,6 +153,12 @@ VARNAME=[a-zA-Z]([\w\-_])*
    "BLOCK"                         { return CobolTypes.BLOCK; }
    "RECORDS"                       { return RECORDS; }
    "TO"                            { return TO; }
+   "IS"                            { return IS; }
+   "CONTAINS"                      { return CONTAINS; }
+   "MODE"                          { return MODE; }
+   "VARYING"                       { return VARYING; }
+   "DEPENDING"                     { return DEPENDING; }
+   "ON"                            { return ON; }
    "RECORD"                        { return CobolTypes.RECORD; }
    "STANDARD"                      { return STANDARD; }
    "."                             { yybegin(FILE); return DOT; }

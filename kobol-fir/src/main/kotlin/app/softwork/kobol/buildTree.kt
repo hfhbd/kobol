@@ -101,9 +101,14 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(con
         fileControl = it.fileControlClause?.let {
             FileControl(
                 it.fileConfigList.map {
+                    val fileVariable: String = it.fileConfigAssign.fileAssignID.let {
+                        if (it.varName != null) {
+                            it.varName!!.text
+                        } else it.string!!.text.drop(1).dropLast(1)
+                    }
                     FileControl.File(
                         file = it.fileConfigSelect.fileID.varName.text,
-                        fileVariable = it.fileConfigAssign.fileAssignID.varName.text,
+                        fileVariable = fileVariable,
                         fileStatus = it.fileConfigStatus.fileStatusID.varName.text,
                         comments = it.comments.asComments()
                     )

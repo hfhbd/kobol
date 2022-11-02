@@ -62,22 +62,23 @@ fileConfig ::= comments fileConfigSelect fileConfigAssign fileConfigStatus DOT
 fileConfigSelect ::= SELECT fileID
 fileID ::= varName
 fileConfigAssign ::= ASSIGN [TO] fileAssignID
-fileAssignID ::= varName
-fileConfigStatus ::= FILE STATUS fileStatusID
+fileAssignID ::= varName | string
+fileConfigStatus ::= FILE STATUS [IS] fileStatusID
 fileStatusID ::= varName
 
 dataDiv ::= comments DATA DIVISION DOT comments [fileSection] [workingStorageSection] [linkingSection]
 
 fileSection ::= comments FILE SECTION DOT fileDescriptions*
-recording_clause ::= RECORDING varName
-block_clause ::= BLOCK number [RECORDS]
-fileRecord ::= RECORD number [fileRecordTo]
-fileRecordTo ::= TO number
+recording_clause ::= RECORDING [MODE] [IS] varName
+block_clause ::= BLOCK [CONTAINS] number [RECORDS]
+fileRecord ::= RECORD [IS] [VARYING] number [fileRecordTo]
+fileRecordTo ::= TO number [fileDepend]
+fileDepend ::= DEPENDING [ON] varName
 label_clause ::= LABEL RECORD (STANDARD | varName)
 fileDescriptions ::= fileDescription record_def+
 fileDescription ::= comments FD fileDescriptionID recording_clause [block_clause] [fileRecord] label_clause dataRecord DOT
 fileDescriptionID ::= varName
-dataRecord ::= DATA RECORD varName
+dataRecord ::= DATA RECORD [IS] varName
 
 workingStorageSection ::= comments WORKING-STORAGE SECTION DOT stm*
 
@@ -118,7 +119,7 @@ accepting ::= ACCEPT variable FROM functionName
 functionName ::= varName
 unstringing ::= UNSTRING variable DELIMITED BY expr INTO variable
 adding ::= ADD expr TO variable+
-reading ::= READ fileDescriptionID [AT END procedures+] [NOT AT END procedures+] END-READ
+reading ::= READ fileDescriptionID [AT END procedures+] [NOT AT END procedures+] [END-READ]
 writing ::= WRITE variable [END-WRITE]
 nextSentence ::= NEXT SENTENCE
 closing ::= CLOSE fileDescriptionID
