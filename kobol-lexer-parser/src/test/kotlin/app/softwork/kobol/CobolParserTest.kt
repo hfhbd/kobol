@@ -1,5 +1,8 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.*
+import app.softwork.kobol.CobolFIRTree.DataTree.*
+import app.softwork.kobol.CobolFIRTree.DataTree.FileSection.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.*
@@ -47,12 +50,12 @@ class CobolParserTest {
         val foo = StringElementar(name = "FOO", recordName = null, value = "123456", formatter = Simple(6))
         val fooRPICA = StringElementar(name = "FOO", recordName = "RPICA", formatter = Simple(3))
 
-        assertEquals(CobolFIRTree(id = CobolFIRTree.ID(
+        assertEquals(CobolFIRTree(id = ID(
             programID = "HELLO"
-        ), data = CobolFIRTree.DataTree(
+        ), data = DataTree(
             fileSection = build {
-                +CobolFIRTree.DataTree.FileSection(
-                    descriptions = CobolFIRTree.DataTree.FileSection.FileDescription(
+                +FileSection(
+                    descriptions = FileDescription(
                         name = "FOO",
                         dataRecord = "BAR-1",
                         recording = "V"
@@ -75,7 +78,7 @@ class CobolParserTest {
                 +fooRPICA
             }
             +StringElementar(name = "BAR", recordName = null, formatter = Simple(3))
-        }), procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+        }), procedure = ProcedureTree(topLevel = build {
             +Display(StringVariable(target = world))
             +Display(StringVariable(target = foo))
             +Display(StringVariable(target = fooRPICA))
@@ -102,11 +105,11 @@ class CobolParserTest {
         val world = StringElementar(name = "WORLD", recordName = null, value = "WORLD!", formatter = Simple(6))
         assertEquals(
             CobolFIRTree(
-                id = CobolFIRTree.ID(
+                id = ID(
                     programID = "HELLO"
                 ),
-                data = CobolFIRTree.DataTree(workingStorage = listOf(world)),
-                procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+                data = DataTree(workingStorage = listOf(world)),
+                procedure = ProcedureTree(topLevel = build {
                     +Display(
                         Concat(
                             StringLiteral("HELLO"), StringVariable(target = world)
@@ -137,9 +140,9 @@ class CobolParserTest {
 
         assertEquals(
             CobolFIRTree(
-                id = CobolFIRTree.ID(
+                id = ID(
                     programID = "HELLO"
-                ), env = CobolFIRTree.EnvTree(
+                ), env = EnvTree(
                     configuration = Configuration(
                         specialNames = Configuration.SpecialNames(
                             specialNames = listOf(
@@ -147,7 +150,7 @@ class CobolParserTest {
                             )
                         )
                     )
-                ), procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+                ), procedure = ProcedureTree(topLevel = build {
                     +Display(StringLiteral("HELLO"))
                     +GoBack()
                 })
@@ -171,15 +174,22 @@ class CobolParserTest {
             123456* FOO II
             123456     SELECT FOO-FILE ASSIGN FOO FILE STATUS IS FOO-STATUS.
             123456     SELECT FOO-FILE2 ASSIGN TO 'FOO' FILE STATUS IS FOO-STATUS.
+            123456 DATA DIVISION.
+            123456 FILE SECTION.
+            123456 FD FOO-FILE
+            123456 DATA RECORD IS F
+            123456 RECORDING F
+            123456 LABEL RECORD STANDARD.
+            123456 01 F.
             123456 PROCEDURE                   DIVISION.
             123456     DISPLAY "HELLO".
         """.trimIndent()
 
         assertEquals(
             CobolFIRTree(
-                id = CobolFIRTree.ID(
+                id = ID(
                     programID = "HELLO"
-                ), env = CobolFIRTree.EnvTree(
+                ), env = EnvTree(
                     inputOutput = InputOutput(
                         fileControl = InputOutput.FileControl(
                             files = listOf(
@@ -197,7 +207,24 @@ class CobolParserTest {
                             ), comments = listOf("FILE I", "FILE II")
                         ), comments = listOf("INPUT I", "INPUT II")
                     )
-                ), procedure = CobolFIRTree.ProcedureTree(
+                ),
+                data = DataTree(
+                    fileSection = listOf(
+                        FileSection(
+                            descriptions = FileSection.FileDescription(
+                                name = "FOO-FILE",
+                                dataRecord = "F",
+                                recording = "F",
+                                blocks = null,
+                                records = null,
+                                comments = emptyList()
+                            ),
+                            records = listOf(Record(name = "F", elements = emptyList()))
+                        )
+                    ),
+                    workingStorage = emptyList(), linkingSection = emptyList()
+                ),
+                procedure = ProcedureTree(
                     topLevel = listOf(
                         Display(StringLiteral("HELLO"))
                     )
@@ -233,9 +260,9 @@ class CobolParserTest {
         """.trimIndent()
         val world4 =
             StringElementar("WORLD4", recordName = "RPI", formatter = Simple(6), value = "WORLD!", occurs = Occurs(2))
-        assertEquals(CobolFIRTree(id = CobolFIRTree.ID(
+        assertEquals(CobolFIRTree(id = ID(
             programID = "HELLO", author = "WEDEMANN / Softwork.app"
-        ), data = CobolFIRTree.DataTree(workingStorage = build {
+        ), data = DataTree(workingStorage = build {
             +Record("RPI") {
                 +EmptyElementar("FOO1", "RPI")
                 val world2 = NumberElementar("WORLD2", recordName = "RPI", formatter = Simple(1), value = 9.0)
@@ -260,7 +287,7 @@ class CobolParserTest {
                 +NumberElementar("FOOPIC", recordName = "RPICA", formatter = Simple(3))
             }
             +NumberElementar("FOO9", recordName = null, formatter = Simple(3))
-        }), procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+        }), procedure = ProcedureTree(topLevel = build {
             +Display(StringLiteral("HELLO") + StringVariable(world4))
         })
         ), input.toTree()
@@ -292,11 +319,11 @@ class CobolParserTest {
 
         assertEquals(
             CobolFIRTree(
-                id = CobolFIRTree.ID(programID = "HELLO"),
-                data = CobolFIRTree.DataTree(workingStorage = build {
+                id = ID(programID = "HELLO"),
+                data = DataTree(workingStorage = build {
                     +world2
                 }),
-                procedure = CobolFIRTree.ProcedureTree(topLevel = build {
+                procedure = ProcedureTree(topLevel = build {
                     +Perform("FOO", until = Equals(NumberVariable(world2), 2.l))
                     +While(build {
                         +Perform("FOO")
@@ -308,7 +335,7 @@ class CobolParserTest {
                         statements = build {
                             +Perform("FOO")
                         })
-                }, sections = listOf(CobolFIRTree.ProcedureTree.Section("FOO") {
+                }, sections = listOf(ProcedureTree.Section("FOO") {
                     +Display("FOO".l)
                 }))
             ), input.toTree()
@@ -378,8 +405,8 @@ class CobolParserTest {
         val bar = NumberElementar("BAR", recordName = null, value = 1.0, formatter = Simple(1))
         val barResult = NumberElementar("BARRESULT", recordName = null, value = 1.0, formatter = Simple(1))
 
-        assertEquals(CobolFIRTree(id = CobolFIRTree.ID(programID = "HELLO"),
-            data = CobolFIRTree.DataTree(workingStorage = build {
+        assertEquals(CobolFIRTree(id = ID(programID = "HELLO"),
+            data = DataTree(workingStorage = build {
                 +bar
                 +barResult
                 +Record("SQLCA") {
@@ -400,32 +427,32 @@ class CobolParserTest {
                 }
                 +foo
             }),
-            procedure = CobolFIRTree.ProcedureTree(topLevel = build {
-                +CobolFIRTree.ProcedureTree.Statement.Sql(
+            procedure = ProcedureTree(topLevel = build {
+                +ProcedureTree.Statement.Sql(
                     "SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1",
                     hostVariables = listOf(NumberVariable(foo)),
                     parameter = emptyList(),
                     type = Select
                 )
-                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                +ProcedureTree.Statement.Sql(
                     "SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1",
                     hostVariables = listOf(NumberVariable(foo)),
                     parameter = emptyList(),
                     type = Select
                 )
-                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                +ProcedureTree.Statement.Sql(
                     "SET :FOO = 42",
                     hostVariables = listOf(NumberVariable(foo)),
                     parameter = emptyList(),
                     type = Select
                 )
-                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                +ProcedureTree.Statement.Sql(
                     "SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC",
                     hostVariables = listOf(NumberVariable(foo)),
                     parameter = listOf(),
                     type = Select
                 )
-                +CobolFIRTree.ProcedureTree.Statement.Sql(
+                +ProcedureTree.Statement.Sql(
                     "SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC",
                     hostVariables = listOf(NumberVariable(foo), NumberVariable(barResult)),
                     parameter = listOf(NumberVariable(bar), NumberVariable(foo)),
@@ -438,6 +465,6 @@ class CobolParserTest {
         )
     }
 
-    private infix fun CobolFIRTree.ProcedureTree.Expression.eq(right: CobolFIRTree.ProcedureTree.Expression) =
+    private infix fun ProcedureTree.Expression.eq(right: ProcedureTree.Expression) =
         Equals(this, right)
 }

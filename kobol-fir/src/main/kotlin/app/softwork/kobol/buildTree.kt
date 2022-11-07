@@ -208,15 +208,30 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
         it.fileDescriptionsList.map {
             CobolFIRTree.DataTree.FileSection(
                 descriptions = it.fileDescription.let {
+
+                    var blocks: Int? = null
+                    var dataRecord: String? = null
+                    var recording: String? = null
+                    var records: IntRange? = null
+
+                    for (desc in it.fileDescriptorsList) {
+                        when {
+                            desc.blockClause != null -> blocks = desc.blockClause!!.number.text.toInt()
+                            desc.dataRecord != null -> dataRecord = desc.dataRecord!!.varName.text
+                            desc.recordingClause != null -> recording = desc.recordingClause!!.varName.text
+                            desc.fileRecord != null -> records = desc.fileRecord?.number?.text?.toInt()?.let { start ->
+                                val other = desc.fileRecord!!.fileRecordTo?.number?.text?.toInt() ?: start
+                                start.rangeTo(other)
+                            }
+                        }
+                    }
+
                     CobolFIRTree.DataTree.FileSection.FileDescription(
                         name = it.fileDescriptionID.varName.text,
-                        dataRecord = it.dataRecord.varName.text,
-                        recording = it.recordingClause.varName.text,
-                        blocks = it.blockClause?.number?.text?.toInt(),
-                        records = it.fileRecord?.number?.text?.toInt()?.let { start ->
-                            val other = it.fileRecord!!.fileRecordTo?.number?.text?.toInt() ?: start
-                            start.rangeTo(other)
-                        },
+                        dataRecord = requireNotNull(dataRecord),
+                        recording = recording,
+                        blocks = blocks,
+                        records = records,
                         comments = it.comments.asComments()
                     )
                 },
