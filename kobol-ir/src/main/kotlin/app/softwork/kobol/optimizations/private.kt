@@ -19,7 +19,7 @@ fun KobolIRTree.private(): KobolIRTree = copy(types = types.map { type ->
                         } else it
                     }
 
-                    is KobolIRTree.Types.Function.Statement.ForEach -> it.copy(counter = it.counter.private() as KobolIRTree.Types.Function.Statement.Declaration.NumberDeclaration)
+                    is KobolIRTree.Types.Function.Statement.For -> it.copy(counter = it.counter.private() as KobolIRTree.Types.Function.Statement.Declaration.NumberDeclaration)
                     else -> it
                 }
             }

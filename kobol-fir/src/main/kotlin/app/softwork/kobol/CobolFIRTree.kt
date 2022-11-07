@@ -20,7 +20,7 @@ data class CobolFIRTree(
         val author: String? = null,
         val authorComments: List<String> = emptyList(),
         val installation: String? = null,
-        val installationsComments: List<String> = emptyList(),
+        val installationComments: List<String> = emptyList(),
         val date: String? = null,
         val dateComments: List<String> = emptyList()
     )
@@ -72,8 +72,8 @@ data class CobolFIRTree(
     ) {
         @Serializable
         data class FileSection(
-            val descriptions: FileDescription,
-            val records: List<WorkingStorage.Record>,
+            val description: FileDescription,
+            val records: List<WorkingStorage.Record>
         ) {
             @Serializable
             data class FileDescription(
@@ -146,6 +146,11 @@ data class CobolFIRTree(
                 @Serializable
                 sealed interface Formatter {
 
+                    fun length() = when (this) {
+                        is Simple -> length
+                        is Custom -> parts.sumOf { it.length }
+                    }
+
                     val numberType: NumberType
                         get() {
                             return when (this) {
@@ -168,6 +173,7 @@ data class CobolFIRTree(
                             }
                         }
 
+                    @Serializable
                     enum class NumberType {
                         Int, Double
                     }
@@ -356,10 +362,38 @@ data class CobolFIRTree(
                 override val comments: List<String> = emptyList(),
                 val type: SqlType
             ) : Statement {
+                @Serializable
                 enum class SqlType {
                     Select, Insert, Delete, Execute
                 }
             }
+
+            @Serializable
+            data class Read(
+                val file: String,
+                val dataRecords: List<DataTree.WorkingStorage.Record>,
+                val action: List<Statement>,
+                val atEnd: List<Statement>,
+                override val comments: List<String> = emptyList()
+            ): Statement
+
+            @Serializable
+            data class Open(
+                val file: String,
+                val type: Type,
+                override val comments: List<String> = emptyList()
+            ): Statement {
+                @Serializable
+                enum class Type {
+                    Input, Output
+                }
+            }
+
+            @Serializable
+            data class Close(
+                val file: String,
+                override val comments: List<String> = emptyList()
+            ): Statement
         }
 
         @Serializable

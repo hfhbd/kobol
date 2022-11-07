@@ -19,14 +19,10 @@ class SqlDelightPrecompiler(
     var files: SqFiles? = null
         private set
 
-    override fun generatedTypes(): List<KobolIRTree.Types> = generatedTypes + driver
-
-    private val generatedTypes = mutableListOf<KobolIRTree.Types>()
-
     private val driverType = Class(
         name = "SqlDriver",
         packageName = "app.cash.sqldelight.db",
-        constructor = Class.Constructor(emptyList()),
+        constructor = emptyList(),
         members = emptyList(),
         functions = emptyList(),
         doc = emptyList(),
@@ -48,7 +44,7 @@ class SqlDelightPrecompiler(
     private val schemaType = Class(
         "Schema",
         packageName = packageName,
-        constructor = Class.Constructor(emptyList()),
+        constructor = emptyList(),
         functions = listOf(
             Function(
                 "migrate", parameters = listOf(
@@ -59,7 +55,8 @@ class SqlDelightPrecompiler(
                         private = false,
                         mutable = false,
                         comments = emptyList(),
-                        const = false
+                        const = false,
+                        length = -1
                     ),
                     IntDeclaration(
                         name = "newVersion",
@@ -67,7 +64,8 @@ class SqlDelightPrecompiler(
                         private = false,
                         mutable = false,
                         comments = emptyList(),
-                        const = false
+                        const = false,
+                        length = -1
                     )
                 )
             ) {}
@@ -95,15 +93,12 @@ class SqlDelightPrecompiler(
                 value = null
             )
         ),
-        constructor = Class.Constructor(
-            emptyList()
-        )
+        constructor = emptyList()
     )
 
     private val dbDeclaration = ObjectDeclaration(
-        DB,
-        emptyList(),
         "DB",
+        DB,
         mutable = false,
         private = false,
         value = null
@@ -211,8 +206,6 @@ class SqlDelightPrecompiler(
         } else {
             val result = Class(
                 name = queryName.replaceFirstChar { if (it.isLowerCase()) it.titlecaseChar() else it },
-                constructor = Class.Constructor(emptyList()),
-                functions = emptyList(),
                 members = sql.hostVariables.map {
                     when (val result = variableToIR(it).target) {
                         is BooleanDeclaration, is ObjectDeclaration -> error("Not yet supported")
@@ -220,8 +213,6 @@ class SqlDelightPrecompiler(
                     }
                 },
                 isObject = false,
-                init = emptyList(),
-                doc = emptyList(),
                 packageName = fileName
             )
 
@@ -231,7 +222,7 @@ class SqlDelightPrecompiler(
                 name = queryName,
                 mutable = false,
                 private = false,
-                value = call
+                value = call.copy(comments = emptyList())
             )
             (if (first) listOf(db, callResult) else listOf(callResult)) + sql.hostVariables.map { hostVariable ->
                 val obj = callResult.variable() as KobolIRTree.Expression.ObjectVariable
@@ -257,12 +248,10 @@ class SqlDelightPrecompiler(
                         KobolIRTree.Expression.StringExpression.StringVariable.Use(
                             obj,
                             variable as KobolIRTree.Expression.StringExpression.StringVariable,
-                            emptyList()
                         )
                     }
                 }
                 Assignment(
-                    comments = emptyList(),
                     newValue = use,
                     declaration = getDeclaration(hostVariable.target)
                 )

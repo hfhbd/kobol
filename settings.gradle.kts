@@ -8,6 +8,8 @@ include(":kobol-ir")
 
 include(":kobol-kotlin")
 include(":kobol-sqldelight-precompiler")
+include(":kobol-kotlinx-serialization")
+include(":kobol-java-file-kotlin")
 
 include(":kobol-java")
 include(":kobol-jdbc")

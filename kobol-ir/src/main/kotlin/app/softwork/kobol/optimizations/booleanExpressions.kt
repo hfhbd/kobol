@@ -4,10 +4,10 @@ import app.softwork.kobol.*
 import app.softwork.kobol.KobolIRTree.Expression.*
 import app.softwork.kobol.KobolIRTree.Expression.BooleanExpression.*
 
-fun KobolIRTree.booleanExpressions(): KobolIRTree {
-    return copy(
-        main = main.booleanExpressions(),
-        types = types.map { it.booleanExpressions() }
+val BooleanExpressions = IrPlugin {
+    it.copy(
+        main = it.main.booleanExpressions(),
+        types = it.types.map { it.booleanExpressions() }
     )
 }
 
@@ -43,6 +43,7 @@ private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTr
         is KobolIRTree.Types.Function.Statement.Declaration -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.DoWhile -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.Exit -> this
+        is KobolIRTree.Types.Function.Statement.For -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.ForEach -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.FunctionCall -> booleanExpressions()
 
@@ -51,15 +52,17 @@ private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTr
         is KobolIRTree.Types.Function.Statement.While -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.If -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.When -> booleanExpressions()
+        is KobolIRTree.Types.Function.Statement.Static -> TODO()
         is KobolIRTree.Types.Function.Statement.Use -> copy(
             target = target.booleanExpressions(),
-            action = action .booleanExpressions()
+            action = action.booleanExpressions()
         )
 
         is StringExpression.StringVariable.Use -> TODO()
         is NumberExpression.IntExpression.IntVariable.Use -> copy(
             variable = variable.booleanExpressions() as NumberExpression.IntExpression.IntVariable
         )
+
         is NumberExpression.DoubleExpression.DoubleVariable.Use -> copy(
             variable = variable.booleanExpressions() as NumberExpression.DoubleExpression.DoubleVariable
         )
@@ -112,10 +115,7 @@ private fun KobolIRTree.Expression.booleanExpressions(): KobolIRTree.Expression 
     is BooleanExpression -> optimize()
     is NumberExpression -> this
     is StringExpression -> this
-    is KobolIRTree.Types.Function.Statement.DoWhile -> booleanExpressions()
-    is KobolIRTree.Types.Function.Statement.ForEach -> booleanExpressions()
     is KobolIRTree.Types.Function.Statement.FunctionCall -> booleanExpressions()
-    is KobolIRTree.Types.Function.Statement.While -> booleanExpressions()
     is KobolIRTree.Types.Function.Statement.If -> booleanExpressions()
     is KobolIRTree.Types.Function.Statement.When -> booleanExpressions()
     is KobolIRTree.Types.Type.GlobalVariable -> copy(declaration = declaration.booleanExpressions())
@@ -131,11 +131,19 @@ private fun KobolIRTree.Types.Function.Statement.DoWhile.booleanExpressions() = 
     condition = condition.optimize()
 )
 
-private fun KobolIRTree.Types.Function.Statement.ForEach.booleanExpressions() = copy(
+private fun KobolIRTree.Types.Function.Statement.For.booleanExpressions() = copy(
     counter = counter.booleanExpressions() as KobolIRTree.Types.Function.Statement.Declaration.NumberDeclaration,
     from = from.booleanExpressions() as NumberExpression,
     step = step?.booleanExpressions() as NumberExpression?,
     condition = condition.optimize(),
+    statements = statements.map {
+        it.booleanExpressions()
+    }
+)
+
+private fun KobolIRTree.Types.Function.Statement.ForEach.booleanExpressions() = copy(
+    variable = variable.booleanExpressions(),
+    provider = provider.booleanExpressions(),
     statements = statements.map {
         it.booleanExpressions()
     }

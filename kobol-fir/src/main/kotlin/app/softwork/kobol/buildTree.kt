@@ -70,7 +70,7 @@ private fun CobolIdDiv.toID(): CobolFIRTree.ID {
         author = author,
         authorComments = authorComments ?: emptyList(),
         installation = installation,
-        installationsComments = installationComments ?: emptyList(),
+        installationComments = installationComments ?: emptyList(),
         date = date,
         dateComments = dateComments ?: emptyList()
     )
@@ -207,7 +207,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
     val fileSection = fileSection?.let {
         it.fileDescriptionsList.map {
             CobolFIRTree.DataTree.FileSection(
-                descriptions = it.fileDescription.let {
+                description = it.fileDescription.let {
 
                     var blocks: Int? = null
                     var dataRecord: String? = null
@@ -590,6 +590,46 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             )
         }
 
+        proc.reading != null -> {
+            val reading = proc.reading!!
+            val record: String = reading.fileDescriptionID.varName.text
+            val dataRecords = dataTree.notNull.fileSection.single {
+                it.description.name == record
+            }.records
+
+            listOf(
+                Read(
+                    file = reading.fileDescriptionID.varName.text,
+                    dataRecords = dataRecords,
+                    action = reading.readingDuring?.proceduresList?.asStatements(dataTree) ?: emptyList(),
+                    atEnd = reading.readingEnd?.proceduresList?.asStatements(dataTree) ?: emptyList(),
+                    comments = proc.comments.asComments()
+                )
+            )
+        }
+
+        proc.closing != null -> listOf(
+            Close(
+                file = proc.closing!!.fileDescriptionID.varName.text,
+                comments = proc.comments.asComments()
+            )
+        )
+
+        proc.opening != null -> {
+            val opening = proc.opening!!
+            listOf(
+                Open(
+                    file = opening.fileDescriptionID.varName.text,
+                    type = when (val type = opening.openingType.text.lowercase()) {
+                        "input" -> Open.Type.Input
+                        "output" -> Open.Type.Output
+                        else -> error("Unsupported $type")
+                    },
+                    comments = proc.comments.asComments()
+                )
+            )
+        }
+
         else -> TODO()
     }
 }
@@ -660,7 +700,7 @@ private val CobolFIRTree.DataTree?.notNull
         "No DATA DIVISION found"
     }
 
-private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?, linkingOnly: Boolean = false): List<Expression> {
+private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): List<Expression> {
     val literal = literal
     val variable = variable
     val stringConcat = stringConcat
@@ -686,10 +726,7 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?, linkingOnly: Bool
         }
 
         variable != null -> {
-            when (val found =
-                if (linkingOnly) dataTree.notNull.findInLinking(variable)
-                else dataTree.notNull.find(variable)
-            ) {
+            when (val found = dataTree.notNull.find(variable)) {
                 is Record -> found.elements.map { it.toVariable() }
                 is Elementar -> listOf(found.toVariable())
                 is CobolFIRTree.DataTree.WorkingStorage.Sql -> notPossible()
@@ -803,7 +840,10 @@ private fun CobolFIRTree.DataTree.find(variable: CobolVariable): CobolFIRTree.Da
     val name: String = variable.varName.text
     val of = variable.ofClause?.recordID?.varName?.text
 
-    return workingStorage.find(name, of) ?: error("Elementar $name not found")
+    return workingStorage.find(name, of)
+        ?: fileSection.flatMap { it.records }.find(name, of)
+        ?: linkingSection.find(name, of)
+        ?: error("Elementar $name not found")
 }
 
 private fun Elementar.toVariable(): Expression.Variable = when (this) {

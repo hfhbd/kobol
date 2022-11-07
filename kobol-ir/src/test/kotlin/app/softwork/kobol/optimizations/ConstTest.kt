@@ -14,6 +14,7 @@ class ConstTest {
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
                 comments = emptyList(),
                 const = false,
+                length = 1
             ),
             doc = emptyList()
         )
@@ -25,6 +26,7 @@ class ConstTest {
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
                 comments = emptyList(),
                 const = true,
+                length = 1
             ),
             doc = emptyList()
         )
@@ -41,6 +43,7 @@ class ConstTest {
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
                 comments = emptyList(),
                 const = false,
+                length = 1
             ),
             doc = emptyList()
         )

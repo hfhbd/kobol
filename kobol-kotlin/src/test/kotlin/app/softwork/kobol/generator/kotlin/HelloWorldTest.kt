@@ -59,6 +59,21 @@ internal fun String.toIR(vararg including: Pair<String, String>): KobolIRTree {
     return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR().single()
 }
 
+internal fun String.toIRFileWithKotlinx(vararg including: Pair<String, String>): KobolIRTree {
+    val temp = Files.createTempDirectory("testing").toFile()
+    val files = including.map { (name, content) ->
+        File(temp, "$name.cbl").apply { writeText(content) }
+    }
+    return (files + File(temp, "testing.cbl").apply { writeText(this@toIRFileWithKotlinx) }).toIR(
+        fileConverter = {
+            JavaFilesKotlin
+        },
+        serialization = {
+            KotlinxSerialization(it)
+        }
+    ).single()
+}
+
 internal fun String.toIRWithSql(vararg including: Pair<String, String>): Pair<KobolIRTree, SqFiles> {
     val temp = Files.createTempDirectory("testing").toFile()
     val files = including.map { (name, content) ->

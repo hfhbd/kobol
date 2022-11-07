@@ -58,7 +58,7 @@ internal fun KobolIRTree.Types.Function.Statement.Declaration.findWriteUsages(
     it.body.any {
         when {
             it is KobolIRTree.Types.Function.Statement.Assignment && it.declaration == this -> true
-            it is KobolIRTree.Types.Function.Statement.ForEach && it.counter == this -> true
+            it is KobolIRTree.Types.Function.Statement.For && it.counter == this -> true
             else -> false
         }
     }

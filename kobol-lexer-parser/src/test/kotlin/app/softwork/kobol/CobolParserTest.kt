@@ -55,7 +55,7 @@ class CobolParserTest {
         ), data = DataTree(
             fileSection = build {
                 +FileSection(
-                    descriptions = FileDescription(
+                    description = FileDescription(
                         name = "FOO",
                         dataRecord = "BAR-1",
                         recording = "V"
@@ -211,7 +211,7 @@ class CobolParserTest {
                 data = DataTree(
                     fileSection = listOf(
                         FileSection(
-                            descriptions = FileSection.FileDescription(
+                            description = FileDescription(
                                 name = "FOO-FILE",
                                 dataRecord = "F",
                                 recording = "F",
