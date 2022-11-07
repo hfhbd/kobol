@@ -47,9 +47,7 @@ class SqlTest {
            * Get AVG of 42
            */
           val selectAvg42bar42intofoobazFromSysibmsysdummy1: SelectAvg42bar42intofoobazFromSysibmsysdummy1 =
-              db.sqlQueries.selectAvg42bar42intofoobazFromSysibmsysdummy1(BAR)
-          .executeAsOne()
-        
+              db.sqlQueries.selectAvg42bar42intofoobazFromSysibmsysdummy1(BAR).executeAsOne()
           FOO = selectAvg42bar42intofoobazFromSysibmsysdummy1.FOO
           BAZ = selectAvg42bar42intofoobazFromSysibmsysdummy1.BAZ
           println(FOO)
@@ -140,21 +138,15 @@ class SqlTest {
            * COMMENT II
            */
           val selectIdAIntofoobarFromFoo: SelectIdAIntofoobarFromFoo =
-              db.sqlQueries.selectIdAIntofoobarFromFoo()
-          .executeAsOne()
-        
+              db.sqlQueries.selectIdAIntofoobarFromFoo().executeAsOne()
           FOO = selectIdAIntofoobarFromFoo.FOO
           BAR = selectIdAIntofoobarFromFoo.BAR
           val selectIdAIntofoobarFromFoo_: SelectIdAIntofoobarFromFoo_ =
-              db.sqlQueries.selectIdAIntofoobarFromFoo_()
-          .executeAsOne()
-        
+              db.sqlQueries.selectIdAIntofoobarFromFoo_().executeAsOne()
           FOO = selectIdAIntofoobarFromFoo_.FOO
           BAR = selectIdAIntofoobarFromFoo_.BAR
           val setfoobarSelectIdAFromFoo: SetfoobarSelectIdAFromFoo =
-              db.sqlQueries.setfoobarSelectIdAFromFoo()
-          .executeAsOne()
-        
+              db.sqlQueries.setfoobarSelectIdAFromFoo().executeAsOne()
           FOO = setfoobarSelectIdAFromFoo.FOO
           BAR = setfoobarSelectIdAFromFoo.BAR
           db.sqlQueries.insertIntoFooValuesfoobar(FOO, BAR)

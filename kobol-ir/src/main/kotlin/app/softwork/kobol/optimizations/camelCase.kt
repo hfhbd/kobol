@@ -28,6 +28,7 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
         target = target.updateNames(),
         action = action.updateNames()
     )
+    is KobolIRTree.Types.Function.Statement.Static -> copy(type.copy(name = type.name.toPascalCase()))
 
     is KobolIRTree.Types.Function.Statement.Assignment -> copy(
         declaration = declaration.updateNames()
@@ -52,11 +53,17 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
         condition = condition.toCamelCase() as KobolIRTree.Expression.BooleanExpression
     )
 
-    is KobolIRTree.Types.Function.Statement.ForEach -> copy(
+    is KobolIRTree.Types.Function.Statement.For -> copy(
         counter = counter.updateNames() as KobolIRTree.Types.Function.Statement.Declaration.NumberDeclaration,
         from = from.toCamelCase() as KobolIRTree.Expression.NumberExpression,
         step = step?.toCamelCase() as KobolIRTree.Expression.NumberExpression?,
         condition = condition.toCamelCase() as KobolIRTree.Expression.BooleanExpression,
+        statements = statements.map { it.updateNames() }
+    )
+
+    is KobolIRTree.Types.Function.Statement.ForEach -> copy(
+        variable = variable.updateNames() as KobolIRTree.Types.Function.Statement.Declaration,
+        provider = provider.toCamelCase(),
         statements = statements.map { it.updateNames() }
     )
 
@@ -77,6 +84,7 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
     is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable.Use -> copy(
         variable = variable.toCamelCase() as KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable
     )
+
     is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable.Use -> copy(
         variable = variable.toCamelCase() as KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable
     )
@@ -119,7 +127,10 @@ private fun KobolIRTree.Types.Function.Statement.When.toCamelCase(): KobolIRTree
 }
 
 private fun KobolIRTree.Types.Function.Statement.FunctionCall.toCamelCase() = copy(
-    function = function.copy(name = function.name.toCamelCase())
+    function = when (val function = function) {
+        is KobolIRTree.Types.Function -> function.copy(name = function.name.toCamelCase())
+        is KobolIRTree.Types.Type.Class -> function.copy(name = function.name.toPascalCase())
+    }
 )
 
 private fun KobolIRTree.Types.Function.Statement.Declaration.updateName() = when (this) {
@@ -192,30 +203,12 @@ private fun KobolIRTree.Expression.toCamelCase(): KobolIRTree.Expression =
             right = right.toCamelCase() as KobolIRTree.Expression.NumberExpression
         )
 
-        is KobolIRTree.Types.Function.Statement.DoWhile -> copy(
-            functionCall = functionCall.toCamelCase(),
-            condition = condition.toCamelCase() as KobolIRTree.Expression.BooleanExpression
-        )
-
-        is KobolIRTree.Types.Function.Statement.ForEach -> copy(
-            counter = counter.updateNames() as KobolIRTree.Types.Function.Statement.Declaration.NumberDeclaration,
-            from = from.toCamelCase() as KobolIRTree.Expression.NumberExpression,
-            step = step?.toCamelCase() as KobolIRTree.Expression.NumberExpression?,
-            condition = condition.toCamelCase() as KobolIRTree.Expression.BooleanExpression,
-            statements = statements.map { it.updateNames() }
-        )
-
         is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable -> copy(
             target = target.updateName()
         )
 
         is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable -> copy(
             target = target.updateName()
-        )
-
-        is KobolIRTree.Types.Function.Statement.While -> copy(
-            condition = condition.toCamelCase() as KobolIRTree.Expression.BooleanExpression,
-            statements = statements.map { it.updateNames() }
         )
 
         is KobolIRTree.Expression.StringExpression.Interpolation -> copy(expr.toCamelCase())

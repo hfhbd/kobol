@@ -2,9 +2,10 @@ package app.softwork.kobol.optimizations
 
 import app.softwork.kobol.*
 
-fun KobolIRTree.optimize() =
-    private()
+fun KobolIRTree.optimize(): KobolIRTree {
+    val after = private()
         .readonlyVariables()
         .constVariables()
         .camelCase()
-        .booleanExpressions()
+    return BooleanExpressions(after)
+}

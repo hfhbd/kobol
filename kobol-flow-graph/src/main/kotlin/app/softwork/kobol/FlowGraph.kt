@@ -1,5 +1,9 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.NumberExpression.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.StringExpression.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import java.io.*
 
 fun CobolFIRTree.createFlowGraph(): String = buildString {
@@ -10,12 +14,16 @@ fun CobolFIRTree.createFlowGraph(): String = buildString {
     procedure.topLevel.forEach {
         toUml(it)
     }
+    +"end"
+
     procedure.sections.forEach {
+        +"package ${it.name}"
+        +"start"
         it.statements.forEach {
             toUml(it)
         }
+        +"stop"
     }
-    +"end"
     +"@enduml"
 }
 
@@ -23,13 +31,13 @@ private fun StringBuilder.toUml(statement: CobolFIRTree.ProcedureTree.Statement)
     operator fun String.unaryPlus(): StringBuilder = appendLine(this)
     with(statement) {
         when (this) {
-            is CobolFIRTree.ProcedureTree.Statement.Call -> TODO()
-            is CobolFIRTree.ProcedureTree.Statement.Continue -> TODO()
-            is CobolFIRTree.ProcedureTree.Statement.Display -> +":DISPLAY ${expr.toUml()};"
-            is CobolFIRTree.ProcedureTree.Statement.Eval -> TODO()
-            is CobolFIRTree.ProcedureTree.Statement.ForEach -> TODO()
-            is CobolFIRTree.ProcedureTree.Statement.GoBack -> TODO()
-            is CobolFIRTree.ProcedureTree.Statement.If -> {
+            is Call -> +":call $name|"
+            is Continue -> TODO()
+            is Display -> +":DISPLAY ${expr.toUml()};"
+            is Eval -> TODO()
+            is ForEach -> TODO()
+            is GoBack -> TODO()
+            is If -> {
                 +"if (${condition.toUml()}) then"
                 for (statement in statements) {
                     toUml(statement)
@@ -43,33 +51,47 @@ private fun StringBuilder.toUml(statement: CobolFIRTree.ProcedureTree.Statement)
                 +"endif"
             }
 
-            is CobolFIRTree.ProcedureTree.Statement.Move -> +":MOVE ${value.toUml()} TO ${target.toUml()};"
-            is CobolFIRTree.ProcedureTree.Statement.Perform -> TODO()
-            is CobolFIRTree.ProcedureTree.Statement.While -> TODO()
-            is CobolFIRTree.ProcedureTree.Statement.Sql -> TODO()
+            is Move -> +":MOVE ${value.toUml()} TO ${target.toUml()};"
+            is Perform -> {
+                val until = until
+                if (until == null) {
+                    +":$sectionName|"
+                } else {
+                    +":$sectionName|"
+                    +"while (${Not(until).toUml()})"
+                    +":$sectionName|"
+                    +"endwhile"
+                }
+            }
+
+            is While -> TODO()
+            is Sql -> TODO()
+            is Read -> TODO()
+            is Open -> TODO()
+            is Close -> TODO()
         }
     }
 }
 
 private fun CobolFIRTree.ProcedureTree.Expression.toUml(): String = when (this) {
-    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.And -> "${left.toUml()} && ${right.toUml()}"
-    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Equals -> "${left.toUml()} = ${right.toUml()}"
-    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Greater -> {
+    is And -> "${left.toUml()} && ${right.toUml()}"
+    is Equals -> "${left.toUml()} = ${right.toUml()}"
+    is Greater -> {
         if (equals) "${left.toUml()} >= ${right.toUml()}" else "${left.toUml()} > ${right.toUml()}"
     }
 
-    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Not -> "!${target.toUml()}"
-    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Or -> "${left.toUml()} || ${right.toUml()}"
-    is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Smaller -> {
+    is Not -> "!${target.toUml()}"
+    is Or -> "${left.toUml()} || ${right.toUml()}"
+    is Smaller -> {
         if (equals) "${left.toUml()} <= ${right.toUml()}" else "${left.toUml()} < ${right.toUml()}"
     }
 
-    is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberLiteral -> value.toString()
-    is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral -> "\"$value\""
-    is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberVariable -> target.toUml()
-    is CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat -> "${left.toUml()} ${right.toUml()}"
-    is CobolFIRTree.ProcedureTree.Expression.StringExpression.Interpolation -> TODO()
-    is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> target.toUml()
+    is NumberLiteral -> value.toString()
+    is StringLiteral -> "\"$value\""
+    is NumberVariable -> target.toUml()
+    is Concat -> "${left.toUml()} ${right.toUml()}"
+    is Interpolation -> TODO()
+    is StringVariable -> target.toUml()
 }
 
 private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.toUml(): String {

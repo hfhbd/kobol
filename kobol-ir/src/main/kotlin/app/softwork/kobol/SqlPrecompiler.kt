@@ -7,11 +7,10 @@ import java.io.*
 
 interface SqlPrecompiler : Closeable {
     fun convert(sqlInit: WorkingStorage.Sql): List<KobolIRTree.Types.Function.Statement>
+
     fun convert(
         sql: Statement.Sql,
         variableToIR: (Expression.Variable) -> KobolIRTree.Expression.Variable,
         getDeclaration: (WorkingStorage.Elementar) -> Declaration
     ): List<KobolIRTree.Types.Function.Statement>
-
-    fun generatedTypes(): List<KobolIRTree.Types>
 }
