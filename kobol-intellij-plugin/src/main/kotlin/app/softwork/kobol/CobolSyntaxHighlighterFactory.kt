@@ -4,7 +4,7 @@ import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.vfs.*
 
-object CobolSyntaxHighlighterFactory : SyntaxHighlighterFactory() {
+class CobolSyntaxHighlighterFactory : SyntaxHighlighterFactory() {
     override fun getSyntaxHighlighter(project: Project?, virtualFile: VirtualFile?) =
         CobolSyntaxHighlighter
 }

@@ -11,7 +11,7 @@ object CobolElementFactory {
     private fun createProgram(project: Project, text: String): CobolProgram {
         val name = "dummy.cbl"
         val cobolText = """123456 IDENTIFICATION DIVISION. PROGRAM-ID. $text. PROCEDURE DIVISION. CONTINUE."""
-        val file = PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType, cobolText) as CobolFile
+        val file = PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType.INSTANCE, cobolText) as CobolFile
         for (child in file.children) {
             if (child is CobolProgram) {
                 return child
@@ -45,7 +45,7 @@ object CobolElementFactory {
         val cobolText =
             """123456 IDENTIFICATION DIVISION. PROGRAM-ID. INCLUDESQL. DATA DIVISION. WORKING-STORAGE SECTION. $addLineNumber PROCEDURE DIVISION. CONTINUE."""
         val cobolFile =
-            PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType, cobolText) as CobolFile
+            PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType.INSTANCE, cobolText) as CobolFile
         for (child in cobolFile.children) {
             if (child is CobolProgram) {
                 return child.dataDiv!!.workingStorageSection!!.stmList.map { it.recordDef!! }
