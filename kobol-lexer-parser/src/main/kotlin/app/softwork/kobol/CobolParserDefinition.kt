@@ -5,13 +5,16 @@ import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 
-object CobolParserDefinition : ParserDefinition {
-    private val file = IFileElementType(CobolLanguage)
+class CobolParserDefinition : ParserDefinition {
+    companion object {
+        val FILE = IFileElementType(CobolLanguage)
+    }
+
     private val stringLiterals = TokenSet.create(CobolTypes.STRING)
 
     override fun createLexer(project: Project?) = CobolLexerAdapter()
     override fun createParser(project: Project?) = CobolParser()
-    override fun getFileNodeType() = file
+    override fun getFileNodeType() = FILE
 
     override fun getCommentTokens(): TokenSet = TokenSet.EMPTY
 

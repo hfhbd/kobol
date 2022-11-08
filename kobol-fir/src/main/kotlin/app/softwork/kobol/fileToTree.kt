@@ -1,6 +1,5 @@
 package app.softwork.kobol
 
-import app.softwork.sqldelight.db2dialect.*
 import app.softwork.sqldelight.db2dialect.grammar.*
 import com.alecstrong.sql.psi.core.*
 import com.intellij.lang.*
@@ -17,8 +16,8 @@ fun File.toTree(): CobolFIRTree {
 fun File.toCobolFile(): CobolFile {
     val intelliJ = CoreEnvironment(listOf(this)).apply {
         initializeApplication {
-            registerFileType(CobolFileType, CobolFileType.defaultExtension)
-            registerParserDefinition(CobolParserDefinition)
+            registerFileType(CobolFileType.INSTANCE, CobolFileType.INSTANCE.defaultExtension)
+            registerParserDefinition(CobolParserDefinition())
 
             registerFileType(InlineSqlFileType, InlineSqlFileType.defaultExtension)
             registerParserDefinition(Db2ParserDefinition())
@@ -67,8 +66,8 @@ private class Db2ParserDefinition : SqlParserDefinition() {
 fun Iterable<File>.toCobolFile(): Set<CobolFile> {
     val intelliJ = CoreEnvironment(this).apply {
         initializeApplication {
-            registerFileType(CobolFileType, CobolFileType.defaultExtension)
-            registerParserDefinition(CobolParserDefinition)
+            registerFileType(CobolFileType.INSTANCE, CobolFileType.INSTANCE.defaultExtension)
+            registerParserDefinition(CobolParserDefinition())
 
             registerFileType(InlineSqlFileType, InlineSqlFileType.defaultExtension)
             registerParserDefinition(Db2ParserDefinition())
