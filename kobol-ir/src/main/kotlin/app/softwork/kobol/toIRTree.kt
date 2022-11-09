@@ -474,6 +474,7 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
             }
         }
     }
+    is Write -> requireNotNull(serialization).write(this)
 
     is Close -> requireNotNull(fileHandler).handleClose(this)
     is Open -> requireNotNull(fileHandler).handleOpen(this)

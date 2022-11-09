@@ -158,6 +158,7 @@ class SqlTest {
         assertEquals(expected, output.toString())
 
         assertEquals(
+            // language=db2_zos
             """
             |/**
             | * TABLE COMMENT
@@ -172,6 +173,7 @@ class SqlTest {
         )
 
         assertEquals(
+            // language=db2_zos
             """
             |/**
             | * INSERT COMMENT

@@ -10,7 +10,7 @@ class CobolRecordReference(psiElement: CobolRecordID, range: TextRange) :
     override fun resolve(): CobolRecordDef? {
         val file = myElement.containingFile as CobolFile
         val stm: List<CobolStm> =
-            file.findChildByClass(CobolProgram::class.java)?.dataDiv?.workingStorageSection?.stmList ?: return null
+            file.programOrNull?.dataDiv?.workingStorageSection?.stmList ?: return null
         val myName = myElement.varName.text.noIdea
         for (stmt in stm) {
             val record = stmt.recordDef ?: continue
@@ -26,7 +26,7 @@ class CobolRecordReference(psiElement: CobolRecordID, range: TextRange) :
     override fun getVariants(): Array<LookupElement> {
         val file = myElement.containingFile as CobolFile
         val stm: List<CobolStm> =
-            file.findChildByClass(CobolProgram::class.java)?.dataDiv?.workingStorageSection?.stmList ?: return emptyArray()
+            file.programOrNull?.dataDiv?.workingStorageSection?.stmList ?: return emptyArray()
         val myName = myElement.varName.text.noIdea
         return buildList {
             for (stmt in stm) {

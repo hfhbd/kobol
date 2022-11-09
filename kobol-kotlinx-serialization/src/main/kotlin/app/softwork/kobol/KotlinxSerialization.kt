@@ -1,39 +1,43 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.kobol.KobolIRTree.Types.Function.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
+import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.kobol.KobolIRTree.Types.Function.Statement.ForEach
 
 class KotlinxSerialization(
     private val packageName: String
 ) : SerializationPlugin {
-    override fun fileSection(fileSection: CobolFIRTree.DataTree.FileSection): List<KobolIRTree.Types.Type.Class> {
+    override fun fileSection(fileSection: CobolFIRTree.DataTree.File): List<KobolIRTree.Types.Type.Class> {
         val records = fileSection.records
         return if (records.size == 1) {
             val ir = records.single().toIR(packageName)
             val members = ir.members.map {
                 when (it) {
-                    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> it
-                    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> it.copy(
+                    is ObjectDeclaration -> it
+                    is BooleanDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
                         ),
                         nullable = false
                     )
 
-                    is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> it.copy(
+                    is DoubleDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
                         ),
                         nullable = false
                     )
 
-                    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> it.copy(
+                    is IntDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
                         ),
                         nullable = false
                     )
 
-                    is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> it.copy(
+                    is StringDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
                         ),
@@ -65,7 +69,7 @@ class KotlinxSerialization(
         isData = false,
         functions = listOf(decodeAsSequence)
     )
-    val formatObject = KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration(
+    val formatObject = ObjectDeclaration(
         name = "FixedLengthFormat",
         type = format,
         comments = emptyList(),
@@ -79,7 +83,7 @@ class KotlinxSerialization(
         read: CobolFIRTree.ProcedureTree.Statement.Read,
         toIR: List<CobolFIRTree.ProcedureTree.Statement>.() -> List<KobolIRTree.Types.Function.Statement>
     ): List<KobolIRTree.Types.Function.Statement> {
-        val dataRecord = read.dataRecords.first().name
+        val dataRecord = read.file.recordName
         val klass = KobolIRTree.Types.Type.Class(
             packageName = packageName,
             name = dataRecord,
@@ -87,7 +91,7 @@ class KotlinxSerialization(
             isData = false,
         )
 
-        val variable = KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration(
+        val variable = ObjectDeclaration(
             type = klass,
             name = dataRecord,
             mutable = false,
@@ -96,9 +100,9 @@ class KotlinxSerialization(
             nullable = false
         )
 
-        val readBufferedReader = KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration(
+        val readBufferedReader = ObjectDeclaration(
             type = KobolIRTree.Types.Type.Class(name = "BufferedReader", packageName = "java.io"),
-            name = read.file,
+            name = read.file.name,
             value = null,
             nullable = false
         )
@@ -138,5 +142,9 @@ class KotlinxSerialization(
 
             +read.atEnd.toIR()
         }
+    }
+
+    override fun write(write: Write): List<Statement> {
+        return emptyList()
     }
 }

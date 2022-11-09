@@ -9,6 +9,7 @@ import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.KobolIRTree.Types.Type.*
 import app.softwork.sqldelightwriter.*
 import java.io.*
+import java.io.File
 
 class SqlDelightPrecompiler(
     val dbName: String,
