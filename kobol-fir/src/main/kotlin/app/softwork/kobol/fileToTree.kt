@@ -9,8 +9,14 @@ import com.intellij.psi.stubs.*
 import com.intellij.psi.tree.*
 import java.io.*
 
-fun File.toTree(): CobolFIRTree {
-    return toCobolFile().toTree()
+fun File.toTree(firPlugins: List<FirPlugin> = emptyList()): CobolFIRTree {
+    return toCobolFile().toTree().let {
+        var it = it
+        for (plugin in firPlugins) {
+            it = plugin.invoke(it)
+        }
+        it
+    }
 }
 
 fun File.toCobolFile(): CobolFile {
@@ -30,10 +36,16 @@ fun File.toCobolFile(): CobolFile {
     return file
 }
 
-fun Iterable<File>.toTree(): List<CobolFIRTree> {
+fun Iterable<File>.toTree(firPlugins: List<FirPlugin> = emptyList()): List<CobolFIRTree> {
     return toCobolFile().map {
         try {
-            it.toTree()
+            it.toTree().let {
+                var it = it
+                for (plugin in firPlugins) {
+                    it = plugin.invoke(it)
+                }
+                it
+            }
         } catch (e: Exception) {
             throw IllegalStateException(it.virtualFile.presentableUrl, e).apply {
                 stackTrace = e.stackTrace

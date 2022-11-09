@@ -37,25 +37,32 @@ data class CobolFIRTree(
         ) {
             @Serializable
             data class SpecialNames(
-                val specialNames: List<SpecialName>, val comments: List<String> = emptyList()
+                val specialNames: List<SpecialName>,
+                val comments: List<String> = emptyList()
             ) {
                 @Serializable
-                data class SpecialName(val env: String, val value: String, val comments: List<String> = emptyList())
+                data class SpecialName(
+                    val env: String,
+                    val value: String,
+                    val comments: List<String> = emptyList()
+                )
             }
         }
 
         @Serializable
         data class InputOutput(
-            val fileControl: FileControl? = null, val comments: List<String> = emptyList()
+            val fileControl: FileControl? = null,
+            val comments: List<String> = emptyList()
         ) {
             @Serializable
             data class FileControl(
-                val files: List<File> = emptyList(), val comments: List<String> = emptyList()
+                val files: List<File> = emptyList(),
+                val comments: List<String> = emptyList()
             ) {
                 @Serializable
                 data class File(
                     val file: String,
-                    val fileVariable: String,
+                    val path: String,
                     val fileStatus: String,
                     val comments: List<String> = emptyList()
                 )
@@ -65,20 +72,26 @@ data class CobolFIRTree(
 
     @Serializable
     data class DataTree(
-        val fileSection: List<FileSection> = emptyList(),
+        val fileSection: List<File> = emptyList(),
         val workingStorage: List<WorkingStorage> = emptyList(),
         val linkingSection: List<WorkingStorage> = emptyList(),
         val comments: List<String> = emptyList()
     ) {
         @Serializable
-        data class FileSection(
+        data class File(
+            val name: String,
             val description: FileDescription,
-            val records: List<WorkingStorage.Record>
+            val records: List<WorkingStorage.Record>,
+            val fileStatus: String,
+            val filePath: String
         ) {
+            val recordName = records.map { it.name }.let {
+                val name = it.distinct()
+                name.singleOrNull() ?: error("Different Record names found for file $name: $it")
+            }
+
             @Serializable
             data class FileDescription(
-                val name: String,
-                val dataRecord: String,
                 val recording: String? = null,
                 val blocks: Int? = null,
                 @Serializable(with = IntRangeSerializer::class) val records: IntRange? = null,
@@ -370,19 +383,25 @@ data class CobolFIRTree(
 
             @Serializable
             data class Read(
-                val file: String,
-                val dataRecords: List<DataTree.WorkingStorage.Record>,
+                val file: DataTree.File,
                 val action: List<Statement>,
                 val atEnd: List<Statement>,
                 override val comments: List<String> = emptyList()
-            ): Statement
+            ) : Statement
+
+            @Serializable
+            data class Write(
+                val file: DataTree.File,
+                val from: DataTree.WorkingStorage?,
+                override val comments: List<String> = emptyList()
+            ) : Statement
 
             @Serializable
             data class Open(
-                val file: String,
+                val file: DataTree.File,
                 val type: Type,
                 override val comments: List<String> = emptyList()
-            ): Statement {
+            ) : Statement {
                 @Serializable
                 enum class Type {
                     Input, Output
@@ -391,9 +410,9 @@ data class CobolFIRTree(
 
             @Serializable
             data class Close(
-                val file: String,
+                val file: DataTree.File,
                 override val comments: List<String> = emptyList()
-            ): Statement
+            ) : Statement
         }
 
         @Serializable

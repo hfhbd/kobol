@@ -146,7 +146,7 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 data class Static(
                     val type: Type.Class,
                     override val comments: List<String> = emptyList()
-                ): Statement
+                ) : Statement
 
                 @Serializable
                 data class Use(
@@ -169,7 +169,15 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 ) : Statement
 
                 @Serializable
-                data class Exit(override val comments: List<String>) : Statement
+                data class Exit(
+                    override val comments: List<String> = emptyList()
+                ) : Statement
+
+                @Serializable
+                data class Return(
+                    val expr: Expression,
+                    override val comments: List<String> = emptyList()
+                ) : Statement
 
                 @Serializable
                 data class LoadExternal(val libName: String) : Statement {
@@ -295,6 +303,7 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 val init: List<Function.Statement> = emptyList(),
                 val isObject: Boolean = false,
                 val isData: Boolean = false,
+                val inner: List<Class> = emptyList(),
                 val annotations: Map<String, List<String>> = emptyMap()
             ) : Type, Callable {
 
@@ -451,8 +460,21 @@ fun KobolIRTree.Types.Function.Statement.Declaration.variable() = when (this) {
     )
 }
 
-fun function(block: Builder<KobolIRTree.Types.Function.Statement>.() -> Unit): KobolIRTree.Types.Function =
-    KobolIRTree.Types.Function(name = "fake", body = block)
+fun function(
+    name: String = "fake",
+    block: Builder<KobolIRTree.Types.Function.Statement>.() -> Unit
+): KobolIRTree.Types.Function =
+    KobolIRTree.Types.Function(name = name, body = block)
 
 operator fun KobolIRTree.Types.Function.getValue(receiver: Any?, prop: KProperty<*>): KobolIRTree.Types.Function =
     copy(name = prop.name)
+
+infix fun KobolIRTree.Types.Function.Statement.use(action: KobolIRTree.Types.Function.Statement) =
+    KobolIRTree.Types.Function.Statement.Use(
+        target = this,
+        action = action,
+        comments = emptyList()
+    )
+
+infix fun KobolIRTree.Types.Callable.call(parameters: List<KobolIRTree.Expression>) =
+    KobolIRTree.Types.Function.Statement.FunctionCall(this, parameters)

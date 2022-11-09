@@ -123,6 +123,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
         is Use -> code.add(target.toJava2()).add(".").add(action.toJava2()).build()
         is Static -> code.add("\$T", ClassName.get(type.packageName, type.name))
         is Exit -> code.addStatement("System.exit(0)")
+        is Return -> code.addStatement("return \$L", expr.toTemplate())
         is LoadExternal -> code.addStatement("System.loadLibrary(\"$libName\")")
         is DoWhile -> code.beginControlFlow("do").add(functionCall.call()).unindent()
             .add("} while (\$L);\n", condition.toTemplate())
@@ -389,7 +390,9 @@ private fun TypeSpec.Builder.addType(data: KobolIRTree.Types) {
     }
 }
 
-private fun KobolIRTree.Types.Type.Class.toJava() = TypeSpec.classBuilder(name).apply {
+private fun KobolIRTree.Types.Type.Class.toJava2(): TypeSpec = toJava()
+
+private fun KobolIRTree.Types.Type.Class.toJava(): TypeSpec = TypeSpec.classBuilder(name).apply {
     addModifiers(PUBLIC)
     addJavadoc(doc.joinToString("\n"))
 
@@ -411,6 +414,10 @@ private fun KobolIRTree.Types.Type.Class.toJava() = TypeSpec.classBuilder(name).
 
     for (function in functions) {
         addMethod(function.toJava())
+    }
+
+    for (inner in inner) {
+        addType(inner.toJava2())
     }
 }.build()
 

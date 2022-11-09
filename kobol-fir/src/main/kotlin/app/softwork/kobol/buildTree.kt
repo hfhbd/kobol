@@ -1,5 +1,7 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.*
+import app.softwork.kobol.CobolFIRTree.DataTree.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.Configuration.*
@@ -14,33 +16,20 @@ import com.intellij.psi.util.*
 import com.intellij.testFramework.*
 
 fun CobolFile.toTree(): CobolFIRTree {
-    var fileComments: List<String>? = null
-    var id: CobolFIRTree.ID? = null
-    var env: CobolFIRTree.EnvTree? = null
-    var data: CobolFIRTree.DataTree? = null
-    var procedure: CobolFIRTree.ProcedureTree? = null
+    val id = program.idDiv.toID()
+    val env = program.envDiv?.toEnv()
+    val data = program.dataDiv?.toData(env)
+    val procedure = program.procedureDiv.toProcedure(data)
 
-    for (child in children) {
-        if (child is PsiErrorElement) {
-            error("$child")
-        }
-        if (child is PsiWhiteSpace) {
-            continue
-        }
-        child as CobolProgram
-        id = child.idDiv.toID()
-        env = child.envDiv?.toEnv()
-        data = child.dataDiv?.toData()
-        procedure = child.procedureDiv.toProcedure(data)
+    val fileComments = program.comments.asComments()
 
-        fileComments = child.comments.asComments()
-    }
-    if (id != null && procedure != null) {
-        return CobolFIRTree(
-            id = id, env = env, data = data, procedure = procedure, fileComments = fileComments ?: emptyList()
-        )
-    }
-    error("No valid CobolLine found")
+    return CobolFIRTree(
+        id = id,
+        env = env,
+        data = data,
+        procedure = procedure,
+        fileComments = fileComments
+    )
 }
 
 private val commentTokens = TokenSet.create(CobolTypes.COMMENT)
@@ -56,7 +45,7 @@ private fun List<CobolComments>.asComments() = mapNotNull {
     } else null
 }
 
-private fun CobolIdDiv.toID(): CobolFIRTree.ID {
+private fun CobolIdDiv.toID(): ID {
     val (programID, programmIDComments) = programIDClause.let { it.programIDID.varName.text to it.comments.asComments() }
     val (author, authorComments) = authorClauseList.singleOrNull()
         .let { it?.anys?.asString() to it?.comments?.asComments() }
@@ -64,7 +53,7 @@ private fun CobolIdDiv.toID(): CobolFIRTree.ID {
         .let { it?.anys?.asString() to it?.comments?.asComments() }
     val (date, dateComments) = dateClauseList.singleOrNull().let { it?.anys?.asString() to it?.comments?.asComments() }
 
-    return CobolFIRTree.ID(
+    return ID(
         programID = programID,
         programIDComments = programmIDComments,
         author = author,
@@ -82,8 +71,8 @@ private fun CobolAnys.asString(): String {
     }.removePrefix(".").trim()
 }
 
-private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(configuration = config?.let {
-    CobolFIRTree.EnvTree.Configuration(
+private fun CobolEnvDiv.toEnv(): EnvTree = EnvTree(configuration = config?.let {
+    EnvTree.Configuration(
         specialNames = it.specialNamesDef?.let {
             SpecialNames(
                 specialNames = it.specialNameDeclarationList.map {
@@ -97,18 +86,18 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(con
         }, comments = it.comments.asComments()
     )
 }, inputOutput = inputSection?.let {
-    CobolFIRTree.EnvTree.InputOutput(
+    EnvTree.InputOutput(
         fileControl = it.fileControlClause?.let {
             FileControl(
                 it.fileConfigList.map {
-                    val fileVariable: String = it.fileConfigAssign.fileAssignID.let {
+                    val path: String = it.fileConfigAssign.fileAssignID.let {
                         if (it.varName != null) {
                             it.varName!!.text
                         } else it.string!!.text.drop(1).dropLast(1)
                     }
                     FileControl.File(
                         file = it.fileConfigSelect.fileID.varName.text,
-                        fileVariable = fileVariable,
+                        path = path,
                         fileStatus = it.fileConfigStatus.fileStatusID.varName.text,
                         comments = it.comments.asComments()
                     )
@@ -119,7 +108,7 @@ private fun CobolEnvDiv.toEnv(): CobolFIRTree.EnvTree = CobolFIRTree.EnvTree(con
 }, comments = comments.asComments()
 )
 
-private fun MutableList<CobolFIRTree.DataTree.WorkingStorage>.record(
+private fun MutableList<WorkingStorage>.record(
     record: CobolRecordDef,
     currentRecord: Record?
 ): Record? {
@@ -168,7 +157,7 @@ private fun List<CobolRecordDef>.toRecords() = buildList {
 } as List<Record>
 
 
-private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
+private fun CobolDataDiv.toData(envTree: EnvTree?): CobolFIRTree.DataTree {
     val definitions = workingStorageSection?.stmList?.let {
         buildList {
             var currentRecord: Record? = null
@@ -191,7 +180,7 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                         }
                     } else {
                         add(
-                            CobolFIRTree.DataTree.WorkingStorage.Sql(
+                            WorkingStorage.Sql(
                                 sql = sqlString,
                                 comments = sql.comments.asComments()
                             )
@@ -205,19 +194,22 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
     val linkage = linkingSection?.recordDefList?.toRecords()
 
     val fileSection = fileSection?.let {
-        it.fileDescriptionsList.map {
-            CobolFIRTree.DataTree.FileSection(
-                description = it.fileDescription.let {
+        val files = requireNotNull(requireNotNull(requireNotNull(envTree).inputOutput).fileControl).files
 
+        it.fileDescriptionsList.map {
+            val description = it.fileDescription
+            val name: String = description.fileDescriptionID.varName.text
+            val file = files.single { it.file == name }
+            File(
+                name = name,
+                description = description.let {
                     var blocks: Int? = null
-                    var dataRecord: String? = null
                     var recording: String? = null
                     var records: IntRange? = null
 
                     for (desc in it.fileDescriptorsList) {
                         when {
                             desc.blockClause != null -> blocks = desc.blockClause!!.number.text.toInt()
-                            desc.dataRecord != null -> dataRecord = desc.dataRecord!!.varName.text
                             desc.recordingClause != null -> recording = desc.recordingClause!!.varName.text
                             desc.fileRecord != null -> records = desc.fileRecord?.number?.text?.toInt()?.let { start ->
                                 val other = desc.fileRecord!!.fileRecordTo?.number?.text?.toInt() ?: start
@@ -226,27 +218,33 @@ private fun CobolDataDiv.toData(): CobolFIRTree.DataTree {
                         }
                     }
 
-                    CobolFIRTree.DataTree.FileSection.FileDescription(
-                        name = it.fileDescriptionID.varName.text,
-                        dataRecord = requireNotNull(dataRecord),
+                    File.FileDescription(
                         recording = recording,
                         blocks = blocks,
                         records = records,
                         comments = it.comments.asComments()
                     )
                 },
-                it.recordDefList.toRecords()
+                records = it.recordDefList.toRecords(),
+                fileStatus = file.fileStatus,
+                filePath = file.path
             )
         }
     }
 
-    return CobolFIRTree.DataTree(
+    return DataTree(
         fileSection = fileSection ?: emptyList(),
         workingStorage = definitions ?: emptyList(),
         linkingSection = linkage ?: emptyList(),
         comments = commentsList.asComments()
     )
 }
+
+private fun DataTree?.findFile(fileName: String): File =
+    notNull.fileSection.single { it.name == fileName }
+
+private fun DataTree?.findFile(fileRecord: Record): File =
+    notNull.fileSection.single { it.recordName == fileRecord.name }
 
 private fun sa(it: CobolRecordDef, recordName: String?, previous: List<NumberElementar>): Elementar? {
     val name = it.recordID?.varName?.text ?: return null
@@ -592,17 +590,29 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
 
         proc.reading != null -> {
             val reading = proc.reading!!
-            val record: String = reading.fileDescriptionID.varName.text
-            val dataRecords = dataTree.notNull.fileSection.single {
-                it.description.name == record
-            }.records
+            val file = dataTree.findFile(reading.fileDescriptionID.varName.text)
 
             listOf(
                 Read(
-                    file = reading.fileDescriptionID.varName.text,
-                    dataRecords = dataRecords,
+                    file = file,
                     action = reading.readingDuring?.proceduresList?.asStatements(dataTree) ?: emptyList(),
                     atEnd = reading.readingEnd?.proceduresList?.asStatements(dataTree) ?: emptyList(),
+                    comments = proc.comments.asComments()
+                )
+            )
+        }
+        proc.writing != null -> {
+            val writing = proc.writing!!
+            val fileRecord = dataTree.notNull.find(writing.variable) as Record
+            val file = dataTree.findFile(fileRecord)
+            val from = writing.writingFrom?.variable?.let {
+                dataTree.notNull.find(it)
+            }
+
+            listOf(
+                Write(
+                    file = file,
+                    from = from,
                     comments = proc.comments.asComments()
                 )
             )
@@ -610,7 +620,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
 
         proc.closing != null -> listOf(
             Close(
-                file = proc.closing!!.fileDescriptionID.varName.text,
+                file = dataTree.findFile(proc.closing!!.fileDescriptionID.varName.text),
                 comments = proc.comments.asComments()
             )
         )
@@ -619,7 +629,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             val opening = proc.opening!!
             listOf(
                 Open(
-                    file = opening.fileDescriptionID.varName.text,
+                    file = dataTree.findFile(opening.fileDescriptionID.varName.text),
                     type = when (val type = opening.openingType.text.lowercase()) {
                         "input" -> Open.Type.Input
                         "output" -> Open.Type.Output
@@ -729,7 +739,7 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): List<Expression>
             when (val found = dataTree.notNull.find(variable)) {
                 is Record -> found.elements.map { it.toVariable() }
                 is Elementar -> listOf(found.toVariable())
-                is CobolFIRTree.DataTree.WorkingStorage.Sql -> notPossible()
+                is WorkingStorage.Sql -> notPossible()
             }
         }
 
@@ -755,7 +765,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
                 )
 
                 is Record -> notPossible()
-                is CobolFIRTree.DataTree.WorkingStorage.Sql -> notPossible()
+                is WorkingStorage.Sql -> notPossible()
                 is Pointer -> TODO()
             }
         }
@@ -798,17 +808,17 @@ private inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R,
     return accumulator
 }
 
-private fun CobolFIRTree.DataTree.findInLinking(variable: CobolVariable): CobolFIRTree.DataTree.WorkingStorage {
+private fun CobolFIRTree.DataTree.findInLinking(variable: CobolVariable): WorkingStorage {
     val name: String = variable.varName.text
     val of = variable.ofClause?.recordID?.varName?.text
 
     return linkingSection.find(name, of) ?: error("Record with name $name not found in LINKAGE SECTION")
 }
 
-private fun List<CobolFIRTree.DataTree.WorkingStorage>.find(
+private fun List<WorkingStorage>.find(
     name: String,
     of: String?
-): CobolFIRTree.DataTree.WorkingStorage? {
+): WorkingStorage? {
     for (record in this) {
         when (record) {
             is Record -> {
@@ -824,7 +834,7 @@ private fun List<CobolFIRTree.DataTree.WorkingStorage>.find(
                 }
             }
 
-            is CobolFIRTree.DataTree.WorkingStorage.Sql -> Unit
+            is WorkingStorage.Sql -> Unit
 
             is Elementar -> {
                 if (of == null && record.name == name) {
@@ -836,7 +846,7 @@ private fun List<CobolFIRTree.DataTree.WorkingStorage>.find(
     return null
 }
 
-private fun CobolFIRTree.DataTree.find(variable: CobolVariable): CobolFIRTree.DataTree.WorkingStorage {
+private fun CobolFIRTree.DataTree.find(variable: CobolVariable): WorkingStorage {
     val name: String = variable.varName.text
     val of = variable.ofClause?.recordID?.varName?.text
 

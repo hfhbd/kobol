@@ -13,16 +13,18 @@ import app.softwork.kobol.KobolIRTree.Types.Type.*
 import java.io.*
 
 fun File.toIR(
+    firPlugins: List<FirPlugin> = emptyList(),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
-) = toTree().toIRTree(fileConverter, serialization, sqlPrecompiler)
+) = toTree(firPlugins).toIRTree(fileConverter, serialization, sqlPrecompiler)
 
 fun Iterable<File>.toIR(
+    firPlugins: List<FirPlugin> = emptyList(),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
-) = toTree().map {
+) = toTree(firPlugins).map {
     it.toIRTree(fileConverter, serialization, sqlPrecompiler)
 }
 
@@ -139,7 +141,7 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
         name = when (this) {
             is Variable -> target.name
             is StringExpression.StringVariable.Use -> variable.target.name
-            else -> "expr"
+            is StringExpression.Interpolation, is StringExpression.Concat, is Literal -> "expr"
         }, value = null, mutable = false, private = false, comments = emptyList(), const = true, length = -1
     )
 
@@ -475,29 +477,43 @@ fun CobolFIRTree.ProcedureTree.Statement.toIR(
         }
     }
 
+    is Write -> requireNotNull(serialization).write(this)
+
     is Close -> requireNotNull(fileHandler).handleClose(this)
     is Open -> requireNotNull(fileHandler).handleOpen(this)
 }
 
 private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when (this) {
     is StringElementar -> StringDeclaration(
-        name = name, value = value?.let {
-            StringExpression.StringLiteral(it)
-        }, mutable = true, private = false, comments = comments, const = false, length = formatter.length()
+        name = name,
+        value = value?.let { StringExpression.StringLiteral(it) },
+        mutable = true,
+        private = false,
+        comments = comments,
+        const = false,
+        length = formatter.length()
     )
 
     is NumberElementar -> {
         when (formatter.numberType) {
             Formatter.NumberType.Int -> IntDeclaration(
-                name = name, value = value?.let {
-                    IntExpression.IntLiteral(it.toInt())
-                }, mutable = true, private = false, comments = comments, const = false, length = formatter.length()
+                name = name,
+                value = value?.let { IntExpression.IntLiteral(it.toInt()) },
+                mutable = true,
+                private = false,
+                comments = comments,
+                const = false,
+                length = formatter.length()
             )
 
             Formatter.NumberType.Double -> DoubleDeclaration(
-                name = name, value = value?.let {
-                    DoubleExpression.DoubleLiteral(it)
-                }, mutable = true, private = false, comments = comments, const = false, length = formatter.length()
+                name = name,
+                value = value?.let { DoubleExpression.DoubleLiteral(it) },
+                mutable = true,
+                private = false,
+                comments = comments,
+                const = false,
+                length = formatter.length()
             )
         }
     }
@@ -511,25 +527,26 @@ private sealed interface IRResult {
     data class SqlInit(val sqlInit: List<Types.Function.Statement>) : IRResult
 }
 
-private fun CobolFIRTree.DataTree.WorkingStorage.toIR(packageName: String, sqlPrecompiler: SqlPrecompiler?): IRResult = when (this) {
-    is CobolFIRTree.DataTree.WorkingStorage.Elementar -> IRResult.Typ(
-        when (this) {
-            is StringElementar, is NumberElementar -> GlobalVariable(
-                declaration = declaration(), doc = comments
-            )
+private fun CobolFIRTree.DataTree.WorkingStorage.toIR(packageName: String, sqlPrecompiler: SqlPrecompiler?): IRResult =
+    when (this) {
+        is CobolFIRTree.DataTree.WorkingStorage.Elementar -> IRResult.Typ(
+            when (this) {
+                is StringElementar, is NumberElementar -> GlobalVariable(
+                    declaration = declaration(), doc = comments
+                )
 
-            is Pointer -> TODO()
-            is EmptyElementar -> TODO()
+                is Pointer -> TODO()
+                is EmptyElementar -> TODO()
+            }
+        )
+
+        is CobolFIRTree.DataTree.WorkingStorage.Sql -> {
+            requireNotNull(sqlPrecompiler)
+            IRResult.SqlInit(sqlPrecompiler.convert(this))
         }
-    )
 
-    is CobolFIRTree.DataTree.WorkingStorage.Sql -> {
-        requireNotNull(sqlPrecompiler)
-        IRResult.SqlInit(sqlPrecompiler.convert(this))
+        is CobolFIRTree.DataTree.WorkingStorage.Record -> IRResult.Typ(toIR(packageName))
     }
-
-    is CobolFIRTree.DataTree.WorkingStorage.Record -> IRResult.Typ(toIR(packageName))
-}
 
 fun CobolFIRTree.DataTree.WorkingStorage.Record.toIR(packageName: String) = Class(
     name = name,

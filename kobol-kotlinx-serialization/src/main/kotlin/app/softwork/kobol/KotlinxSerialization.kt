@@ -1,39 +1,46 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.kobol.KobolIRTree.Expression.NumberExpression.DoubleExpression.*
+import app.softwork.kobol.KobolIRTree.Expression.NumberExpression.IntExpression.*
+import app.softwork.kobol.KobolIRTree.Expression.StringExpression.*
+import app.softwork.kobol.KobolIRTree.Types.Function.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
+import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.kobol.KobolIRTree.Types.Function.Statement.ForEach
 
 class KotlinxSerialization(
     private val packageName: String
 ) : SerializationPlugin {
-    override fun fileSection(fileSection: CobolFIRTree.DataTree.FileSection): List<KobolIRTree.Types.Type.Class> {
+    override fun fileSection(fileSection: CobolFIRTree.DataTree.File): List<KobolIRTree.Types.Type.Class> {
         val records = fileSection.records
         return if (records.size == 1) {
             val ir = records.single().toIR(packageName)
             val members = ir.members.map {
                 when (it) {
-                    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> it
-                    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> it.copy(
+                    is ObjectDeclaration -> it
+                    is BooleanDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
                         ),
                         nullable = false
                     )
 
-                    is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> it.copy(
+                    is DoubleDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
                         ),
                         nullable = false
                     )
 
-                    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration -> it.copy(
+                    is IntDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
                         ),
                         nullable = false
                     )
 
-                    is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> it.copy(
+                    is StringDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
                         ),
@@ -41,6 +48,26 @@ class KotlinxSerialization(
                     )
                 }
             }
+
+            val inner = KobolIRTree.Types.Type.Class(
+                "companion",
+                packageName = packageName,
+                isObject = true,
+                members = ir.members,
+                functions = listOf(
+                    KobolIRTree.Types.Function(
+                        name = "create",
+                        returnType = ir
+                    ) {
+                        +Return(
+                            FunctionCall(
+                                ir,
+                                ir.members.map { it.variable() }
+                            ),
+                        )
+                    })
+            )
+
             listOf(
                 ir.copy(
                     isData = true,
@@ -50,22 +77,23 @@ class KotlinxSerialization(
                     annotations = mapOf(
                         "kotlinx.serialization.ExperimentalSerializationApi" to emptyList(),
                         "kotlinx.serialization.Serializable" to emptyList()
-                    )
+                    ),
+                    inner = listOf(inner)
                 )
             )
         } else TODO("Sealed class")
     }
 
-    val decodeAsSequence by function { }
+    private val decodeAsSequence by function { }
 
-    val format = KobolIRTree.Types.Type.Class(
+    private val format = KobolIRTree.Types.Type.Class(
         "FixedLengthFormat",
         "app.softwork.serialization.flf",
         isObject = true,
         isData = false,
         functions = listOf(decodeAsSequence)
     )
-    val formatObject = KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration(
+    val formatObject = ObjectDeclaration(
         name = "FixedLengthFormat",
         type = format,
         comments = emptyList(),
@@ -76,10 +104,10 @@ class KotlinxSerialization(
     )
 
     override fun readSequence(
-        read: CobolFIRTree.ProcedureTree.Statement.Read,
-        toIR: List<CobolFIRTree.ProcedureTree.Statement>.() -> List<KobolIRTree.Types.Function.Statement>
-    ): List<KobolIRTree.Types.Function.Statement> {
-        val dataRecord = read.dataRecords.first().name
+        read: Read,
+        toIR: List<CobolFIRTree.ProcedureTree.Statement>.() -> List<Statement>
+    ): List<Statement> {
+        val dataRecord = read.file.recordName
         val klass = KobolIRTree.Types.Type.Class(
             packageName = packageName,
             name = dataRecord,
@@ -87,7 +115,7 @@ class KotlinxSerialization(
             isData = false,
         )
 
-        val variable = KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration(
+        val variable = ObjectDeclaration(
             type = klass,
             name = dataRecord,
             mutable = false,
@@ -96,9 +124,9 @@ class KotlinxSerialization(
             nullable = false
         )
 
-        val readBufferedReader = KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration(
+        val readBufferedReader = ObjectDeclaration(
             type = KobolIRTree.Types.Type.Class(name = "BufferedReader", packageName = "java.io"),
-            name = read.file,
+            name = read.file.name,
             value = null,
             nullable = false
         )
@@ -117,18 +145,7 @@ class KotlinxSerialization(
                         ),
                         action = FunctionCall(
                             KobolIRTree.Types.Function("decode") {},
-                            parameters = listOf(
-                                Use(
-                                    target = Static(klass),
-                                    action = FunctionCall(
-                                        function = KobolIRTree.Types.Function(
-                                            name = "serializer",
-                                            returnType = KobolIRTree.Types.Type.Void,
-                                        ) {},
-                                        parameters = emptyList()
-                                    ),
-                                )
-                            ),
+                            parameters = listOf(klass.serializer())
                         ),
                     )
                 ),
@@ -138,5 +155,43 @@ class KotlinxSerialization(
 
             +read.atEnd.toIR()
         }
+    }
+
+    private fun KobolIRTree.Types.Type.Class.serializer() = Use(
+        target = Static(this),
+        action = FunctionCall(
+            function = KobolIRTree.Types.Function(
+                name = "serializer",
+                returnType = KobolIRTree.Types.Type.Void,
+            ) {},
+            parameters = emptyList()
+        ),
+    )
+
+    override fun write(write: Write): List<Statement> = build {
+        val readBufferedWriter = ObjectDeclaration(
+            type = KobolIRTree.Types.Type.Class(name = "BufferedWriter", packageName = "java.io"),
+            name = write.file.name,
+            value = null,
+            nullable = false
+        )
+        val append = KobolIRTree.Types.Function(
+            name = "append",
+            topLevel = true,
+            packageName = "app.softwork.serialization.flf"
+        ) {}
+
+        val dataRecord = write.file.recordName
+        val klass = KobolIRTree.Types.Type.Class(
+            packageName = packageName,
+            name = dataRecord,
+            isObject = true,
+            isData = false,
+        )
+
+        +(readBufferedWriter use append.call(listOf(
+            klass.serializer(),
+            (Static(klass) use (function("create") {} call emptyList())))
+        ))
     }
 }

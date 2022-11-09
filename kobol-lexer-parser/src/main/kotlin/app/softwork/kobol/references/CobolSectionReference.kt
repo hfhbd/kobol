@@ -9,7 +9,7 @@ class CobolSectionReference(psiElement: CobolSectionID, range: TextRange) :
     PsiReferenceBase<CobolSectionID>(psiElement, range) {
     override fun resolve(): PsiElement? {
         val file = myElement.containingFile as CobolFile
-        val procedures = file.findChildByClass(CobolProgram::class.java)?.procedureDiv ?: return null
+        val procedures = file.programOrNull?.procedureDiv ?: return null
         val section = procedures.procedureSectionList.find {
             it.sectionID.varName.text == myElement.varName.text
         }
@@ -18,7 +18,7 @@ class CobolSectionReference(psiElement: CobolSectionID, range: TextRange) :
 
     override fun getVariants(): Array<LookupElement> {
         val file = myElement.containingFile as CobolFile
-        val procedures = file.findChildByClass(CobolProgram::class.java)?.procedureDiv ?: return emptyArray()
+        val procedures = file.programOrNull?.procedureDiv ?: return emptyArray()
         val sections = buildList {
             for (section in procedures.procedureSectionList) {
                 val sectionName = section.sectionID.varName.text

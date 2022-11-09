@@ -53,9 +53,17 @@ private fun KobolIRTree.Types.Function.toKotlin(packageName: String): FunSpec {
             addKdoc(doc.joinToString(separator = "\n"))
             if (body.any { it is Exit }) {
                 returns(NOTHING)
+            } else {
+                returns(returnType.KType())
             }
         }
     }.build()
+}
+
+private fun KobolIRTree.Types.Type.KType() = when (this) {
+    is KobolIRTree.Types.Type.Class -> ClassName(packageName, name)
+    is KobolIRTree.Types.Type.GlobalVariable -> error("Not possible")
+    KobolIRTree.Types.Type.Void -> UNIT
 }
 
 fun CodeBlock.Builder.addComment(format: String, vararg args: Any): CodeBlock.Builder = apply {
@@ -102,6 +110,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
         is FunctionCall -> code.add("%L", call(packageName))
 
         is Exit -> code.add("return %M(0)", MemberName("kotlin.system", "exitProcess", true))
+        is Return -> code.add("return %L", expr.toTemplate(packageName))
         is LoadExternal -> code.add("System.loadLibrary(\"$libName\")")
         is DoWhile -> code.beginControlFlow("do").addStatement("%L", functionCall.call(packageName)).unindent()
             .add("} while (%L)", condition.toTemplate(packageName))
@@ -394,7 +403,7 @@ private fun KobolIRTree.Expression.NumberExpression.toTemplate(
 private fun FileSpec.Builder.addType(packageName: String, data: KobolIRTree.Types) {
     when (data) {
         is KobolIRTree.Types.Function -> addFunction(data.toKotlin(packageName))
-        is KobolIRTree.Types.Type.Class -> addClass(packageName, data)
+        is KobolIRTree.Types.Type.Class -> addType(data.toKotlin(packageName))
         is KobolIRTree.Types.Type.GlobalVariable -> {
             addGlobalVariable(packageName, data)
         }
@@ -403,20 +412,22 @@ private fun FileSpec.Builder.addType(packageName: String, data: KobolIRTree.Type
     }
 }
 
-private fun FileSpec.Builder.addClass(packageName: String, data: KobolIRTree.Types.Type.Class) {
-    val classBuilder = if (data.isObject) {
-        TypeSpec.objectBuilder(data.name)
+private fun KobolIRTree.Types.Type.Class.toKotlin(packageName: String): TypeSpec {
+    val classBuilder = if (isObject) {
+        if (name == "companion") {
+            TypeSpec.companionObjectBuilder()
+        } else TypeSpec.objectBuilder(name)
     } else {
-        TypeSpec.classBuilder(data.name)
+        TypeSpec.classBuilder(name)
     }
 
-    if (data.isData) {
+    if (isData) {
         classBuilder.modifiers.add(KModifier.DATA)
     }
 
-    classBuilder.addKdoc(data.doc.joinToString("\n"))
+    classBuilder.addKdoc(doc.joinToString("\n"))
 
-    data.annotations.forEach { (annotation, values) ->
+    annotations.forEach { (annotation, values) ->
         classBuilder.addAnnotation(
             AnnotationSpec.builder(ClassName.bestGuess(annotation)).apply {
                 for (value in values) {
@@ -426,15 +437,15 @@ private fun FileSpec.Builder.addClass(packageName: String, data: KobolIRTree.Typ
         )
     }
 
-    if (data.init.isNotEmpty()) {
+    if (init.isNotEmpty()) {
         val initBlock = CodeBlock.builder()
-        for (init in data.init) {
+        for (init in init) {
             initBlock.addStatement("%L", init.toKotlin(packageName))
         }
         classBuilder.addInitializerBlock(initBlock.build())
     }
 
-    val const = data.constructor.takeIf { it.isNotEmpty() }
+    val const = constructor.takeIf { it.isNotEmpty() }
     if (const != null) {
         classBuilder.primaryConstructor(
             FunSpec.constructorBuilder().apply {
@@ -445,9 +456,9 @@ private fun FileSpec.Builder.addClass(packageName: String, data: KobolIRTree.Typ
         )
     }
 
-    for (member in data.members) {
+    for (member in members) {
         classBuilder.addProperty(member.createProperty(packageName).let {
-            if (data.isData) {
+            if (isData) {
                 it.toBuilder().initializer(member.name).apply {
                     annotations.clear()
                     mutable(false)
@@ -456,11 +467,15 @@ private fun FileSpec.Builder.addClass(packageName: String, data: KobolIRTree.Typ
         })
     }
 
-    for (function in data.functions) {
+    for (function in functions) {
         classBuilder.addFunction(function.toKotlin(packageName))
     }
 
-    addType(classBuilder.build())
+    for (inner in inner) {
+        classBuilder.addType(inner.toKotlin(packageName))
+    }
+
+    return classBuilder.build()
 }
 
 private fun FileSpec.Builder.addGlobalVariable(packageName: String, data: KobolIRTree.Types.Type.GlobalVariable) {
@@ -517,22 +532,24 @@ fun generate(
     file: File,
     output: File,
     optimize: Boolean,
+    firPlugins: List<FirPlugin> = emptyList(),
     fileHandling: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
 ) {
-    generate(setOf(file), output, optimize, fileHandling, serialization, sqlPrecompiler)
+    generate(setOf(file), output, optimize, firPlugins, fileHandling, serialization, sqlPrecompiler)
 }
 
 fun generate(
     files: Set<File>,
     output: File,
     optimize: Boolean,
+    firPlugins: List<FirPlugin> = emptyList(),
     fileHandling: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
 ) {
-    for (ir in files.toIR(fileHandling, serialization, sqlPrecompiler)) {
+    for (ir in files.toIR(firPlugins, fileHandling, serialization, sqlPrecompiler)) {
         val finished = if (optimize) {
             ir.optimize()
         } else ir

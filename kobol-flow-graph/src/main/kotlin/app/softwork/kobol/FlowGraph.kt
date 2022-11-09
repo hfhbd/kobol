@@ -69,6 +69,7 @@ private fun StringBuilder.toUml(statement: CobolFIRTree.ProcedureTree.Statement)
             is Read -> TODO()
             is Open -> TODO()
             is Close -> TODO()
+            is Write -> TODO()
         }
     }
 }

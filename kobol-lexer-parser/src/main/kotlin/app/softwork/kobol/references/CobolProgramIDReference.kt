@@ -14,7 +14,7 @@ class CobolProgramIDReference(psiElement: CobolCallingNameProgramID, range: Text
         var found: CobolProgramIDID? = null
         index.iterateContent {
             val file = myElement.manager.findFile(it) as? CobolFile ?: return@iterateContent true
-            val id = file.findChildByClass(CobolProgram::class.java)?.idDiv ?: return@iterateContent true
+            val id = file.programOrNull?.idDiv ?: return@iterateContent true
             val myText = myElement.text.noIdea.drop(1).dropLast(1)
             val programID = id.programIDClause.programIDID
             if (programID.varName.text == myText) {
@@ -32,7 +32,7 @@ class CobolProgramIDReference(psiElement: CobolCallingNameProgramID, range: Text
         val programs = buildList {
             index.iterateContent {
                 val file = myElement.manager.findFile(it) as? CobolFile ?: return@iterateContent true
-                val id = file.findChildByClass(CobolProgram::class.java)?.idDiv ?: return@iterateContent true
+                val id = file.programOrNull?.idDiv ?: return@iterateContent true
                 val myText = myElement.text.noIdea.drop(1).dropLast(1)
                 val programID = id.programIDClause.programIDID
                 val myProgram = programID.varName.text
