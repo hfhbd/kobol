@@ -43,6 +43,7 @@ private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTr
         is KobolIRTree.Types.Function.Statement.Declaration -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.DoWhile -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.Exit -> this
+        is KobolIRTree.Types.Function.Statement.Return -> copy(expr = expr.booleanExpressions())
         is KobolIRTree.Types.Function.Statement.For -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.ForEach -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.FunctionCall -> booleanExpressions()

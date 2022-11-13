@@ -12,12 +12,7 @@ object CobolElementFactory {
         val name = "dummy.cbl"
         val cobolText = """123456 IDENTIFICATION DIVISION. PROGRAM-ID. $text. PROCEDURE DIVISION. CONTINUE."""
         val file = PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType.INSTANCE, cobolText) as CobolFile
-        for (child in file.children) {
-            if (child is CobolProgram) {
-                return child
-            }
-        }
-        error("No CobolProgram found by using createFile")
+        return file.program
     }
 
     fun includeSQL(project: Project, fileName: String): List<CobolRecordDef> {
@@ -46,11 +41,6 @@ object CobolElementFactory {
             """123456 IDENTIFICATION DIVISION. PROGRAM-ID. INCLUDESQL. DATA DIVISION. WORKING-STORAGE SECTION. $addLineNumber PROCEDURE DIVISION. CONTINUE."""
         val cobolFile =
             PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType.INSTANCE, cobolText) as CobolFile
-        for (child in cobolFile.children) {
-            if (child is CobolProgram) {
-                return child.dataDiv!!.workingStorageSection!!.stmList.map { it.recordDef!! }
-            }
-        }
-        error("No CobolProgram found by using createFile")
+        return cobolFile.program.dataDiv!!.workingStorageSection!!.stmList.map { it.recordDef!! }
     }
 }

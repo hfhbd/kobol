@@ -43,6 +43,7 @@ private fun KobolIRTree.Types.Function.Statement.updateNames(): KobolIRTree.Type
     )
 
     is KobolIRTree.Types.Function.Statement.Exit -> this
+    is KobolIRTree.Types.Function.Statement.Return -> copy(expr = expr.toCamelCase())
     is KobolIRTree.Types.Function.Statement.LoadExternal -> this
     is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> updateName()
     is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> updateName()

@@ -2,7 +2,6 @@ package app.softwork.kobol
 
 import app.softwork.kobol.CobolFIRTree.*
 import app.softwork.kobol.CobolFIRTree.DataTree.*
-import app.softwork.kobol.CobolFIRTree.DataTree.FileSection.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.*
@@ -24,6 +23,10 @@ class CobolParserTest {
         val input = """
                 123456 IDENTIFICATION DIVISION.
                 123456 PROGRAM-ID. HELLO.
+                123456 ENVIRONMENT DIVISION.
+                123456 INPUT-OUTPUT SECTION.
+                123456 FILE-CONTROL.
+                123456 SELECT FOO ASSIGN A FILE STATUS EIN.
                 123456 DATA DIVISION.
                 123456 FILE SECTION.
                 123456 FD FOO
@@ -52,37 +55,61 @@ class CobolParserTest {
 
         assertEquals(CobolFIRTree(id = ID(
             programID = "HELLO"
-        ), data = DataTree(
-            fileSection = build {
-                +FileSection(
-                    description = FileDescription(
-                        name = "FOO",
-                        dataRecord = "BAR-1",
-                        recording = "V"
-                    ),
-                    records = build {
-                        +Record("BAR-1") {
-                            +StringElementar(name = "FOO", recordName = "BAR-1", value = null, formatter = Simple(3))
-                            +StringElementar(name = "BAR", recordName = "BAR-1", value = null, formatter = Simple(3))
-                        }
-                    }
+        ), env = EnvTree(
+            inputOutput = InputOutput(
+                fileControl = InputOutput.FileControl(
+                    files = listOf(
+                        InputOutput.FileControl.File(
+                            file = "FOO",
+                            path = "A",
+                            fileStatus = "EIN"
+                        )
+                    )
                 )
-            },
-            workingStorage = build {
-            +Record(name = "RPI") {
-                +world
-                +StringElementar(name = "ANSWER", recordName = "RPI", formatter = Simple(6))
-            }
-            +foo
-            +Record(name = "RPICA") {
-                +fooRPICA
-            }
-            +StringElementar(name = "BAR", recordName = null, formatter = Simple(3))
-        }), procedure = ProcedureTree(topLevel = build {
-            +Display(StringVariable(target = world))
-            +Display(StringVariable(target = foo))
-            +Display(StringVariable(target = fooRPICA))
-        })
+            )
+        ),
+            data = DataTree(
+                fileSection = build {
+                    +File(
+                        name = "FOO",
+                        description = File.FileDescription(
+                            recording = "V"
+                        ),
+                        filePath = "A",
+                        fileStatus = "EIN",
+                        records = build {
+                            +Record("BAR-1") {
+                                +StringElementar(
+                                    name = "FOO",
+                                    recordName = "BAR-1",
+                                    value = null,
+                                    formatter = Simple(3)
+                                )
+                                +StringElementar(
+                                    name = "BAR",
+                                    recordName = "BAR-1",
+                                    value = null,
+                                    formatter = Simple(3)
+                                )
+                            }
+                        }
+                    )
+                },
+                workingStorage = build {
+                    +Record(name = "RPI") {
+                        +world
+                        +StringElementar(name = "ANSWER", recordName = "RPI", formatter = Simple(6))
+                    }
+                    +foo
+                    +Record(name = "RPICA") {
+                        +fooRPICA
+                    }
+                    +StringElementar(name = "BAR", recordName = null, formatter = Simple(3))
+                }), procedure = ProcedureTree(topLevel = build {
+                +Display(StringVariable(target = world))
+                +Display(StringVariable(target = foo))
+                +Display(StringVariable(target = fooRPICA))
+            })
         ), input.toTree()
         )
     }
@@ -195,13 +222,13 @@ class CobolParserTest {
                             files = listOf(
                                 InputOutput.FileControl.File(
                                     file = "FOO-FILE",
-                                    fileVariable = "FOO",
+                                    path = "FOO",
                                     fileStatus = "FOO-STATUS",
                                     comments = listOf("FOO I", "FOO II")
                                 ),
                                 InputOutput.FileControl.File(
                                     file = "FOO-FILE2",
-                                    fileVariable = "FOO",
+                                    path = "FOO",
                                     fileStatus = "FOO-STATUS"
                                 )
                             ), comments = listOf("FILE I", "FILE II")
@@ -210,15 +237,16 @@ class CobolParserTest {
                 ),
                 data = DataTree(
                     fileSection = listOf(
-                        FileSection(
-                            description = FileDescription(
-                                name = "FOO-FILE",
-                                dataRecord = "F",
+                        File(
+                            name = "FOO-FILE",
+                            description = File.FileDescription(
                                 recording = "F",
                                 blocks = null,
                                 records = null,
                                 comments = emptyList()
                             ),
+                            filePath = "FOO",
+                            fileStatus = "FOO-STATUS",
                             records = listOf(Record(name = "F", elements = emptyList()))
                         )
                     ),
@@ -405,63 +433,83 @@ class CobolParserTest {
         val bar = NumberElementar("BAR", recordName = null, value = 1.0, formatter = Simple(1))
         val barResult = NumberElementar("BARRESULT", recordName = null, value = 1.0, formatter = Simple(1))
 
-        assertEquals(CobolFIRTree(id = ID(programID = "HELLO"),
-            data = DataTree(workingStorage = build {
-                +bar
-                +barResult
-                +Record("SQLCA") {
-                    +StringElementar("SQLCAID",  recordName = "SQLCA",value = "SQLCA   ", formatter = Simple(8))
-                    +NumberElementar(
-                        "SQLCABC",  recordName = "SQLCA",value = 136.0, signed = true, compressed = COMP5, formatter = Simple(9)
-                    )
-                    +NumberElementar("SQLCODE",  recordName = "SQLCA",signed = true, compressed = COMP5, formatter = Simple(9))
-                    +EmptyElementar("SQLERRM", recordName = "SQLCA")
-                    +StringElementar("SQLERRP", recordName = "SQLCA", Simple(8))
-                    +NumberElementar("SQLERRD", recordName = "SQLCA", Simple(9), signed = true, compressed = COMP5, occurs = Occurs(6))
-                    +EmptyElementar("SQLWARN", recordName = "SQLCA")
-                    repeat(10) {
-                        +StringElementar("SQLWARN$it", recordName = "SQLCA", Simple(1))
+        assertEquals(
+            CobolFIRTree(
+                id = ID(programID = "HELLO"),
+                data = DataTree(workingStorage = build {
+                    +bar
+                    +barResult
+                    +Record("SQLCA") {
+                        +StringElementar("SQLCAID", recordName = "SQLCA", value = "SQLCA   ", formatter = Simple(8))
+                        +NumberElementar(
+                            "SQLCABC",
+                            recordName = "SQLCA",
+                            value = 136.0,
+                            signed = true,
+                            compressed = COMP5,
+                            formatter = Simple(9)
+                        )
+                        +NumberElementar(
+                            "SQLCODE",
+                            recordName = "SQLCA",
+                            signed = true,
+                            compressed = COMP5,
+                            formatter = Simple(9)
+                        )
+                        +EmptyElementar("SQLERRM", recordName = "SQLCA")
+                        +StringElementar("SQLERRP", recordName = "SQLCA", Simple(8))
+                        +NumberElementar(
+                            "SQLERRD",
+                            recordName = "SQLCA",
+                            Simple(9),
+                            signed = true,
+                            compressed = COMP5,
+                            occurs = Occurs(6)
+                        )
+                        +EmptyElementar("SQLWARN", recordName = "SQLCA")
+                        repeat(10) {
+                            +StringElementar("SQLWARN$it", recordName = "SQLCA", Simple(1))
+                        }
+                        +StringElementar("SQLWARNA", recordName = "SQLCA", Simple(1))
+                        +sqlState
                     }
-                    +StringElementar("SQLWARNA", recordName = "SQLCA", Simple(1))
-                    +sqlState
-                }
-                +foo
-            }),
-            procedure = ProcedureTree(topLevel = build {
-                +ProcedureTree.Statement.Sql(
-                    "SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1",
-                    hostVariables = listOf(NumberVariable(foo)),
-                    parameter = emptyList(),
-                    type = Select
-                )
-                +ProcedureTree.Statement.Sql(
-                    "SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1",
-                    hostVariables = listOf(NumberVariable(foo)),
-                    parameter = emptyList(),
-                    type = Select
-                )
-                +ProcedureTree.Statement.Sql(
-                    "SET :FOO = 42",
-                    hostVariables = listOf(NumberVariable(foo)),
-                    parameter = emptyList(),
-                    type = Select
-                )
-                +ProcedureTree.Statement.Sql(
-                    "SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC",
-                    hostVariables = listOf(NumberVariable(foo)),
-                    parameter = listOf(),
-                    type = Select
-                )
-                +ProcedureTree.Statement.Sql(
-                    "SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC",
-                    hostVariables = listOf(NumberVariable(foo), NumberVariable(barResult)),
-                    parameter = listOf(NumberVariable(bar), NumberVariable(foo)),
-                    type = Select
-                )
-                +Display(Interpolation(NumberVariable(foo)))
-                +Display(StringVariable(sqlState))
-            })
-        ), input.toTree("SQLCA" to sqlca, "LINES" to lines)
+                    +foo
+                }),
+                procedure = ProcedureTree(topLevel = build {
+                    +ProcedureTree.Statement.Sql(
+                        "SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1",
+                        hostVariables = listOf(NumberVariable(foo)),
+                        parameter = emptyList(),
+                        type = Select
+                    )
+                    +ProcedureTree.Statement.Sql(
+                        "SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1",
+                        hostVariables = listOf(NumberVariable(foo)),
+                        parameter = emptyList(),
+                        type = Select
+                    )
+                    +ProcedureTree.Statement.Sql(
+                        "SET :FOO = 42",
+                        hostVariables = listOf(NumberVariable(foo)),
+                        parameter = emptyList(),
+                        type = Select
+                    )
+                    +ProcedureTree.Statement.Sql(
+                        "SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC",
+                        hostVariables = listOf(NumberVariable(foo)),
+                        parameter = listOf(),
+                        type = Select
+                    )
+                    +ProcedureTree.Statement.Sql(
+                        "SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC",
+                        hostVariables = listOf(NumberVariable(foo), NumberVariable(barResult)),
+                        parameter = listOf(NumberVariable(bar), NumberVariable(foo)),
+                        type = Select
+                    )
+                    +Display(Interpolation(NumberVariable(foo)))
+                    +Display(StringVariable(sqlState))
+                })
+            ), input.toTree("SQLCA" to sqlca, "LINES" to lines)
         )
     }
 
