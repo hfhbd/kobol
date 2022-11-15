@@ -150,9 +150,7 @@ public class KotlinxSerialization(
                 statements = read.action.toIR(),
                 comments = read.comments
             )
-
-            +read.atEnd.toIR()
-        }
+        } + read.atEnd.toIR()
     }
 
     private fun KobolIRTree.Types.Type.Class.serializer() = Use(
