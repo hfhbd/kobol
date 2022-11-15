@@ -1,18 +1,19 @@
 package app.softwork.kobol
 
-import app.softwork.kobol.CobolFIRTree.*
-import app.softwork.kobol.CobolFIRTree.DataTree.*
-import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.*
-import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
-import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.*
-import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.Custom.Part.*
-import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.Compressed.*
-import app.softwork.kobol.CobolFIRTree.EnvTree.*
-import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
-import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.NumberExpression.*
-import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.StringExpression.*
-import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
-import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.Sql.SqlType.*
+import app.softwork.kobol.fir.*
+import app.softwork.kobol.fir.CobolFIRTree.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.Custom.Part.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.Compressed.*
+import app.softwork.kobol.fir.CobolFIRTree.EnvTree.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.NumberExpression.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.StringExpression.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Sql.SqlType.*
 import org.intellij.lang.annotations.*
 import kotlin.test.*
 

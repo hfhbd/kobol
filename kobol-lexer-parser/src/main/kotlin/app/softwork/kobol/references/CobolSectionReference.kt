@@ -5,7 +5,7 @@ import com.intellij.codeInsight.lookup.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 
-class CobolSectionReference(psiElement: CobolSectionID, range: TextRange) :
+public class CobolSectionReference(psiElement: CobolSectionID, range: TextRange) :
     PsiReferenceBase<CobolSectionID>(psiElement, range) {
     override fun resolve(): PsiElement? {
         val file = myElement.containingFile as CobolFile

@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 
-class CobolProgramIDReference(psiElement: CobolCallingNameProgramID, range: TextRange) :
+public class CobolProgramIDReference(psiElement: CobolCallingNameProgramID, range: TextRange) :
     PsiReferenceBase<CobolCallingNameProgramID>(psiElement, range) {
     override fun resolve(): PsiElement? {
         val index = ProjectRootManager.getInstance(myElement.manager.project).fileIndex

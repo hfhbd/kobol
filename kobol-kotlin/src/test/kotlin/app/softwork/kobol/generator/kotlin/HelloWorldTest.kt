@@ -1,6 +1,8 @@
 package app.softwork.kobol.generator.kotlin
 
 import app.softwork.kobol.*
+import app.softwork.kobol.fir.*
+import app.softwork.kobol.ir.*
 import app.softwork.kobol.sqldelightprecompiler.*
 import app.softwork.sqldelightwriter.*
 import java.io.*

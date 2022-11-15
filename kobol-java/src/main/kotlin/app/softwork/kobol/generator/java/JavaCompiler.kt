@@ -1,16 +1,18 @@
 package app.softwork.kobol.generator.java
 
 import app.softwork.kobol.*
-import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
-import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
-import app.softwork.kobol.optimizations.*
+import app.softwork.kobol.ir.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.kobol.ir.optimizations.*
+import app.softwork.kobol.ir.optimizations.*
 import com.squareup.javapoet.*
 import java.io.*
 import javax.lang.model.element.*
 import javax.lang.model.element.Modifier.*
 import kotlin.math.*
 
-fun generate(tree: KobolIRTree, java8: Boolean): List<JavaFile> {
+public fun generate(tree: KobolIRTree, java8: Boolean): List<JavaFile> {
     val tree = if (java8) {
         tree.whenToIf()
     } else tree
@@ -77,14 +79,11 @@ private fun KobolIRTree.Types.Function.toJava(): MethodSpec {
     }.build()
 }
 
-fun CodeBlock.Builder.addComment(format: String): CodeBlock.Builder = apply {
+private fun CodeBlock.Builder.addComment(format: String): CodeBlock.Builder = apply {
     add("// $format\n")
 }
 
-@Suppress("NOTHING_TO_INLINE")
-private inline fun KobolIRTree.Types.Function.Statement.toJava2(): CodeBlock = toJava()
-
-private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().let { code ->
+private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock.builder().let { code ->
     if (this !is Declaration && comments.isNotEmpty()) {
         for (comment in comments) {
             code.addComment(comment)
@@ -95,7 +94,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
             val declaration = declaration
             val dec = if (declaration is Declaration) {
                 declaration.member()
-            } else declaration.toJava2()
+            } else declaration.toJava()
             code.addStatement("\$L = \$L", dec, newValue.toTemplate())
         }
 
@@ -120,7 +119,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
         is Print -> code.println(this)
         is Declaration -> code.add(CodeBlock.of("\$L", createProperty()))
         is FunctionCall -> code.add(call())
-        is Use -> code.add(target.toJava2()).add(".").add(action.toJava2()).build()
+        is Use -> code.add(target.toJava()).add(".").add(action.toJava()).build()
         is Static -> code.add("\$T", ClassName.get(type.packageName, type.name))
         is Exit -> code.addStatement("System.exit(0)")
         is Return -> code.addStatement("return \$L", expr.toTemplate())
@@ -138,7 +137,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
 
             code.beginControlFlow("for (\$L; \$L; \$L)", init, condition, stepBlock)
             for (stmt in statements) {
-                code.add(stmt.toJava2())
+                code.add(stmt.toJava())
             }
             code.endControlFlow()
         }
@@ -146,7 +145,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
         is ForEach -> {
             code.beginControlFlow("for (\$N: \$L)", variable.name, provider.toTemplate())
             for (stmt in statements) {
-                code.add(stmt.toJava2())
+                code.add(stmt.toJava())
             }
             code.endControlFlow()
         }
@@ -154,7 +153,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
         is While -> {
             code.beginControlFlow("while (\$L)", condition.toTemplate())
             for (stmt in statements) {
-                val add = stmt.toJava2()
+                val add = stmt.toJava()
                 code.add(add)
             }
             code.endControlFlow()
@@ -163,13 +162,13 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
         is If -> {
             code.beginControlFlow("if (\$L)", condition.toTemplate())
             for (stmt in statements) {
-                val add = stmt.toJava2()
+                val add = stmt.toJava()
                 code.add(add)
             }
             if (elseStatements.isNotEmpty()) {
                 code.nextControlFlow("else")
                 for (stmt in elseStatements) {
-                    val add = stmt.toJava2()
+                    val add = stmt.toJava()
                     code.add(add)
                 }
             }
@@ -189,7 +188,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
                 }
 
                 for (stmt in case.action) {
-                    code.add("\$L", stmt.toJava2())
+                    code.add("\$L", stmt.toJava())
                 }
                 code.endControlFlow()
             }
@@ -197,7 +196,7 @@ private fun KobolIRTree.Types.Function.Statement.toJava() = CodeBlock.builder().
             if (elseCase != null) {
                 code.beginControlFlow("else ->")
                 for (stmt in elseCase.action) {
-                    code.add("\$L", stmt.toJava2())
+                    code.add("\$L", stmt.toJava())
                 }
                 code.endControlFlow()
             }
@@ -269,7 +268,7 @@ private fun KobolIRTree.Expression.toTemplate(): CodeBlock = when (this) {
     is KobolIRTree.Expression.NumberExpression -> toTemplate()
     is KobolIRTree.Expression.BooleanExpression -> toTemplate()
     is FunctionCall -> call()
-    is Use -> CodeBlock.builder().add(target.toJava2()).add(".").add(action.toJava2()).build()
+    is Use -> CodeBlock.builder().add(target.toJava()).add(".").add(action.toJava()).build()
     is If -> TODO()
     is When -> TODO()
     is KobolIRTree.Types.Type.GlobalVariable -> toCodeBlock()
@@ -465,11 +464,11 @@ private val Declaration.Type: TypeName
         is ObjectDeclaration -> ClassName.get(type.packageName, type.name)
     }
 
-fun generate(file: File, output: File, optimize: Boolean, java8: Boolean) {
+public fun generate(file: File, output: File, optimize: Boolean, java8: Boolean) {
     generate(setOf(file), output, optimize, java8)
 }
 
-fun generate(files: Set<File>, output: File, optimize: Boolean, java8: Boolean) {
+public fun generate(files: Set<File>, output: File, optimize: Boolean, java8: Boolean) {
     for (ir in files.toIR()) {
         val finished = if (optimize) {
             ir.optimize()

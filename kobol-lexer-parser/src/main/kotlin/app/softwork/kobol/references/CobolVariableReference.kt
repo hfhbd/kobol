@@ -5,7 +5,7 @@ import com.intellij.codeInsight.lookup.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 
-class CobolVariableReference(psiElement: CobolVariable, range: TextRange) :
+public class CobolVariableReference(psiElement: CobolVariable, range: TextRange) :
     PsiReferenceBase<CobolVariable>(psiElement, range), PsiPolyVariantReference {
     override fun resolve(): PsiElement? {
         return multiResolve(false).singleOrNull()?.element

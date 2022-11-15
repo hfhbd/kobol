@@ -5,7 +5,6 @@ plugins {
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
     `maven-publish`
     id("app.cash.licensee") version "1.6.0" apply false
-    id("com.github.johnrengelman.shadow") version "7.1.2" apply false
 }
 
 allprojects {
@@ -57,6 +56,10 @@ subprojects {
                 jvmTarget = "17"
             }
         }
+    }
+
+    the<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>().apply {
+        explicitApi()
     }
 
     publishing {

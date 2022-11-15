@@ -1,6 +1,5 @@
 plugins {
     `java-gradle-plugin`
-    id("com.github.johnrengelman.shadow")
 }
 
 gradlePlugin {
@@ -10,11 +9,6 @@ gradlePlugin {
             implementationClass = "app.softwork.kobol.KobolGradlePlugin"
         }
     }
-}
-
-val shade = configurations.create("shade")
-configurations {
-    compileOnly.get().extendsFrom(shade)
 }
 
 dependencies {
@@ -30,9 +24,9 @@ dependencies {
     implementation("net.java.dev.jna:jna-platform:5.12.1")
 
     val idea = "222.4345.24"
-    shade("com.jetbrains.intellij.platform:core-impl:$idea")
-    shade("com.jetbrains.intellij.platform:project-model-impl:$idea")
-    shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
+    compileOnly("com.jetbrains.intellij.platform:core-impl:$idea")
+    compileOnly("com.jetbrains.intellij.platform:project-model-impl:$idea")
+    compileOnly("com.jetbrains.intellij.platform:analysis-impl:$idea")
 
     testImplementation(kotlin("test"))
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
@@ -50,31 +44,4 @@ licensee {
 
 tasks.validatePlugins {
     enableStricterValidation.set(true)
-}
-
-tasks.shadowJar {
-    archiveClassifier.set("")
-    configurations = listOf(shade)
-
-    include("*.jar")
-    include("misc/*.properties")
-    include("app/softwork/kobol/**")
-
-    include("org/intellij/**")
-    include("com/intellij/**")
-    include("org/picocontainer/**")
-    include("it/unimi/**")
-    include("org/jdom/**")
-    include("com/github/benmanes/**")
-
-    include("META-INF/gradle-plugins/*")
-    include("messages/*.properties")
-
-    exclude("/groovy**")
-    exclude("/kotlin/**")
-}
-
-artifacts {
-    runtimeOnly(tasks.shadowJar)
-    archives(tasks.shadowJar)
 }

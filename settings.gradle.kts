@@ -18,3 +18,5 @@ include(":kobol-gradle-plugin")
 include(":kobol-intellij-plugin")
 
 include(":kobol-flow-graph")
+
+include(":kobol-plugins:kobol-plugins-nullabletozero")
