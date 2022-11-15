@@ -6,7 +6,7 @@ gradlePlugin {
     plugins {
         create("kobol") {
             id = "app.softwork.kobol"
-            implementationClass = "app.softwork.kobol.KobolGradlePlugin"
+            implementationClass = "app.softwork.kobol.gradle.KobolGradlePlugin"
         }
     }
 }
