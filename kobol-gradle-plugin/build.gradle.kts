@@ -82,7 +82,7 @@ artifacts {
 val sources: PublishArtifact = artifacts.sourceArtifacts(tasks.kotlinSourcesJar)
 publishing {
     publications {
-        register<MavenPublication>("mavenJavaSource") {
+        register<MavenPublication>("pluginMaven") {
             artifact(sources)
         }
     }
