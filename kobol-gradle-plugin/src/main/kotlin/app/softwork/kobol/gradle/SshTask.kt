@@ -8,17 +8,17 @@ import org.gradle.api.Task
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 
-internal interface SshTask : Task {
+public interface SshTask : Task {
     @get:Input
-    val host: Property<String>
+    public val host: Property<String>
 
     @get:Input
-    val user: Property<String>
+    public val user: Property<String>
 
     @get:Input
-    val folder: Property<String>
+    public val folder: Property<String>
 
-    fun sshClient(action: SSHClient.() -> Unit) {
+    public fun sshClient(action: SSHClient.() -> Unit) {
         SSHClient().use { ssh ->
             ssh.loadKnownHosts()
             ssh.connect(host.get())
@@ -28,7 +28,7 @@ internal interface SshTask : Task {
         }
     }
 
-    fun SSHClient.exec(cmd: String) {
+    public fun SSHClient.exec(cmd: String) {
         val (output, result) = startSession().use {
             val result = it.exec(cmd)
             result.inputStream.reader().use { it.readText() } to result
