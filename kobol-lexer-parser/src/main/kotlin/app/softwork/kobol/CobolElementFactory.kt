@@ -4,8 +4,8 @@ import com.intellij.openapi.project.*
 import com.intellij.openapi.roots.*
 import com.intellij.psi.*
 
-object CobolElementFactory {
-    fun createVarName(project: Project, name: String) =
+public object CobolElementFactory {
+    internal fun createVarName(project: Project, name: String): PsiElement =
         createProgram(project, name).idDiv.programIDClause.programIDID.varName
 
     private fun createProgram(project: Project, text: String): CobolProgram {
@@ -15,7 +15,7 @@ object CobolElementFactory {
         return file.program
     }
 
-    fun includeSQL(project: Project, fileName: String): List<CobolRecordDef> {
+    public fun includeSQL(project: Project, fileName: String): List<CobolRecordDef> {
         val name = "dummy.cbl"
         var text: String? = null
         val fileIndex = project.getService(ProjectFileIndex::class.java)

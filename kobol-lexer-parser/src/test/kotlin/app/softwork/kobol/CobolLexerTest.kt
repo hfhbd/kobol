@@ -1,6 +1,7 @@
 package app.softwork.kobol
 
 import app.softwork.kobol.CobolTypes.*
+import app.softwork.kobol.fir.*
 import com.intellij.lexer.*
 import com.intellij.psi.tree.*
 import org.intellij.lang.annotations.*

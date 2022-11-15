@@ -1,6 +1,6 @@
 package app.softwork.kobol.generator.java
 
-import app.softwork.kobol.*
+import app.softwork.kobol.ir.*
 import java.io.*
 import kotlin.test.*
 

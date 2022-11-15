@@ -1,13 +1,14 @@
 package app.softwork.kobol.generator.kotlin
 
-import app.softwork.kobol.*
-import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
-import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
-import app.softwork.kobol.optimizations.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.kobol.fir.*
+import app.softwork.kobol.ir.*
+import app.softwork.kobol.ir.optimizations.*
 import com.squareup.kotlinpoet.*
 import java.io.*
 
-fun generate(tree: KobolIRTree): FileSpec {
+internal fun generate(tree: KobolIRTree): FileSpec {
     val packageName = tree.name
     val fileSpec = FileSpec.builder(packageName, packageName).apply {
         tree.types.forEach {
@@ -66,13 +67,11 @@ private fun KobolIRTree.Types.Type.KType() = when (this) {
     KobolIRTree.Types.Type.Void -> UNIT
 }
 
-fun CodeBlock.Builder.addComment(format: String, vararg args: Any): CodeBlock.Builder = apply {
+private fun CodeBlock.Builder.addComment(format: String, vararg args: Any): CodeBlock.Builder = apply {
     add("//·${format.replace(' ', '·')}\n", *args)
 }
 
-private fun KobolIRTree.Types.Function.Statement.toKotlin2(packageName: String): CodeBlock = toKotlin(packageName)
-
-private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) = CodeBlock.builder().let { code ->
+private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) : CodeBlock = CodeBlock.builder().let { code ->
     if (this !is Declaration && comments.isNotEmpty()) {
         for (comment in comments) {
             code.addComment(comment)
@@ -83,11 +82,11 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
             val target = target
             val betterTarget = if (target is Declaration) {
                 CodeBlock.of("%M", target.member(packageName))
-            } else target.toKotlin2(packageName)
+            } else target.toKotlin(packageName)
             val action = action
             val betterAction = if (action is Declaration) {
                 CodeBlock.of("%M", action.member(packageName))
-            } else action.toKotlin2(packageName)
+            } else action.toKotlin(packageName)
             code.add(
                 "%L.%L", betterTarget, betterAction
             )
@@ -119,7 +118,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
             code.add("%L = %L\n", counter.name, from.toTemplate(packageName))
             code.beginControlFlow("while (%L)", condition.toTemplate(packageName))
             for (stmt in statements) {
-                code.addStatement("%L", stmt.toKotlin2(packageName))
+                code.addStatement("%L", stmt.toKotlin(packageName))
             }
             val step = step
             if (step != null) {
@@ -132,7 +131,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
         is ForEach -> {
             code.beginControlFlow("for (%N in %L)", variable.name, provider.toTemplate(packageName))
             for (stmt in statements) {
-                code.addStatement("%L", stmt.toKotlin2(packageName))
+                code.addStatement("%L", stmt.toKotlin(packageName))
             }
             code.unindent()
             code.add("}")
@@ -141,7 +140,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
         is While -> {
             code.beginControlFlow("while (%L)", condition.toTemplate(packageName))
             for (stmt in statements) {
-                val add = stmt.toKotlin2(packageName)
+                val add = stmt.toKotlin(packageName)
                 code.addStatement("%L", add)
             }
             code.unindent()
@@ -151,7 +150,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
         is If -> {
             code.beginControlFlow("if (%L)", condition.toTemplate(packageName))
             for (stmt in statements) {
-                val add = stmt.toKotlin2(packageName)
+                val add = stmt.toKotlin(packageName)
                 code.add("%L", add)
                 code.add("\n")
             }
@@ -159,7 +158,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
             for (elseIf in elseIfs) {
                 code.nextControlFlow("else if (%L)", elseIf.condition.toTemplate(packageName))
                 for (stmt in elseIf.statements) {
-                    val add = stmt.toKotlin2(packageName)
+                    val add = stmt.toKotlin(packageName)
                     code.addStatement("%L", add)
                 }
             }
@@ -167,7 +166,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
             if (elseStatements.isNotEmpty()) {
                 code.nextControlFlow("else")
                 for (stmt in elseStatements) {
-                    val add = stmt.toKotlin2(packageName)
+                    val add = stmt.toKotlin(packageName)
                     code.addStatement("%L", add)
                 }
             }
@@ -188,7 +187,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
                 }
 
                 for (stmt in case.action) {
-                    code.addStatement("%L", stmt.toKotlin2(packageName))
+                    code.addStatement("%L", stmt.toKotlin(packageName))
                 }
                 code.endControlFlow()
             }
@@ -196,7 +195,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) =
             if (elseCase != null) {
                 code.beginControlFlow("else ->")
                 for (stmt in elseCase.action) {
-                    code.addStatement("%L", stmt.toKotlin2(packageName))
+                    code.addStatement("%L", stmt.toKotlin(packageName))
                 }
                 code.endControlFlow()
             }
@@ -277,8 +276,8 @@ private fun KobolIRTree.Expression.toTemplate(packageName: String, insideString:
         is KobolIRTree.Expression.NumberExpression -> toTemplate(packageName, insideString)
         is KobolIRTree.Expression.BooleanExpression -> toTemplate(packageName)
         is FunctionCall -> call(packageName)
-        is If -> TODO()
-        is When -> TODO()
+        is If -> toKotlin(packageName)
+        is When -> toKotlin(packageName)
         is KobolIRTree.Types.Type.GlobalVariable -> toCodeBlock(packageName, insideString)
         is Use -> toKotlin(packageName)
 
@@ -528,7 +527,7 @@ private val Declaration.KType: TypeName
         is ObjectDeclaration -> ClassName(type.packageName, type.name)
     }
 
-fun generate(
+public fun generate(
     file: File,
     output: File,
     optimize: Boolean,
@@ -540,7 +539,7 @@ fun generate(
     generate(setOf(file), output, optimize, firPlugins, fileHandling, serialization, sqlPrecompiler)
 }
 
-fun generate(
+public fun generate(
     files: Set<File>,
     output: File,
     optimize: Boolean,

@@ -36,12 +36,12 @@
 
         <lang.syntaxHighlighterFactory
                 language="Cobol"
-                implementationClass="app.softwork.kobol.CobolSyntaxHighlighterFactory"/>
+                implementationClass="app.softwork.kobol.intellij.CobolSyntaxHighlighterFactory"/>
 
         <completion.contributor
                 language="Cobol"
-                implementationClass="app.softwork.kobol.CobolCompletion"/>
+                implementationClass="app.softwork.kobol.intellij.CobolCompletion"/>
         <psi.referenceContributor
-                implementation="app.softwork.kobol.CobolReferenceContributor" language="Cobol"/>
+                implementation="app.softwork.kobol.intellij.CobolReferenceContributor" language="Cobol"/>
     </extensions>
 </idea-plugin>

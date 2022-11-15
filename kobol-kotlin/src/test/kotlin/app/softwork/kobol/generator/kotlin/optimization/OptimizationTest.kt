@@ -2,7 +2,9 @@ package app.softwork.kobol.generator.kotlin.optimization
 
 import app.softwork.kobol.generator.*
 import app.softwork.kobol.generator.kotlin.*
-import app.softwork.kobol.optimizations.*
+import app.softwork.kobol.generator.kotlin.toIR
+import app.softwork.kobol.ir.*
+import app.softwork.kobol.ir.optimizations.*
 import org.intellij.lang.annotations.*
 import kotlin.test.*
 
@@ -168,7 +170,7 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .camelCase()
+            .let(CamelCase::invoke)
 
         val output = generate(input)
 

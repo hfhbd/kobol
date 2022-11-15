@@ -1,6 +1,8 @@
 package app.softwork.kobol.generator.kotlin
 
 import app.softwork.kobol.*
+import app.softwork.kobol.plugins.*
+import app.softwork.kobol.plugins.nullabletozero.*
 import kotlin.test.*
 
 class FileTest {

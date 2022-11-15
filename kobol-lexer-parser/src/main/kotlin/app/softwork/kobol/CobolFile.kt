@@ -4,14 +4,13 @@ import com.intellij.extapi.psi.*
 import com.intellij.psi.*
 import com.intellij.psi.util.*
 
-class CobolFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, CobolLanguage) {
-    override fun getFileType() = CobolFileType.INSTANCE
-    override fun toString() = "Cobol File"
+public class CobolFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, CobolLanguage) {
+    override fun getFileType(): CobolFileType = CobolFileType.INSTANCE
+    override fun toString(): String = "Cobol File"
 
-    val program: CobolProgram get() = programOrNull ?: error(childrenOfType<PsiErrorElement>().joinToString {
+    public val program: CobolProgram get() = programOrNull ?: error(childrenOfType<PsiErrorElement>().joinToString {
         it.errorDescription
     })
 
-    val programOrNull: CobolProgram? get() = childrenOfType<CobolProgram>().singleOrNull()
-
+    public val programOrNull: CobolProgram? get() = childrenOfType<CobolProgram>().singleOrNull()
 }

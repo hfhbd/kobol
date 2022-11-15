@@ -1,23 +1,23 @@
 package app.softwork.kobol.sqldelightprecompiler
 
-import app.softwork.kobol.*
-import app.softwork.kobol.CobolFIRTree.DataTree.*
-import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.Sql.SqlType.*
-import app.softwork.kobol.KobolIRTree.Types.Function
-import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
-import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
-import app.softwork.kobol.KobolIRTree.Types.Type.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Sql.SqlType.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
+import app.softwork.kobol.fir.*
+import app.softwork.kobol.ir.*
 import app.softwork.sqldelightwriter.*
-import java.io.*
 import java.io.File
 
-class SqlDelightPrecompiler(
-    val dbName: String,
-    val sqFolder: File,
-    val packageName: String,
-    val fileName: String
+public class SqlDelightPrecompiler(
+    dbName: String,
+    private val sqFolder: File,
+    private val packageName: String,
+    private val fileName: String
 ) : SqlPrecompiler {
-    var files: SqFiles? = null
+    public var files: SqFiles? = null
         private set
 
     private val driverType = Class(

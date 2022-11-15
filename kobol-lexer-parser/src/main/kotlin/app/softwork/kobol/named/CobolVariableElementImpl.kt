@@ -7,7 +7,7 @@ import com.intellij.lang.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 
-abstract class CobolVariableElementImpl(node: ASTNode) : ASTWrapperPsiElement(node), CobolNamedElement, CobolVariable {
+internal abstract class CobolVariableElementImpl(node: ASTNode) : ASTWrapperPsiElement(node), CobolNamedElement, CobolVariable {
     override fun getNameIdentifier(): PsiElement = varName
     override fun getName(): String = varName.text
 

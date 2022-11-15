@@ -3,7 +3,7 @@ package app.softwork.kobol
 import com.intellij.lexer.*
 import com.intellij.psi.tree.*
 
-fun CobolLexerAdapter(): FlexAdapter {
+public fun CobolLexerAdapter(): FlexAdapter {
     val lexer = CobolLexer(null)
     return FlexAdapter(object : FlexLexer by lexer {
 

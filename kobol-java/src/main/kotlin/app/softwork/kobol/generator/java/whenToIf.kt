@@ -1,9 +1,9 @@
 package app.softwork.kobol.generator.java
 
-import app.softwork.kobol.*
-import app.softwork.kobol.KobolIRTree.Expression.BooleanExpression.*
+import app.softwork.kobol.ir.*
+import app.softwork.kobol.ir.KobolIRTree.Expression.BooleanExpression.*
 
-fun KobolIRTree.whenToIf() = copy(
+internal fun KobolIRTree.whenToIf() = copy(
     main = main.whenToIf(),
     types = types.map { it.whenToIf() }
 )
