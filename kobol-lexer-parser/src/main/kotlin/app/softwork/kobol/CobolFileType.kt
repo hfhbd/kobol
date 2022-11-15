@@ -15,6 +15,6 @@ public class CobolFileType private constructor(): LanguageFileType(CobolLanguage
         @JvmStatic
         public val INSTANCE: CobolFileType = CobolFileType()
 
-        public val icon: Icon get() = IconLoader.getIcon("/icons/icon.png", CobolFileType::class.java)
+        public val icon: Icon = IconLoader.getIcon("/icons/icon.png", CobolFileType::class.java)
     }
 }
