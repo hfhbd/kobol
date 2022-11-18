@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.7.21" apply false
     kotlin("plugin.serialization") version "1.7.21" apply false
-    id("org.jetbrains.intellij") version "1.9.0" apply false
+    id("org.jetbrains.intellij") version "1.10.0" apply false
     id("org.jetbrains.grammarkit") version "2021.2.2" apply false
     `maven-publish`
     id("app.cash.licensee") version "1.6.0" apply false
