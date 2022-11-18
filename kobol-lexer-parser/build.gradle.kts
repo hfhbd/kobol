@@ -46,7 +46,7 @@ tasks {
         purgeOldFiles.set(true)
     }
     generateParser {
-        classpath.from(grammar)
+        classpath += grammar
         source.set("$projectDir/src/main/kotlin/app/softwork/kobol/Cobol.bnf")
         targetRoot.set("$buildDir/generated/parser/main/java")
         pathToParser.set("CobolParserGenerated.java")
