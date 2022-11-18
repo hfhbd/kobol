@@ -8,7 +8,7 @@ dependencies {
     testImplementation(projects.kobolJavaFileKotlin)
     testImplementation(projects.kobolPlugins.kobolPluginsNullabletozero)
 
-    val idea = "222.4345.24"
+    val idea = "222.4459.20"
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:project-model-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")

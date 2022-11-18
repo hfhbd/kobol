@@ -29,7 +29,7 @@ dependencies {
     implementation("com.jcraft:jsch.agentproxy.pageant:0.0.9")
     implementation("net.java.dev.jna:jna-platform:5.12.1")
 
-    val idea = "222.4345.24"
+    val idea = "222.4459.20"
     shade("com.jetbrains.intellij.platform:core-impl:$idea")
     shade("com.jetbrains.intellij.platform:project-model-impl:$idea")
     shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
