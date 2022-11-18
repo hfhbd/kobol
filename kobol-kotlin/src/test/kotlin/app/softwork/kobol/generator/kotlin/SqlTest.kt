@@ -1,12 +1,18 @@
 package app.softwork.kobol.generator.kotlin
 
+import app.softwork.kobol.ir.*
+import app.softwork.kobol.sqldelightprecompiler.*
+import java.nio.file.*
 import kotlin.test.*
 
 class SqlTest {
     @Test
     fun selectInto() {
+        lateinit var sqlPrecompiler: SqlDelightPrecompiler
+        val temp = Files.createTempDirectory("kobolSql").toFile()
+
         //language=cobol
-        val (input, sql) = """
+        val input = """
         123456 IDENTIFICATION DIVISION.
         123456 PROGRAM-ID. SQL.
         123456 DATA DIVISION.
@@ -24,7 +30,12 @@ class SqlTest {
         123456 DISPLAY FOO
         123456 DISPLAY BAR
         123456 DISPLAY BAZ.
-        """.trimIndent().toIRWithSql()
+        """.trimIndent().toIR(
+            sqlDelightPrecompiler = {
+                sqlPrecompiler = SqlDelightPrecompiler(dbName = "DB", temp, it, it)
+                sqlPrecompiler
+            }
+        )
 
         val output = generate(input)
 
@@ -68,14 +79,17 @@ class SqlTest {
             | INTO :FOO, :BAZ
             |FROM SYSIBM.SYSDUMMY1;
             |
-        """.trimMargin(), sql.queries.single().toString()
+        """.trimMargin(), sqlPrecompiler.files!!.queries.single().toString()
         )
     }
 
     @Test
     fun createTable() {
+        lateinit var sqlPrecompiler: SqlDelightPrecompiler
+        val temp = Files.createTempDirectory("kobolSql").toFile()
+
         //language=cobol
-        val (input, sql) = """
+        val input = """
         123456 IDENTIFICATION DIVISION.
         123456 PROGRAM-ID. SQL.
         123456 DATA DIVISION.
@@ -122,7 +136,12 @@ class SqlTest {
         123456 END-EXEC
         123456 DISPLAY FOO
         123456 DISPLAY BAR.
-        """.trimIndent().toIRWithSql()
+        """.trimIndent().toIR(
+            sqlDelightPrecompiler = {
+                sqlPrecompiler = SqlDelightPrecompiler(dbName = "DB", temp, it, it)
+                sqlPrecompiler
+            }
+        )
 
         val output = generate(input)
 
@@ -167,6 +186,7 @@ class SqlTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
 
+        val sql = sqlPrecompiler.files!!
         assertEquals(
             // language=db2_zos
             """

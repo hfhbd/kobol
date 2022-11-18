@@ -264,6 +264,7 @@ public data class CobolFIRTree(
                 public data class EmptyElementar(
                     override val name: String,
                     override val recordName: String?,
+                    val memory: List<Elementar>,
                     override val comments: List<String> = emptyList()
                 ) : Elementar {
                     override val formatter: Nothing? = null
@@ -463,6 +464,11 @@ public data class CobolFIRTree(
             public sealed interface Variable : Expression {
                 public val target: DataTree.WorkingStorage.Elementar
             }
+
+            @Serializable
+            public data class EmptyElementarVariable(
+                override val target: DataTree.WorkingStorage.Elementar.EmptyElementar
+            ): Variable
 
             @Serializable
             public sealed interface StringExpression : Expression {

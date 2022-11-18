@@ -53,43 +53,21 @@ class HelloWorldTest {
     }
 }
 
-internal fun String.toIR(vararg including: Pair<String, String>): KobolIRTree {
+internal fun String.toIR(
+    firPlugins: List<FirPlugin> = emptyList(),
+    vararg including: Pair<String, String>,
+    fileConverter: ((String) -> FileHandling)? = { JavaFilesKotlin },
+    serialization: ((String) -> SerializationPlugin)? = { KotlinxSerialization(it) },
+    sqlDelightPrecompiler: ((String) -> SqlPrecompiler)? = null
+): KobolIRTree {
     val temp = Files.createTempDirectory("testing").toFile()
     val files = including.map { (name, content) ->
         File(temp, "$name.cbl").apply { writeText(content) }
     }
-    return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR().single()
-}
-
-internal fun String.toIRFileWithKotlinx(firPlugins: List<FirPlugin> = emptyList(), vararg including: Pair<String, String>): KobolIRTree {
-    val temp = Files.createTempDirectory("testing").toFile()
-    val files = including.map { (name, content) ->
-        File(temp, "$name.cbl").apply { writeText(content) }
-    }
-    return (files + File(temp, "testing.cbl").apply { writeText(this@toIRFileWithKotlinx) }).toIR(
+    return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR(
         firPlugins = firPlugins,
-        fileConverter = {
-            JavaFilesKotlin()
-        },
-        serialization = {
-            KotlinxSerialization(it)
-        }
+        fileConverter = fileConverter,
+        serialization = serialization,
+        sqlPrecompiler = sqlDelightPrecompiler
     ).single()
-}
-
-internal fun String.toIRWithSql(firPlugins: List<FirPlugin> = emptyList(), vararg including: Pair<String, String>): Pair<KobolIRTree, SqFiles> {
-    val temp = Files.createTempDirectory("testing").toFile()
-    val files = including.map { (name, content) ->
-        File(temp, "$name.cbl").apply { writeText(content) }
-    }
-    var sqlCompiler: SqlDelightPrecompiler? = null
-    val kobol = (files + File(temp, "testing.cbl").apply { writeText(this@toIRWithSql) }).toIR(
-        firPlugins = firPlugins,
-        sqlPrecompiler = {
-            sqlCompiler = SqlDelightPrecompiler(dbName = "DB", temp, it, it)
-            sqlCompiler!!
-        }
-    ).single()
-
-    return kobol to sqlCompiler!!.files!!
 }

@@ -160,7 +160,6 @@ private fun List<CobolRecordDef>.toRecords() = buildList {
     }
 } as List<Record>
 
-
 private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
     val definitions = workingStorageSection?.stmList?.let {
         buildList {
@@ -301,14 +300,14 @@ private fun sa(it: CobolRecordDef, recordName: String?, previous: List<NumberEle
 
 // https://www.ibm.com/docs/en/developer-for-zos/9.1.1?topic=clause-symbols-used-in-picture
 private fun List<CobolPicDefClause>.asFormat(): Formatter.Custom = Formatter.Custom(map {
-    when (val text = it.pictures.text) {
-        "S9" -> Formatter.Custom.Part.Signed(it.length())
+    when (val text = it.pictures.text.lowercase()) {
+        "s9" -> Formatter.Custom.Part.Signed(it.length())
         "9" -> Formatter.Custom.Part.Number(it.length())
-        "X", "A" -> Formatter.Custom.Part.String(it.length())
-        "B" -> Formatter.Custom.Part.Space(it.length())
-        "Z" -> Formatter.Custom.Part.Zero(it.length())
+        "x", "a" -> Formatter.Custom.Part.String(it.length())
+        "b" -> Formatter.Custom.Part.Space(it.length())
+        "z" -> Formatter.Custom.Part.Zero(it.length())
         "+" -> Formatter.Custom.Part.Plus(it.length())
-        "V9" -> Formatter.Custom.Part.Decimal(it.length())
+        "v9" -> Formatter.Custom.Part.Decimal(it.length())
         else -> error("Not yet supported: $text")
     }
 })
@@ -388,7 +387,7 @@ private fun single(
         }
     )
 
-    "V9" -> NumberElementar(
+    "V9", "+" -> NumberElementar(
         name = name,
         recordName = recordName,
         formatter = format,
@@ -405,10 +404,10 @@ private fun single(
         }
     )
 
-    else -> TODO(type)
+    else -> TODO("Type not yet supported: $type")
 }
 
-private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = CobolFIRTree.ProcedureTree(
+private fun CobolProcedureDiv.toProcedure(dataTree: DataTree?) = ProcedureTree(
     topLevel = sentencesList.flatMap {
         it.proceduresList.asStatements(dataTree)
     },
@@ -422,7 +421,7 @@ private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = Co
     comments = comments.asComments()
 )
 
-private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?): List<Statement> = flatMap { proc ->
+private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statement> = flatMap { proc ->
     when {
         proc.displaying != null -> listOf(
             Display(
@@ -661,7 +660,7 @@ private fun PsiElement.asSequence(): Sequence<PsiElement> = sequence {
     }
 }
 
-private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): Expression.BooleanExpression {
+private fun CobolBooleanExpr.toFir(dataTree: DataTree?): Expression.BooleanExpression {
     val or = booleanExprOr
     val and = booleanExprAnd
     val clause = booleanExprClause
@@ -681,7 +680,7 @@ private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): Expression
     }
 }
 
-private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): Expression.BooleanExpression {
+private fun CobolBooleanExprClause.toFir(dataTree: DataTree?): Expression.BooleanExpression {
     val left = booleanExprClauseLeft.expr.toExpr(dataTree).single()
     val right = booleanExprClauseRight.expr.toExpr(dataTree).single()
 
@@ -715,12 +714,12 @@ private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): Expr
     }
 }
 
-private val CobolFIRTree.DataTree?.notNull
+private val DataTree?.notNull
     get() = checkNotNull(this) {
         "No DATA DIVISION found"
     }
 
-private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): List<Expression> {
+private fun CobolExpr.toExpr(dataTree: DataTree?): List<Expression> {
     val literal = literal
     val variable = variable
     val stringConcat = stringConcat
@@ -758,7 +757,7 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): List<Expression>
     }
 }
 
-private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Expression.StringExpression {
+private fun PsiElement.singleAsString(dataTree: DataTree?): Expression.StringExpression {
     return when {
         elementType == CobolTypes.STRING || elementType == CobolTypes.STRING_VAR -> Expression.StringExpression.StringLiteral(
             value = text.drop(1).dropLast(1)
@@ -784,7 +783,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
     }
 }
 
-private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): Expression.StringExpression {
+private fun CobolStringConcat.toExpr(dataTree: DataTree?): Expression.StringExpression {
     val allChildren = children.toList()
     require(allChildren.isNotEmpty())
     if (allChildren.count() == 1) {
@@ -818,13 +817,6 @@ private inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R,
     return accumulator
 }
 
-private fun CobolFIRTree.DataTree.findInLinking(variable: CobolVariable): WorkingStorage {
-    val name: String = variable.varName.text
-    val of = variable.ofClause?.recordID?.varName?.text
-
-    return linkingSection.find(name, of) ?: error("Record with name $name not found in LINKAGE SECTION")
-}
-
 private fun List<WorkingStorage>.find(
     name: String,
     of: String?
@@ -856,7 +848,7 @@ private fun List<WorkingStorage>.find(
     return null
 }
 
-private fun CobolFIRTree.DataTree.find(variable: CobolVariable): WorkingStorage {
+private fun DataTree.find(variable: CobolVariable): WorkingStorage {
     val name: String = variable.varName.text
     val of = variable.ofClause?.recordID?.varName?.text
 
@@ -872,8 +864,8 @@ private fun Elementar.toVariable(): Expression.Variable = when (this) {
     )
 
     is NumberElementar -> Expression.NumberExpression.NumberVariable(this)
-    is Pointer -> TODO()
-    is EmptyElementar -> TODO()
+    is Pointer -> TODO(name)
+    is EmptyElementar -> Expression.EmptyElementarVariable(target = this)
 }
 
 public fun notPossible(): Nothing = error("Should not be possible!")
