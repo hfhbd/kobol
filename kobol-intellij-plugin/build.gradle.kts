@@ -21,14 +21,13 @@ tasks {
 
     buildSearchableOptions {
         enabled = false
-     }
+    }
 
     val copyRepoPlugin by registering(Copy::class) {
         dependsOn(buildPlugin)
-        copy {
-            from("build/distributions/kobol-intellij-plugin-$version.zip")
-            into("build/customRepo")
-        }
+
+        from(buildPlugin)
+        into("build/customRepo")
     }
 
     val createPluginRepo by registering {
