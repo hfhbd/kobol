@@ -43,9 +43,9 @@ jobs:
         with:
           path: kobol-intellij-plugin/build/customRepo
       - name: Delete Package Versions
-        uses: actions/delete-package-versions@v2.0.1
+        uses: actions/delete-package-versions@v2
         with:
-          package-name: "app.softwork.kobol.app.softwork.kobol.gradle.plugin"
+          package-name: app.softwork.kobol.app.softwork.kobol.gradle.plugin
           min-versions-to-keep: 2
           ignore-versions: "^([1-9]\\d*)\\.0\\.0$"
       - name: Deploy to GitHub Pages
