@@ -45,8 +45,8 @@ jobs:
       - name: Delete Package Versions
         uses: actions/delete-package-versions@v3
         with:
-          package-version-id: app.softwork.kobol.app.softwork.kobol.gradle.plugin
-          min-versions-to-keep: 2
+          package-version-ids: app.softwork.kobol.app.softwork.kobol.gradle.plugin
+          min-versions-to-keep: 5
           delete-only-pre-release-versions: true
       - name: Deploy to GitHub Pages
         id: deployment
