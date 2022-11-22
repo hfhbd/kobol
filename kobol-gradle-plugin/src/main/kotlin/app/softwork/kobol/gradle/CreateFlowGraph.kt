@@ -5,6 +5,7 @@ import app.softwork.kobol.flowgraph.*
 import org.gradle.api.file.*
 import org.gradle.workers.*
 import java.io.*
+import java.util.*
 
 public abstract class CreateFlowGraph : WorkAction<CreateFlowGraph.Parameters> {
     public interface Parameters : WorkParameters {
@@ -16,6 +17,10 @@ public abstract class CreateFlowGraph : WorkAction<CreateFlowGraph.Parameters> {
         val inputs: Set<File> = parameters.inputFiles.files
         val outputFolder = parameters.outputFolder.get().asFile
 
-        inputs.toTree(listOf(FlowGraph(outputFolder)))
+        val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
+            FirPluginAfterPhase::class.java
+        )
+
+        inputs.toTree(firPlugins + FlowGraph(outputFolder))
     }
 }
