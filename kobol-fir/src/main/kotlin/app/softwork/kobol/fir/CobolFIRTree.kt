@@ -5,8 +5,12 @@ package app.softwork.kobol.fir
 import app.softwork.kobol.fir.serializer.*
 import kotlinx.serialization.*
 
+/**
+ * Never change the [fileName]
+ */
 @Serializable
 public data class CobolFIRTree(
+    val fileName: String,
     val fileComments: List<String> = emptyList(),
     val id: ID,
     val env: EnvTree? = null,
@@ -33,7 +37,8 @@ public data class CobolFIRTree(
     ) {
         @Serializable
         public data class Configuration(
-            val specialNames: SpecialNames? = null, val comments: List<String> = emptyList()
+            val specialNames: SpecialNames? = null,
+            val comments: List<String> = emptyList()
         ) {
             @Serializable
             public data class SpecialNames(
@@ -104,7 +109,10 @@ public data class CobolFIRTree(
             public val comments: List<String>
 
             @Serializable
-            public data class Sql(val sql: String, override val comments: List<String> = emptyList()) : WorkingStorage
+            public data class Sql(
+                val sql: String,
+                override val comments: List<String> = emptyList()
+            ) : WorkingStorage
 
             @Serializable
             public data class Record(

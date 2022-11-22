@@ -1,13 +1,13 @@
 package app.softwork.kobol.sqldelightprecompiler
 
+import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Sql.SqlType.*
+import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
-import app.softwork.kobol.fir.*
-import app.softwork.kobol.ir.*
 import app.softwork.sqldelightwriter.*
 import java.io.File
 
@@ -17,6 +17,11 @@ public class SqlDelightPrecompiler(
     private val packageName: String,
     private val fileName: String
 ) : SqlPrecompiler {
+
+    public companion object {
+        public const val DB_NAME: String = "db_name"
+    }
+
     public var files: SqFiles? = null
         private set
 

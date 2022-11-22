@@ -3,10 +3,12 @@ package app.softwork.kobol.generator.java
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.BooleanExpression.*
 
-internal fun KobolIRTree.whenToIf() = copy(
-    main = main.whenToIf(),
-    types = types.map { it.whenToIf() }
-)
+internal val whenToIf: IrPlugin = IrPlugin { tree, others ->
+    others + tree.copy(
+        main = tree.main.whenToIf(),
+        types = tree.types.map { it.whenToIf() }
+    )
+}
 
 private fun KobolIRTree.Types.Function.whenToIf() = copy(body = body.map {
     it.whenToIf()

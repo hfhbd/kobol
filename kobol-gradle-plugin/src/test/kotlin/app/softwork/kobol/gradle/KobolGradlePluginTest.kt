@@ -16,7 +16,7 @@ class KobolGradlePluginTest {
         val cobolFile = File(tmp, "hello.cbl").apply {
             writeText(input)
         }
-        generate(cobolFile, tmp, optimize = false)
+        generate(setOf(cobolFile), tmp)
         val packageFolder = File(tmp, "kotlin/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
@@ -30,7 +30,7 @@ class KobolGradlePluginTest {
         val cobolFile = File(tmp, "hello.cbl").apply {
             writeText(input)
         }
-        app.softwork.kobol.generator.java.generate(cobolFile, tmp, optimize = false, java8 = true)
+        app.softwork.kobol.generator.java.generate(setOf(cobolFile), tmp, java8 = true)
         val packageFolder = File(tmp, "java/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("Hello.java"), packageFolder.list()?.toList())
@@ -68,7 +68,7 @@ class KobolGradlePluginTest {
         }
 
         FlowGraph(tmp).use {
-            it.invoke(cobolFile.toTree())
+            it.invoke(cobolFile.toTree(), emptyList())
         }
         assertTrue("hello.puml" in tmp.list())
     }

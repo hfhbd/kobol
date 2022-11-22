@@ -2,8 +2,8 @@ package app.softwork.kobol.ir.optimizations
 
 import app.softwork.kobol.ir.*
 
-public val CamelCase: IrPlugin = IrPlugin { tree ->
-    tree.copy(
+public val CamelCase: IrPlugin = IrPlugin { tree, others ->
+    others + tree.copy(
         main = tree.main.copy(
             body = tree.main.body.map { it.updateNames() }
         ),

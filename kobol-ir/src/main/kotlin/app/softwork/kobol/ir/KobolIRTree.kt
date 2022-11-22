@@ -3,8 +3,16 @@ package app.softwork.kobol.ir
 import app.softwork.kobol.fir.*
 import kotlinx.serialization.*
 
+/**
+ * Never change the [id]
+ */
 @Serializable
-public data class KobolIRTree(val name: String, val main: Types.Function, val types: List<Types>) {
+public data class KobolIRTree(
+    val id: String,
+    val name: String,
+    val main: Types.Function,
+    val types: List<Types>
+) {
     @Serializable
     public sealed interface Types {
         @Serializable

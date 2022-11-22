@@ -5,7 +5,9 @@ import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
 
-public object JavaFilesKotlin : FileHandling {
+public class JavaFilesKotlin : FileHandling, FileHandlingFactory {
+    override fun invoke(packageName: String, args: Map<String, String>): JavaFilesKotlin = JavaFilesKotlin()
+
     private val BufferedReader = Class(
         name = "BufferedReader",
         packageName = "java.io"
@@ -35,7 +37,7 @@ public object JavaFilesKotlin : FileHandling {
         packageName = "java.io",
         functions = listOf(bufferedReader, bufferedWriter),
         constructor = listOf(
-            KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration(
+            Declaration.StringDeclaration(
                 name = "",
                 value = null,
                 nullable = false,

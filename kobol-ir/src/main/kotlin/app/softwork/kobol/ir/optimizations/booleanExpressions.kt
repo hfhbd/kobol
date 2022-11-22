@@ -4,10 +4,10 @@ import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.BooleanExpression.*
 
-public val BooleanExpressions: IrPlugin = IrPlugin {
-    it.copy(
-        main = it.main.booleanExpressions(),
-        types = it.types.map { it.booleanExpressions() }
+public val BooleanExpressions: IrPlugin = IrPlugin { tree, others ->
+    others + tree.copy(
+        main = tree.main.booleanExpressions(),
+        types = tree.types.map { it.booleanExpressions() }
     )
 }
 

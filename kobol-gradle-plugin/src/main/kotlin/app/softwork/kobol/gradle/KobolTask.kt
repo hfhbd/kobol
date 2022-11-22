@@ -1,6 +1,8 @@
 package app.softwork.kobol.gradle
 
+import app.softwork.kobol.ir.*
 import org.gradle.api.*
+import org.gradle.api.artifacts.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
@@ -8,7 +10,7 @@ import org.gradle.workers.*
 import javax.inject.*
 
 @CacheableTask
-public abstract class KobolTask: DefaultTask() {
+public abstract class KobolTask : DefaultTask() {
     init {
         group = "Kobol"
     }
@@ -29,6 +31,13 @@ public abstract class KobolTask: DefaultTask() {
     @get:Input
     public abstract val optimize: Property<Boolean>
 
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    internal abstract val classpath: ConfigurableFileCollection
+
+    @get:Input
+    public abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
+
     init {
         optimize.convention(false)
         outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
@@ -45,11 +54,16 @@ public abstract class KobolTask: DefaultTask() {
 
     @TaskAction
     internal fun generate() {
-        workerExecutor.classLoaderIsolation().submit(ExecuteKobol::class.java) {
+        val s = workerExecutor.classLoaderIsolation {
+            it.classpath.from(classpath)
+        }
+
+        s.submit(ExecuteKobol::class.java) {
             it.inputFiles.setFrom(sources)
             it.outputFolder.set(outputFolder)
             it.optimize.set(optimize)
             it.sqlFolder.set(sqlFolder)
+            it.config.set(pluginConfiguration)
         }
     }
 }

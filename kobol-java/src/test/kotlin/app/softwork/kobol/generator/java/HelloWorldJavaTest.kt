@@ -1,6 +1,7 @@
 package app.softwork.kobol.generator.java
 
 import app.softwork.kobol.ir.*
+import com.squareup.javapoet.*
 import java.io.*
 import kotlin.test.*
 
@@ -49,3 +50,11 @@ class HelloWorldJavaTest {
 
 internal fun String.toIR() =
     File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR()
+
+internal fun generate(cobol: KobolIRTree, java8: Boolean): List<JavaFile> = generateJava(
+    cobol.let {
+        if (java8) {
+            whenToIf(it, emptyList()).single()
+        } else it
+    }
+)

@@ -1,12 +1,9 @@
 package app.softwork.kobol.generator.kotlin
 
+import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
-import app.softwork.kobol.fir.*
-import app.softwork.kobol.ir.*
-import app.softwork.kobol.ir.optimizations.*
 import com.squareup.kotlinpoet.*
-import java.io.*
 
 internal fun generate(tree: KobolIRTree): FileSpec {
     val packageName = tree.name
@@ -526,34 +523,3 @@ private val Declaration.KType: TypeName
         is IntDeclaration -> INT
         is ObjectDeclaration -> ClassName(type.packageName, type.name)
     }
-
-public fun generate(
-    file: File,
-    output: File,
-    optimize: Boolean,
-    firPlugins: List<FirPlugin> = emptyList(),
-    fileHandling: ((String) -> FileHandling)? = null,
-    serialization: ((String) -> SerializationPlugin)? = null,
-    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
-) {
-    generate(setOf(file), output, optimize, firPlugins, fileHandling, serialization, sqlPrecompiler)
-}
-
-public fun generate(
-    files: Set<File>,
-    output: File,
-    optimize: Boolean,
-    firPlugins: List<FirPlugin> = emptyList(),
-    fileHandling: ((String) -> FileHandling)? = null,
-    serialization: ((String) -> SerializationPlugin)? = null,
-    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
-) {
-    for (ir in files.toIR(firPlugins, fileHandling, serialization, sqlPrecompiler)) {
-        val finished = if (optimize) {
-            ir.optimize()
-        } else ir
-
-        val kotlin = generate(finished)
-        kotlin.writeTo(directory = File(output, "kotlin"))
-    }
-}

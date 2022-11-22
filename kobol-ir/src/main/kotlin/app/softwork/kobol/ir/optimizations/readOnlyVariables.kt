@@ -3,9 +3,9 @@ package app.softwork.kobol.ir.optimizations
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 
-public fun KobolIRTree.readonlyVariables(): KobolIRTree {
+public val ReadonlyVariables: IrPlugin = IrPlugin { tree, others ->
     val variables = buildList {
-        for (type in types) {
+        for (type in tree.types) {
             when (type) {
                 is KobolIRTree.Types.Type.GlobalVariable -> add(type)
                 else -> continue
@@ -15,17 +15,17 @@ public fun KobolIRTree.readonlyVariables(): KobolIRTree {
     val readOnly = variables.filter {
         it.declaration.findWriteUsages(
             buildList {
-                for (type in types) {
+                for (type in tree.types) {
                     when (type) {
                         is KobolIRTree.Types.Function -> add(type)
                         else -> continue
                     }
                 }
-            } + main
+            } + tree.main
         ).isEmpty()
     }
 
-    return copy(types = types.map {
+    others + tree.copy(types = tree.types.map {
         if (it is KobolIRTree.Types.Type.GlobalVariable && it in readOnly) {
             when (it.declaration) {
                 is StringDeclaration -> it.copy(

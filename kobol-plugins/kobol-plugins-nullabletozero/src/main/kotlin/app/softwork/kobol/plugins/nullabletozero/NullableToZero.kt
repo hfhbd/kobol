@@ -3,10 +3,12 @@ package app.softwork.kobol.plugins.nullabletozero
 import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
 
-public object NullableToZero : FirPlugin {
-    override fun invoke(tree: CobolFIRTree): CobolFIRTree = tree.copy(
-        data = tree.data?.toNull()
-    )
+public val nullableToZero: NullableToZero = NullableToZero()
+
+public class NullableToZero : FirPluginBeforePhase {
+    override fun invoke(tree: CobolFIRTree): CobolFIRTree {
+        return tree.copy(data = tree.data?.toNull())
+    }
 }
 
 private fun CobolFIRTree.DataTree.toNull(): CobolFIRTree.DataTree {

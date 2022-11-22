@@ -10,49 +10,52 @@ import com.intellij.psi.stubs.*
 import com.intellij.psi.tree.*
 import java.io.*
 
-public fun File.toTree(firPlugins: List<FirPlugin> = emptyList()): CobolFIRTree {
-    return toCobolFile().toTree().let {
-        var it = it
-        for (plugin in firPlugins) {
-            it = plugin.invoke(it)
-        }
-        it
-    }
-}
+public fun File.toTree(firPlugins: List<FirPlugin> = emptyList()): CobolFIRTree =
+    setOf(this).toTree(firPlugins).single()
 
-public fun File.toCobolFile(): CobolFile {
-    val intelliJ = CoreEnvironment(listOf(this)).apply {
-        initializeApplication {
-            registerFileType(CobolFileType.INSTANCE, CobolFileType.INSTANCE.defaultExtension)
-            registerParserDefinition(CobolParserDefinition())
+public fun Iterable<File>.toTree(firPlugins: List<FirPlugin> = emptyList()): Iterable<CobolFIRTree> {
+    val beforePhases = mutableListOf<FirPluginBeforePhase>()
+    val afterPhases = mutableListOf<FirPluginAfterPhase>()
 
-            registerFileType(InlineSqlFileType, InlineSqlFileType.defaultExtension)
-            registerParserDefinition(Db2ParserDefinition())
+    for (firPlugin in firPlugins) {
+        when (firPlugin) {
+            is FirPluginBeforePhase -> beforePhases.add(firPlugin)
+            is FirPluginAfterPhase -> afterPhases.add(firPlugin)
         }
     }
-    lateinit var file: CobolFile
-    intelliJ.forSourceFile<CobolFile> {
-        file = it
-    }
-    return file
-}
 
-public fun Iterable<File>.toTree(firPlugins: List<FirPlugin> = emptyList()): List<CobolFIRTree> {
-    return toCobolFile().map {
-        try {
-            it.toTree().let {
-                var it = it
-                for (plugin in firPlugins) {
-                    it = plugin.invoke(it)
+    var cobolTrees = buildMap {
+        for (file in toCobolFile()) {
+            try {
+                var tree = file.toTree()
+                for (plugin in beforePhases) {
+                    tree = plugin(tree)
                 }
-                it
-            }
-        } catch (e: Exception) {
-            throw IllegalStateException(it.virtualFile.presentableUrl, e).apply {
-                stackTrace = e.stackTrace
+                this[tree.fileName] = tree
+            } catch (e: Exception) {
+                throw IllegalStateException(file.virtualFile.presentableUrl, e).apply {
+                    stackTrace = e.stackTrace
+                }
             }
         }
     }
+    for (beforePhase in beforePhases) {
+        beforePhase.close()
+    }
+
+    for (afterPhase in afterPhases) {
+        for (tree in cobolTrees) {
+            val other = cobolTrees - tree.key
+            val newTrees = afterPhase(tree.value, other.values).associateBy { it.fileName }
+            cobolTrees = newTrees
+        }
+    }
+
+    for (afterPhase in afterPhases) {
+        afterPhase.close()
+    }
+
+    return cobolTrees.values
 }
 
 private class Db2ParserDefinition : SqlParserDefinition() {
@@ -76,7 +79,10 @@ private class Db2ParserDefinition : SqlParserDefinition() {
     }
 }
 
-public fun Iterable<File>.toCobolFile(): Set<CobolFile> {
+
+public fun File.toCobolFile(): CobolFile = setOf(this).toCobolFile().single()
+
+public fun Iterable<File>.toCobolFile(): Collection<CobolFile> {
     val intelliJ = CoreEnvironment(this).apply {
         initializeApplication {
             registerFileType(CobolFileType.INSTANCE, CobolFileType.INSTANCE.defaultExtension)

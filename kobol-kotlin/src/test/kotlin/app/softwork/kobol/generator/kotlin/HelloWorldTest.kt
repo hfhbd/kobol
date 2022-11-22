@@ -69,7 +69,7 @@ internal fun String.toIRFileWithKotlinx(firPlugins: List<FirPlugin> = emptyList(
     return (files + File(temp, "testing.cbl").apply { writeText(this@toIRFileWithKotlinx) }).toIR(
         firPlugins = firPlugins,
         fileConverter = {
-            JavaFilesKotlin
+            JavaFilesKotlin()
         },
         serialization = {
             KotlinxSerialization(it)

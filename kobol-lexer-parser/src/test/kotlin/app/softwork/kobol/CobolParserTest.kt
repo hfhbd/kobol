@@ -54,21 +54,23 @@ class CobolParserTest {
         val foo = StringElementar(name = "FOO", recordName = null, value = "123456", formatter = Simple(6))
         val fooRPICA = StringElementar(name = "FOO", recordName = "RPICA", formatter = Simple(3))
 
-        assertEquals(CobolFIRTree(id = ID(
-            programID = "HELLO"
-        ), env = EnvTree(
-            inputOutput = InputOutput(
-                fileControl = InputOutput.FileControl(
-                    files = listOf(
-                        InputOutput.FileControl.File(
-                            file = "FOO",
-                            path = "A",
-                            fileStatus = "EIN"
+        assertEquals(CobolFIRTree(
+            fileName = "testing.cbl",
+            id = ID(
+                programID = "HELLO"
+            ), env = EnvTree(
+                inputOutput = InputOutput(
+                    fileControl = InputOutput.FileControl(
+                        files = listOf(
+                            InputOutput.FileControl.File(
+                                file = "FOO",
+                                path = "A",
+                                fileStatus = "EIN"
+                            )
                         )
                     )
                 )
-            )
-        ),
+            ),
             data = DataTree(
                 fileSection = build {
                     +File(
@@ -133,6 +135,7 @@ class CobolParserTest {
         val world = StringElementar(name = "WORLD", recordName = null, value = "WORLD!", formatter = Simple(6))
         assertEquals(
             CobolFIRTree(
+                fileName = "testing.cbl",
                 id = ID(
                     programID = "HELLO"
                 ),
@@ -168,6 +171,7 @@ class CobolParserTest {
 
         assertEquals(
             CobolFIRTree(
+                fileName = "testing.cbl",
                 id = ID(
                     programID = "HELLO"
                 ), env = EnvTree(
@@ -215,6 +219,7 @@ class CobolParserTest {
 
         assertEquals(
             CobolFIRTree(
+                fileName = "testing.cbl",
                 id = ID(
                     programID = "HELLO"
                 ), env = EnvTree(
@@ -289,37 +294,45 @@ class CobolParserTest {
         """.trimIndent()
         val world4 =
             StringElementar("WORLD4", recordName = "RPI", formatter = Simple(6), value = "WORLD!", occurs = Occurs(2))
-        assertEquals(CobolFIRTree(id = ID(
-            programID = "HELLO", author = "WEDEMANN / Softwork.app"
-        ), data = DataTree(workingStorage = build {
-            +Record("RPI") {
-                +EmptyElementar("FOO1", "RPI")
-                val world2 = NumberElementar("WORLD2", recordName = "RPI", formatter = Simple(1), value = 9.0)
-                +world2
-                +Pointer("WORLD3", recordName = "RPI")
-                +world4
-                +NumberElementar(
-                    "FOO5",
-                    recordName = "RPI",
-                    formatter = Simple(9),
-                    value = 123456.0,
-                    occurs = Occurs(9, 9, dependingOn = world2)
-                )
-            }
 
-            +StringElementar("WORLD6", recordName = null, formatter = Simple(1))
-            +NumberElementar(
-                "FOO7", recordName = null, formatter = Custom(Signed(6), Decimal(1)), value = .9, signed = true
-            )
-            +NumberElementar("FOO8", recordName = null, formatter = Simple(1), value = .9, signed = true)
-            +Record("RPICA") {
-                +NumberElementar("FOOPIC", recordName = "RPICA", formatter = Simple(3))
-            }
-            +NumberElementar("FOO9", recordName = null, formatter = Simple(3))
-        }), procedure = ProcedureTree(topLevel = build {
-            +Display(StringLiteral("HELLO") + StringVariable(world4))
-        })
-        ), input.toTree()
+        assertEquals(
+            CobolFIRTree(
+                fileName = "testing.cbl",
+                id = ID(
+                    programID = "HELLO", author = "WEDEMANN / Softwork.app"
+                ),
+                data = DataTree(workingStorage = build {
+                    +Record("RPI") {
+                        +EmptyElementar("FOO1", "RPI")
+                        val world2 = NumberElementar("WORLD2", recordName = "RPI", formatter = Simple(1), value = 9.0)
+                        +world2
+                        +Pointer("WORLD3", recordName = "RPI")
+                        +world4
+                        +NumberElementar(
+                            "FOO5",
+                            recordName = "RPI",
+                            formatter = Simple(9),
+                            value = 123456.0,
+                            occurs = Occurs(9, 9, dependingOn = world2)
+                        )
+                    }
+
+                    +StringElementar("WORLD6", recordName = null, formatter = Simple(1))
+                    +NumberElementar(
+                        "FOO7", recordName = null, formatter = Custom(Signed(6), Decimal(1)), value = .9, signed = true
+                    )
+                    +NumberElementar("FOO8", recordName = null, formatter = Simple(1), value = .9, signed = true)
+                    +Record("RPICA") {
+                        +NumberElementar("FOOPIC", recordName = "RPICA", formatter = Simple(3))
+                    }
+                    +NumberElementar("FOO9", recordName = null, formatter = Simple(3))
+                }),
+                procedure = ProcedureTree(
+                    topLevel = build {
+                        +Display(StringLiteral("HELLO") + StringVariable(world4))
+                    }
+                )
+            ), input.toTree()
         )
     }
 
@@ -348,6 +361,7 @@ class CobolParserTest {
 
         assertEquals(
             CobolFIRTree(
+                fileName = "testing.cbl",
                 id = ID(programID = "HELLO"),
                 data = DataTree(workingStorage = build {
                     +world2
@@ -436,6 +450,7 @@ class CobolParserTest {
 
         assertEquals(
             CobolFIRTree(
+                fileName = "testing.cbl",
                 id = ID(programID = "HELLO"),
                 data = DataTree(workingStorage = build {
                     +bar

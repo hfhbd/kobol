@@ -1,5 +1,6 @@
 package app.softwork.kobol.ir
 
+import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
@@ -7,27 +8,32 @@ import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
-import app.softwork.kobol.fir.*
 import kotlin.test.*
 
 class ToIrTest {
     @Test
     fun calling() {
-        val fir = CobolFIRTree(id = ID("calling"), procedure = ProcedureTree(sections = build {
-            +Section(name = "FOO") {
-                +Display("FOO".l)
-                +Perform("BAR")
-                +Display("FOO2".l)
-                +GoBack()
-            }
-            +Section("BAR") {
-                +Display("BAR".l)
-                +GoBack()
-            }
-            +Section("C") {
-                +Display("C".l)
-            }
-        }))
+        val fir = CobolFIRTree(
+            fileName = "testing.cbl",
+            id = ID("calling"),
+            procedure = ProcedureTree(
+                sections = build {
+                    +Section(name = "FOO") {
+                        +Display("FOO".l)
+                        +Perform("BAR")
+                        +Display("FOO2".l)
+                        +GoBack()
+                    }
+                    +Section("BAR") {
+                        +Display("BAR".l)
+                        +GoBack()
+                    }
+                    +Section("C") {
+                        +Display("C".l)
+                    }
+                }
+            )
+        )
 
         val c = Function("C") {
             +Print(StringLiteral("C"), emptyList())
@@ -50,6 +56,7 @@ class ToIrTest {
         }
 
         val ir = KobolIRTree(
+            id = "testing.cbl",
             name = "calling",
             main = Function(
                 name = "main",
