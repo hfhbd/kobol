@@ -1,23 +1,26 @@
 package app.softwork.kobol.gradle
 
+import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.tasks.*
 import org.gradle.workers.*
 import javax.inject.*
 
 @CacheableTask
-public abstract class KobolFlowGraph: SourceTask() {
+public abstract class KobolFlowGraph: DefaultTask() {
     init {
         group = "Kobol"
     }
 
-    @InputFiles
-    @SkipWhenEmpty
-    @IgnoreEmptyDirectories
-    @PathSensitive(PathSensitivity.RELATIVE)
-    override fun getSource(): FileTree {
-        return super.getSource()
-    }
+    @get:InputFiles
+    @get:SkipWhenEmpty
+    @get:IgnoreEmptyDirectories
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    public abstract val sources: ConfigurableFileCollection
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    internal abstract val classpath: ConfigurableFileCollection
 
     @get:OutputDirectory
     public abstract val outputFolder: DirectoryProperty
@@ -27,8 +30,10 @@ public abstract class KobolFlowGraph: SourceTask() {
 
     @TaskAction
     internal fun generateFlow() {
-        workerExecutor.classLoaderIsolation().submit(CreateFlowGraph::class.java) {
-            it.inputFiles.setFrom(source)
+        workerExecutor.classLoaderIsolation {
+            it.classpath.from(classpath)
+        }.submit(CreateFlowGraph::class.java) {
+            it.inputFiles.setFrom(sources)
             it.outputFolder.set(outputFolder)
         }
     }
