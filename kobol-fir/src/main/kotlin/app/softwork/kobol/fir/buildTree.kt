@@ -25,6 +25,7 @@ public fun CobolFile.toTree(): CobolFIRTree {
     val fileComments = program.comments.asComments()
 
     return CobolFIRTree(
+        fileName = name,
         id = id,
         env = env,
         data = data,

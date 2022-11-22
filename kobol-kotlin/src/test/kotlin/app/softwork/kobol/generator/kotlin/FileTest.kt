@@ -1,7 +1,5 @@
 package app.softwork.kobol.generator.kotlin
 
-import app.softwork.kobol.*
-import app.softwork.kobol.plugins.*
 import app.softwork.kobol.plugins.nullabletozero.*
 import kotlin.test.*
 
@@ -51,7 +49,7 @@ class FileTest {
         |123456 END-READ
         |123456 CLOSE EIN.
         |123456 CLOSE AUS.
-        """.trimMargin().toIRFileWithKotlinx(listOf(NullableToZero))
+        """.trimMargin().toIRFileWithKotlinx(listOf(nullableToZero))
 
         val output = generate(input)
 
@@ -61,6 +59,7 @@ class FileTest {
         
         import app.softwork.serialization.flf.FixedLength
         import app.softwork.serialization.flf.append
+        import app.softwork.serialization.flf.decode
         import java.io.BufferedReader
         import java.io.BufferedWriter
         import java.io.File

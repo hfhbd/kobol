@@ -29,6 +29,13 @@ public abstract class JavaKobolTask: SourceTask() {
     @get:Input
     public abstract val java8: Property<Boolean>
 
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    internal abstract val classpath: ConfigurableFileCollection
+
+    @get:Input
+    public abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
+
     init {
         optimize.convention(false)
         outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
@@ -45,11 +52,14 @@ public abstract class JavaKobolTask: SourceTask() {
 
     @TaskAction
     internal fun generate() {
-        workerExecutor.classLoaderIsolation().submit(ExecuteJavaKobol::class.java) {
+        workerExecutor.classLoaderIsolation {
+            it.classpath.setFrom(classpath)
+        }.submit(ExecuteJavaKobol::class.java) {
             it.inputFiles.setFrom(source)
             it.outputFolder.set(outputFolder)
             it.optimize.set(optimize)
             it.java8.set(java8)
+            it.config.set(pluginConfiguration)
         }
     }
 }

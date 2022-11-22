@@ -23,3 +23,10 @@ public interface SerializationPlugin: Closeable {
 
     override fun close() { }
 }
+
+public fun interface SerializationPluginFactory {
+    public operator fun invoke(
+        packageName: String,
+        args: Map<String, String>
+    ): SerializationPlugin
+}

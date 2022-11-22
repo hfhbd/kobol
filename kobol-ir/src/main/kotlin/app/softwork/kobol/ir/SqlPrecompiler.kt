@@ -12,3 +12,12 @@ public interface SqlPrecompiler : Closeable {
         getDeclaration: (CobolFIRTree.DataTree.WorkingStorage.Elementar) -> KobolIRTree.Types.Function.Statement.Declaration
     ): List<KobolIRTree.Types.Function.Statement>
 }
+
+public fun interface SqlPrecompilerFactory {
+    public operator fun invoke(
+        packageName: String,
+        fileName: String,
+        outputFolder: File?,
+        args: Map<String, String>
+    ): SqlPrecompiler
+}

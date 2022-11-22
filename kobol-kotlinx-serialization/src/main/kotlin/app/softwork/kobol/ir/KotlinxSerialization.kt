@@ -1,15 +1,16 @@
 package app.softwork.kobol.ir
 
+import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.ForEach
-import app.softwork.kobol.fir.*
 
 public class KotlinxSerialization(
     private val packageName: String
 ) : SerializationPlugin {
+
     override fun fileSection(fileSection: CobolFIRTree.DataTree.File): List<KobolIRTree.Types.Type.Class> {
         val records = fileSection.records
         return if (records.size == 1) {
@@ -142,7 +143,11 @@ public class KotlinxSerialization(
                             parameters = emptyList()
                         ),
                         action = FunctionCall(
-                            KobolIRTree.Types.Function("decode") {},
+                            KobolIRTree.Types.Function(
+                                "decode",
+                                topLevel = true,
+                                packageName = "app.softwork.serialization.flf"
+                            ) {},
                             parameters = listOf(klass.serializer())
                         ),
                     )

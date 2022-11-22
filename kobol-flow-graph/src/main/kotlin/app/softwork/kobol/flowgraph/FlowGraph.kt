@@ -9,12 +9,12 @@ import java.io.*
 
 public class FlowGraph(
     private val outputFolder: File
-) : FirPlugin {
+) : FirPluginAfterPhase {
     private var content = mutableMapOf<String, String>()
 
-    override fun invoke(tree: CobolFIRTree): CobolFIRTree {
+    override fun invoke(tree: CobolFIRTree, other: Iterable<CobolFIRTree>): Iterable<CobolFIRTree> {
         content[tree.id.programID.lowercase()] = tree.createFlowGraph()
-        return tree
+        return other + tree
     }
 
     override fun close() {

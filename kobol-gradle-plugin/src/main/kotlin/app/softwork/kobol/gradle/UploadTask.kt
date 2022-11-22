@@ -9,9 +9,11 @@ import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitivity.*
 import org.gradle.work.*
 import java.io.*
+import java.util.*
 
 @CacheableTask
 public abstract class UploadTask : DefaultTask(), SshTask {
@@ -97,7 +99,7 @@ public abstract class UploadTask : DefaultTask(), SshTask {
                         exec("mv $target.conv $target")
                     }
                     if (copyToMVS != null && file in mvsFiles) {
-                        val mvsName = file.nameWithoutExtension.uppercase()
+                        val mvsName = file.nameWithoutExtension.toUpperCase(Locale.ROOT)
                         exec("""cp $target "//'$copyToMVS($mvsName)'" """)
                     }
                     file.copyTo(File(uploaded, file.name), true)

@@ -12,14 +12,7 @@ import javax.lang.model.element.*
 import javax.lang.model.element.Modifier.*
 import kotlin.math.*
 
-public fun generate(tree: KobolIRTree, java8: Boolean): List<JavaFile> {
-    val tree = if (java8) {
-        tree.whenToIf()
-    } else tree
-    return generateJava(tree)
-}
-
-private fun generateJava(tree: KobolIRTree): List<JavaFile> {
+internal fun generateJava(tree: KobolIRTree): List<JavaFile> {
     val external = tree.types.mapNotNull {
         if (it is KobolIRTree.Types.Type.Class && it.isObject) {
             it
@@ -463,19 +456,3 @@ private val Declaration.Type: TypeName
         is IntDeclaration -> TypeName.INT
         is ObjectDeclaration -> ClassName.get(type.packageName, type.name)
     }
-
-public fun generate(file: File, output: File, optimize: Boolean, java8: Boolean) {
-    generate(setOf(file), output, optimize, java8)
-}
-
-public fun generate(files: Set<File>, output: File, optimize: Boolean, java8: Boolean) {
-    for (ir in files.toIR()) {
-        val finished = if (optimize) {
-            ir.optimize()
-        } else ir
-
-        generate(finished, java8).forEach {
-            it.writeTo(File(output, "java"))
-        }
-    }
-}

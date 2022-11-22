@@ -29,7 +29,7 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .readonlyVariables()
+            .let { ReadonlyVariables(it, emptyList()) }.single()
 
         val output = generate(input)
 
@@ -75,8 +75,8 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .readonlyVariables()
-            .constVariables()
+            .let { ReadonlyVariables(it, emptyList()) }.single()
+            .let { ConstVariables(it, emptyList()) }.single()
 
         val output = generate(input)
 
@@ -122,7 +122,7 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .private()
+            .let { Private(it, emptyList()) }.single()
 
         val output = generate(input)
 
@@ -170,7 +170,7 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .let(CamelCase::invoke)
+            .let { CamelCase(it, emptyList()) }.single()
 
         val output = generate(input)
 
@@ -226,7 +226,7 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .optimize()
+            .let { Optimize(it, emptyList()) }.single()
 
         val output = generate(input)
 

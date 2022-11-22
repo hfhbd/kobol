@@ -1,5 +1,6 @@
 package app.softwork.kobol.ir
 
+import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.ForEach
@@ -10,23 +11,44 @@ import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
-import app.softwork.kobol.fir.*
 import java.io.*
 
 public fun File.toIR(
     firPlugins: List<FirPlugin> = emptyList(),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
-    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
-): KobolIRTree = toTree(firPlugins).toIRTree(fileConverter, serialization, sqlPrecompiler)
+    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
+    irPlugins: List<IrPlugin> = emptyList(),
+): KobolIRTree = setOf(this).toIR(
+    firPlugins,
+    fileConverter,
+    serialization,
+    sqlPrecompiler,
+    irPlugins
+).single()
 
 public fun Iterable<File>.toIR(
     firPlugins: List<FirPlugin> = emptyList(),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
-    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
-): List<KobolIRTree> = toTree(firPlugins).map {
-    it.toIRTree(fileConverter, serialization, sqlPrecompiler)
+    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
+    irPlugins: List<IrPlugin> = emptyList(),
+): Iterable<KobolIRTree> {
+    val firTrees = toTree(firPlugins)
+
+    var irTrees = firTrees.map {
+        it.toIRTree(fileConverter, serialization, sqlPrecompiler)
+    }.associateBy { it.id }
+
+    for (irPlugin in irPlugins) {
+        for (irTree in irTrees) {
+            val other = irTrees - irTree.key
+            val newTrees = irPlugin(irTree.value, other.values).associateBy { it.id }
+            irTrees = newTrees
+        }
+    }
+
+    return irTrees.values
 }
 
 public fun CobolFIRTree.toIRTree(
@@ -83,7 +105,10 @@ public fun CobolFIRTree.toIRTree(
     serialization?.close()
     fileHandler?.close()
     return KobolIRTree(
-        name = name, main = main, types = functions + dataTypes + externalIR
+        id = fileName,
+        name = name,
+        main = main,
+        types = functions + dataTypes + externalIR
     )
 }
 

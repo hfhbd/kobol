@@ -152,7 +152,6 @@ VARNAME=[a-zA-Z]([\w\-_])*
    "RECORDS"                       { return CobolTypes.RECORDS; }
    "DATA"                          { return CobolTypes.DATA; }
    "BLOCK"                         { return CobolTypes.BLOCK; }
-   "RECORDS"                       { return RECORDS; }
    "TO"                            { return TO; }
    "IS"                            { return IS; }
    "ARE"                           { return ARE; }

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.*
+
 plugins {
     `java-gradle-plugin`
     id("com.github.johnrengelman.shadow")
@@ -22,7 +24,7 @@ dependencies {
     implementation(projects.kobolIr)
     implementation(projects.kobolJava)
     implementation(projects.kobolFlowGraph)
-    implementation(projects.kobolSqldelightPrecompiler)
+    compileOnly(projects.kobolSqldelightPrecompiler)
 
     implementation("com.hierynomus:sshj:0.34.0")
     implementation("com.jcraft:jsch.agentproxy.sshj:0.0.9") // remove stupid open net.schmizz:sshj:[0.8.1,)
@@ -38,6 +40,10 @@ dependencies {
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:project-model-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.apiVersion = "1.4"
 }
 
 licensee {

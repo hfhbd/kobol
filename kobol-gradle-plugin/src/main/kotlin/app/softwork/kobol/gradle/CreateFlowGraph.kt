@@ -15,10 +15,7 @@ public abstract class CreateFlowGraph : WorkAction<CreateFlowGraph.Parameters> {
     override fun execute() {
         val inputs: Set<File> = parameters.inputFiles.files
         val outputFolder = parameters.outputFolder.get().asFile
-        FlowGraph(outputFolder).use { plugin ->
-            for (input in inputs) {
-                plugin(input.toTree())
-            }
-        }
+
+        inputs.toTree(listOf(FlowGraph(outputFolder)))
     }
 }
