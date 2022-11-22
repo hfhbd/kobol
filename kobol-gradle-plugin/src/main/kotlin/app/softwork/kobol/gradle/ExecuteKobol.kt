@@ -24,7 +24,6 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
         val outputFolder = parameters.outputFolder.get().asFile
 
         val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java).toList() + ServiceLoader.load(FirPluginAfterPhase::class.java).toList()
-        println(firPlugins)
         val irPlugins = ServiceLoader.load(IrPlugin::class.java).toMutableList()
 
         if (parameters.optimize.get()) {
