@@ -52,7 +52,7 @@ public abstract class JavaKobolTask: DefaultTask() {
     @TaskAction
     internal fun generate() {
         workerExecutor.classLoaderIsolation {
-            it.classpath.setFrom(classpath)
+            it.classpath.from(classpath)
         }.submit(ExecuteJavaKobol::class.java) {
             it.inputFiles.setFrom(sources)
             it.outputFolder.set(outputFolder)
