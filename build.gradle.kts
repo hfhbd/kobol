@@ -9,15 +9,10 @@ plugins {
 }
 
 allprojects {
-    group = "app.softwork"
-
     repositories {
         maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {
             name = "GitHubPackages"
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
+            credentials(PasswordCredentials::class)
         }
         mavenCentral()
         maven(url = "https://www.jetbrains.com/intellij-repository/releases")
@@ -67,10 +62,7 @@ subprojects {
         repositories {
             maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {
                 name = "GitHubPackages"
-                credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
+                credentials(PasswordCredentials::class)
             }
         }
         if (name != "kobol-gradle-plugin") {
