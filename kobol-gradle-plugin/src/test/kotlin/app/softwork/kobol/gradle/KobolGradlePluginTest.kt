@@ -3,6 +3,8 @@ package app.softwork.kobol.gradle
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.flowgraph.*
 import app.softwork.kobol.generator.kotlin.*
+import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome
 import java.io.*
 import java.nio.file.*
 import kotlin.test.*
@@ -67,9 +69,46 @@ class KobolGradlePluginTest {
             writeText(input)
         }
 
-        FlowGraph(tmp).use {
+        PlantumlFlowGraph(tmp).use {
             it.invoke(cobolFile.toTree(), emptyList())
         }
         assertTrue("hello.puml" in tmp.list())
+    }
+
+    @Test
+    fun customFlowGraph() {
+        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
+            deleteOnExit()
+        }
+        File(tmp, "build.gradle.kts").writeText(
+            """
+            |plugins {
+            |  kotlin("jvm") version "1.7.21"
+            |  id("app.softwork.kobol")
+            |}
+            |
+            |repositories {
+            |  mavenCentral()
+            |}
+            |
+            |dependencies {
+            |  kobolFlowGraphPlugin(kotlin("test"))
+            |}
+            |
+            |tasks.flowGraph {
+            |  sources.from("foo.cbl")
+            |}
+            |
+            """.trimMargin()
+        )
+        File(tmp, "foo.cbl").writeText(input)
+
+        val result = GradleRunner.create()
+            .withProjectDir(tmp)
+            .withPluginClasspath()
+            .withArguments(":flowGraph")
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":flowGraph")?.outcome)
     }
 }

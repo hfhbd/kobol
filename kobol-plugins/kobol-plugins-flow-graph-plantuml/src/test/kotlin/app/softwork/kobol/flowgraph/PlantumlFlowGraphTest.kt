@@ -5,7 +5,7 @@ import org.intellij.lang.annotations.Language
 import java.io.*
 import kotlin.test.*
 
-class FlowGraphTest {
+class PlantumlFlowGraphTest {
     @Test
     fun simple() {
         @Language("Cobol")

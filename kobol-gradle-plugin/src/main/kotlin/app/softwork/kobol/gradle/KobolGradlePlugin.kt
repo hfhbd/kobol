@@ -5,12 +5,17 @@ import org.gradle.api.plugins.JavaPlugin.*
 
 public class KobolGradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
-        val kobolIrPlugin = target.configurations.create("kobolIrPlugin") {
+        val kobolIrPlugin = target.configurations.register("kobolIrPlugin") {
             it.isCanBeResolved = true
             it.isCanBeConsumed = false
         }
 
-        val kobolFirPlugin = target.configurations.create("kobolFirPlugin") {
+        val kobolFirPlugin = target.configurations.register("kobolFirPlugin") {
+            it.isCanBeResolved = true
+            it.isCanBeConsumed = false
+        }
+
+        val kobolFlowGraphPlugin = target.configurations.register("kobolFlowGraphPlugin") {
             it.isCanBeResolved = true
             it.isCanBeConsumed = false
         }
@@ -37,8 +42,10 @@ public class KobolGradlePlugin : Plugin<Project> {
         }
 
         target.tasks.register("flowGraph", KobolFlowGraph::class.java) {
-            it.classpath.from(kobolFirPlugin.defaultDependencies {
-                it.add(target.dependencies.create("app.softwork:kobol-flow-graph:$version"))
+            it.classpath.from(kobolFirPlugin, kobolFlowGraphPlugin.map {
+                it.defaultDependencies {
+                    it.add(target.dependencies.create("app.softwork:kobol-plugins-flow-graph-plantuml:$version"))
+                }
             })
         }
     }

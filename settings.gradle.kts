@@ -35,3 +35,4 @@ include(":kobol-intellij-plugin")
 include(":kobol-flow-graph")
 
 include(":kobol-plugins:kobol-plugins-nullabletozero")
+include(":kobol-plugins:kobol-plugins-flow-graph-plantuml")
