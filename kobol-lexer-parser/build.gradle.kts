@@ -1,7 +1,7 @@
 plugins {
     setup
     repos
-    id("org.jetbrains.grammarkit")
+    org.jetbrains.grammarkit
 }
 
 val idea = "222.4459.24"

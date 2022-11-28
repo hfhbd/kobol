@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     `maven-publish`
-    id("app.cash.licensee")
+    app.cash.licensee
 }
 
 licensee {

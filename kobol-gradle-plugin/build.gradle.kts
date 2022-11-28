@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.*
 plugins {
     setup
     `java-gradle-plugin`
-    id("com.github.johnrengelman.shadow")
+    com.github.johnrengelman.shadow
 }
 
 gradlePlugin {
