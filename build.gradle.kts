@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.7.21" apply false
+    kotlin("jvm") version "1.7.22" apply false
     kotlin("plugin.serialization") version "1.7.21" apply false
     id("org.jetbrains.intellij") version "1.10.0" apply false
     id("org.jetbrains.grammarkit") version "2022.3" apply false
