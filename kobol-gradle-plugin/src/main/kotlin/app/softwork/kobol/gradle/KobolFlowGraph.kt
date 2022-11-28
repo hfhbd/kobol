@@ -25,6 +25,10 @@ public abstract class KobolFlowGraph: DefaultTask() {
     @get:OutputDirectory
     public abstract val outputFolder: DirectoryProperty
 
+    init {
+        outputFolder.convention(project.layout.buildDirectory.dir("reports/kobol/flowGraph"))
+    }
+
     @get:Inject
     internal abstract val workerExecutor: WorkerExecutor
 

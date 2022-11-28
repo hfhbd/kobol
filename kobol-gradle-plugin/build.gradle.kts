@@ -24,7 +24,8 @@ dependencies {
     implementation(projects.kobolKotlin)
     implementation(projects.kobolIr)
     implementation(projects.kobolJava)
-    compileOnly(projects.kobolFlowGraph)
+    implementation(projects.kobolFlowGraph)
+
     compileOnly(projects.kobolSqldelightPrecompiler)
 
     implementation("com.hierynomus:sshj:0.34.0")
@@ -39,7 +40,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(gradleTestKit())
-    testImplementation(projects.kobolFlowGraph)
+    testImplementation(projects.kobolPlugins.kobolPluginsFlowGraphPlantuml)
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:project-model-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")

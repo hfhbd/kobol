@@ -20,7 +20,8 @@ public abstract class CreateFlowGraph : WorkAction<CreateFlowGraph.Parameters> {
         val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
             FirPluginAfterPhase::class.java
         )
-
-        inputs.toTree(firPlugins + FlowGraph(outputFolder))
+        for (flowGraph in ServiceLoader.load(FlowGraphFactory::class.java)) {
+            inputs.toTree(firPlugins + flowGraph(outputFolder))
+        }
     }
 }
