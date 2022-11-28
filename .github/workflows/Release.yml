@@ -21,6 +21,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
+    env:
+      ORG_GRADLE_PROJECT_GitHubPackagesUsername: ${{ github.actor }}
+      ORG_GRADLE_PROJECT_GitHubPackagesPassword: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Set environment for version
         run: long="${{ github.ref }}"; version=${long#"refs/tags/v"}; echo "version=${version}" >> $GITHUB_ENV
@@ -34,12 +38,8 @@ jobs:
       - uses: gradle/gradle-build-action@v2
       - name: Build with Gradle
         run: ./gradlew -Pversion=$version build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish
         run: ./gradlew -Pversion=$version publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: ./gradlew -Pversion=$version createPluginRepo
       - uses: actions/upload-pages-artifact@v1
         with:

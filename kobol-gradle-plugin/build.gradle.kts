@@ -23,7 +23,7 @@ dependencies {
     implementation(projects.kobolKotlin)
     implementation(projects.kobolIr)
     implementation(projects.kobolJava)
-    implementation(projects.kobolFlowGraph)
+    compileOnly(projects.kobolFlowGraph)
     compileOnly(projects.kobolSqldelightPrecompiler)
 
     implementation("com.hierynomus:sshj:0.34.0")
@@ -37,6 +37,8 @@ dependencies {
     shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
 
     testImplementation(kotlin("test"))
+    testImplementation(gradleTestKit())
+    testImplementation(projects.kobolFlowGraph)
     testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:project-model-impl:$idea")
     testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")
@@ -85,11 +87,33 @@ artifacts {
     archives(tasks.shadowJar)
 }
 
-val sources: PublishArtifact = artifacts.sourceArtifacts(tasks.kotlinSourcesJar)
-publishing {
-    publications {
-        register<MavenPublication>("pluginMaven") {
-            artifact(sources)
+java {
+    withSourcesJar()
+}
+
+tasks {
+    val storeVersion by registering {
+        val version = project.version
+        val outputDir = project.layout.buildDirectory.dir("generated")
+        val outputFile = outputDir.map { it.file("Version.kt") }
+
+        kotlin.sourceSets.main.configure {
+            kotlin.srcDir(outputDir)
         }
+
+        doLast {
+            outputDir.get().asFile.mkdirs()
+
+            outputFile.get().asFile.writeText("""
+                package app.softwork.kobol.gradle
+                
+                internal val version = "$version"
+                
+                """.trimIndent())
+        }
+    }
+
+    compileKotlin {
+        dependsOn(storeVersion)
     }
 }
