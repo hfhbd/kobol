@@ -1,5 +1,7 @@
 plugins {
-    id("org.jetbrains.intellij")
+    setup
+    repos
+    org.jetbrains.intellij
 }
 
 dependencies {
