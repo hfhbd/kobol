@@ -11,6 +11,10 @@ jobs:
       contents: read
       packages: read
 
+      env:
+        ORG_GRADLE_PROJECT_GitHubPackagesUsername: ${{ github.actor }}
+        ORG_GRADLE_PROJECT_GitHubPackagesPassword: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
@@ -21,7 +25,4 @@ jobs:
       - uses: gradle/gradle-build-action@v2
       - name: Build with Gradle
         run: ./gradlew build
-        env:
-          ORG_GRADLE_PROJECT_GitHubPackagesUsername: ${{ github.actor }}
-          ORG_GRADLE_PROJECT_GitHubPackagesPassword: ${{ secrets.GITHUB_TOKEN }}
       - run: ./gradlew -Pversion=42.0.0 runPluginVerifier
