@@ -1,3 +1,7 @@
+plugins {
+    id("setup")
+}
+
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
     implementation(projects.kobolLexerParser)

@@ -1,3 +1,7 @@
+plugins {
+    setup
+}
+
 dependencies {
     implementation(projects.kobolFir)
 

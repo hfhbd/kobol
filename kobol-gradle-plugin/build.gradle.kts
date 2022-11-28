@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
+    setup
     `java-gradle-plugin`
     id("com.github.johnrengelman.shadow")
 }
@@ -104,12 +105,14 @@ tasks {
         doLast {
             outputDir.get().asFile.mkdirs()
 
-            outputFile.get().asFile.writeText("""
+            outputFile.get().asFile.writeText(
+                """
                 package app.softwork.kobol.gradle
                 
                 internal val version = "$version"
                 
-                """.trimIndent())
+                """.trimIndent()
+            )
         }
     }
 

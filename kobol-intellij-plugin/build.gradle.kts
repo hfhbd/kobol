@@ -1,4 +1,6 @@
 plugins {
+    setup
+    repos
     id("org.jetbrains.intellij")
 }
 
