@@ -4,47 +4,47 @@ import org.gradle.api.*
 import org.gradle.api.plugins.JavaPlugin.*
 
 public class KobolGradlePlugin : Plugin<Project> {
-    override fun apply(target: Project) {
-        val kobolIrPlugin = target.configurations.register("kobolIrPlugin") {
+    override fun apply(project: Project) {
+        val kobolIrPlugin = project.configurations.register("kobolIrPlugin") {
             it.isCanBeResolved = true
             it.isCanBeConsumed = false
         }
 
-        val kobolFirPlugin = target.configurations.register("kobolFirPlugin") {
+        val kobolFirPlugin = project.configurations.register("kobolFirPlugin") {
             it.isCanBeResolved = true
             it.isCanBeConsumed = false
         }
 
-        val kobolFlowGraphPlugin = target.configurations.register("kobolFlowGraphPlugin") {
+        val kobolFlowGraphPlugin = project.configurations.register("kobolFlowGraphPlugin") {
             it.isCanBeResolved = true
             it.isCanBeConsumed = false
         }
 
-        val convert = target.tasks.register("convertCobolToKotlin", KobolTask::class.java) {
+        val convert = project.tasks.register("convertCobolToKotlin", KobolTask::class.java) {
             it.classpath.from(kobolIrPlugin, kobolFirPlugin)
         }
 
-        val convertJava = target.tasks.register("convertCobolToJava", JavaKobolTask::class.java) {
+        val convertJava = project.tasks.register("convertCobolToJava", JavaKobolTask::class.java) {
             it.classpath.from(kobolIrPlugin, kobolFirPlugin)
         }
 
-        target.plugins.withId("org.jetbrains.kotlin.jvm") {
-            target.tasks.getByName("compileKotlin").dependsOn(convert)
+        project.plugins.withId("org.jetbrains.kotlin.jvm") {
+            project.tasks.getByName("compileKotlin").dependsOn(convert)
         }
 
-        target.plugins.withId("org.gradle.java") {
-            target.tasks.getByName(COMPILE_JAVA_TASK_NAME).dependsOn(convertJava)
+        project.plugins.withId("org.gradle.java") {
+            project.tasks.getByName(COMPILE_JAVA_TASK_NAME).dependsOn(convertJava)
         }
 
-        val upload = target.tasks.register("uploadCobol", UploadTask::class.java)
-        target.tasks.register("buildCobol", BuildTask::class.java) {
+        val upload = project.tasks.register("uploadCobol", UploadTask::class.java)
+        project.tasks.register("buildCobol", BuildTask::class.java) {
             it.dependsOn(upload)
         }
 
-        target.tasks.register("flowGraph", KobolFlowGraph::class.java) {
+        project.tasks.register("flowGraph", KobolFlowGraph::class.java) {
             it.classpath.from(kobolFirPlugin, kobolFlowGraphPlugin.map {
                 it.defaultDependencies {
-                    it.add(target.dependencies.create("app.softwork:kobol-plugins-flow-graph-plantuml:$version"))
+                    it.add(project.dependencies.create("app.softwork:kobol-plugins-flow-graph-plantuml:$version"))
                 }
             })
         }
