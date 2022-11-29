@@ -18,7 +18,6 @@ package app.softwork.kobol.fir
 
 import com.intellij.core.*
 import com.intellij.openapi.diagnostic.*
-import com.intellij.openapi.fileTypes.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.roots.*
 import com.intellij.openapi.roots.impl.*
@@ -27,7 +26,6 @@ import com.intellij.openapi.vfs.*
 import com.intellij.psi.*
 import java.io.*
 import java.util.concurrent.atomic.*
-import kotlin.contracts.*
 
 private object ApplicationEnvironment {
     private val logger = object : DefaultLogger("") {
@@ -56,6 +54,7 @@ internal class CoreEnvironment(sourceFolders: Iterable<File>) {
     )
 
     init {
+        System.setProperty("java.awt.headless", "true")
         projectEnvironment.registerProjectComponent(
             ProjectRootManager::class.java, ProjectRootManagerImpl(projectEnvironment.project)
         )
@@ -76,19 +75,6 @@ internal class CoreEnvironment(sourceFolders: Iterable<File>) {
                 action(psiFile as T)
             }
             return@iterateContent true
-        }
-    }
-
-    @OptIn(ExperimentalContracts::class)
-    fun <T : PsiFile> forSourceFile(action: (T) -> Unit) {
-        contract {
-            callsInPlace(action, InvocationKind.AT_MOST_ONCE)
-        }
-        val psiManager = PsiManager.getInstance(projectEnvironment.project)
-        fileIndex.iterateContent { file ->
-            @Suppress("UNCHECKED_CAST") val psiFile = psiManager.findFile(file) as? T ?: return@iterateContent true
-            action(psiFile)
-            return@iterateContent false
         }
     }
 

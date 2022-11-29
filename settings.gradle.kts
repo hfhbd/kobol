@@ -15,8 +15,6 @@ rootProject.name = "kobol"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 // enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
-includeBuild("build-logic")
-
 include(":kobol-lexer-parser")
 include(":kobol-fir")
 include(":kobol-ir")

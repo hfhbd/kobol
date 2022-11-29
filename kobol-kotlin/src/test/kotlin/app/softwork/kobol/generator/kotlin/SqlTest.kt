@@ -87,6 +87,16 @@ class SqlTest {
         123456  id INTEGER,
         123456  a INTEGER
         123546 );
+        123456 CREATE TABLE bar(
+        123456  id INTEGER,
+        123456  a INTEGER
+        123546 );
+        123456 END-EXEC.
+        123456 EXEC SQL
+        123456 CREATE TABLE baz(
+        123456  id INTEGER,
+        123456  a INTEGER
+        123546 );
         123456 END-EXEC.
         123456 77 FOO PIC 9(2).
         123456 77 BAR PIC 9(2).
@@ -165,6 +175,16 @@ class SqlTest {
             | * TABLE COMMENT II
             | */
             |CREATE TABLE foo(
+            | id INTEGER,
+            | a INTEGER
+            |);
+            |
+            |CREATE TABLE bar(
+            | id INTEGER,
+            | a INTEGER
+            |);
+            |
+            |CREATE TABLE baz(
             | id INTEGER,
             | a INTEGER
             |);

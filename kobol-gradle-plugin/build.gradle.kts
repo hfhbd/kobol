@@ -46,7 +46,7 @@ dependencies {
     testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")
 }
 
-tasks.withType<KotlinCompile> {
+tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions.apiVersion = "1.4"
 }
 

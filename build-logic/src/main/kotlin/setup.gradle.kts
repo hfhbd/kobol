@@ -9,7 +9,7 @@ licensee {
     allow("Apache-2.0")
 }
 
-configurations.all {
+configurations.configureEach {
     exclude(group = "com.jetbrains.rd")
     exclude(group = "com.github.jetbrains", module = "jetCheck")
     exclude(group = "com.jetbrains.infra")
@@ -34,6 +34,16 @@ tasks {
 
 kotlin {
     explicitApi()
+    target {
+        compilations.configureEach {
+            kotlinSourceSets.forAll {
+                it.languageSettings.progressiveMode = true
+            }
+            kotlinOptions {
+                // allWarningsAsErrors = true
+            }
+        }
+    }
 }
 
 publishing {
