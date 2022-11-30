@@ -11,6 +11,7 @@ import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import com.alecstrong.sql.psi.core.*
 import com.alecstrong.sql.psi.core.psi.*
+import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.psi.tree.*
 import com.intellij.psi.util.*
@@ -159,7 +160,7 @@ private fun List<CobolRecordDef>.toRecords() = buildList {
 } as List<Record>
 
 
-private fun CobolDataDiv.toData(envTree: EnvTree?): CobolFIRTree.DataTree {
+private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
     val definitions = workingStorageSection?.stmList?.let {
         buildList {
             var currentRecord: Record? = null
@@ -181,12 +182,17 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): CobolFIRTree.DataTree {
                             }
                         }
                     } else {
-                        add(
-                            WorkingStorage.Sql(
-                                sql = sqlString,
-                                comments = sql.comments.asComments()
+                        var comments = sql.comments.asComments()
+                        for (sqlStmt in checkSql(sqlString, project)) {
+                            val tableComments = comments
+                            comments = emptyList()
+                            add(
+                                WorkingStorage.Sql(
+                                    sql = sqlStmt.text,
+                                    comments = tableComments
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
@@ -499,33 +505,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                 it.text
             }.trim().replace(" \n ", "\n")
 
-            val file = LightVirtualFile("sql.inlinesql", SqlInlineLanguage, sql)
-            val sqlFile = PsiManager.getInstance(proc.project).findFile(file) as InlineSqlFile
-            val sqlErrors = buildList {
-                val annotator = object : SqlAnnotationHolder {
-                    override fun createErrorAnnotation(element: PsiElement, s: String) {
-                        add("$s at $element")
-                    }
-                }
-
-                fun PsiElement.annotateRecursively(annotator: SqlAnnotationHolder) {
-                    if (this is SqlAnnotatedElement) {
-                        annotate(annotator)
-                    }
-                    children.forEach {
-                        it.annotateRecursively(annotator)
-                    }
-                }
-                PsiTreeUtil.findChildOfType(sqlFile, PsiErrorElement::class.java)?.let { error ->
-                    annotator.createErrorAnnotation(error, error.errorDescription)
-                }
-                // sqlFile.annotateRecursively(annotator)
-            }
-            if (sqlErrors.isNotEmpty()) {
-                error(sqlErrors)
-            }
-            val sqlStmts = sqlFile.sqlStmtList?.stmtList ?: emptyList()
-
+            val sqlStmts = checkSql(sql, proc.project)
             sqlStmts.map {
                 val hostVariables = it.asSequence().filter {
                     it is SqlHostVariableId
@@ -603,6 +583,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                 )
             )
         }
+
         proc.writing != null -> {
             val writing = proc.writing!!
             val fileRecord = dataTree.notNull.find(writing.variable) as Record
@@ -644,6 +625,35 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
 
         else -> TODO()
     }
+}
+
+private fun checkSql(sql: String, project: Project): List<SqlStmt> {
+    val file = LightVirtualFile("inlineSql/sql.inlinesql", SqlInlineLanguage, sql)
+    val sqlFile = PsiManager.getInstance(project).findFile(file) as InlineSqlFile
+    val sqlErrors = buildList {
+        val annotator = object : SqlAnnotationHolder {
+            override fun createErrorAnnotation(element: PsiElement, s: String) {
+                add("$s at $element")
+            }
+        }
+
+        fun PsiElement.annotateRecursively(annotator: SqlAnnotationHolder) {
+            if (this is SqlAnnotatedElement) {
+                annotate(annotator)
+            }
+            children.forEach {
+                it.annotateRecursively(annotator)
+            }
+        }
+        PsiTreeUtil.findChildOfType(sqlFile, PsiErrorElement::class.java)?.let { error ->
+            annotator.createErrorAnnotation(error, error.errorDescription)
+        }
+        // sqlFile.annotateRecursively(annotator)
+    }
+    if (sqlErrors.isNotEmpty()) {
+        error(sqlErrors)
+    }
+    return sqlFile.sqlStmtList?.stmtList ?: emptyList()
 }
 
 private fun PsiElement.asSequence(): Sequence<PsiElement> = sequence {

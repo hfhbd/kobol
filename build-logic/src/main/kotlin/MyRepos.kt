@@ -15,11 +15,11 @@ class MyRepos : Plugin<Settings> {
 }
 
 fun RepositoryHandler.kobol() {
+    mavenCentral()
     maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {
         name = "GitHubPackages"
         credentials(PasswordCredentials::class)
     }
-    mavenCentral()
     maven(url = "https://www.jetbrains.com/intellij-repository/releases")
     maven(url = "https://cache-redirector.jetbrains.com/intellij-dependencies")
     maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies/")
