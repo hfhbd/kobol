@@ -44,7 +44,7 @@ public class KobolGradlePlugin : Plugin<Project> {
         project.tasks.register("flowGraph", KobolFlowGraph::class.java) {
             it.classpath.from(kobolFirPlugin, kobolFlowGraphPlugin.map {
                 it.defaultDependencies {
-                    it.add(project.dependencies.create("app.softwork:kobol-plugins-flow-graph-plantuml:$version"))
+                    it.add(project.dependencies.create("app.softwork:kobol-plugins-flow-graph-plantuml:$kobolVersion"))
                 }
             })
         }
