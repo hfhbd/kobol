@@ -110,7 +110,7 @@ tasks {
                 """
                 package app.softwork.kobol.gradle
                 
-                internal val version = "$version"
+                internal val kobolVersion = "$version"
                 
                 """.trimIndent()
             )
