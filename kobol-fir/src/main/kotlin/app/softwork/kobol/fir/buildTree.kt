@@ -631,8 +631,10 @@ private fun checkSql(sql: String, project: Project): List<SqlStmt> {
     val file = LightVirtualFile("inlineSql/sql.inlinesql", SqlInlineLanguage, sql)
     val sqlFile = PsiManager.getInstance(project).findFile(file) as InlineSqlFile
     val sqlErrors = buildList {
-        val annotator = SqlAnnotationHolder { element, message ->
-            add("$message at $element")
+        val annotator = object : SqlAnnotationHolder {
+            override fun createErrorAnnotation(element: PsiElement, s: String) {
+                add("$s at $element")
+            }
         }
 
         fun PsiElement.annotateRecursively(annotator: SqlAnnotationHolder) {
