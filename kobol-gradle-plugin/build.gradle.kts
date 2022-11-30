@@ -91,16 +91,18 @@ artifacts {
 
 java {
     withSourcesJar()
+    withJavadocJar()
 }
 
 tasks {
     val storeVersion by registering {
         val version = project.version
-        val outputDir = project.layout.buildDirectory.dir("generated")
+        val outputDirGenerated = project.layout.buildDirectory.dir("generated/kobol")
+        val outputDir = outputDirGenerated.map { it.dir("app/softwork/kobol/gradle") }
         val outputFile = outputDir.map { it.file("Version.kt") }
 
         kotlin.sourceSets.main.configure {
-            kotlin.srcDir(outputDir)
+            kotlin.srcDir(outputDirGenerated)
         }
 
         doLast {
