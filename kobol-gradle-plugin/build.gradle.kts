@@ -2,8 +2,10 @@ import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
     setup
+    repos
     `java-gradle-plugin`
     com.github.johnrengelman.shadow
+    intellijTesting
 }
 
 gradlePlugin {
@@ -15,7 +17,7 @@ gradlePlugin {
     }
 }
 
-val shade = configurations.create("shade")
+val shade by configurations.register("shade")
 configurations {
     compileOnly.get().extendsFrom(shade)
 }
@@ -34,16 +36,13 @@ dependencies {
     implementation("net.java.dev.jna:jna-platform:5.12.1")
 
     val idea = "222.4459.24"
-    shade("com.jetbrains.intellij.platform:core-impl:$idea")
-    shade("com.jetbrains.intellij.platform:project-model-impl:$idea")
-    shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
+    shade("com.jetbrains.intellij.platform:core:$idea")
+    shade("com.jetbrains.intellij.platform:project-model:$idea")
+    shade("com.jetbrains.intellij.platform:analysis:$idea")
+    shade("com.jetbrains.intellij.platform:indexing:$idea")
 
-    testImplementation(kotlin("test"))
     testImplementation(gradleTestKit())
     testImplementation(projects.kobolPlugins.kobolPluginsFlowGraphPlantuml)
-    testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
-    testImplementation("com.jetbrains.intellij.platform:project-model-impl:$idea")
-    testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")
 }
 
 tasks.withType<KotlinCompile>().configureEach {
