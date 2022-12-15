@@ -25,6 +25,7 @@
         <fileType
                 name="Cobol File"
                 implementationClass="app.softwork.kobol.CobolFileType"
+                fieldName="INSTANCE"
                 language="Cobol"
                 extensions="cbl"/>
 

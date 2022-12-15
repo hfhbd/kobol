@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         mavenCentral()
         gradlePluginPortal()
     }
@@ -13,7 +14,7 @@ plugins {
 rootProject.name = "kobol"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-// enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
 include(":kobol-lexer-parser")
 include(":kobol-fir")

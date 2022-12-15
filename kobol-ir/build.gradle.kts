@@ -1,5 +1,6 @@
 plugins {
     setup
+    repos
 }
 
 dependencies {

@@ -83,17 +83,36 @@ private class Db2ParserDefinition : SqlParserDefinition() {
 public fun File.toCobolFile(): CobolFile = setOf(this).toCobolFile().single()
 
 public fun Iterable<File>.toCobolFile(): Collection<CobolFile> {
-    val intelliJ = CoreEnvironment(this).apply {
-        initializeApplication {
-            registerFileType(CobolFileType.INSTANCE, CobolFileType.INSTANCE.defaultExtension)
-            registerParserDefinition(CobolParserDefinition())
+    System.setProperty("java.awt.headless", "true")
 
-            registerFileType(InlineSqlFileType, InlineSqlFileType.defaultExtension)
-            registerParserDefinition(Db2ParserDefinition())
+    val intelliJ = object : SqlCoreEnvironment(
+        sourceFolders = toList(),
+        dependencies = emptyList(),
+        predefinedTables = listOf(
+            PredefinedTable(
+                "db.predefined",
+                "dummy",
+                """
+            |CREATE TABLE SYSIBM.SYSDUMMY1(
+            |  IBMREQD CHAR(1) NOT NULL
+            |);
+            """.trimMargin()
+            )
+        ),
+        language = SqlInlineLanguage,
+    ) {
+        init {
+            initializeApplication {
+                registerFileType(CobolFileType.INSTANCE, CobolFileType.INSTANCE.defaultExtension)
+                registerParserDefinition(CobolParserDefinition())
+
+                registerFileType(InlineSqlFileType, InlineSqlFileType.defaultExtension)
+                registerParserDefinition(Db2ParserDefinition())
+            }
         }
     }
     return buildSet {
-        intelliJ.forSourceFiles(CobolFile::class.java) {
+        intelliJ.forSourceFile<CobolFile> {
             add(it)
         }
     }

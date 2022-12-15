@@ -9,6 +9,7 @@ import app.softwork.kobol.fir.CobolFIRTree.EnvTree.Configuration.*
 import app.softwork.kobol.fir.CobolFIRTree.EnvTree.InputOutput.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.sqldelight.db2dialect.grammar.psi.*
 import com.alecstrong.sql.psi.core.*
 import com.alecstrong.sql.psi.core.psi.*
 import com.intellij.openapi.project.*
@@ -508,15 +509,23 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
             val sqlStmts = checkSql(sql, proc.project)
             sqlStmts.map {
                 val hostVariables = it.asSequence().filter {
-                    it is SqlHostVariableId
+                    it is Db2HostVariableId
                 }.map { it.text }.toList()
 
                 val bindParameter = it.asSequence().filter {
                     it is SqlBindParameter
                 }.map { it.text.drop(1) }.toList()
 
+                val stmt = it.text
+                val ext = it.extensionStmt
+                val type = when {
+                    it.insertStmt != null -> Statement.Sql.SqlType.Insert
+                    it.compoundSelectStmt != null || (it.extensionStmt as? Db2ExtensionStmt) != null -> Statement.Sql.SqlType.Select
+                    it.deleteStmtLimited != null -> Statement.Sql.SqlType.Delete
+                    else -> Statement.Sql.SqlType.Execute
+                }
                 Statement.Sql(
-                    sql = it.text,
+                    sql = stmt,
                     comments = proc.comments.asComments(),
                     hostVariables = hostVariables.map {
                         (dataTree.notNull.workingStorage.find(it, null) as Elementar).toVariable()
@@ -524,12 +533,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                     parameter = bindParameter.map {
                         (dataTree.notNull.workingStorage.find(it, null) as Elementar).toVariable()
                     },
-                    type = when {
-                        it.insertStmt != null -> Statement.Sql.SqlType.Insert
-                        it.compoundSelectStmt != null || it.setStmt != null -> Statement.Sql.SqlType.Select
-                        it.deleteStmtLimited != null -> Statement.Sql.SqlType.Delete
-                        else -> Statement.Sql.SqlType.Execute
-                    }
+                    type = type
                 )
             }
         }
@@ -631,11 +635,7 @@ private fun checkSql(sql: String, project: Project): List<SqlStmt> {
     val file = LightVirtualFile("inlineSql/sql.inlinesql", SqlInlineLanguage, sql)
     val sqlFile = PsiManager.getInstance(project).findFile(file) as InlineSqlFile
     val sqlErrors = buildList {
-        val annotator = object : SqlAnnotationHolder {
-            override fun createErrorAnnotation(element: PsiElement, s: String) {
-                add("$s at $element")
-            }
-        }
+        val annotator = SqlAnnotationHolder { element, s -> add("$s at $element") }
 
         fun PsiElement.annotateRecursively(annotator: SqlAnnotationHolder) {
             if (this is SqlAnnotatedElement) {
@@ -648,10 +648,10 @@ private fun checkSql(sql: String, project: Project): List<SqlStmt> {
         PsiTreeUtil.findChildOfType(sqlFile, PsiErrorElement::class.java)?.let { error ->
             annotator.createErrorAnnotation(error, error.errorDescription)
         }
-        // sqlFile.annotateRecursively(annotator)
+        sqlFile.annotateRecursively(annotator)
     }
     if (sqlErrors.isNotEmpty()) {
-        error(sqlErrors)
+        println("Possible SQL errors: $sqlErrors")
     }
     return sqlFile.sqlStmtList?.stmtList ?: emptyList()
 }
