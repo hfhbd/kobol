@@ -516,8 +516,6 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                     it is SqlBindParameter
                 }.map { it.text.drop(1) }.toList()
 
-                val stmt = it.text
-                val ext = it.extensionStmt
                 val type = when {
                     it.insertStmt != null -> Statement.Sql.SqlType.Insert
                     it.compoundSelectStmt != null || (it.extensionStmt as? Db2ExtensionStmt) != null -> Statement.Sql.SqlType.Select
@@ -525,7 +523,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                     else -> Statement.Sql.SqlType.Execute
                 }
                 Statement.Sql(
-                    sql = stmt,
+                    sql = it.text,
                     comments = proc.comments.asComments(),
                     hostVariables = hostVariables.map {
                         (dataTree.notNull.workingStorage.find(it, null) as Elementar).toVariable()
