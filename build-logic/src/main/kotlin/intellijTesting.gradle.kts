@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    val idea = "222.4459.24"
+    val idea = "221.6008.13"
     testImplementation(kotlin("test"))
     testImplementation("com.jetbrains.intellij.platform:ide-impl:$idea") {
         exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-core")
