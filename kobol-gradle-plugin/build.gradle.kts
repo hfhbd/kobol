@@ -37,6 +37,7 @@ dependencies {
 
     val idea = "221.6008.13"
     shade("com.jetbrains.intellij.platform:core:$idea")
+    shade("com.jetbrains.intellij.platform:extensions:$idea")
     shade("com.jetbrains.intellij.platform:project-model:$idea")
     shade("com.jetbrains.intellij.platform:analysis:$idea")
     shade("com.jetbrains.intellij.platform:indexing:$idea")
