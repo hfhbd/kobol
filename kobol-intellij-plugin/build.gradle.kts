@@ -8,7 +8,7 @@ dependencies {
     implementation(projects.kobolLexerParser)
 }
 
-val idea = "222.4167.29"
+val idea = "221.6008.13"
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
     version.set("IU-$idea")

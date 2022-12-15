@@ -6,7 +6,7 @@ plugins {
     intellijTesting
 }
 
-val idea = "222.4459.24"
+val idea = "221.6008.13"
 
 grammarKit {
     intellijRelease.set(idea)
