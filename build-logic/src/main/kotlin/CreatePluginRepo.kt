@@ -2,6 +2,7 @@ import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
+import java.io.*
 
 @CacheableTask
 abstract class CreatePluginRepo : DefaultTask() {
@@ -18,17 +19,16 @@ abstract class CreatePluginRepo : DefaultTask() {
     @get:Input
     abstract val untilBuild: Property<String>
 
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    @get:OutputDirectory
+    abstract val outputDirectory: DirectoryProperty
 
     init {
-        outputFile.convention(project.layout.buildDirectory.file("customRepo/updatePlugins.xml"))
+        outputDirectory.convention(project.layout.buildDirectory.dir("customRepo"))
     }
 
     @TaskAction
     fun write() {
-        val xml = outputFile.get().asFile
-        xml.writeText(
+        File(outputDirectory.get().asFile, "updatePlugins.xml").writeText(
             """
                 <plugins>
                 <plugin id="app.softwork.kobol" url="https://hfhbd.github.io/kobol/kobol-intellij-plugin-${version.get()}.zip" version="${version.get()}">

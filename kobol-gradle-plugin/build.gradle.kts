@@ -96,7 +96,7 @@ java {
 tasks {
     val storeVersion by registering(StoreVersion::class) {
         kotlin.sourceSets.main.configure {
-            kotlin.srcDir(outputDirectory)
+            kotlin.srcDir(generated)
         }
     }
 
