@@ -94,27 +94,9 @@ java {
 }
 
 tasks {
-    val storeVersion by registering {
-        val version = project.version
-        val outputDirGenerated = project.layout.buildDirectory.dir("generated/kobol")
-        val outputDir = outputDirGenerated.map { it.dir("app/softwork/kobol/gradle") }
-        val outputFile = outputDir.map { it.file("Version.kt") }
-
+    val storeVersion by registering(StoreVersion::class) {
         kotlin.sourceSets.main.configure {
-            kotlin.srcDir(outputDirGenerated)
-        }
-
-        doLast {
-            outputDir.get().asFile.mkdirs()
-
-            outputFile.get().asFile.writeText(
-                """
-                package app.softwork.kobol.gradle
-                
-                internal val kobolVersion = "$version"
-                
-                """.trimIndent()
-            )
+            kotlin.srcDir(generated)
         }
     }
 
