@@ -31,20 +31,9 @@ tasks {
         from(buildPlugin)
         into("build/customRepo")
     }
-
-    val createPluginRepo by registering {
+    val createPluginRepo by registering(CreatePluginRepo::class) {
         dependsOn(copyRepoPlugin, patchPluginXml)
-        doFirst {
-            val xml = File(File(buildDir, "customRepo"), "updatePlugins.xml")
-            xml.writeText(
-                """
-                <plugins>
-                <plugin id="app.softwork.kobol" url="https://hfhbd.github.io/kobol/kobol-intellij-plugin-$version.zip" version="$version">
-                <idea-version since-build="${patchPluginXml.get().sinceBuild.get()}" until-build="${patchPluginXml.get().untilBuild.get()}"/>
-                </plugin>
-                </plugins>
-            """.trimIndent()
-            )
-        }
+        sinceBuild.set(patchPluginXml.flatMap { it.sinceBuild })
+        untilBuild.set(patchPluginXml.flatMap { it.untilBuild })
     }
 }
