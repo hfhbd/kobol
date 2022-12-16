@@ -6,12 +6,13 @@ plugins {
 }
 
 dependencies {
-    val idea = "221.6008.13"
     testImplementation(kotlin("test"))
-    testImplementation("com.jetbrains.intellij.platform:ide-impl:$idea") {
-        exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-core")
-    }
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+
+    val idea = "221.6008.13"
+    testImplementation("com.jetbrains.intellij.platform:core-impl:$idea")
+    testImplementation("com.jetbrains.intellij.platform:project-model-impl:$idea")
+    testImplementation("com.jetbrains.intellij.platform:analysis-impl:$idea")
+    testImplementation("com.jetbrains.intellij.platform:indexing-impl:$idea")
 }
 
 configurations.configureEach {

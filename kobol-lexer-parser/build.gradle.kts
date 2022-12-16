@@ -1,3 +1,5 @@
+import gradle.kotlin.dsl.accessors._5b841d749b44c4d634f7cfea3ed45134.*
+
 plugins {
     setup
     repos
@@ -22,6 +24,10 @@ val grammar by configurations.registering {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
+
+    val idea = "221.6008.13"
+    compileOnly("com.jetbrains.intellij.platform:util-ui:$idea")
+    testImplementation("com.jetbrains.intellij.platform:util-ui:$idea")
 
     testImplementation(projects.kobolFir)
 }

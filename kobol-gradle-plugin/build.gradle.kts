@@ -1,3 +1,4 @@
+import gradle.kotlin.dsl.accessors._b6c1ee95cd8c9d49d26ad7df1bd5c889.*
 import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
@@ -36,11 +37,10 @@ dependencies {
     implementation("net.java.dev.jna:jna-platform:5.12.1")
 
     val idea = "221.6008.13"
-    shade("com.jetbrains.intellij.platform:core:$idea")
-    shade("com.jetbrains.intellij.platform:extensions:$idea")
-    shade("com.jetbrains.intellij.platform:project-model:$idea")
-    shade("com.jetbrains.intellij.platform:analysis:$idea")
-    shade("com.jetbrains.intellij.platform:indexing:$idea")
+    shade("com.jetbrains.intellij.platform:core-impl:$idea")
+    shade("com.jetbrains.intellij.platform:project-model-impl:$idea")
+    shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
+    shade("com.jetbrains.intellij.platform:indexing-impl:$idea")
 
     testImplementation(gradleTestKit())
     testImplementation(projects.kobolPlugins.kobolPluginsFlowGraphPlantuml)
