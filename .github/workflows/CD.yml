@@ -38,11 +38,6 @@ jobs:
       - uses: gradle/gradle-build-action@v2
       - name: Build with Gradle
         run: ./gradlew -Pversion=$version build
-      - name: Delete Package Versions
-        uses: actions/delete-package-versions@v3
-        with:
-          package-name: 'app.softwork.kobol.app.softwork.kobol.gradle.plugin'
-          delete-only-pre-release-versions: true
       - name: Publish
         run: ./gradlew -Pversion=$version publish
       - run: ./gradlew -Pversion=$version createPluginRepo
