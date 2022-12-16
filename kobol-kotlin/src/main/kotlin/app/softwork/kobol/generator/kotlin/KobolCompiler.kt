@@ -243,9 +243,9 @@ private fun CodeBlock.Builder.println(it: Print, packageName: String) {
 
 private fun FunctionCall.call(packageName: String) = CodeBlock.builder().apply {
     val params = CodeBlock.builder().apply {
-        for (parameter in parameters) {
+        for ((index, parameter) in parameters.withIndex()) {
             val member = parameter.toTemplate(packageName)
-            if (parameter == parameters.last()) {
+            if (index == parameters.lastIndex) {
                 add("%L", member)
             } else {
                 add("%L, ", member)
