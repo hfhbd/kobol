@@ -229,9 +229,9 @@ private fun CodeBlock.Builder.println(it: Print) {
 
 private fun FunctionCall.call() = CodeBlock.builder().apply {
     val params = CodeBlock.builder().apply {
-        for (parameter in parameters) {
+        for ((index, parameter) in parameters.withIndex()) {
             val toAdd = parameter.toTemplate()
-            if (parameter == parameters.last()) {
+            if (index == parameters.lastIndex) {
                 add(toAdd)
             } else {
                 add("$toAdd, ")
