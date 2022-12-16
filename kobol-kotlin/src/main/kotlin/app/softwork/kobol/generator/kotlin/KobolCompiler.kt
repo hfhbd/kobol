@@ -12,7 +12,7 @@ internal fun generate(tree: KobolIRTree): FileSpec {
             addType(packageName, it)
         }
 
-        addFunction(tree.main.toKotlin(name))
+        addFunction(tree.main.toKotlin(name, isMain = true))
     }
     return fileSpec.build()
 }
@@ -29,7 +29,7 @@ private fun Declaration.toParameter() = ParameterSpec.builder(name, KType).apply
     }
 }.build()
 
-private fun KobolIRTree.Types.Function.toKotlin(packageName: String): FunSpec {
+private fun KobolIRTree.Types.Function.toKotlin(packageName: String, isMain: Boolean = false): FunSpec {
     val name = if (external) "invoke" else name
     return FunSpec.builder(name).apply {
         if (private) {
@@ -49,7 +49,9 @@ private fun KobolIRTree.Types.Function.toKotlin(packageName: String): FunSpec {
                 }
             }
             addKdoc(doc.joinToString(separator = "\n"))
-            if (body.any { it is Exit }) {
+            if (isMain) {
+                returns(UNIT)
+            } else if (body.any { it is Exit }) {
                 returns(NOTHING)
             } else {
                 returns(returnType.KType())
@@ -105,7 +107,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
         is Declaration -> code.add(CodeBlock.of("%L", createProperty(packageName)))
         is FunctionCall -> code.add("%L", call(packageName))
 
-        is Exit -> code.add("return %M(0)", MemberName("kotlin.system", "exitProcess", true))
+        is Exit -> code.add("%M(0)", MemberName("kotlin.system", "exitProcess", true))
         is Return -> code.add("return %L", expr.toTemplate(packageName))
         is LoadExternal -> code.add("System.loadLibrary(\"$libName\")")
         is DoWhile -> code.beginControlFlow("do").addStatement("%L", functionCall.call(packageName)).unindent()

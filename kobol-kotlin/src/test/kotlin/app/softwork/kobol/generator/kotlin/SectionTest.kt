@@ -136,12 +136,12 @@ class SectionTest {
           println("FOO")
           BAR()
           println("FOO2")
-          return exitProcess(0)
+          exitProcess(0)
         }
         
         public fun BAR(): Nothing {
           println("BAR")
-          return exitProcess(0)
+          exitProcess(0)
         }
         
         public fun C(): Unit {
@@ -152,6 +152,36 @@ class SectionTest {
           FOO()
           BAR()
           C()
+        }
+        
+        """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
+
+    @Test
+    fun exitInMain() {
+        //language=cobol
+        val input = """
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. CALLING.
+            DATA DIVISION.
+            PROCEDURE DIVISION.
+            DISPLAY "FOO"
+            GOBACK.
+        """.trimIndent().toIR()
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+        package calling
+        
+        import kotlin.Unit
+        import kotlin.system.exitProcess
+        
+        public fun main(): Unit {
+          println("FOO")
+          exitProcess(0)
         }
         
         """.trimIndent()
