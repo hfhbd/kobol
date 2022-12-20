@@ -216,6 +216,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
       "TO" { return TO; }
       "BINARY" { return BINARY; }
       "USAGE" { return USAGE; }
+      "IS" { return IS; }
       "POINTER" { return POINTER; }
       "COMP" { return COMP; }
       "COMP-3" { return COMP_3; }
