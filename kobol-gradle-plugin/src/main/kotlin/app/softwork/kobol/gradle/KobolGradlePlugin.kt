@@ -18,6 +18,10 @@ public class KobolGradlePlugin : Plugin<Project> {
         val kobolFlowGraphPlugin = project.configurations.register("kobolFlowGraphPlugin") {
             it.isCanBeResolved = true
             it.isCanBeConsumed = false
+            
+            it.defaultDependencies {
+                it.add(project.dependencies.create("app.softwork:kobol-plugins-flow-graph-plantuml:$kobolVersion"))
+            }
         }
 
         val convert = project.tasks.register("convertCobolToKotlin", KobolTask::class.java) {
@@ -29,11 +33,11 @@ public class KobolGradlePlugin : Plugin<Project> {
         }
 
         project.plugins.withId("org.jetbrains.kotlin.jvm") {
-            project.tasks.getByName("compileKotlin").dependsOn(convert)
+            project.tasks.named("compileKotlin") { it.dependsOn(convert) }
         }
 
         project.plugins.withId("org.gradle.java") {
-            project.tasks.getByName(COMPILE_JAVA_TASK_NAME).dependsOn(convertJava)
+            project.tasks.named(COMPILE_JAVA_TASK_NAME) { it.dependsOn(convertJava) }
         }
 
         val upload = project.tasks.register("uploadCobol", UploadTask::class.java)
@@ -42,11 +46,7 @@ public class KobolGradlePlugin : Plugin<Project> {
         }
 
         project.tasks.register("flowGraph", KobolFlowGraph::class.java) {
-            it.classpath.from(kobolFirPlugin, kobolFlowGraphPlugin.map {
-                it.defaultDependencies {
-                    it.add(project.dependencies.create("app.softwork:kobol-plugins-flow-graph-plantuml:$kobolVersion"))
-                }
-            })
+            it.classpath.from(kobolFirPlugin, kobolFlowGraphPlugin)
         }
     }
 }
