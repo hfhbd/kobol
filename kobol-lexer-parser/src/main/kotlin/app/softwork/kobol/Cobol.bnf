@@ -108,7 +108,7 @@ length ::= LP number RP
 
 linkingSection ::= LINKAGE SECTION DOT record_def*
 
-procedureDiv ::= comments PROCEDURE DIVISION [USING recordID] DOT [sentences+] [procedureSection*] endComments
+procedureDiv ::= comments PROCEDURE DIVISION [USING recordID+] DOT [sentences+] [procedureSection*] endComments
 endComments ::= comments
 procedureSection ::= comments sectionID SECTION DOT sentences
 sentences ::= procedures+ DOT
