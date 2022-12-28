@@ -3,8 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0-RC2")
-    implementation("org.jetbrains.kotlin:kotlin-serialization:1.8.0")
+    val kotlin = "1.8.0"
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-serialization:$kotlin")
     implementation("app.cash.licensee:licensee-gradle-plugin:1.7.0-SNAPSHOT")
     implementation("org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.10.1")
     implementation("org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2022.3")
@@ -16,10 +17,6 @@ gradlePlugin {
         create("MyRepos") {
             id = "MyRepos"
             implementationClass = "MyRepos"
-        }
-        create("repos") {
-            id = "repos"
-            implementationClass = "Repos"
         }
     }
 }
