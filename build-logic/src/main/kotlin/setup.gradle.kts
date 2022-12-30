@@ -9,20 +9,8 @@ licensee {
     allow("Apache-2.0")
 }
 
-tasks {
-    // Set the JVM compatibility versions
-    withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
-    }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "17"
-        }
-    }
-}
-
 kotlin {
+    jvmToolchain(17)
     explicitApi()
     target {
         compilations.configureEach {
