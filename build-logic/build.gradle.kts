@@ -12,9 +12,15 @@ dependencies {
     implementation("gradle.plugin.com.github.johnrengelman:shadow:7.1.2")
 }
 
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 gradlePlugin {
     plugins {
-        create("MyRepos") {
+        register("MyRepos") {
             id = "MyRepos"
             implementationClass = "MyRepos"
         }

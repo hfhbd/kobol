@@ -1,4 +1,3 @@
-import gradle.kotlin.dsl.accessors._b6c1ee95cd8c9d49d26ad7df1bd5c889.*
 import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
@@ -11,7 +10,7 @@ plugins {
 
 gradlePlugin {
     plugins {
-        create("kobol") {
+        register("kobol") {
             id = "app.softwork.kobol"
             implementationClass = "app.softwork.kobol.gradle.KobolGradlePlugin"
         }
@@ -20,7 +19,7 @@ gradlePlugin {
 
 val shade by configurations.register("shade")
 configurations {
-    compileOnly.get().extendsFrom(shade)
+    compileOnly.configure { extendsFrom(shade) }
 }
 
 dependencies {

@@ -1,5 +1,3 @@
-import gradle.kotlin.dsl.accessors._5b841d749b44c4d634f7cfea3ed45134.*
-
 plugins {
     setup
     repos
