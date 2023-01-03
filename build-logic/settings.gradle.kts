@@ -8,3 +8,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "build-logic"
+
+println("ACTIONS_CACHE_URL: ${System.getenv("ACTIONS_CACHE_URL")}")
