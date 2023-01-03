@@ -20,7 +20,7 @@ kotlin {
 
 gradlePlugin {
     plugins {
-        create("MyRepos") {
+        register("MyRepos") {
             id = "MyRepos"
             implementationClass = "MyRepos"
         }

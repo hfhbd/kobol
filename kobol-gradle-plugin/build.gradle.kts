@@ -19,7 +19,7 @@ gradlePlugin {
 
 val shade by configurations.register("shade")
 configurations {
-    compileOnly.get().extendsFrom(shade)
+    compileOnly.configure { extendsFrom(shade) }
 }
 
 dependencies {
