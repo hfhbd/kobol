@@ -11,7 +11,7 @@ public abstract class KobolRunTask : DefaultTask(), SshTask {
         group = "kobol"
     }
 
-    @Internal
+    @get:Internal
     internal open val export: String = ""
 
     @get:Input
