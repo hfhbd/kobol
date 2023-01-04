@@ -41,8 +41,11 @@ public class KobolGradlePlugin : Plugin<Project> {
         }
 
         val upload = project.tasks.register("uploadCobol", UploadTask::class.java)
-        project.tasks.register("buildCobol", BuildTask::class.java) {
+        val buildCobol = project.tasks.register("buildCobol", BuildTask::class.java) {
             it.dependsOn(upload)
+        }
+        project.tasks.register("runCobol", KobolRunTask::class.java) {
+            it.dependsOn(buildCobol)
         }
 
         project.tasks.register("flowGraph", KobolFlowGraph::class.java) {
