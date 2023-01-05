@@ -1,12 +1,17 @@
 package app.softwork.kobol.gradle
 
 import org.gradle.api.*
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 
-public abstract class CleanCobol: DefaultTask(), SshTask {
+@CacheableTask
+public abstract class CleanCobol : DefaultTask(), SshTask {
+    init {
+        group = "kobol"
+    }
+
     @TaskAction
     public fun clean() {
-        sshClient { 
+        sshClient {
             exec("cd ..; rm ${folder.get()}")
         }
     }
