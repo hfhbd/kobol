@@ -81,28 +81,36 @@ public abstract class UploadTask : DefaultTask(), SshTask {
                     if (change.fileType == FileType.DIRECTORY) continue
 
                     sftp.mkdirs(folder)
-
                     val file = change.file
                     val target = "$folder/${file.name}"
 
-                    try {
-                        sftp.put(FileSystemFile(file), target)
-                    } catch (_: IOException) {
-                        sftp.put(FileSystemFile(file), target)
-                    }
-                    if (file.extension !in notTagged) {
-                        exec("iconv -T -f utf-8 -t $encoding $target > $target.conv")
+                    when (change.changeType) {
+                        ChangeType.ADDED, ChangeType.MODIFIED -> {
+                            try {
+                                sftp.put(FileSystemFile(file), target)
+                            } catch (_: IOException) {
+                                sftp.put(FileSystemFile(file), target)
+                            }
+                            if (file.extension !in notTagged) {
+                                exec("iconv -T -f utf-8 -t $encoding $target > $target.conv")
 
-                        if (keepUTF8) {
-                            exec("mv $target $target.utf8")
+                                if (keepUTF8) {
+                                    exec("mv $target $target.utf8")
+                                }
+                                exec("mv $target.conv $target")
+                            }
+                            if (copyToMVS != null && file in mvsFiles) {
+                                val mvsName = file.nameWithoutExtension.toUpperCase(Locale.ROOT)
+                                exec("""cp $target "//'$copyToMVS($mvsName)'" """)
+                            }
+                            file.copyTo(File(uploaded, file.name), true)
                         }
-                        exec("mv $target.conv $target")
+
+                        ChangeType.REMOVED -> {
+                            sftp.rm(target)
+                            File(uploaded, file.name).takeIf { it.exists() }?.delete()
+                        }
                     }
-                    if (copyToMVS != null && file in mvsFiles) {
-                        val mvsName = file.nameWithoutExtension.toUpperCase(Locale.ROOT)
-                        exec("""cp $target "//'$copyToMVS($mvsName)'" """)
-                    }
-                    file.copyTo(File(uploaded, file.name), true)
                 }
             }
         }

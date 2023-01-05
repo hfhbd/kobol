@@ -51,5 +51,6 @@ public class KobolGradlePlugin : Plugin<Project> {
         project.tasks.register("flowGraph", KobolFlowGraph::class.java) {
             it.classpath.from(kobolFirPlugin, kobolFlowGraphPlugin)
         }
+        project.tasks.register("cleanCobol", CleanCobol::class.java)
     }
 }
