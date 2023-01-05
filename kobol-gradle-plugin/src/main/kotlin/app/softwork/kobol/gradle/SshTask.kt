@@ -4,7 +4,7 @@ import com.jcraft.jsch.agentproxy.*
 import com.jcraft.jsch.agentproxy.connector.*
 import com.jcraft.jsch.agentproxy.sshj.*
 import net.schmizz.sshj.*
-import org.gradle.api.Task
+import org.gradle.api.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 
