@@ -12,7 +12,7 @@ public abstract class KobolRunTask : DefaultTask(), SshTask {
     }
 
     @get:Internal
-    internal open val export: String = ""
+    internal open val export: String = "export PATH=${"$"}{PATH}:${"$"}{JAVA_HOME}/bin"
 
     @get:Input
     public abstract val cmds: ListProperty<String>
