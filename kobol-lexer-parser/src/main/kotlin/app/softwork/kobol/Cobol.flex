@@ -15,6 +15,7 @@ import static app.softwork.kobol.CobolTypes.*;
 %type IElementType
 %eof{
     yycolumn = 0;
+    returnState = -1;
 %eof}
 
 %init{
@@ -40,11 +41,11 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state WORKINGSTORAGE
 %state WORKINGSTORAGE_SA_NUMBER
 %state WORKINGSTORAGE_SA_NUMBER_LINE
-%state WORKINGSTORAGE_SA_PIC
 %state WORKINGSTORAGE_SA_PIC_LENGTH
 %state WORKINGSTORAGE_SA_OCCURS
 %state WORKINGSTORAGE_SA_TO
-%state WORKINGSTORAGE_SQL
+%state SQL_STATE
+%state PIC_STATE
 
 %state CONFIGURATION
 %state SPECIAL_NAMES
@@ -57,15 +58,11 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state FD
 %state FD_SA_NAME
 %state FD_SA
-%state FD_SA_PIC
 %state FD_SA_PIC_LENGTH
 %state FD_SA_TO
 %state FD_SA_NUMBER
 %state FD_SA_NUMBER_LINE
 %state FD_SA_OCCURS
-
-// PROCEDURE
-%state PROCEDURE_SQL
 
 %{
   public int yycolumn;
@@ -76,6 +73,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
       }
       return TokenType.WHITE_SPACE;
   }
+
+  public int returnState = -42;
 %}
 
 %%
@@ -137,7 +136,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
    {NUMBER}                        {
           IElementType number = number();
           if (number == NUMBER) {
-              yybegin(FD_SA_PIC);
+              returnState = FILE;
+              yybegin(PIC_STATE);
           }
           return number();
       }
@@ -170,23 +170,20 @@ VARNAME=[a-zA-Z]([\w\-_])*
    {NUMBER}                        {
           IElementType number = number();
           if (number == NUMBER) {
-              yybegin(WORKINGSTORAGE_SA_PIC);
+              returnState = WORKINGSTORAGE;
+              yybegin(PIC_STATE);
           }
           return number;
       }
    "EXEC"                          { return EXEC; }
-   "SQL"                           { yybegin(WORKINGSTORAGE_SQL); return SQL; }
+   "SQL"                           { returnState = WORKINGSTORAGE; yybegin(SQL_STATE); return SQL; }
    "LINKAGE"                       { return LINKAGE; }
    "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }
 }
 
-<WORKINGSTORAGE_SQL, PROCEDURE_SQL> {
+<SQL_STATE> {
     "END-EXEC"                      {
-          if(yystate() == WORKINGSTORAGE_SQL) {
-            yybegin(WORKINGSTORAGE);
-          } else if(yystate() == PROCEDURE_SQL) {
-            yybegin(PROCEDURE);
-          }
+          yybegin(returnState);
           return END_EXEC;
       }
     {NUMBER}                        {
@@ -198,7 +195,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     [^]                             { return CobolTypes.ANY; }
 }
 
-<WORKINGSTORAGE_SA_PIC, FD_SA_PIC> {
+<PIC_STATE> {
       "PIC" { return PIC; }
       "X" { return X; }
       "A" { return A; }
@@ -230,11 +227,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
       "ZEROES" { return ZERO; }
       "ZERO" { return ZERO; }
       "." {
-          if (yystate() == FD_SA_PIC) {
-              yybegin(FILE);
-          } else if(yystate() == WORKINGSTORAGE_SA_PIC) {
-              yybegin(WORKINGSTORAGE);
-          }
+          yybegin(returnState);
           return DOT;
       }
       "SYNC" { return SYNC; }
@@ -263,7 +256,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "GOBACK"                        { return GOBACK; }
     "INITIALIZE"                    { return INITIALIZE; }
     "EXEC"                          { return EXEC; }
-    "SQL"                           { yybegin(PROCEDURE_SQL); return SQL; }
+    "SQL"                           { returnState = PROCEDURE; yybegin(SQL_STATE); return SQL; }
     "OPEN"                          { return OPEN; }
     "CLOSE"                         { return CLOSE; }
     "INPUT"                         { return INPUT; }
