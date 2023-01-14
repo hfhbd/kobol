@@ -1,6 +1,7 @@
 package app.softwork.kobol.generator.java
 
 import app.softwork.kobol.ir.*
+import app.softwork.kobol.java.java8.*
 import com.squareup.javapoet.*
 import java.io.*
 import kotlin.test.*
@@ -54,7 +55,7 @@ internal fun String.toIR() =
 internal fun generate(cobol: KobolIRTree, java8: Boolean): List<JavaFile> = generateJava(
     cobol.let {
         if (java8) {
-            whenToIf(it, emptyList()).single()
+            Java8Plugin()(it, emptyList()).single()
         } else it
     }
 )

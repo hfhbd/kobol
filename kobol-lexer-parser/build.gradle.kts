@@ -42,6 +42,7 @@ tasks {
         targetDir.set("$buildDir/generated/lexer/main/java/app/softwork/kobol/")
         targetClass.set("CobolLexer")
         purgeOldFiles.set(true)
+        outputs.cacheIf { true }
     }
     generateParser {
         classpath(grammar)
@@ -50,5 +51,6 @@ tasks {
         pathToParser.set("CobolParserGenerated.java")
         pathToPsiRoot.set("")
         purgeOldFiles.set(true)
+        outputs.cacheIf { true }
     }
 }

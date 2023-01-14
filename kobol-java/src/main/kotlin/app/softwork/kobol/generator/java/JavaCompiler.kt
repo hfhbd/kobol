@@ -4,8 +4,6 @@ import app.softwork.kobol.*
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
-import app.softwork.kobol.ir.optimizations.*
-import app.softwork.kobol.ir.optimizations.*
 import com.squareup.javapoet.*
 import java.io.*
 import javax.lang.model.element.*

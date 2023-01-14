@@ -14,21 +14,23 @@ gradlePlugin {
             id = "app.softwork.kobol"
             implementationClass = "app.softwork.kobol.gradle.KobolGradlePlugin"
         }
+        register("kobol-versions") {
+            id = "app.softwork.kobol.versions"
+            implementationClass = "app.softwork.kobol.gradle.KobolVersionPlugin"
+        }
     }
 }
 
 val shade by configurations.register("shade")
 configurations {
-    compileOnly.configure { extendsFrom(shade) }
+    compileOnly { extendsFrom(shade) }
 }
 
 dependencies {
-    implementation(projects.kobolKotlin)
     implementation(projects.kobolIr)
-    implementation(projects.kobolJava)
     implementation(projects.kobolFlowGraph)
 
-    compileOnly(projects.kobolSqldelightPrecompiler)
+    compileOnly(projects.kobolKotlinSqldelight)
 
     implementation("com.hierynomus:sshj:0.34.0")
     implementation("com.jcraft:jsch.agentproxy.sshj:0.0.9") // remove stupid open net.schmizz:sshj:[0.8.1,)
@@ -43,6 +45,9 @@ dependencies {
 
     testImplementation(gradleTestKit())
     testImplementation(projects.kobolPlugins.kobolPluginsFlowGraphPlantuml)
+    testImplementation(projects.kobolKotlin)
+    testImplementation(projects.kobolJava)
+    testImplementation(projects.kobolJavaJava8)
 }
 
 tasks.withType<KotlinCompile>().configureEach {

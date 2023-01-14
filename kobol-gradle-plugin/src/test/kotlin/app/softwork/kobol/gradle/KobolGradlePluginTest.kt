@@ -2,7 +2,9 @@ package app.softwork.kobol.gradle
 
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.flowgraph.*
+import app.softwork.kobol.generator.java.*
 import app.softwork.kobol.generator.kotlin.*
+import app.softwork.kobol.java.java8.*
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import java.io.*
@@ -18,7 +20,11 @@ class KobolGradlePluginTest {
         val cobolFile = File(tmp, "hello.cbl").apply {
             writeText(input)
         }
-        generate(setOf(cobolFile), tmp)
+        ExecuteKobol(
+            input = setOf(cobolFile),
+            outputFolder = tmp,
+            codeGeneratorFactory = KotlinCodeGeneratorFactory()
+        )
         val packageFolder = File(tmp, "kotlin/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
@@ -32,7 +38,12 @@ class KobolGradlePluginTest {
         val cobolFile = File(tmp, "hello.cbl").apply {
             writeText(input)
         }
-        app.softwork.kobol.generator.java.generate(setOf(cobolFile), tmp, java8 = true)
+        ExecuteKobol(
+            input = setOf(cobolFile), 
+            outputFolder = tmp,
+            irPlugins = listOf(Java8Plugin()),
+            codeGeneratorFactory = JavaCodeGeneratorFactory()
+        )
         val packageFolder = File(tmp, "java/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("Hello.java"), packageFolder.list()?.toList())
@@ -83,7 +94,7 @@ class KobolGradlePluginTest {
         File(tmp, "build.gradle.kts").writeText(
             """
             |plugins {
-            |  kotlin("jvm") version "1.7.21"
+            |  kotlin("jvm") version "1.8.0"
             |  id("app.softwork.kobol")
             |}
             |
@@ -91,12 +102,14 @@ class KobolGradlePluginTest {
             |  mavenCentral()
             |}
             |
-            |dependencies {
-            |  kobolFlowGraphPlugin(kotlin("test"))
+            |cobol.foo {
+            |  plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
             |}
             |
-            |tasks.flowGraph {
-            |  sources.from("foo.cbl")
+            |tasks {
+            |  uploadCobol {
+            |    files(cobol.foo)
+            |  }
             |}
             |
             """.trimMargin()

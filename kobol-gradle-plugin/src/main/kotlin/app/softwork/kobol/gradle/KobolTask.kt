@@ -28,9 +28,6 @@ public abstract class KobolTask : DefaultTask() {
     @get:OutputDirectory
     public abstract val sqlFolder: DirectoryProperty
 
-    @get:Input
-    public abstract val optimize: Property<Boolean>
-
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     internal abstract val classpath: ConfigurableFileCollection
@@ -39,13 +36,16 @@ public abstract class KobolTask : DefaultTask() {
     public abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
 
     init {
-        optimize.convention(false)
         outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
 
         project.plugins.withId("org.jetbrains.kotlin.jvm") {
             val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
             val kotlin = srcSet.extensions.getByName("kotlin") as SourceDirectorySet
             kotlin.srcDir(outputFolder.dir("kotlin"))
+        }
+        project.plugins.withId("org.gradle.java") {
+            val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
+            srcSet.java.srcDir(outputFolder.dir("java"))
         }
     }
 
@@ -61,7 +61,6 @@ public abstract class KobolTask : DefaultTask() {
         s.submit(ExecuteKobol::class.java) {
             it.inputFiles.setFrom(sources)
             it.outputFolder.set(outputFolder)
-            it.optimize.set(optimize)
             it.sqlFolder.set(sqlFolder)
             it.config.set(pluginConfiguration)
         }

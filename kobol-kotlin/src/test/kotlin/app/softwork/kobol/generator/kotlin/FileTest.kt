@@ -1,6 +1,6 @@
 package app.softwork.kobol.generator.kotlin
 
-import app.softwork.kobol.plugins.nullabletozero.*
+import app.softwork.kobol.plugins.fir.*
 import kotlin.test.*
 
 class FileTest {
@@ -49,7 +49,7 @@ class FileTest {
         |123456 END-READ
         |123456 CLOSE EIN.
         |123456 CLOSE AUS.
-        """.trimMargin().toIRFileWithKotlinx(listOf(nullableToZero))
+        """.trimMargin().toIRFileWithKotlinx(listOf(NullableToZero()))
 
         val output = generate(input)
 
