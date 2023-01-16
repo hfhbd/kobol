@@ -33,7 +33,7 @@ dependencies {
     implementation("com.hierynomus:sshj:0.34.0")
     implementation("com.jcraft:jsch.agentproxy.sshj:0.0.9") // remove stupid open net.schmizz:sshj:[0.8.1,)
     implementation("com.jcraft:jsch.agentproxy.pageant:0.0.9")
-    implementation("net.java.dev.jna:jna-platform:5.12.1")
+    implementation("net.java.dev.jna:jna-platform:5.13.0")
 
     val idea = "221.6008.13"
     shade("com.jetbrains.intellij.platform:core-impl:$idea")
