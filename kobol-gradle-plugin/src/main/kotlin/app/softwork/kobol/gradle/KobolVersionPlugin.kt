@@ -10,7 +10,7 @@ public class KobolVersionPlugin : Plugin<Settings> {
             it.plugin("kobol", "app.softwork.kobol").versionRef(version)
             
             fun add(module: String) {
-                it.library("kobol-$module", "app.softwork.kobol", "kobol-$module").versionRef(version)   
+                it.library("kobol-$module", "app.softwork", "kobol-$module").versionRef(version)   
             }
             
             fun plugin(module: String) {
