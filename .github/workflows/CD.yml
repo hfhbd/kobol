@@ -38,7 +38,7 @@ jobs:
           java-version: 17
       - uses: gradle/gradle-build-action@v2
       - name: Build with Gradle
-        run: ./gradlew -Pversion=$version build
+        run: ./gradlew build
       - name: Publish
         run: ./gradlew -Pversion=$version publish
       - run: ./gradlew -Pversion=$version createPluginRepo
