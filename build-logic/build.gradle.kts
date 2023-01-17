@@ -11,6 +11,7 @@ dependencies {
     implementation("org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2022.3")
     implementation("gradle.plugin.com.github.johnrengelman:shadow:7.1.2")
     implementation("app.softwork:serviceloader-gradle-plugin:0.0.1")
+    implementation("com.gradleup:gr8-plugin:0.7")
 }
 
 kotlin {
