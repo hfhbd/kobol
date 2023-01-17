@@ -1,8 +1,5 @@
 name: cleanup caches by a branch
 on:
-  pull_request:
-    types:
-      - closed
   workflow_dispatch:
 
 jobs:
@@ -30,4 +27,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          BRANCH: ${{ github.head_ref || github.ref_name }}
+          BRANCH: ${{ github.ref_name }}
