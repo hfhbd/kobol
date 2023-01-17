@@ -34,35 +34,19 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state PROCEDURE
 
 // ID
-%state PROGRAMID
 %state ANY
 
 // ENV
 %state WORKINGSTORAGE
-%state WORKINGSTORAGE_SA_NUMBER
-%state WORKINGSTORAGE_SA_NUMBER_LINE
-%state WORKINGSTORAGE_SA_PIC_LENGTH
-%state WORKINGSTORAGE_SA_OCCURS
-%state WORKINGSTORAGE_SA_TO
 %state SQL_STATE
 %state PIC_STATE
 
-%state CONFIGURATION
-%state SPECIAL_NAMES
-%state SPECIAL_NAMES_START
 %state FILE_CONTROL
 %state FILE_CONTROL_START
 
 // DATA
 %state FILE
 %state FD
-%state FD_SA_NAME
-%state FD_SA
-%state FD_SA_PIC_LENGTH
-%state FD_SA_TO
-%state FD_SA_NUMBER
-%state FD_SA_NUMBER_LINE
-%state FD_SA_OCCURS
 
 %{
   public int yycolumn;
