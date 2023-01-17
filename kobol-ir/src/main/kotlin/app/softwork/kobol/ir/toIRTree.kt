@@ -176,7 +176,7 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
     is ObjectVariable -> target
 }
 
-internal fun String.toKotlinName(): String = lowercase().replace("-", "_")
+public fun String.toKotlinName(): String = lowercase().replace("-", "_")
 
 private fun CobolFIRTree.ProcedureTree.functions(
     types: List<Types.Type>,

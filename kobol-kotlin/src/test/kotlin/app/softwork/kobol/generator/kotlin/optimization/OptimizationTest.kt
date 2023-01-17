@@ -4,7 +4,7 @@ import app.softwork.kobol.generator.*
 import app.softwork.kobol.generator.kotlin.*
 import app.softwork.kobol.generator.kotlin.toIR
 import app.softwork.kobol.ir.*
-import app.softwork.kobol.ir.optimizations.*
+import app.softwork.kobol.plugins.ir.optimizations.*
 import org.intellij.lang.annotations.*
 import kotlin.test.*
 
@@ -29,7 +29,7 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .let { ReadonlyVariables(it, emptyList()) }.single()
+            .let { ReadOnlyVariables()(it, emptyList()) }.single()
 
         val output = generate(input)
 
@@ -75,8 +75,8 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .let { ReadonlyVariables(it, emptyList()) }.single()
-            .let { ConstVariables(it, emptyList()) }.single()
+            .let { ReadOnlyVariables()(it, emptyList()) }.single()
+            .let { ConstVariables()(it, emptyList()) }.single()
 
         val output = generate(input)
 
@@ -122,7 +122,7 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .let { Private(it, emptyList()) }.single()
+            .let { Private()(it, emptyList()) }.single()
 
         val output = generate(input)
 
@@ -170,7 +170,7 @@ class OptimizationTest {
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
             .toIR()
-            .let { CamelCase(it, emptyList()) }.single()
+            .let { CamelCase()(it, emptyList()) }.single()
 
         val output = generate(input)
 
