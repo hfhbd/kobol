@@ -26,19 +26,19 @@ public class KobolVersionPlugin : Plugin<Settings> {
             add("java-java8")
             add("java-jdbc")
 
-            plugin("booleanExpressions")
-            plugin("camelCase")
+            plugin("booleanexpressions")
+            plugin("camelcase")
             // plugin("classes")
-            plugin("constVariables")
+            plugin("constvariables")
             plugin("flow-graph-plantuml")
-            plugin("ifAssignments")
+            plugin("ifassignments")
             plugin("ktor")
             plugin("nullabletozero")
             plugin("objects")
             plugin("optimize")
             plugin("private")
-            plugin("readOnlyVariables")
-            plugin("useParameters")
+            plugin("readonlyvariables")
+            plugin("useparameters")
         }
     }
 }
