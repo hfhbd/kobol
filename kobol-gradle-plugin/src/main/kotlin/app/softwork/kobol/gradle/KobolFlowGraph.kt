@@ -46,10 +46,10 @@ public abstract class KobolFlowGraph : DefaultTask() {
     @TaskAction
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
-            it.classpath.from(plugins)
+            classpath.from(plugins)
         }.submit(CreateFlowGraph::class.java) {
-            it.inputFiles.setFrom(sources)
-            it.outputFolder.set(outputFolder)
+            inputFiles.setFrom(sources)
+            outputFolder.set(this@KobolFlowGraph.outputFolder)
         }
     }
 }

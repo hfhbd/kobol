@@ -1,9 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.*
-
 plugins {
-    setup
+    `kotlin-dsl`
     repos
-    `java-gradle-plugin`
+    kotlinSetup
     com.github.johnrengelman.shadow
     intellijTesting
 }
@@ -48,10 +46,6 @@ dependencies {
     testImplementation(projects.kobolKotlin)
     testImplementation(projects.kobolJava)
     testImplementation(projects.kobolJavaJava8)
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.apiVersion = "1.4"
 }
 
 licensee {

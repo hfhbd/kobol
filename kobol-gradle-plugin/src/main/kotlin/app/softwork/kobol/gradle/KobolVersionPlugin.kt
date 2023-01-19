@@ -6,11 +6,11 @@ import org.gradle.api.initialization.*
 public class KobolVersionPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         settings.dependencyResolutionManagement.versionCatalogs.register("kobol") {
-            val version = it.version("kobol", kobolVersion)
-            it.plugin("kobol", "app.softwork.kobol").versionRef(version)
+            val version = version("kobol", kobolVersion)
+            plugin("kobol", "app.softwork.kobol").versionRef(version)
             
             fun add(module: String) {
-                it.library("kobol-$module", "app.softwork", "kobol-$module").versionRef(version)   
+                library("kobol-$module", "app.softwork", "kobol-$module").versionRef(version)   
             }
             
             fun plugin(module: String) {
