@@ -12,18 +12,18 @@ public class KobolGradlePlugin : Plugin<Project> {
         val convertAll = project.tasks.register("convertCobol")
 
         val cobolFiles = project.layout.projectDirectory.asFileTree.matching {
-            it.include {
+            include {
                 it.name.endsWith(".cbl")
             }
         }.elements.map {
             it.map { file: FileSystemLocation ->
                 val cobolSource = project.objects.newInstance(
-                    CobolSource::class.java, 
-                    file.asFile.nameWithoutExtension, 
+                    CobolSource::class.java,
+                    file.asFile.nameWithoutExtension,
                     file
                 )
                 cobolSource.apply {
-                    convertAll.configure { it.dependsOn(convert) }
+                    convertAll.configure { dependsOn(convert) }
                 }
                 cobolSource
             }
@@ -32,24 +32,24 @@ public class KobolGradlePlugin : Plugin<Project> {
 
 
         project.plugins.withId("org.jetbrains.kotlin.jvm") {
-            project.tasks.named("compileKotlin") { it.dependsOn(convertAll) }
+            project.tasks.named("compileKotlin") { dependsOn(convertAll) }
         }
 
         project.plugins.withId("org.gradle.java") {
-            project.tasks.named(COMPILE_JAVA_TASK_NAME) { it.dependsOn(convertAll) }
+            project.tasks.named(COMPILE_JAVA_TASK_NAME) { dependsOn(convertAll) }
         }
 
         val upload = project.tasks.register("uploadCobol", UploadTask::class.java)
         val buildCobol = project.tasks.register("buildCobol", BuildTask::class.java) {
-            it.dependsOn(upload)
+            dependsOn(upload)
         }
         project.tasks.register("runCobol", KobolRunTask::class.java) {
-            it.dependsOn(buildCobol)
+            dependsOn(buildCobol)
         }
 
         project.tasks.register("flowGraph", KobolFlowGraph::class.java)
         project.tasks.register("cleanCobol", CleanCobol::class.java) {
-            it.uploaded.convention(upload.flatMap { it.uploaded })
+            uploaded.convention(upload.flatMap { it.uploaded })
         }
     }
 }
