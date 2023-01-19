@@ -1,11 +1,19 @@
 package app.softwork.kobol
 
+import app.softwork.kobol.CobolFIRTree.*
 import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.And
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.BooleanVariable
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.ForEach
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.If
 import app.softwork.kobol.KobolIRTree.*
 import app.softwork.kobol.KobolIRTree.Expression.*
+import app.softwork.kobol.KobolIRTree.Expression.BooleanExpression.*
+import app.softwork.kobol.KobolIRTree.Expression.BooleanExpression.Not
+import app.softwork.kobol.KobolIRTree.Expression.BooleanExpression.Or
+import app.softwork.kobol.KobolIRTree.Expression.BooleanExpression.Smaller
 import app.softwork.kobol.KobolIRTree.Expression.NumberExpression.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.KobolIRTree.Types.Function.Statement.Declaration.*
@@ -200,30 +208,34 @@ fun CobolFIRTree.ProcedureTree.Expression.toIR(types: List<Types.Type>): Express
 
 fun CobolFIRTree.ProcedureTree.Expression.BooleanExpression.toIR(types: List<Types.Type>): BooleanExpression =
     when (this) {
-        is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.And -> BooleanExpression.And(
+        is And -> BooleanExpression.And(
             left = left.toIR(types), right = right.toIR(types)
         )
 
-        is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Equals -> BooleanExpression.Eq(
+        is Equals -> Eq(
             left = left.toIR(types), right = right.toIR(types)
         )
 
-        is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Greater -> BooleanExpression.Bigger(
+        is Greater -> Bigger(
             left = left.toIR(
                 types
             ), right = right.toIR(types), equals = equals
         )
 
-        is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Not -> BooleanExpression.Not(
+        is ProcedureTree.Expression.BooleanExpression.Not -> Not(
             condition = target.toIR(types)
         )
 
-        is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Or -> BooleanExpression.Or(
+        is ProcedureTree.Expression.BooleanExpression.Or -> Or(
             left = left.toIR(types), right = right.toIR(types)
         )
 
-        is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Smaller -> BooleanExpression.Smaller(
+        is ProcedureTree.Expression.BooleanExpression.Smaller -> Smaller(
             left = left.toIR(types), right = right.toIR(types), equals = equals
+        )
+
+        is BooleanVariable -> BooleanExpression.BooleanVariable(
+            target = target.toIR(types)
         )
     }
 
@@ -503,8 +515,8 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
         }
     }
 
-    is Pointer -> TODO()
-    is EmptyElementar -> TODO()
+    is Pointer -> TODO(name)
+    is EmptyElementar -> TODO(name)
 }
 
 private sealed interface IRResult {

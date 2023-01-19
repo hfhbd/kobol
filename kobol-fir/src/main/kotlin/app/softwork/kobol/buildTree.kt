@@ -7,6 +7,7 @@ import app.softwork.kobol.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.Configuration.*
 import app.softwork.kobol.CobolFIRTree.EnvTree.InputOutput.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.*
+import app.softwork.kobol.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
 import app.softwork.kobol.CobolFIRTree.ProcedureTree.Statement.*
 import com.alecstrong.sql.psi.core.*
 import com.alecstrong.sql.psi.core.psi.*
@@ -135,6 +136,18 @@ private fun MutableList<WorkingStorage>.record(
             }
         }
 
+        88 -> {
+            requireNotNull(currentRecord1)
+            val conditionalElementar = ConditionalElementar(
+                name = record.recordID!!.varName.text,
+                value = record.picClause!!.literal!!.text,
+                target = currentRecord1.elements.findLast { it !is ConditionalElementar }!!,
+                recordName = currentRecord1.name,
+                comments = record.comments.asComments()
+            )
+            add(conditionalElementar)
+        }
+
         else -> {
             requireNotNull(currentRecord1)
             val elementar = sa(record, currentRecord1.name, currentRecord1.elements.filterIsInstance<NumberElementar>())
@@ -157,7 +170,7 @@ private fun List<CobolRecordDef>.toRecords() = buildList {
 } as List<Record>
 
 
-private fun CobolDataDiv.toData(envTree: EnvTree?): CobolFIRTree.DataTree {
+private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
     val definitions = workingStorageSection?.stmList?.let {
         buildList {
             var currentRecord: Record? = null
@@ -399,7 +412,7 @@ private fun single(
     else -> TODO(type)
 }
 
-private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = CobolFIRTree.ProcedureTree(
+private fun CobolProcedureDiv.toProcedure(dataTree: DataTree?) = ProcedureTree(
     topLevel = sentencesList.flatMap {
         it.proceduresList.asStatements(dataTree)
     },
@@ -413,7 +426,7 @@ private fun CobolProcedureDiv.toProcedure(dataTree: CobolFIRTree.DataTree?) = Co
     comments = comments.asComments()
 )
 
-private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?): List<Statement> = flatMap { proc ->
+private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statement> = flatMap { proc ->
     when {
         proc.displaying != null -> listOf(
             Display(
@@ -651,17 +664,17 @@ private fun PsiElement.asSequence(): Sequence<PsiElement> = sequence {
     }
 }
 
-private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): Expression.BooleanExpression {
+private fun CobolBooleanExpr.toFir(dataTree: DataTree?): Expression.BooleanExpression {
     val or = booleanExprOr
     val and = booleanExprAnd
     val clause = booleanExprClause
     return when {
-        or != null -> Expression.BooleanExpression.Or(
+        or != null -> Or(
             or.booleanExprClause.toFir(dataTree),
             or.booleanExpr.toFir(dataTree)
         )
 
-        and != null -> Expression.BooleanExpression.And(
+        and != null -> And(
             and.booleanExprClause.toFir(dataTree),
             and.booleanExpr.toFir(dataTree)
         )
@@ -671,7 +684,7 @@ private fun CobolBooleanExpr.toFir(dataTree: CobolFIRTree.DataTree?): Expression
     }
 }
 
-private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): Expression.BooleanExpression {
+private fun CobolBooleanExprClause.toFir(dataTree: DataTree?): Expression.BooleanExpression {
     val left = booleanExprClauseLeft.expr.toExpr(dataTree).single()
     val right = booleanExprClauseRight.expr.toExpr(dataTree).single()
 
@@ -680,22 +693,22 @@ private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): Expr
     val smaller = booleanExprClauseSmaller
     return when {
         nt != null -> {
-            val equal = Expression.BooleanExpression.Equals(
+            val equal = Equals(
                 left = left,
                 right = right
             )
             if (nt.nt != null) {
-                Expression.BooleanExpression.Not(equal)
+                Not(equal)
             } else equal
         }
 
-        bigger != null -> Expression.BooleanExpression.Greater(
+        bigger != null -> Greater(
             left = left as Expression.NumberExpression,
             right = right as Expression.NumberExpression,
             equals = bigger.eql != null
         )
 
-        smaller != null -> Expression.BooleanExpression.Smaller(
+        smaller != null -> Smaller(
             left = left as Expression.NumberExpression,
             right = right as Expression.NumberExpression,
             equals = smaller.eql != null
@@ -705,12 +718,12 @@ private fun CobolBooleanExprClause.toFir(dataTree: CobolFIRTree.DataTree?): Expr
     }
 }
 
-private val CobolFIRTree.DataTree?.notNull
+private val DataTree?.notNull
     get() = checkNotNull(this) {
         "No DATA DIVISION found"
     }
 
-private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): List<Expression> {
+private fun CobolExpr.toExpr(dataTree: DataTree?): List<Expression> {
     val literal = literal
     val variable = variable
     val stringConcat = stringConcat
@@ -748,7 +761,7 @@ private fun CobolExpr.toExpr(dataTree: CobolFIRTree.DataTree?): List<Expression>
     }
 }
 
-private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Expression.StringExpression {
+private fun PsiElement.singleAsString(dataTree: DataTree?): Expression.StringExpression {
     return when {
         elementType == CobolTypes.STRING || elementType == CobolTypes.STRING_VAR -> Expression.StringExpression.StringLiteral(
             value = text.drop(1).dropLast(1)
@@ -763,6 +776,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
                         elementar
                     )
                 )
+                is ConditionalElementar -> notPossible()
 
                 is Record -> notPossible()
                 is WorkingStorage.Sql -> notPossible()
@@ -774,7 +788,7 @@ private fun PsiElement.singleAsString(dataTree: CobolFIRTree.DataTree?): Express
     }
 }
 
-private fun CobolStringConcat.toExpr(dataTree: CobolFIRTree.DataTree?): Expression.StringExpression {
+private fun CobolStringConcat.toExpr(dataTree: DataTree?): Expression.StringExpression {
     val allChildren = children.toList()
     require(allChildren.isNotEmpty())
     if (allChildren.count() == 1) {
@@ -808,7 +822,7 @@ private inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R,
     return accumulator
 }
 
-private fun CobolFIRTree.DataTree.findInLinking(variable: CobolVariable): WorkingStorage {
+private fun DataTree.findInLinking(variable: CobolVariable): WorkingStorage {
     val name: String = variable.varName.text
     val of = variable.ofClause?.recordID?.varName?.text
 
@@ -846,7 +860,7 @@ private fun List<WorkingStorage>.find(
     return null
 }
 
-private fun CobolFIRTree.DataTree.find(variable: CobolVariable): WorkingStorage {
+private fun DataTree.find(variable: CobolVariable): WorkingStorage {
     val name: String = variable.varName.text
     val of = variable.ofClause?.recordID?.varName?.text
 
@@ -862,6 +876,7 @@ private fun Elementar.toVariable(): Expression.Variable = when (this) {
     )
 
     is NumberElementar -> Expression.NumberExpression.NumberVariable(this)
+    is ConditionalElementar -> BooleanVariable(this)
     is Pointer -> TODO()
     is EmptyElementar -> TODO()
 }

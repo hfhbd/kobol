@@ -261,6 +261,17 @@ data class CobolFIRTree(
                     override val formatter: Nothing? = null
                     override val value: Nothing? = null
                 }
+
+                @Serializable
+                data class ConditionalElementar(
+                    override val name: String,
+                    override val value: String,
+                    val target: Elementar,
+                    override val recordName: String?,
+                    override val comments: List<String> = emptyList()
+                ): Elementar {
+                    override val formatter: Nothing? = null
+                }
             }
         }
     }
@@ -444,6 +455,11 @@ data class CobolFIRTree(
                     val right: NumberExpression,
                     val equals: Boolean = false
                 ) : BooleanExpression
+
+                @Serializable
+                data class BooleanVariable(
+                    override val target: DataTree.WorkingStorage.Elementar.ConditionalElementar
+                ): Variable, BooleanExpression
             }
 
             @Serializable

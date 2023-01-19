@@ -122,6 +122,18 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                     ) : Primitive
 
                     @Serializable
+                    data class ConditionalDeclaration(
+                        override val name: String,
+                        override val value: Expression.BooleanExpression?,
+                        val target: Declaration,
+                        override val nullable: Boolean = value == null,
+                        override val mutable: Boolean,
+                        override val private: Boolean,
+                        override val comments: List<String> = emptyList(),
+                        override val annotations: Map<String, List<String>> = emptyMap()
+                    ) : Declaration
+
+                    @Serializable
                     data class ObjectDeclaration(
                         override val name: String,
                         val type: Type.Class,
@@ -431,13 +443,18 @@ data class KobolIRTree(val name: String, val main: Types.Function, val types: Li
                 val right: NumberExpression,
                 val equals: Boolean = false
             ) : BooleanExpression
+
+            @Serializable
+            data class BooleanVariable(
+                override val target: Types.Function.Statement.Declaration.BooleanDeclaration
+            ): Variable, BooleanExpression
         }
     }
 }
 
 fun KobolIRTree.Types.Function.Statement.Declaration.variable() = when (this) {
     is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> KobolIRTree.Expression.ObjectVariable(this)
-    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> error("Not yet supported")
+    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> KobolIRTree.Expression.BooleanExpression.BooleanVariable(this)
     is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable(
         this
     )
