@@ -49,6 +49,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state FD
 
 %{
+  private boolean isID = false;
+  
   public int yycolumn;
 
   private IElementType number() {
@@ -289,9 +291,9 @@ VARNAME=[a-zA-Z]([\w\-_])*
 }
 
 <IDENTIFICATION> {
-    "AUTHOR"                        { yybegin(ANY); return AUTHOR; }
-    "INSTALLATION"                  { yybegin(ANY); return INSTALLATION; }
-    "DATE-WRITTEN"                  { yybegin(ANY); return DATE_WRITTEN; }
+    "AUTHOR"                        { yybegin(ANY); isID = true; return AUTHOR; }
+    "INSTALLATION"                  { yybegin(ANY); isID = true; return INSTALLATION; }
+    "DATE-WRITTEN"                  { yybegin(ANY); isID = true; return DATE_WRITTEN; }
     "PROGRAM-ID"                    { return PROGRAM_ID; }
 
     "ENVIRONMENT"                   { yybegin(ENVIRONMENT); return CobolTypes.ENVIRONMENT; }
@@ -302,7 +304,6 @@ VARNAME=[a-zA-Z]([\w\-_])*
 }
 
 <ANY> {
-    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
     {NUMBER}                        {
           if (yycolumn > 5) {
               return CobolTypes.ANY;
@@ -310,6 +311,14 @@ VARNAME=[a-zA-Z]([\w\-_])*
           yybegin(IDENTIFICATION);
           return TokenType.WHITE_SPACE;
     }
+    "\n" {
+          if (isID) {
+              yybegin(IDENTIFICATION);
+              isID = false;
+          }
+          return TokenType.WHITE_SPACE;
+      }
+    {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }  
     [^]                             {
           if (yycolumn == 0) {
               yybegin(IDENTIFICATION);

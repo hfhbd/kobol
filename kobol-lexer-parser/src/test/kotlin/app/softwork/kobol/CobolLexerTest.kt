@@ -10,6 +10,26 @@ import com.intellij.psi.TokenType.WHITE_SPACE as sp
 
 class CobolLexerTest {
     @Test
+    fun author() {
+        assertEquals(
+            """
+            123456 IDENTIFICATION DIVISION.
+            123456 PROGRAM-ID. BS12A00.
+            123456 AUTHOR. A.
+            123456 PROCEDURE DIVISION.
+            123456 GOBACK.
+            """.trimIndent()
+        ) {
+            line(IDENTIFICATION, sp, DIVISION, DOT, sp)
+            line(PROGRAM_ID, DOT, sp, VARNAME, DOT, sp)
+            line(AUTHOR, ANY, sp, ANY, ANY, sp)
+            line(PROCEDURE, sp, DIVISION,DOT, sp)
+            line(GOBACK, DOT)
+        }
+    }
+
+
+    @Test
     fun id() {
         assertEquals(
             """
