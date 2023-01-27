@@ -13,7 +13,7 @@ import java.io.*
 public fun File.toTree(firPlugins: List<FirPlugin> = emptyList()): CobolFIRTree =
     setOf(this).toTree(firPlugins).single()
 
-public fun Iterable<File>.toTree(firPlugins: List<FirPlugin> = emptyList()): Iterable<CobolFIRTree> {
+public fun Iterable<File>.toTree(firPlugins: Iterable<FirPlugin> = emptyList()): Iterable<CobolFIRTree> {
     val beforePhases = mutableListOf<FirPluginBeforePhase>()
     val afterPhases = mutableListOf<FirPluginAfterPhase>()
 

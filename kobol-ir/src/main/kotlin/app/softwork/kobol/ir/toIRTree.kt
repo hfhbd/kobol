@@ -28,11 +28,11 @@ public fun File.toIR(
 ).single()
 
 public fun Iterable<File>.toIR(
-    firPlugins: List<FirPlugin> = emptyList(),
+    firPlugins: Iterable<FirPlugin> = emptyList(),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
-    irPlugins: List<IrPlugin> = emptyList(),
+    irPlugins: Iterable<IrPlugin> = emptyList(),
 ): Iterable<KobolIRTree> {
     val firTrees = toTree(firPlugins)
 

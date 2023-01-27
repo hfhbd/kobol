@@ -22,8 +22,8 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
             outputFolder: File,
             sqlFolder: File? = null,
             config: Map<String, Map<String, String>> = emptyMap(),
-            firPlugins: List<FirPlugin> = emptyList(),
-            irPlugins: List<IrPlugin> = emptyList(),
+            firPlugins: Iterable<FirPlugin> = emptyList(),
+            irPlugins: Iterable<IrPlugin> = emptyList(),
             sql: SqlPrecompilerFactory? = null,
             files: FileHandlingFactory? = null,
             serialization: SerializationPluginFactory? = null,
@@ -63,17 +63,28 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
     }
 
     override fun execute() {
-        invoke(
-            input = parameters.inputFiles.files,
-            outputFolder = parameters.outputFolder.get().asFile,
-            sqlFolder = parameters.sqlFolder.asFile.orNull,
-            config = parameters.config.get(),
-            firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(FirPluginAfterPhase::class.java),
-            irPlugins = ServiceLoader.load(IrPlugin::class.java).toList(),
-            sql = ServiceLoader.load(SqlPrecompilerFactory::class.java).singleOrNull(),
-            files = ServiceLoader.load(FileHandlingFactory::class.java).singleOrNull(),
-            serialization = ServiceLoader.load(SerializationPluginFactory::class.java).singleOrNull(),
-            codeGeneratorFactory = ServiceLoader.load(CodeGeneratorFactory::class.java).single()
+        val codeGenerators = ServiceLoader.load(CodeGeneratorFactory::class.java)
+        val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
+            FirPluginAfterPhase::class.java
         )
+        val irPlugins = ServiceLoader.load(IrPlugin::class.java)
+        val sql = ServiceLoader.load(SqlPrecompilerFactory::class.java).singleOrNull()
+        val files = ServiceLoader.load(FileHandlingFactory::class.java).singleOrNull()
+        val serialization = ServiceLoader.load(SerializationPluginFactory::class.java).singleOrNull()
+        
+        for (codeGenerator in codeGenerators) {
+            invoke(
+                input = parameters.inputFiles.files,
+                outputFolder = parameters.outputFolder.get().asFile,
+                sqlFolder = parameters.sqlFolder.asFile.orNull,
+                config = parameters.config.get(),
+                firPlugins = firPlugins,
+                irPlugins = irPlugins,
+                sql = sql,
+                files = files,
+                serialization = serialization,
+                codeGeneratorFactory = codeGenerator
+            )
+        }
     }
 }
