@@ -1,6 +1,5 @@
 plugins {
     setup
-    repos
     app.softwork.serviceloader
 }
 

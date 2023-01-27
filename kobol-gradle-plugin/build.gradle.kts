@@ -1,6 +1,5 @@
 plugins {
     `kotlin-dsl`
-    repos
     kotlinSetup
     com.github.johnrengelman.shadow
     intellijTesting

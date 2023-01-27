@@ -112,7 +112,7 @@ public fun Iterable<File>.toCobolFile(): Collection<CobolFile> {
         }
     }
     return buildSet {
-        intelliJ.forSourceFile<CobolFile> {
+        intelliJ.forSourceFiles<CobolFile> {
             add(it)
         }
     }
