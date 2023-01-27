@@ -23,6 +23,7 @@ public abstract class CobolSource @Inject constructor(
         project.configurations.register("kobol${nameTitle}Plugin") {
             isCanBeResolved = true
             isCanBeConsumed = false
+            isVisible = false
         }
 
     public fun plugin(dependency: Any) {

@@ -1,6 +1,5 @@
 plugins {
     setup
-    repos
     intellijTesting
     app.softwork.serviceloader
 }
