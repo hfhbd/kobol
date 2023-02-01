@@ -30,10 +30,10 @@ public abstract class KobolTask : DefaultTask() {
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    public abstract val classpath: ConfigurableFileCollection
+    internal abstract val classpath: ConfigurableFileCollection
 
     @get:Input
-    internal abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
+    public abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
 
     init {
         outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
