@@ -12,7 +12,7 @@ internal val whenToIf: IrPlugin = IrPlugin { tree, others ->
 
 private fun KobolIRTree.Types.Function.whenToIf() = copy(body = body.map {
     it.whenToIf()
-})
+}.toMutableList())
 
 private fun KobolIRTree.Types.Function.Statement.whenToIf() = when (this) {
     is KobolIRTree.Types.Function.Statement.When.Multiple -> {

@@ -24,7 +24,7 @@ public class Private : IrPlugin {
                             is KobolIRTree.Types.Function.Statement.For -> it.copy(counter = it.counter.private() as KobolIRTree.Types.Function.Statement.Declaration.NumberDeclaration)
                             else -> it
                         }
-                    }
+                    }.toMutableList()
                 )
 
                 else -> type

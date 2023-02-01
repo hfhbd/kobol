@@ -2,6 +2,7 @@
 
 package app.softwork.kobol.fir
 
+import app.softwork.kobol.*
 import app.softwork.kobol.fir.serializer.*
 import kotlinx.serialization.*
 

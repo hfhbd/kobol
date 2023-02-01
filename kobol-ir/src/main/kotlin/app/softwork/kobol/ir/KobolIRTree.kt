@@ -1,6 +1,6 @@
 package app.softwork.kobol.ir
 
-import app.softwork.kobol.fir.*
+import app.softwork.kobol.*
 import kotlinx.serialization.*
 
 /**
@@ -23,7 +23,7 @@ public data class KobolIRTree(
             val name: String,
             val parameters: List<Statement.Declaration> = emptyList(),
             val returnType: Type,
-            val body: List<Statement>,
+            val body: MutableList<Statement>,
             val private: Boolean = false,
             val doc: List<String> = emptyList(),
             val external: Boolean = false,
@@ -31,7 +31,29 @@ public data class KobolIRTree(
             val packageName: String? = null
         ) : Types, Callable {
 
-            public fun declaration(): Function = copy(body = emptyList())
+            public fun declaration(): Function = copy(body = mutableListOf(), doc = emptyList())
+
+            public constructor(
+                name: String,
+                parameters: List<Statement.Declaration> = emptyList(),
+                returnType: Type = Type.Void,
+                private: Boolean = false,
+                doc: List<String> = emptyList(),
+                external: Boolean = false,
+                topLevel: Boolean = false,
+                packageName: String? = null,
+                body: List<Statement>
+            ) : this(
+                name,
+                parameters,
+                returnType,
+                build(body),
+                private,
+                doc,
+                external,
+                topLevel,
+                packageName
+            )
 
             public constructor(
                 name: String,
@@ -214,7 +236,18 @@ public data class KobolIRTree(
                     val condition: Expression.BooleanExpression,
                     val statements: List<Statement> = emptyList(),
                     override val comments: List<String> = emptyList()
-                ) : Statement
+                ) : Statement {
+                    public constructor(
+                        counter: Declaration.NumberDeclaration,
+                        from: Expression.NumberExpression,
+                        step: Expression.NumberExpression? = null,
+                        condition: Expression.BooleanExpression,
+                        comments: List<String> = emptyList(),
+                        statements: Builder<Statement>.() -> Unit
+                    ) : this(
+                        counter, from, step, condition, build(statements), comments
+                    )
+                }
 
                 @Serializable
                 public data class ForEach(

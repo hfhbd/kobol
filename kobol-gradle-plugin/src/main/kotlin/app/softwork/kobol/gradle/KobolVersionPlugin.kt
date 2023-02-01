@@ -10,7 +10,7 @@ public class KobolVersionPlugin : Plugin<Settings> {
             plugin("kobol", "app.softwork.kobol").versionRef(version)
             
             fun add(module: String) {
-                library("kobol-$module", "app.softwork", "kobol-$module").versionRef(version)   
+                library(module, "app.softwork", "kobol-$module").versionRef(version)   
             }
             
             fun plugin(module: String) {
@@ -32,6 +32,7 @@ public class KobolVersionPlugin : Plugin<Settings> {
             plugin("constvariables")
             plugin("flow-graph-plantuml")
             plugin("ifassignments")
+            plugin("inlining")
             plugin("ktor")
             plugin("nullabletozero")
             plugin("objects")

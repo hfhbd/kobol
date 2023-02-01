@@ -6,7 +6,7 @@ public class CamelCase : IrPlugin {
     override fun invoke(tree: KobolIRTree, others: Iterable<KobolIRTree>): Iterable<KobolIRTree> {
         return others + tree.copy(
             main = tree.main.copy(
-                body = tree.main.body.map { it.updateNames() }
+                body = tree.main.body.map { it.updateNames() }.toMutableList()
             ),
             types = tree.types.map {
                 when (it) {
@@ -14,7 +14,7 @@ public class CamelCase : IrPlugin {
                         name = it.name.toCamelCase(),
                         body = it.body.map {
                             it.updateNames()
-                        }
+                        }.toMutableList()
                     )
 
                     is KobolIRTree.Types.Type.Class -> it.copy(name = it.name.toPascalCase())

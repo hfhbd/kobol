@@ -1,6 +1,8 @@
 package app.softwork.kobol.ir
 
+import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
+import app.softwork.kobol.fir.l
 import app.softwork.kobol.fir.CobolFIRTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
