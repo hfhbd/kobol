@@ -9,26 +9,25 @@ public class KobolVersionPlugin : Plugin<Settings> {
             val version = version("kobol", kobolVersion)
             plugin("kobol", "app.softwork.kobol").versionRef(version)
             
-            fun add(module: String) {
+            fun add(name: String, module: String) {
                 library(module, "app.softwork", "kobol-$module").versionRef(version)   
             }
             
             fun plugin(module: String) {
-                add("plugins-$module")
+                add(name = "plugin-$module", module = "plugins-$module")
             }
 
-            add("kotlin")
-            add("kotlin-sqldelight")
-            add("kotlin-kotlinxserialization")
-            add("kotlin-file-java")
+            add("kotlin", "kotlin")
+            add("kotlin-sqldelight", "kotlin-sqldelight")
+            add("kotlin-kotlinxserialization", "kotlin-kotlinxserialization")
+            add("kotlin-file-java", "kotlin-file-java")
             
-            add("java")
-            add("java-java8")
-            add("java-jdbc")
+            add("java", "java")
+            add("java-java8", "java-java8")
+            add("java-jdbc", "java-jdbc")
 
             plugin("booleanexpressions")
             plugin("camelcase")
-            // plugin("classes")
             plugin("constvariables")
             plugin("flow-graph-plantuml")
             plugin("ifassignments")
