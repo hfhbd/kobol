@@ -3,36 +3,36 @@ package app.softwork.kobol.gradle
 import org.gradle.api.*
 import org.gradle.api.Named
 import org.gradle.api.artifacts.*
+import org.gradle.api.artifacts.dsl.*
 import org.gradle.api.file.*
-import org.gradle.api.tasks.*
 import javax.inject.*
 
 public abstract class CobolSource @Inject constructor(
     name: String,
     file: FileSystemLocation,
-    private val project: Project
+    project: Project
 ) : Named, FileSystemLocation by file {
     private val name = name.lowercase()
     private val nameTitle = this.name.replaceFirstChar {
         it.titlecaseChar()
     }
+    public val taskName: String = "convert${nameTitle}Cobol"
 
     override fun getName(): String = name
 
-    public val plugins: NamedDomainObjectProvider<Configuration> =
-        project.configurations.register("kobol${nameTitle}Plugin") {
-            isCanBeResolved = true
-            isCanBeConsumed = false
-            isVisible = false
-        }
-
-    public fun plugin(dependency: Any) {
-        project.dependencies.add(plugins.name, dependency)
+    public val plugins: NamedDomainObjectProvider<Configuration> = project.configurations.register("kobol${nameTitle}Plugin") {
+        isCanBeResolved = true
+        isCanBeConsumed = false
+        isVisible = false
     }
+    
+    public fun DependencyHandler.plugin(dependency: Any): Dependency? {
+        return add(plugins.name, dependency)
+    }
+}
 
-    public val convert: TaskProvider<KobolTask> =
-        project.tasks.register("convert${nameTitle}Cobol", KobolTask::class.java) {
-            classpath.from(plugins)
-            sources.from(file)
-        }
+public fun DependencyHandler.kobolPlugin(source: NamedDomainObjectProvider<CobolSource>, dependency: Any) {
+    source.configure {
+        plugin(dependency)
+    }
 }

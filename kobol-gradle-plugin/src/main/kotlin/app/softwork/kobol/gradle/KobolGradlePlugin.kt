@@ -9,7 +9,9 @@ public class KobolGradlePlugin : Plugin<Project> {
         val cobols = project.objects.domainObjectContainer(CobolSource::class.java)
         project.extensions.add("cobol", cobols)
 
-        val convertAll = project.tasks.register("convertCobol")
+        val convertAll = project.tasks.register("convertCobol") {
+            group = "Kobol"
+        }
 
         val cobolFiles = project.layout.projectDirectory.asFileTree.matching {
             include {
@@ -22,8 +24,13 @@ public class KobolGradlePlugin : Plugin<Project> {
                     file.asFile.nameWithoutExtension,
                     file
                 )
-                cobolSource.apply {
-                    convertAll.configure { dependsOn(convert) }
+                val convert = project.tasks.register(cobolSource.taskName, KobolTask::class.java) {
+                    classpath.from(cobolSource.plugins)
+                    sources.from(file)
+                }
+                
+                convertAll.configure {
+                    dependsOn(convert) 
                 }
                 cobolSource
             }
