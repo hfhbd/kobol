@@ -12,7 +12,7 @@ public class KotlinCodeGenerator(private val output: File) : CodeGenerator {
     }
 }
 
-public class KotlinCodeGeneratorFactory : CodeGeneratorFactory<KotlinCodeGenerator> {
+public class KotlinCodeGeneratorFactory : CodeGeneratorFactory {
     override operator fun invoke(outputFolder: File, args: Map<String, String>): KotlinCodeGenerator {
         return KotlinCodeGenerator(File(outputFolder, "kotlin"))
     }

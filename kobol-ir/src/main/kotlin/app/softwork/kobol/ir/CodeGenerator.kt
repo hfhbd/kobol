@@ -8,6 +8,6 @@ public fun interface CodeGenerator : Closeable {
     override fun close() {}
 }
 
-public fun interface CodeGeneratorFactory<CG : CodeGenerator> {
-    public operator fun invoke(outputFolder: File, args: Map<String, String>): CG
+public fun interface CodeGeneratorFactory {
+    public operator fun invoke(outputFolder: File, args: Map<String, String>): CodeGenerator
 }

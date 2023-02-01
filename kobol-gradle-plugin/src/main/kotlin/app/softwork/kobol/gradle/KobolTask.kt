@@ -33,7 +33,7 @@ public abstract class KobolTask : DefaultTask() {
     public abstract val classpath: ConfigurableFileCollection
 
     @get:Input
-    public abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
+    internal abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
 
     init {
         outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
