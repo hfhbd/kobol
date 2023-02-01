@@ -17,7 +17,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
     }
 
     internal companion object {
-        operator fun <T : CodeGenerator> invoke(
+        operator fun invoke(
             input: Set<File>,
             outputFolder: File,
             sqlFolder: File? = null,
@@ -27,7 +27,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
             sql: SqlPrecompilerFactory? = null,
             files: FileHandlingFactory? = null,
             serialization: SerializationPluginFactory? = null,
-            codeGeneratorFactory: CodeGeneratorFactory<T>
+            codeGeneratorFactory: CodeGeneratorFactory
         ) {
             val codeGeneratorConfig = config[CodeGenerator::class.qualifiedName!!] ?: emptyMap()
             val codeGenerator = codeGeneratorFactory(outputFolder, codeGeneratorConfig)
