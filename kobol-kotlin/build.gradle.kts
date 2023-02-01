@@ -1,6 +1,7 @@
 plugins {
     setup
     intellijTesting
+    app.softwork.serviceloader
 }
 
 dependencies {
@@ -13,4 +14,8 @@ dependencies {
     testImplementation(projects.kobolKotlinFileJava)
     testImplementation(projects.kobolPlugins.kobolPluginsNullabletozero)
     testImplementation(projects.kobolPlugins.kobolPluginsOptimize)
+}
+
+serviceLoaders.register("app.softwork.kobol.ir.CodeGeneratorFactory") {
+    implementationClasses.add("app.softwork.kobol.generator.kotlin.KotlinCodeGeneratorFactory")
 }
