@@ -3,6 +3,7 @@ package app.softwork.kobol.gradle
 import org.gradle.api.*
 import org.gradle.api.Named
 import org.gradle.api.artifacts.*
+import org.gradle.api.artifacts.dsl.*
 import org.gradle.api.file.*
 import javax.inject.*
 
@@ -19,9 +20,19 @@ public abstract class CobolSource @Inject constructor(
 
     override fun getName(): String = name
 
-    public val plugins: NamedDomainObjectProvider<Configuration> = project.configurations.register(taskName) {
+    public val plugins: NamedDomainObjectProvider<Configuration> = project.configurations.register("kobol${nameTitle}Plugin") {
         isCanBeResolved = true
         isCanBeConsumed = false
         isVisible = false
+    }
+    
+    public fun DependencyHandler.plugin(dependency: Any): Dependency? {
+        return add(plugins.name, dependency)
+    }
+}
+
+public fun DependencyHandler.kobolPlugin(source: NamedDomainObjectProvider<CobolSource>, dependency: Any) {
+    source.configure {
+        plugin(dependency)
     }
 }

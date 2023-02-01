@@ -93,6 +93,8 @@ class KobolGradlePluginTest {
         }
         File(tmp, "build.gradle.kts").writeText(
             """
+            |import app.softwork.kobol.gradle.kobolPlugin
+            |
             |plugins {
             |  kotlin("jvm") version "1.8.0"
             |  id("app.softwork.kobol")
@@ -102,8 +104,14 @@ class KobolGradlePluginTest {
             |  mavenCentral()
             |}
             |
+            |dependencies {
+            |  kobolPlugin(cobol.foo, "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |}
+            |
             |cobol.foo {
-            |  plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |  dependencies {
+            |    plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |  }
             |}
             |
             |tasks {
@@ -119,7 +127,7 @@ class KobolGradlePluginTest {
         val result = GradleRunner.create()
             .withProjectDir(tmp)
             .withPluginClasspath()
-            .withArguments(":flowGraph")
+            .withArguments(":flowGraph", "--configuration-cache")
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":flowGraph")?.outcome)
