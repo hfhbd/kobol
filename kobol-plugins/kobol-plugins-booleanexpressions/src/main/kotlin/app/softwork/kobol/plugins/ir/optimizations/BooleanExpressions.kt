@@ -36,7 +36,7 @@ private fun KobolIRTree.Types.booleanExpressions(): KobolIRTree.Types {
 private fun KobolIRTree.Types.Function.booleanExpressions() = copy(
     body = body.map {
         it.booleanExpressions()
-    }
+    }.toMutableList()
 )
 
 private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTree.Types.Function.Statement =

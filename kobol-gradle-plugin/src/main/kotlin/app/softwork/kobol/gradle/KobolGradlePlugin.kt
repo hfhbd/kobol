@@ -16,7 +16,7 @@ public class KobolGradlePlugin : Plugin<Project> {
                 it.name.endsWith(".cbl")
             }
         }.elements.map {
-            it.map { file: FileSystemLocation ->
+            it.map { file ->
                 val cobolSource = project.objects.newInstance(
                     CobolSource::class.java,
                     file.asFile.nameWithoutExtension,
