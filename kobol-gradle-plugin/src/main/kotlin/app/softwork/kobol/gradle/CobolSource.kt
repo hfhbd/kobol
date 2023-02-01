@@ -27,19 +27,6 @@ public abstract class CobolSource @Inject constructor(
             isVisible = false
         }
 
-    private val nameTitle = this.name.replaceFirstChar {
-        it.titlecaseChar()
-    }
-    public val taskName: String = "convert${nameTitle}Cobol"
-
-    override fun getName(): String = name
-
-    public val plugins: NamedDomainObjectProvider<Configuration> = project.configurations.register("kobol${nameTitle}Plugin") {
-        isCanBeResolved = true
-        isCanBeConsumed = false
-        isVisible = false
-    }
-
     public fun DependencyHandler.plugin(dependency: Any): Dependency? {
         return add(plugins.name, dependency)
     }
