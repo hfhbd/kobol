@@ -30,7 +30,7 @@ public abstract class KobolTask : DefaultTask() {
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    internal abstract val classpath: ConfigurableFileCollection
+    public abstract val classpath: ConfigurableFileCollection
 
     @get:Input
     internal abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
@@ -54,6 +54,7 @@ public abstract class KobolTask : DefaultTask() {
 
     @TaskAction
     internal fun generate() {
+        println(classpath.toList())
         val s = workerExecutor.classLoaderIsolation {
             classpath.from(this@KobolTask.classpath)
         }

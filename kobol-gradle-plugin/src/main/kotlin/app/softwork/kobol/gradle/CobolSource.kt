@@ -42,6 +42,7 @@ private fun String.nameTitle() = replaceFirstChar {
 }
 private fun String.taskName() = "convert${nameTitle()}Cobol"
 
+
 public fun DependencyHandler.kobolPlugin(source: NamedDomainObjectProvider<CobolSource>, dependency: Any) {
     source.configure {
         plugin(dependency)
