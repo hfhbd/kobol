@@ -54,6 +54,7 @@ public abstract class KobolTask : DefaultTask() {
 
     @TaskAction
     internal fun generate() {
+        println(classpath.toList())
         val s = workerExecutor.classLoaderIsolation {
             classpath.from(this@KobolTask.classpath)
         }
