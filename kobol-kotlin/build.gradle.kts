@@ -14,6 +14,7 @@ dependencies {
     testImplementation(projects.kobolKotlinFileJava)
     testImplementation(projects.kobolPlugins.kobolPluginsNullabletozero)
     testImplementation(projects.kobolPlugins.kobolPluginsOptimize)
+    testImplementation(projects.kobolPlugins.kobolPluginsKeepnames)
 }
 
 serviceLoaders.register("app.softwork.kobol.ir.CodeGeneratorFactory") {
