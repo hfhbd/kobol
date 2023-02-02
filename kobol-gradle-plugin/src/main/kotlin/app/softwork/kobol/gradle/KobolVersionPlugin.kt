@@ -27,7 +27,8 @@ public class KobolVersionPlugin : Plugin<Settings> {
             add("java-jdbc", "java-jdbc")
 
             plugin("booleanexpressions")
-            plugin("camelcase")
+            plugin("javanames")
+            plugin("keepnames")
             plugin("constvariables")
             plugin("flow-graph-plantuml")
             plugin("ifassignments")

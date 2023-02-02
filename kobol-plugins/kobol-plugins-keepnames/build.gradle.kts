@@ -4,11 +4,11 @@ plugins {
 }
 
 dependencies {
-    api(projects.kobolIr)
+    api(projects.kobolPlugins.kobolPluginsRenaming)
 
     testImplementation(kotlin("test"))
 }
 
 serviceLoaders.register("app.softwork.kobol.ir.IrPlugin") {
-    implementationClasses.add("app.softwork.kobol.plugins.ir.optimizations.CamelCase")
+    implementationClasses.add("app.softwork.kobol.plugins.ir.optimizations.KeepNames")
 }
