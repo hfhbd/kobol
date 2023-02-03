@@ -1,4 +1,4 @@
-package app.softwork.kobol.plugins.ir.optimizations
+package app.softwork.kobol.plugins.fir.renaming
 
 public class JavaNames : Rename(
     functions = {
