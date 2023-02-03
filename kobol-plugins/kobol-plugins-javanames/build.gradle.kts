@@ -9,6 +9,6 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-serviceLoaders.register("app.softwork.kobol.ir.IrPlugin") {
-    implementationClasses.add("app.softwork.kobol.plugins.ir.optimizations.JavaNames")
+serviceLoaders.register("app.softwork.kobol.fir.FirPluginBeforePhase") {
+    implementationClasses.add("app.softwork.kobol.plugins.fir.renaming.JavaNames")
 }

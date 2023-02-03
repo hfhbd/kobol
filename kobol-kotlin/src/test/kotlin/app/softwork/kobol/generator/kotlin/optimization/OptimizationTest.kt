@@ -4,6 +4,7 @@ import app.softwork.kobol.generator.*
 import app.softwork.kobol.generator.kotlin.*
 import app.softwork.kobol.generator.kotlin.toIR
 import app.softwork.kobol.ir.*
+import app.softwork.kobol.plugins.fir.renaming.*
 import app.softwork.kobol.plugins.ir.optimizations.*
 import org.intellij.lang.annotations.*
 import kotlin.test.*
@@ -169,8 +170,7 @@ class OptimizationTest {
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
-            .toIR()
-            .let { JavaNames()(it, emptyList()) }.single()
+            .toIR(firPlugins = listOf(JavaNames()))
 
         val output = generate(input)
 
@@ -221,8 +221,7 @@ class OptimizationTest {
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
-            .toIR()
-            .let { KeepNames()(it, emptyList()) }.single()
+            .toIR(firPlugins = listOf(KeepNames()))
 
         val output = generate(input)
 
@@ -277,7 +276,7 @@ class OptimizationTest {
         123456     END-PERFORM
         123456     DISPLAY "ANSWER"WORLD.
         """.trimIndent()
-            .toIR()
+            .toIR(firPlugins = listOf(JavaNames()))
             .let { Optimize(it, emptyList()) }.single()
 
         val output = generate(input)

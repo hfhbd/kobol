@@ -14,6 +14,8 @@ dependencies {
     testImplementation(projects.kobolKotlinFileJava)
     testImplementation(projects.kobolPlugins.kobolPluginsNullabletozero)
     testImplementation(projects.kobolPlugins.kobolPluginsOptimize)
+    
+    testImplementation(projects.kobolPlugins.kobolPluginsJavanames)
     testImplementation(projects.kobolPlugins.kobolPluginsKeepnames)
 }
 

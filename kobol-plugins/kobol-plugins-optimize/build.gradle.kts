@@ -7,6 +7,5 @@ dependencies {
     api(projects.kobolPlugins.kobolPluginsPrivate)
     api(projects.kobolPlugins.kobolPluginsReadonlyvariables)
     api(projects.kobolPlugins.kobolPluginsConstvariables)
-    api(projects.kobolPlugins.kobolPluginsJavanames)
     api(projects.kobolPlugins.kobolPluginsBooleanexpressions)
 }
