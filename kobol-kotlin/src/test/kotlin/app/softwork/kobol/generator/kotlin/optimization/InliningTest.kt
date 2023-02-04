@@ -42,7 +42,7 @@ class InliningTest {
         import kotlin.Unit
         
         public fun main(): Unit {
-          var HELLO: String = "HELLO"
+          val HELLO: String = "HELLO"
           var WORLD: String = "WORLD!"
           println("${'$'}HELLO${'$'}WORLD")
           // Some Comment

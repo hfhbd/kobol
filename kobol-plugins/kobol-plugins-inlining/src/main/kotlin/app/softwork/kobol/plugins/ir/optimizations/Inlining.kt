@@ -27,7 +27,9 @@ private fun KobolIRTree.inlineGlobalVariables(): KobolIRTree {
     val removed = globalVariables.mapNotNull { globalVariable ->
         val writes = findWriteUsages(globalVariable.declaration)
         val allWrites = (writes.types + writes.main)
-        val onlyWrittenOnce = if (allWrites.size == 1) { allWrites.single() } else return@mapNotNull null
+        val onlyWrittenOnce = if (allWrites.size == 1) {
+            allWrites.single()
+        } else return@mapNotNull null
         val reads = findReadUsages(globalVariable.declaration)
         val onlyReadOnce = (reads.types + reads.main).singleOrNull() ?: return@mapNotNull null
         if (onlyWrittenOnce == null || onlyWrittenOnce == onlyReadOnce) {
@@ -40,7 +42,31 @@ private fun KobolIRTree.inlineGlobalVariables(): KobolIRTree {
                 else -> error("Unsupported type for inlineGlobalVariables: $onlyWrittenOnce $globalVariable")
             }
             val body = usage.body
-            val declaration = globalVariable.declaration
+            val declaration = globalVariable.declaration.let {
+                if (onlyWrittenOnce == null) {
+                    when (it) {
+                        is Declaration.ObjectDeclaration -> it.copy(
+                            mutable = false
+                        )
+
+                        is Declaration.BooleanDeclaration -> it.copy(
+                            mutable = false
+                        )
+
+                        is Declaration.DoubleDeclaration -> it.copy(
+                            mutable = false
+                        )
+
+                        is Declaration.IntDeclaration -> it.copy(
+                            mutable = false
+                        )
+
+                        is Declaration.StringDeclaration -> it.copy(
+                            mutable = false
+                        )
+                    }
+                } else it
+            }
             val variable = declaration.variable()
             body.add(0, declaration) // create local variable
             body.replaceAll {
@@ -59,38 +85,46 @@ private fun KobolIRTree.inlineGlobalVariables(): KobolIRTree {
 }
 
 
-private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variable: Variable): Expression = when(this) {
+private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variable: Variable): Expression = when (this) {
     is BooleanExpression.And -> copy(
         left = left.useInlineVariable(globalVariable, variable) as BooleanExpression,
         right = right.useInlineVariable(globalVariable, variable) as BooleanExpression
     )
+
     is BooleanExpression.Bigger -> copy(
         left = left.useInlineVariable(globalVariable, variable) as NumberExpression,
         right = right.useInlineVariable(globalVariable, variable) as NumberExpression
     )
+
     is BooleanExpression.BooleanLiteral -> this
     is BooleanExpression.Eq -> copy(
         left = left.useInlineVariable(globalVariable, variable),
         right = right.useInlineVariable(globalVariable, variable)
     )
+
     is BooleanExpression.Not -> copy(
         condition = condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
     )
+
     is BooleanExpression.NotEq -> copy(
         left = left.useInlineVariable(globalVariable, variable),
         right = right.useInlineVariable(globalVariable, variable)
     )
+
     is BooleanExpression.Or -> copy(
         left = left.useInlineVariable(globalVariable, variable) as BooleanExpression,
         right = right.useInlineVariable(globalVariable, variable) as BooleanExpression
     )
+
     is BooleanExpression.Smaller -> copy(
         left = left.useInlineVariable(globalVariable, variable) as NumberExpression,
         right = right.useInlineVariable(globalVariable, variable) as NumberExpression
     )
+
     is FunctionCall -> copy(
         parameters = parameters.useInlineVariable(globalVariable, variable)
     )
+
     is NumberExpression.DoubleExpression.DoubleLiteral -> this
     is NumberExpression.IntExpression.IntLiteral -> this
     is StringExpression.StringLiteral -> this
@@ -102,9 +136,11 @@ private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variabl
         left = left.useInlineVariable(globalVariable, variable),
         right = right.useInlineVariable(globalVariable, variable)
     )
+
     is StringExpression.Interpolation -> copy(
         expr = expr.useInlineVariable(globalVariable, variable),
     )
+
     is StringExpression.StringVariable -> this
     is StringExpression.StringVariable.Use -> this
     is If -> copy(
@@ -137,6 +173,7 @@ private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variabl
             )
         }
     )
+
     is When.Single -> copy(
         expr = expr.useInlineVariable(globalVariable, variable),
         cases = cases.map {
@@ -264,6 +301,7 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
             )
         }
     )
+
     is When.Single -> copy(
         expr = expr.useInlineVariable(globalVariable, variable),
         cases = cases.map {

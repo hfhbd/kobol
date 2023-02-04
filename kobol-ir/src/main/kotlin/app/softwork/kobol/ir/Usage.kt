@@ -66,8 +66,8 @@ private infix fun KobolIRTree.Types.Function.Statement.assigns(declaration: Decl
     is Declaration -> false
     is DoWhile -> functionCall assigns declaration
     is Exit -> false
-    is For -> statements assigns declaration
-    is ForEach -> statements assigns declaration
+    is For -> counter == declaration || statements assigns declaration
+    is ForEach -> variable == declaration || statements assigns declaration
     is FunctionCall -> when (function) {
         is KobolIRTree.Types.Function -> function.body assigns declaration
         is KobolIRTree.Types.Type.Class -> false

@@ -41,7 +41,7 @@ class InlineTest {
                 name = "inlining",
                 id = "inlining",
                 main = KobolIRTree.Types.Function(name = "main") {
-                    +string
+                    +string.copy(mutable = false)
                     +Print(StringVariable(string))
                 },
                 types = emptyList()
@@ -90,7 +90,7 @@ class InlineTest {
         )
         val globalVariable = GlobalVariable(string, doc = emptyList())
 
-        val baz by function(parameters = listOf(string)) {}
+        val baz by function(parameters = listOf(string.copy(mutable = false))) {}
 
         val before = KobolIRTree(
             name = "inlining",
@@ -111,8 +111,8 @@ class InlineTest {
                 name = "inlining",
                 id = "inlining",
                 main = KobolIRTree.Types.Function(name = "main") {
-                    +string
-                    +baz(StringVariable(string))
+                    +string.copy(mutable = false)
+                    +baz(StringVariable(string.copy(mutable = false)))
                 },
                 types = build {
                     +baz
