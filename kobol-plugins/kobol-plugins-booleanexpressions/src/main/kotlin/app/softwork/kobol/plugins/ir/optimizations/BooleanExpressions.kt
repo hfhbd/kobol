@@ -55,13 +55,15 @@ private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTr
         is KobolIRTree.Types.Function.Statement.While -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.If -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.When -> booleanExpressions()
-        is KobolIRTree.Types.Function.Statement.Static -> TODO()
+        is KobolIRTree.Types.Function.Statement.Static -> this
         is KobolIRTree.Types.Function.Statement.Use -> copy(
             target = target.booleanExpressions(),
             action = action.booleanExpressions()
         )
 
-        is StringExpression.StringVariable.Use -> TODO()
+        is StringExpression.StringVariable.Use -> copy(
+            variable = variable.booleanExpressions() as StringExpression.StringVariable
+        )
         is NumberExpression.IntExpression.IntVariable.Use -> copy(
             variable = variable.booleanExpressions() as NumberExpression.IntExpression.IntVariable
         )
