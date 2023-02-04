@@ -255,7 +255,7 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
     )
 
     is ForEach -> copy(
-        variable = variable.useInlineVariable(globalVariable, variable) as Declaration,
+        variable = this.variable.useInlineVariable(globalVariable, variable) as Declaration,
         provider = provider.useInlineVariable(globalVariable, variable),
         statements = statements.useInlineVariable(globalVariable, variable)
     )
