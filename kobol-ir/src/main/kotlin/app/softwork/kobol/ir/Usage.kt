@@ -9,16 +9,16 @@ public data class Usage(
 )
 
 public fun KobolIRTree.findWriteUsages(declaration: Declaration): Usage {
-    val main = main.filterWrites(declaration)
+    val main = main.contains(declaration)
     val types = types.flatMap { type ->
         when (type) {
             is KobolIRTree.Types.Function -> {
-                listOfNotNull(type.filterWrites(declaration))
+                listOfNotNull(type.contains(declaration))
             }
 
             is KobolIRTree.Types.Type.Class -> {
                 type.functions.mapNotNull { classFunction ->
-                    classFunction.filterWrites(declaration)
+                    classFunction.contains(declaration)
                 }
             }
 
@@ -54,11 +54,8 @@ public fun KobolIRTree.findReadUsages(
 /**
  * Returns null if there function does not write to [declaration]
  */
-public fun KobolIRTree.Types.Function.filterWrites(declaration: Declaration): KobolIRTree.Types.Function? {
-    val stmts = body.filter { it assigns declaration }
-    return if (stmts.isNotEmpty()) {
-        copy(body = stmts.toMutableList())
-    } else null
+public fun KobolIRTree.Types.Function.contains(declaration: Declaration): KobolIRTree.Types.Function? {
+    return takeIf { body assigns declaration }
 }
 
 private infix fun List<KobolIRTree.Types.Function.Statement>.assigns(declaration: Declaration) =

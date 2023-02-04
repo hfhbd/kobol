@@ -17,6 +17,7 @@ dependencies {
     
     testImplementation(projects.kobolPlugins.kobolPluginsJavanames)
     testImplementation(projects.kobolPlugins.kobolPluginsKeepnames)
+    testImplementation(projects.kobolPlugins.kobolPluginsInlining)
 }
 
 serviceLoaders.register("app.softwork.kobol.ir.CodeGeneratorFactory") {

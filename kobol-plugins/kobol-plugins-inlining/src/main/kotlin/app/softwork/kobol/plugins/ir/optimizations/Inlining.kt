@@ -34,7 +34,7 @@ private fun KobolIRTree.inlineGlobalVariables(): KobolIRTree {
             val usage = when (onlyReadOnce) {
                 is Types.Function -> onlyReadOnce
                 is Class -> onlyReadOnce.functions.single {
-                    it.filterWrites(globalVariable.declaration) != null
+                    it.contains(globalVariable.declaration) != null
                 }
 
                 else -> error("Unsupported type for inlineGlobalVariables: $onlyWrittenOnce $globalVariable")
