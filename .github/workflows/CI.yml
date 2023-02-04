@@ -14,6 +14,7 @@ jobs:
     env:
       ORG_GRADLE_PROJECT_GitHubPackagesUsername: ${{ github.actor }}
       ORG_GRADLE_PROJECT_GitHubPackagesPassword: ${{ secrets.GITHUB_TOKEN }}
+      GRADLE_OPTS: -Dorg.gradle.caching=true
 
     steps:
       - uses: actions/checkout@v3
