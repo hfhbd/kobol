@@ -15,6 +15,9 @@ intellij {
 }
 
 tasks {
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
     patchPluginXml {
         sinceBuild.set("222")
         untilBuild.set("223.*")

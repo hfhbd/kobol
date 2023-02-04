@@ -15,6 +15,7 @@ grammarKit {
 val grammar by configurations.registering {
     isCanBeResolved = true
     isCanBeConsumed = false
+    isVisible = false
     defaultDependencies {
         add(project.dependencies.create("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"))
     }
