@@ -16,14 +16,14 @@ public class ConstVariables : IrPlugin {
 internal fun KobolIRTree.Types.constVariable() = when (this) {
     is KobolIRTree.Types.Type.GlobalVariable -> {
         if (declaration is Primitive && !declaration.mutable && declaration.value is KobolIRTree.Expression.Literal) {
-            val declaration = declaration as Primitive
-            val newDeclaration = when (declaration) {
-                is BooleanDeclaration -> declaration.copy(const = true)
-                is DoubleDeclaration -> declaration.copy(const = true)
-                is IntDeclaration -> declaration.copy(const = true)
-                is StringDeclaration -> declaration.copy(const = true)
-            }
-            copy(declaration = newDeclaration)
+            copy(
+                declaration = when (val declaration = declaration as Primitive) {
+                    is BooleanDeclaration -> declaration.copy(const = true)
+                    is DoubleDeclaration -> declaration.copy(const = true)
+                    is IntDeclaration -> declaration.copy(const = true)
+                    is StringDeclaration -> declaration.copy(const = true)
+                }
+            )
         } else this
     }
 
