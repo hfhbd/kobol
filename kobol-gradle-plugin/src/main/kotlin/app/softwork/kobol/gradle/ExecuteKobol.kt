@@ -64,7 +64,6 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
 
     override fun execute() {
         val codeGenerators = ServiceLoader.load(CodeGeneratorFactory::class.java).toList()
-        println(codeGenerators)
         val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
             FirPluginAfterPhase::class.java
         )
