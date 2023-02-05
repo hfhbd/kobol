@@ -111,18 +111,18 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
         is Exit -> code.add("%M(0)", MemberName("kotlin.system", "exitProcess", true))
         is Return -> code.add("return %L", expr.toTemplate(packageName))
         is LoadExternal -> code.add("System.loadLibrary(\"$libName\")")
-        is DoWhile -> code.beginControlFlow("do").addStatement("%L", functionCall.call(packageName)).unindent()
+        is DoWhile -> code.beginControlFlow("do").add("%L\n", functionCall.call(packageName)).unindent()
             .add("} while (%L)", condition.toTemplate(packageName))
 
         is For -> {
             code.add("%L = %L\n", counter.name, from.toTemplate(packageName))
             code.beginControlFlow("while (%L)", condition.toTemplate(packageName))
             for (stmt in statements) {
-                code.addStatement("%L", stmt.toKotlin(packageName))
+                code.add("%L\n", stmt.toKotlin(packageName))
             }
             val step = step
             if (step != null) {
-                code.addStatement("%L += %L", counter.name, step.toTemplate(packageName))
+                code.add("%L += %L\n", counter.name, step.toTemplate(packageName))
             }
             code.unindent()
             code.add("}")
@@ -131,7 +131,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
         is ForEach -> {
             code.beginControlFlow("for (%N in %L)", variable.name, provider.toTemplate(packageName))
             for (stmt in statements) {
-                code.addStatement("%L", stmt.toKotlin(packageName))
+                code.add("%L\n", stmt.toKotlin(packageName))
             }
             code.unindent()
             code.add("}")
@@ -141,7 +141,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
             code.beginControlFlow("while (%L)", condition.toTemplate(packageName))
             for (stmt in statements) {
                 val add = stmt.toKotlin(packageName)
-                code.addStatement("%L", add)
+                code.add("%L\n", add)
             }
             code.unindent()
             code.add("}")
@@ -159,7 +159,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
                 code.nextControlFlow("else if (%L)", elseIf.condition.toTemplate(packageName))
                 for (stmt in elseIf.statements) {
                     val add = stmt.toKotlin(packageName)
-                    code.addStatement("%L", add)
+                    code.add("%L\n", add)
                 }
             }
 
@@ -167,7 +167,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
                 code.nextControlFlow("else")
                 for (stmt in elseStatements) {
                     val add = stmt.toKotlin(packageName)
-                    code.addStatement("%L", add)
+                    code.add("%L\n", add)
                 }
             }
             code.unindent()
@@ -187,7 +187,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
                 }
 
                 for (stmt in case.action) {
-                    code.addStatement("%L", stmt.toKotlin(packageName))
+                    code.add("%L\n", stmt.toKotlin(packageName))
                 }
                 code.endControlFlow()
             }
@@ -195,7 +195,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
             if (elseCase != null) {
                 code.beginControlFlow("else ->")
                 for (stmt in elseCase.action) {
-                    code.addStatement("%L", stmt.toKotlin(packageName))
+                    code.add("%L\n", stmt.toKotlin(packageName))
                 }
                 code.endControlFlow()
             }
@@ -437,7 +437,7 @@ private fun KobolIRTree.Types.Type.Class.toKotlin(packageName: String): TypeSpec
     if (init.isNotEmpty()) {
         val initBlock = CodeBlock.builder()
         for (init in init) {
-            initBlock.addStatement("%L", init.toKotlin(packageName))
+            initBlock.add("%L\n", init.toKotlin(packageName))
         }
         classBuilder.addInitializerBlock(initBlock.build())
     }
