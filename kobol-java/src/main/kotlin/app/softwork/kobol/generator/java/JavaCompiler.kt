@@ -74,6 +74,13 @@ private fun CodeBlock.Builder.addComment(format: String): CodeBlock.Builder = ap
     add("// $format\n")
 }
 
+private fun KobolIRTree.Types.Function.Statement.dec(): CodeBlock {
+    val declaration = this
+    return if (declaration is Declaration) {
+        declaration.member()
+    } else declaration.toJava()
+}
+
 private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock.builder().let { code ->
     if (this !is Declaration && comments.isNotEmpty()) {
         for (comment in comments) {
@@ -81,13 +88,8 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
         }
     }
     when (this) {
-        is Assignment -> {
-            val declaration = declaration
-            val dec = if (declaration is Declaration) {
-                declaration.member()
-            } else declaration.toJava()
-            code.addStatement("\$L = \$L", dec, newValue.toTemplate())
-        }
+        is Assignment -> code.addStatement("\$L = \$L", declaration.dec(), newValue.toTemplate())
+        is Add -> code.addStatement("\$L += \$L", declaration.dec(), valueToAdd.toTemplate())
 
         is KobolIRTree.Expression.StringExpression.StringVariable.Use -> {
             val target = target.toTemplate()

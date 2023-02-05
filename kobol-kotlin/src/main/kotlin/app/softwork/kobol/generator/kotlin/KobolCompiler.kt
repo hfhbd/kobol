@@ -102,7 +102,8 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
             "%L", toTemplate(packageName)
         )
 
-        is Assignment -> code.assign(this, packageName)
+        is Assignment -> code.add("%L = %L", declaration.toDec(packageName), newValue.toTemplate(packageName))
+        is Add -> code.add("%L += %L", declaration.toDec(packageName), valueToAdd.toTemplate(packageName))
         is Print -> code.println(this, packageName)
         is Declaration -> code.add(CodeBlock.of("%L", createProperty(packageName)))
         is FunctionCall -> code.add("%L", call(packageName))
@@ -205,14 +206,12 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
     code.build()
 }
 
-private fun CodeBlock.Builder.assign(it: Assignment, packageName: String) {
-    val dec = it.declaration
-    val member = if (dec is Declaration) {
-        CodeBlock.of("%M", dec.member(packageName))
+private fun KobolIRTree.Types.Function.Statement.toDec(packageName: String): CodeBlock {
+    return if (this is Declaration) {
+        CodeBlock.of("%M", member(packageName))
     } else {
-        dec.toKotlin(packageName)
+        toKotlin(packageName)
     }
-    add("%L = %L", member, it.newValue.toTemplate(packageName))
 }
 
 private fun CodeBlock.Builder.println(it: Print, packageName: String) {
