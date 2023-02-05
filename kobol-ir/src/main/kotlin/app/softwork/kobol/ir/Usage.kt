@@ -63,6 +63,7 @@ private infix fun List<KobolIRTree.Types.Function.Statement>.assigns(declaration
 
 private infix fun KobolIRTree.Types.Function.Statement.assigns(declaration: Declaration): Boolean = when (this) {
     is Assignment -> this.declaration == declaration
+    is Add -> this.declaration == declaration
     is Declaration -> false
     is DoWhile -> functionCall assigns declaration
     is Exit -> false
@@ -108,6 +109,7 @@ private infix fun Declaration.usedIn(statements: List<KobolIRTree.Types.Function
 private infix fun Declaration.usedIn(it: KobolIRTree.Types.Function.Statement): Boolean =
     when (it) {
         is Assignment -> this in it.newValue
+        is Add -> this in it.valueToAdd
         is Declaration -> this in it.value
         is DoWhile -> this in it.functionCall.parameters || this in it.condition
         is Exit -> false

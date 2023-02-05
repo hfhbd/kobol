@@ -52,13 +52,18 @@ class HelloWorldTest {
     }
 }
 
-internal fun String.toIR(firPlugins: List<FirPlugin> = emptyList(), vararg including: Pair<String, String>): KobolIRTree {
+internal fun String.toIR(
+    firPlugins: List<FirPlugin> = emptyList(),
+    vararg including: Pair<String, String>,
+    irPlugins: List<IrPlugin> = emptyList(),
+): KobolIRTree {
     val temp = Files.createTempDirectory("testing").toFile()
     val files = including.map { (name, content) ->
         File(temp, "$name.cbl").apply { writeText(content) }
     }
     return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR(
-        firPlugins = firPlugins
+        firPlugins = firPlugins,
+        irPlugins = irPlugins
     ).single()
 }
 

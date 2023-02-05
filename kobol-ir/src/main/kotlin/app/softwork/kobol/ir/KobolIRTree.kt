@@ -171,6 +171,13 @@ public data class KobolIRTree(
                     val newValue: Expression,
                     override val comments: List<String> = emptyList()
                 ) : Statement
+                
+                @Serializable
+                public data class Add(
+                    val declaration: Statement,
+                    val valueToAdd: Expression,
+                    override val comments: List<String> = emptyList()
+                ) : Statement
 
                 @Serializable
                 public data class Static(

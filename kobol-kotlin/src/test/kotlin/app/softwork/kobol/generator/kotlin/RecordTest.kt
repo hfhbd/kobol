@@ -1,5 +1,6 @@
 package app.softwork.kobol.generator.kotlin
 
+import app.softwork.kobol.plugins.fir.*
 import kotlin.test.*
 
 class RecordTest {
@@ -23,11 +24,13 @@ class RecordTest {
         123456 01 BAR.
         123456 05 WORLD PIC x(6) VALUE "BAR".
         123456 PROCEDURE                   DIVISION.
-        123456  MOVE 42 TO WORLD OF FOO
+        123456  ADD 42 TO WORLD OF FOO
         123456  * Some Comment
         123456  DISPLAY "HELLO " WORLD OF FOO
         123456  DISPLAY "HELLO " WORLD OF BAR.
-        """.trimIndent().toIR()
+        """.trimIndent().toIR(
+            firPlugins = listOf(NullableToZero())
+        )
 
         val output = generate(input)
 
@@ -44,7 +47,7 @@ class RecordTest {
            * WORLD I
            * WORLD II
            */
-          public var WORLD: Int? = null
+          public var WORLD: Int = 0
         }
         
         /**
@@ -56,7 +59,7 @@ class RecordTest {
         }
         
         public fun main(): Unit {
-          FOO.WORLD = 42
+          FOO.WORLD += 42
           // Some Comment
           println("HELLO ${'$'}{FOO.WORLD}")
           println("HELLO ${'$'}{BAR.WORLD}")

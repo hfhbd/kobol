@@ -210,6 +210,10 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
         declaration = if (declaration == globalVariable.declaration) variable.target else declaration,
         newValue = newValue.useInlineVariable(globalVariable, variable)
     )
+    is Add -> copy(
+        declaration = if (declaration == globalVariable.declaration) variable.target else declaration,
+        valueToAdd = valueToAdd.useInlineVariable(globalVariable, variable)
+    )
 
     is Declaration.ObjectDeclaration -> copy(value = value?.useInlineVariable(globalVariable, variable))
     is Declaration.BooleanDeclaration -> copy(

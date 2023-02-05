@@ -438,6 +438,14 @@ private fun List<CobolProcedures>.asStatements(dataTree: CobolFIRTree.DataTree?)
                 comments = proc.comments.asComments()
             )
         }
+        
+        proc.adding != null -> proc.adding!!.variableList.map {
+            Add(
+                target = dataTree.notNull.find(it) as Elementar,
+                value = proc.adding!!.expr.toExpr(dataTree).single(),
+                comments = proc.comments.asComments()
+            )
+        }
 
         proc.performing != null -> {
             val isWhile = proc.performing!!.`while`

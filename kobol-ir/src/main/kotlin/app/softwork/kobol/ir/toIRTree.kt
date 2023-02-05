@@ -3,6 +3,7 @@ package app.softwork.kobol.ir
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Add
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.ForEach
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.If
 import app.softwork.kobol.ir.KobolIRTree.*
@@ -363,7 +364,16 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
 ): List<Types.Function.Statement> = when (this) {
     is Move -> listOf(
         Assignment(
-            declaration = types.declaration(target), newValue = value.toIR(types), comments = comments
+            declaration = types.declaration(target),
+            newValue = value.toIR(types),
+            comments = comments
+        )
+    )
+    is Add -> listOf(
+        Types.Function.Statement.Add(
+            declaration = types.declaration(target),
+            valueToAdd = value.toIR(types),
+            comments = comments
         )
     )
 
