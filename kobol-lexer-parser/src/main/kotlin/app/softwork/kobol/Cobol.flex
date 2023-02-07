@@ -106,6 +106,9 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "STATUS"                        { return STATUS; }
     "TO"                            { return TO; }
     "IS"                            { return IS; }
+    "ORGANIZATION"                  { return CobolTypes.ORGANIZATION; }
+    "LINE"                          { return CobolTypes.LINE; }
+    "SEQUENTIAL"                    { return CobolTypes.SEQUENTIAL; }
     "."                             { yybegin(FILE_CONTROL_START); return DOT; }
     {VARNAME}                       { return VARNAME; }
 }
