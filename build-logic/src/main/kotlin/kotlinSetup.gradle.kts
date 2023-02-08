@@ -52,6 +52,7 @@ pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
                 }
                 kotlinOptions {
                     freeCompilerArgs += "-Xcontext-receivers"
+                    freeCompilerArgs += "-Xskip-prerelease-check"
                     // allWarningsAsErrors = true
                 }
             }
