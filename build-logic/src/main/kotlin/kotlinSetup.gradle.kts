@@ -51,6 +51,7 @@ pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
                     }
                 }
                 kotlinOptions {
+                    freeCompilerArgs += "-Xcontext-receivers"
                     // allWarningsAsErrors = true
                 }
             }
