@@ -48,6 +48,7 @@ pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
                     it.languageSettings {
                         progressiveMode = true
                         languageVersion = "2.0"
+                    }
                 }
                 kotlinOptions {
                     // allWarningsAsErrors = true
