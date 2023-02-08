@@ -45,7 +45,9 @@ pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
         target {
             compilations.configureEach {
                 kotlinSourceSets.forAll {
-                    it.languageSettings.progressiveMode = true
+                    it.languageSettings {
+                        progressiveMode = true
+                        languageVersion = "2.0"
                 }
                 kotlinOptions {
                     // allWarningsAsErrors = true
