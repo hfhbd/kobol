@@ -101,11 +101,4 @@ tasks {
     compileKotlin {
         dependsOn(storeVersion)
     }
-    test {
-        environment("kobolProjectDir", rootDir.absolutePath)
-        val GitHubPackagesUsername: String by project
-        val GitHubPackagesPassword: String by project
-        environment("GitHubPackagesUsername", GitHubPackagesUsername)
-        environment("GitHubPackagesPassword", GitHubPackagesPassword)
-    }
 }

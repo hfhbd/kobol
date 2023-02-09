@@ -7,42 +7,39 @@ public class KobolVersionPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         settings.dependencyResolutionManagement.versionCatalogs.register("kobol") {
             val version = version("kobol", kobolVersion)
-            for ((name, notation) in plugins) {
-                plugin(name, notation).versionRef(version)
+            plugin("kobol", "app.softwork.kobol").versionRef(version)
+
+            fun add(name: String, module: String) {
+                library(name, "app.softwork.kobol", module).versionRef(version)
             }
-            for (name in deps) {
-                library(name, "app.softwork.kobol", name).versionRef(version)
+
+            fun plugin(module: String) {
+                add(name = "plugin-$module", module = "plugin-$module")
             }
+
+            add("kotlin", "kotlin")
+            add("kotlin-sqldelight", "kotlin-sqldelight")
+            add("kotlin-kotlinxserialization", "kotlin-kotlinxserialization")
+            add("kotlin-filejava", "kotlin-file-java")
+
+            add("java", "java")
+            add("java-java8", "java-java8")
+            add("java-jdbc", "java-jdbc")
+
+            plugin("booleanexpressions")
+            plugin("javanames")
+            plugin("keepnames")
+            plugin("constvariables")
+            plugin("flow-graph-plantuml")
+            plugin("ifassignments")
+            plugin("inlining")
+            plugin("ktor")
+            plugin("nullabletozero")
+            plugin("objects")
+            plugin("optimize")
+            plugin("private")
+            plugin("readonlyvariables")
+            plugin("useparameters")
         }
-    }
-
-    internal companion object {
-        val plugins = listOf("kobol" to "app.softwork.kobol")
-
-        val deps = listOf(
-            "kotlin",
-            "kotlin-sqldelight",
-            "kotlin-kotlinxserialization",
-            "kotlin-file-java",
-
-            "java",
-            "java-java8",
-            "java-jdbc",
-
-            "plugin-booleanexpressions",
-            "plugin-javanames",
-            "plugin-keepnames",
-            "plugin-constvariables",
-            "plugin-flow-graph-plantuml",
-            "plugin-ifassignments",
-            "plugin-inlining",
-            "plugin-ktor",
-            "plugin-nullabletozero",
-            "plugin-objects",
-            "plugin-optimize",
-            "plugin-private",
-            "plugin-readonlyvariables",
-            "plugin-useparameters",
-        )
     }
 }
