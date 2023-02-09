@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":kobol-lexer-parser), "instrumentedJar")
+    implementation(project(":kobol-lexer-parser", "instrumentedJar"))
 }
 
 val idea = "221.6008.13"
