@@ -1,6 +1,5 @@
 package app.softwork.kobol.generator.kotlin
 
-import java.nio.file.Files
 import kotlin.test.*
 
 class ForEachTest {
