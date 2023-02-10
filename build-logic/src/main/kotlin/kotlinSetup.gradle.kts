@@ -12,11 +12,6 @@ publishing {
             credentials(PasswordCredentials::class)
         }
     }
-    if ("mavenJava" !in publications.names) {
-        publications.register<MavenPublication>("mavenJava") {
-            from(components["java"])
-        }
-    }
     publications.configureEach {
         this as MavenPublication
         pom {
@@ -33,28 +28,6 @@ publishing {
                 connection.set("scm:git://github.com/hfhbd/kobol.git")
                 developerConnection.set("scm:git://github.com/hfhbd/kobol.git")
                 url.set("https://github.com/hfhbd/kobol")
-            }
-        }
-    }
-}
-
-pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-    extensions.configure<KotlinJvmProjectExtension>("kotlin") {
-        jvmToolchain(17)
-        explicitApi()
-        target {
-            compilations.configureEach {
-                kotlinSourceSets.forAll {
-                    it.languageSettings {
-                        progressiveMode = true
-                        languageVersion = "2.0"
-                    }
-                }
-                kotlinOptions {
-                    freeCompilerArgs += "-Xcontext-receivers"
-                    freeCompilerArgs += "-Xskip-prerelease-check"
-                    // allWarningsAsErrors = true
-                }
             }
         }
     }
