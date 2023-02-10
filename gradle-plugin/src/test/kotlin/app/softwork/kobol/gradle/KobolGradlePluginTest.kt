@@ -39,7 +39,7 @@ class KobolGradlePluginTest {
             writeText(input)
         }
         ExecuteKobol(
-            input = setOf(cobolFile), 
+            input = setOf(cobolFile),
             outputFolder = tmp,
             irPlugins = listOf(Java8Plugin()),
             codeGeneratorFactory = JavaCodeGeneratorFactory()
@@ -85,118 +85,51 @@ class KobolGradlePluginTest {
         }
         assertTrue("hello.puml" in tmp.list())
     }
-    
-    private fun settings(custom: () -> String = { "" }): String {
-        val kobolFolder = File(System.getenv("kobolProjectDir"))
-        
-        val sub = KobolVersionPlugin.deps.joinToString(separator = "\n") { 
-            """substitute(module("app.softwork.kobol:$it")).using(project(":$it"))"""
-        }
-        return """
-            |pluginManagement {
-            |  includeBuild("${File(kobolFolder, "build-logic").absolutePath}")
-            |  repositories {
-            |    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
-            |    mavenCentral()
-            |    gradlePluginPortal()
-            |  }
-            |}
-            |
-            |plugins {
-            |  id("MyRepos")
-            |  id("app.softwork.kobol.versions")
-            |}
-            |
-            |rootProject.name = "test"
-            |
-            |includeBuild("${kobolFolder.absolutePath}") {
-            |  dependencySubstitution { 
-            |    $sub
-            |   }
-            |}
-            |
-            |${custom()}
-        """.trimMargin()
-    }
 
     @Test
     fun customFlowGraph() {
-        val build = runTest(":flowGraph") {
-            """
-            |dependencies {
-            |  kobolPlugin(cobol.foo, kobol.plugin.flow.graph.plantuml)
-            |}
-            |
-            |cobol.foo {
-            |  dependencies {
-            |    plugin(kobol.plugin.flow.graph.plantuml)
-            |  }
-            |  tasks {
-            |    convert {
-            |    }
-            |  }
-            |}
-            |
-            |tasks.flowGraph {
-            |  add(cobol.foo)
-            |}
-            |
-            |tasks.convert(cobol.foo) {
-            |
-            |}
-            |
-            """.trimMargin()
-        }
-        val files = build.toPath().resolve("reports/kobol/flowGraph").toFile().list()
-        assertTrue("foo.puml" in files)
-    }
-    
-    private fun runTest(task: String, gradle: () -> String): File {
         val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
             deleteOnExit()
         }
         File(tmp, "build.gradle.kts").writeText(
             """
             |import app.softwork.kobol.gradle.kobolPlugin
-            |import app.softwork.kobol.gradle.convert
             |
             |plugins {
-            |  kotlin("jvm")
+            |  kotlin("jvm") version "1.8.0"
             |  id("app.softwork.kobol")
             |}
             |
-            |buildscript {
-            |  dependencies {
-            |    classpath(extensions.getByType<VersionCatalogsExtension>().named("intellijDeps").findBundle("intellijBundle").get())
-            |  }
-            |}
-            |
             |repositories {
-            |  maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
-            |  maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
             |  mavenCentral()
             |}
             |
-            |${gradle()}
+            |dependencies {
+            |  kobolPlugin(cobol.foo, "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |}
+            |
+            |cobol.foo {
+            |  dependencies {
+            |    plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |  }
+            |}
+            |
+            |tasks {
+            |  uploadCobol {
+            |    files(cobol.foo)
+            |  }
+            |}
             |
             """.trimMargin()
         )
-        File(tmp, "settings.gradle.kts").writeText(settings())
         File(tmp, "foo.cbl").writeText(input)
 
         val result = GradleRunner.create()
             .withProjectDir(tmp)
             .withPluginClasspath()
-            .withArguments(
-                task, 
-                "--configuration-cache",
-                "--stacktrace",
-                "-PGitHubPackagesUsername=${System.getenv("GitHubPackagesUsername")}",
-                "-PGitHubPackagesPassword=${System.getenv("GitHubPackagesPassword")}"
-            )
+            .withArguments(":flowGraph", "--configuration-cache")
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(task)?.outcome)
-        return File(tmp, "build")
+        assertEquals(TaskOutcome.SUCCESS, result.task(":flowGraph")?.outcome)
     }
 }

@@ -88,8 +88,8 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
         }
     }
     when (this) {
-        is Assignment -> code.add("\$L = \$L\n", declaration.dec(), newValue.toTemplate())
-        is Add -> code.add("\$L += \$L\n", declaration.dec(), valueToAdd.toTemplate())
+        is Assignment -> code.add("\$L = \$L;\n", declaration.dec(), newValue.toTemplate())
+        is Add -> code.add("\$L += \$L;\n", declaration.dec(), valueToAdd.toTemplate())
 
         is KobolIRTree.Expression.StringExpression.StringVariable.Use -> {
             val target = target.toTemplate()
@@ -114,9 +114,9 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
         is FunctionCall -> code.add(call())
         is Use -> code.add(target.toJava()).add(".").add(action.toJava()).build()
         is Static -> code.add("\$T", ClassName.get(type.packageName, type.name))
-        is Exit -> code.add("System.exit(0)\n")
-        is Return -> code.add("return \$L\n", expr.toTemplate())
-        is LoadExternal -> code.add("System.loadLibrary(\"$libName\")\n")
+        is Exit -> code.add("System.exit(0);\n")
+        is Return -> code.add("return \$L;\n", expr.toTemplate())
+        is LoadExternal -> code.add("System.loadLibrary(\"$libName\");\n")
         is DoWhile -> code.beginControlFlow("do").add(functionCall.call()).unindent()
             .add("} while (\$L);\n", condition.toTemplate())
 
@@ -202,27 +202,27 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
 private fun CodeBlock.Builder.println(it: Print) {
     when (val expr = it.expr) {
         is KobolIRTree.Expression.StringExpression.StringLiteral -> {
-            add("System.out.println(\$L)\n", expr.toTemplate())
+            add("System.out.println(\$L);\n", expr.toTemplate())
         }
 
         is KobolIRTree.Expression.StringExpression.StringVariable -> {
-            add("System.out.println(\$L)\n", expr.target.member())
+            add("System.out.println(\$L);\n", expr.target.member())
         }
 
         is KobolIRTree.Expression.StringExpression.Concat -> {
             val template = expr.toTemplate()
-            add("System.out.println(\$L)\n", template)
+            add("System.out.println(\$L);\n", template)
         }
 
         is KobolIRTree.Expression.StringExpression.Interpolation -> {
             val template = expr.expr.toTemplate()
-            add("System.out.println(\$L)\n", template)
+            add("System.out.println(\$L);\n", template)
         }
 
         is KobolIRTree.Expression.StringExpression.StringVariable.Use -> {
             val target = expr.target.toTemplate()
             val variable = expr.variable.toTemplate()
-            add("System.out.println(\$L.\$L)\n", target, variable)
+            add("System.out.println(\$L.\$L);\n", target, variable)
         }
     }
 }
@@ -243,14 +243,14 @@ private fun FunctionCall.call() = CodeBlock.builder().apply {
         is KobolIRTree.Types.Function -> {
             val method = MethodSpec.methodBuilder(function.name).build()
             if (function.external) {
-                add("\$N.invoke(\$L)\n", method, params)
+                add("\$N.invoke(\$L);\n", method, params)
             } else {
-                add("\$N(\$L)\n", method, params)
+                add("\$N(\$L);\n", method, params)
             }
         }
 
         is KobolIRTree.Types.Type.Class -> {
-            add("new \$T(\$L)\n", ClassName.get(function.packageName, function.name), params)
+            add("new \$T(\$L);\n", ClassName.get(function.packageName, function.name), params)
         }
     }
 

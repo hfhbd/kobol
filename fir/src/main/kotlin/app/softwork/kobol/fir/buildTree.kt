@@ -750,9 +750,9 @@ private fun CobolExpr.toExpr(dataTree: DataTree?): List<Expression> {
                 }
             }
 
-            else -> when (literal.elementType!!) {
-                CobolTypes.ZERO -> listOf(Expression.NumberExpression.NumberLiteral(0.0))
-                else -> TODO(literal.text)
+            else -> when (literal.text) {
+                "ZERO", "ZEROS", "ZEROES" -> listOf(Expression.NumberExpression.NumberLiteral(0.0))
+                else -> TODO("${literal.elementType} ${literal.text}")
             }
         }
 

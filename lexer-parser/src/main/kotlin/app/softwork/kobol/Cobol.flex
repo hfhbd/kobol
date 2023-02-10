@@ -294,6 +294,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "LOW-VALUE" { return LOW_VALUE; }
     "HIGH-VALUE" { return HIGH_VALUE; }
     "ZEROES" { return ZERO; }
+    "ZEROS" { return ZERO; }
     "ZERO" { return ZERO; }
     {VARNAME}                       { return VARNAME; }
 }

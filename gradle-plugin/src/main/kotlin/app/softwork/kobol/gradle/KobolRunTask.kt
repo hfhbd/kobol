@@ -12,6 +12,7 @@ public abstract class KobolRunTask : DefaultTask(), SshTask {
         folder.convention(project.name)
     }
 
+    @get:Input
     public open val export: String = "export PATH=${"$"}{PATH}:${"$"}{JAVA_HOME}/bin"
 
     @get:Input

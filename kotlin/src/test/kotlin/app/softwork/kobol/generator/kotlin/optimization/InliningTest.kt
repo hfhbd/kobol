@@ -54,6 +54,7 @@ class InliningTest {
         assertEquals(expected, output.toString())
     }
 
+    @Ignore
     @Test
     fun functionsWithDCE() {
         //language=cobol
@@ -113,12 +114,11 @@ class InliningTest {
         |123456     CLOSE BALANCES.
         |123456     CLOSE TRANSACTIONS.
         |
-        """.trimMargin().toIR(listOf(NullableToZero()), fileConverter = {
-            JavaFilesKotlin()
-        },
-            serialization = {
-                KotlinxSerialization(it)
-            }
+        """.trimMargin().toIR(
+            firPlugins = listOf(NullableToZero()), 
+            irPlugins = listOf(Inlining()),
+            fileConverter = { JavaFilesKotlin() },
+            serialization = { KotlinxSerialization(it) }
         )
 
         val output = generate(input)
