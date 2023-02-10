@@ -12,7 +12,7 @@ publishing {
             credentials(PasswordCredentials::class)
         }
     }
-    if (name != "kobol-gradle-plugin") {
+    if (name != "gradle-plugin") {
         publications.register<MavenPublication>("mavenJava") {
             from(components["java"])
         }
