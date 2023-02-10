@@ -24,7 +24,6 @@ kotlin {
             }
             kotlinOptions {
                 freeCompilerArgs += "-Xcontext-receivers"
-                freeCompilerArgs += "-Xskip-prerelease-check"
                 // allWarningsAsErrors = true
             }
         }
