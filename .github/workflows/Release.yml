@@ -44,7 +44,7 @@ jobs:
       - run: ./gradlew -Pversion=$version createPluginRepo
       - uses: actions/upload-pages-artifact@v1
         with:
-          path: kobol-intellij-plugin/build/customRepo
+          path: intellij-plugin/build/customRepo
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
