@@ -18,6 +18,19 @@ gradlePlugin {
     }
 }
 
+afterEvaluate {
+    kotlinDslPluginOptions {
+        tasks.withType<KotlinCompile>().configureEach {
+            it.compilerOptions {
+                apiVersion.set(KotlinVersion.KOTLIN_2_0)
+                languageVersion.set(KotlinVersion.KOTLIN_2_0)
+                freeCompilerArgs += "-Xcontext-receivers"
+                freeCompilerArgs += "-Xskip-prerelease-check"
+            }
+        }
+    }
+}
+
 val shade by configurations.register("shade")
 configurations {
     compileOnly { extendsFrom(shade) }
