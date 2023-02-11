@@ -18,6 +18,9 @@ abstract class CreatePluginRepo : DefaultTask() {
 
     @get:Input
     abstract val untilBuild: Property<String>
+    
+    @get:Input
+    abstract val fileName: Property<String>
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
@@ -31,7 +34,7 @@ abstract class CreatePluginRepo : DefaultTask() {
         File(outputDirectory.get().asFile, "updatePlugins.xml").writeText(
             """
                 <plugins>
-                <plugin id="app.softwork.kobol" url="https://hfhbd.github.io/kobol/kobol-intellij-plugin-${version.get()}.zip" version="${version.get()}">
+                <plugin id="app.softwork.kobol" url="https://hfhbd.github.io/kobol/${fileName.get()}-${version.get()}.zip" version="${version.get()}">
                 <idea-version since-build="${sinceBuild.get()}" until-build="${untilBuild.get()}"/>
                 </plugin>
                 </plugins>
