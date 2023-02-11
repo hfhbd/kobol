@@ -33,6 +33,7 @@ tasks {
     }
     val createPluginRepo by registering(CreatePluginRepo::class) {
         dependsOn(copyRepoPlugin, patchPluginXml)
+        fileName.set(project.name)
         sinceBuild.set(patchPluginXml.flatMap { it.sinceBuild })
         untilBuild.set(patchPluginXml.flatMap { it.untilBuild })
     }
