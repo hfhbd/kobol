@@ -1,18 +1,6 @@
-import org.gradle.api.*
 import org.gradle.api.artifacts.dsl.*
 import org.gradle.api.artifacts.repositories.*
-import org.gradle.api.initialization.*
 import org.gradle.kotlin.dsl.*
-
-class MyRepos : Plugin<Settings> {
-    override fun apply(settings: Settings) {
-        settings.dependencyResolutionManagement {
-            repositories {
-                kobol()
-            }
-        }
-    }
-}
 
 fun RepositoryHandler.kobol() {
     maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {

@@ -96,7 +96,7 @@ class KobolGradlePluginTest {
             |import app.softwork.kobol.gradle.kobolPlugin
             |
             |plugins {
-            |  kotlin("jvm") version "1.8.0"
+            |  kotlin("jvm") version "1.8.10"
             |  id("app.softwork.kobol")
             |}
             |
