@@ -8,7 +8,7 @@ import com.intellij.psi.*
 
 public class CobolProgramIDReference(psiElement: CobolCallingNameProgramID, range: TextRange) :
     PsiReferenceBase<CobolCallingNameProgramID>(psiElement, range) {
-    override fun resolve(): PsiElement? {
+    override fun resolve(): CobolProgramIDID? {
         val index = ProjectRootManager.getInstance(myElement.manager.project).fileIndex
 
         var found: CobolProgramIDID? = null

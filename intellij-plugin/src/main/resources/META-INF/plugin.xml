@@ -43,5 +43,8 @@
                 implementationClass="app.softwork.kobol.intellij.CobolCompletion"/>
         <psi.referenceContributor
                 implementation="app.softwork.kobol.intellij.CobolReferenceContributor" language="Cobol"/>
+        <lang.documentationProvider
+                language="Cobol"
+                implementationClass="app.softwork.kobol.intellij.CobolDocumentationProvider"/>
     </extensions>
 </idea-plugin>

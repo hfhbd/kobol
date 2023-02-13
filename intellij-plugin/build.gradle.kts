@@ -16,7 +16,7 @@ intellij {
 
 tasks {
     patchPluginXml {
-        sinceBuild.set("222")
+        sinceBuild.set("221")
         untilBuild.set("231.*")
         version.set(project.version.toString())
     }

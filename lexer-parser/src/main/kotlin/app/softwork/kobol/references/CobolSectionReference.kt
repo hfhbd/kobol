@@ -7,7 +7,7 @@ import com.intellij.psi.*
 
 public class CobolSectionReference(psiElement: CobolSectionID, range: TextRange) :
     PsiReferenceBase<CobolSectionID>(psiElement, range) {
-    override fun resolve(): PsiElement? {
+    override fun resolve(): CobolProcedureSection? {
         val file = myElement.containingFile as CobolFile
         val procedures = file.programOrNull?.procedureDiv ?: return null
         val section = procedures.procedureSectionList.find {
