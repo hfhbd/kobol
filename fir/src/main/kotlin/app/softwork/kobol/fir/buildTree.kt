@@ -36,19 +36,6 @@ public fun CobolFile.toTree(): CobolFIRTree {
     )
 }
 
-private val commentTokens = TokenSet.create(CobolTypes.COMMENT)
-
-private fun CobolComments.asComments(): List<String> = node.getChildren(commentTokens).map {
-    it.text.drop(1).trim()
-}
-
-private fun List<CobolComments>.asComments() = mapNotNull {
-    val text = it.text
-    if (text.startsWith("*")) {
-        it.text.drop(1)
-    } else null
-}
-
 private fun CobolIdDiv.toID(): ID {
     val (programID, programmIDComments) = programIDClause.let { it.programIDID.varName.text to it.comments.asComments() }
     val (author, authorComments) = authorClauseList.singleOrNull()
@@ -245,7 +232,7 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
         fileSection = fileSection ?: emptyList(),
         workingStorage = definitions ?: emptyList(),
         linkingSection = linkage ?: emptyList(),
-        comments = commentsList.asComments()
+        comments = comments.asComments()
     )
 }
 

@@ -66,7 +66,7 @@ fileAssignID ::= varName | string
 fileConfigStatus ::= FILE STATUS [IS] fileStatusID
 fileStatusID ::= varName
 
-dataDiv ::= comments DATA DIVISION DOT comments [fileSection] [workingStorageSection] [linkingSection]
+dataDiv ::= comments DATA DIVISION DOT [fileSection] [workingStorageSection] [linkingSection]
 
 fileSection ::= comments FILE SECTION DOT fileDescriptions*
 recording_clause ::= RECORDING [MODE] [IS] varName
@@ -106,7 +106,7 @@ pic_def_clause ::= pictures [length]
 
 length ::= LP number RP
 
-linkingSection ::= LINKAGE SECTION DOT record_def*
+linkingSection ::= comments LINKAGE SECTION DOT record_def*
 
 procedureDiv ::= comments PROCEDURE DIVISION [USING recordID+] DOT [sentences+] [procedureSection*] endComments
 endComments ::= comments

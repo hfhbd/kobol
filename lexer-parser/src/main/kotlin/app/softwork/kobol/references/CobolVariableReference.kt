@@ -7,8 +7,8 @@ import com.intellij.psi.*
 
 public class CobolVariableReference(psiElement: CobolVariable, range: TextRange) :
     PsiReferenceBase<CobolVariable>(psiElement, range), PsiPolyVariantReference {
-    override fun resolve(): PsiElement? {
-        return multiResolve(false).singleOrNull()?.element
+    override fun resolve(): CobolRecordDef? {
+        return multiResolve(false).singleOrNull()?.element as CobolRecordDef?
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> = find(incompleteCode) {
@@ -43,7 +43,10 @@ public class CobolVariableReference(psiElement: CobolVariable, range: TextRange)
                     }
                 }
 
-                if (currentRecord != null && ofName != null) {
+                if (incompleteCode) {
+                    add(action(recordDef))
+                }
+                else if (currentRecord != null && ofName != null) {
                     if (currentRecord.recordID?.varName?.text == ofName) {
                         action()
                     }
