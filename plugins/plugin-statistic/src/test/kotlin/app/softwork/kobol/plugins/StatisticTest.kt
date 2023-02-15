@@ -84,10 +84,12 @@ class StatisticTest {
             123456     EVALUATE WORLD ALSO WORLD
             123456     WHEN "WORLD" ALSO "WORLD"
             123456       DISPLAY "ANSWER"WORLD
+            123456     WHEN "WORLD" ALSO "WORLD"
+            123456       DISPLAY "ANSWER"WORLD
             123456     END-EVALUATE.
         """.trimIndent().toTree()
 
-        assertEquals(mapOf("main" to 3), cobol.complexity())
+        assertEquals(mapOf("main" to 5), cobol.complexity())
     }
     
     @Test
