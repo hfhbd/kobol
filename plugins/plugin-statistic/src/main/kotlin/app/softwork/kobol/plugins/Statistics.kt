@@ -32,11 +32,11 @@ public class Statistics(private val outputFolder: File) : FirCodeGenerator {
 }
 
 internal fun CobolFIRTree.complexity(): Map<String, Int> = buildMap {
+    var calc = 1
     for (it in procedure.topLevel) {
-        var calc = 1
         it.complexity { calc += 1 }
-        put("main", calc)
     }
+    put("main", calc)
 
     for (it in procedure.sections) {
         var calc = 1
