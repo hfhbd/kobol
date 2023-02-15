@@ -7,14 +7,13 @@ import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.StringExpres
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import java.io.*
 
-public class PlantumlFlowGraph(
-    override val outputFolder: File
-) : FlowGraph {
-    private var content = mutableMapOf<String, String>()
+public class PlantumlFlowGraph(private val outputFolder: File) : FirCodeGenerator {
+    private var content = mapOf<String, String>()
 
-    override fun invoke(tree: CobolFIRTree, other: Iterable<CobolFIRTree>): Iterable<CobolFIRTree> {
-        content[tree.id.programID.lowercase()] = tree.createFlowGraph()
-        return other + tree
+    override fun generate(fir: Iterable<CobolFIRTree>) {
+        content = fir.associate {
+            it.id.programID.lowercase() to it.createFlowGraph()    
+        }
     }
 
     override fun close() {

@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.flowGraph)
+    implementation(projects.fir)
 }

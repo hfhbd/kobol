@@ -54,7 +54,6 @@ public class KobolGradlePlugin : Plugin<Project> {
             dependsOn(buildCobol)
         }
 
-        project.tasks.register("flowGraph", KobolFlowGraph::class.java)
         project.tasks.register("cleanCobol", CleanCobol::class.java) {
             uploaded.convention(upload.flatMap { it.uploaded })
         }
