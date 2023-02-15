@@ -81,7 +81,7 @@ class KobolGradlePluginTest {
         }
 
         PlantumlFlowGraph(tmp).use {
-            it.invoke(cobolFile.toTree(), emptyList())
+            it.generate(listOf(cobolFile.toTree()))
         }
         assertTrue("hello.puml" in tmp.list())
     }
@@ -115,6 +115,10 @@ class KobolGradlePluginTest {
             |}
             |
             |tasks {
+            |  register("flowGraph", app.softwork.kobol.gradle.KobolFirPluginTask::class) {
+            |    add(cobol.foo)
+            |  }
+            |  
             |  uploadCobol {
             |    files(cobol.foo)
             |  }

@@ -12,7 +12,7 @@ import org.gradle.workers.*
 import javax.inject.*
 
 @CacheableTask
-public abstract class KobolFlowGraph : DefaultTask() {
+public abstract class KobolFirPluginTask : DefaultTask() {
     init {
         group = "Kobol"
     }
@@ -34,7 +34,7 @@ public abstract class KobolFlowGraph : DefaultTask() {
     public abstract val outputFolder: DirectoryProperty
 
     init {
-        outputFolder.convention(project.layout.buildDirectory.dir("reports/kobol/flowGraph"))
+        outputFolder.convention(project.layout.buildDirectory.dir("reports/kobol/plugins"))
     }
 
     @get:Inject
@@ -44,9 +44,9 @@ public abstract class KobolFlowGraph : DefaultTask() {
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
             classpath.from(plugins)
-        }.submit(CreateFlowGraph::class.java) {
+        }.submit(FirKobolAction::class.java) {
             inputFiles.setFrom(sources)
-            outputFolder.set(this@KobolFlowGraph.outputFolder)
+            outputFolder.set(this@KobolFirPluginTask.outputFolder)
         }
     }
 }

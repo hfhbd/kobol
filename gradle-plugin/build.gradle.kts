@@ -25,7 +25,6 @@ configurations {
 
 dependencies {
     implementation(projects.ir)
-    implementation(projects.flowGraph)
 
     compileOnly(projects.kotlin.kotlinSqldelight)
 
