@@ -79,10 +79,11 @@ private fun Statement.complexity(action: () -> Unit) {
         }
 
         is Eval -> {
-            repeat(values.size) {
-                action()
-            }
             for (condition in conditions) {
+                for(cond in condition.conditions) {
+                    action()
+                    cond.complexity(action)
+                }
                 for (stmt in condition.action) {
                     stmt.complexity(action)
                 }
