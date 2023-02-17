@@ -1,3 +1,4 @@
+import app.softwork.kobol.gradle.*
 import org.gradle.api.plugins.JavaPlugin.*
 
 private val cobols = objects.domainObjectContainer(CobolSource::class.java)
