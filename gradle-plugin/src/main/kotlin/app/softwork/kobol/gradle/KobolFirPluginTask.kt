@@ -17,16 +17,16 @@ public abstract class KobolFirPluginTask : DefaultTask() {
         group = "Kobol"
     }
     
-    @Internal
+    @get:Internal
     public val pluginConfiguration: String = project.configurations.register("${name}Plugin") {
         isVisible = false
         isCanBeConsumed = false
         isCanBeResolved = true
     }.name
 
-    @InputFiles
-    @PathSensitive(RELATIVE)
-    private val pluginDependencies = project.configurations.named(pluginConfiguration).map { it.fileCollection() }
+    @get:InputFiles
+    @get:PathSensitive(RELATIVE)
+    internal val pluginDependencies = project.configurations.named(pluginConfiguration).map { it.fileCollection() }
     
     public fun firPlugin(dependency: Any) {
         project.dependencies.add(pluginConfiguration, dependency)
