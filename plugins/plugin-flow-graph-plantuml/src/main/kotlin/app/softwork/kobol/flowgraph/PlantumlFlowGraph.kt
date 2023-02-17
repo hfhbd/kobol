@@ -19,7 +19,6 @@ public class PlantumlFlowGraph(private val outputFolder: File) : FirCodeGenerato
     override fun close() {
         for ((program, flow) in content) {
             File(outputFolder, "$program.puml").apply {
-                mkdirs()
                 if (!exists()) {
                     createNewFile()
                 }
