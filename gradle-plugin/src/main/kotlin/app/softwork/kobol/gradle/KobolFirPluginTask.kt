@@ -23,6 +23,8 @@ public abstract class KobolFirPluginTask : DefaultTask() {
         isCanBeResolved = true
     }.name
 
+    @InputFiles
+    @PathSensitive(RELATIVE)
     private val pluginDependencies = project.configurations.named(pluginConfiguration).map { it.fileCollection() }
     
     public fun firPlugin(dependency: Any) {
