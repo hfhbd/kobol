@@ -3,6 +3,7 @@ package app.softwork.kobol.flowgraph
 import app.softwork.kobol.fir.*
 import org.intellij.lang.annotations.Language
 import java.io.*
+import java.util.ServiceLoader
 import kotlin.test.*
 
 class PlantumlFlowGraphTest {
@@ -37,6 +38,11 @@ class PlantumlFlowGraphTest {
             @enduml
             
         """.trimIndent(), cobol.createFlowGraph())
+    }
+    
+    @Test
+    fun loadFactory() {
+        assertTrue(ServiceLoader.load(FirCodeGeneratorFactory::class.java).single() is Factory)
     }
 }
 

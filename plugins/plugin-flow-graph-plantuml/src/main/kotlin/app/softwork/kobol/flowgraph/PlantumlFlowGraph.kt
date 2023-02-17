@@ -12,13 +12,17 @@ public class PlantumlFlowGraph(private val outputFolder: File) : FirCodeGenerato
 
     override fun generate(fir: Iterable<CobolFIRTree>) {
         content = fir.associate {
-            it.id.programID.lowercase() to it.createFlowGraph()    
+            it.id.programID.lowercase() to it.createFlowGraph()
         }
     }
 
     override fun close() {
         for ((program, flow) in content) {
-            File(outputFolder, "$program.puml").writeText(flow)
+            File(outputFolder, "$program.puml").apply {
+                if (!exists()) {
+                    createNewFile()
+                }
+            }.writeText(flow)
         }
     }
 }

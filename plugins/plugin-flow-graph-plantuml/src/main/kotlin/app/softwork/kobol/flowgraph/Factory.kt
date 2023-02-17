@@ -5,7 +5,9 @@ import java.io.*
 
 public class Factory: FirCodeGeneratorFactory {
     override fun invoke(outputFolder: File): PlantumlFlowGraph {
-        val plantumlFolder = File(outputFolder, "uml")
+        val plantumlFolder = File(outputFolder, "uml").apply {
+            mkdirs()
+        }
         return PlantumlFlowGraph(plantumlFolder)
     }
 }

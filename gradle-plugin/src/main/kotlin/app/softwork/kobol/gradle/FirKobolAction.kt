@@ -20,7 +20,9 @@ public abstract class FirKobolAction : WorkAction<FirKobolAction.Parameters> {
             FirPluginAfterPhase::class.java
         )
         
-        for (firGenerator in ServiceLoader.load(FirCodeGeneratorFactory::class.java)) {
+        val firGenerators = ServiceLoader.load(FirCodeGeneratorFactory::class.java).toList()
+
+        for (firGenerator in firGenerators) {
             val generator = firGenerator(outputFolder)
             generator.generate(inputs.toTree(firPlugins))
         }
