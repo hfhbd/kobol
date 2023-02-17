@@ -1,12 +1,16 @@
 plugins {
     setup
-    intellijTesting
     app.softwork.serviceloader
 }
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
     implementation(projects.fir)
+
+    testImplementation(projects.intellijEnv) {
+        targetConfiguration = "shade"
+    }
+    testImplementation(kotlin("test"))
 }
 
 serviceLoaders.register("app.softwork.kobol.fir.FirCodeGeneratorFactory") {

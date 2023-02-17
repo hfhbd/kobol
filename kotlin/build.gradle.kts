@@ -1,6 +1,5 @@
 plugins {
     setup
-    intellijTesting
     app.softwork.serviceloader
 }
 
@@ -8,6 +7,9 @@ dependencies {
     implementation(projects.ir)
     implementation("com.squareup:kotlinpoet:1.12.0")
 
+    testImplementation(projects.intellijEnv) {
+        targetConfiguration = "shade"
+    }
     testImplementation(kotlin("test"))
     testImplementation(projects.kotlin.kotlinSqldelight)
     testImplementation(projects.kotlin.kotlinKotlinxserialization)

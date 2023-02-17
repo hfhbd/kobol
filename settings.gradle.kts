@@ -61,3 +61,5 @@ include(":plugins:plugin-renaming")
 include(":plugins:plugin-readonlyvariables")
 include(":plugins:plugin-statistic")
 include(":plugins:plugin-useparameters")
+
+include(":intellij-env")
