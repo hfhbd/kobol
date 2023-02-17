@@ -17,6 +17,21 @@ public abstract class KobolFirPluginTask : DefaultTask() {
         group = "Kobol"
     }
     
+    @get:Internal
+    public val pluginConfiguration: String = project.configurations.register("${name}Plugin") {
+        isVisible = false
+        isCanBeConsumed = false
+        isCanBeResolved = true
+    }.name
+
+    @get:InputFiles
+    @get:PathSensitive(RELATIVE)
+    internal val pluginDependencies = project.configurations.named(pluginConfiguration).map { it.fileCollection() }
+    
+    public fun firPlugin(dependency: Any) {
+        project.dependencies.add(pluginConfiguration, dependency)
+    }
+    
     public fun add(cobolSource: Provider<CobolSource>) {
         sources.from(cobolSource.map { it.file })
         plugins.from(cobolSource.flatMap { project.configurations.named(it.plugins) })
@@ -43,7 +58,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @TaskAction
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
-            classpath.from(plugins)
+            classpath.from(pluginDependencies, plugins)
         }.submit(FirKobolAction::class.java) {
             inputFiles.setFrom(sources)
             outputFolder.set(this@KobolFirPluginTask.outputFolder)

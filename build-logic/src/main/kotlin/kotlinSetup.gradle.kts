@@ -58,3 +58,8 @@ pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
 licensee {
     allow("Apache-2.0")
 }
+
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}

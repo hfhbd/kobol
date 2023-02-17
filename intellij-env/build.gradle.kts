@@ -1,3 +1,5 @@
+import groovy.util.*
+
 plugins {
     setup
     repos
@@ -110,4 +112,27 @@ licensee {
     allowDependency("com.jetbrains.intellij.platform", "util-xml-dom", idea)
     allowDependency("com.jetbrains.intellij.platform", "util-zip", idea)
     allowDependency("com.jetbrains.intellij.platform", "workspace-model-storage", idea)
+}
+
+// Disable Gradle module.json as it lists wrong dependencies
+tasks.withType<GenerateModuleMetadata>().configureEach {
+    enabled = false
+}
+
+// Remove dependencies from POM: uber jar has no dependencies
+publishing {
+    publications {
+        withType<MavenPublication>().configureEach {
+            if (name == "mavenJava") {
+                pom.withXml {
+                    val pomNode = asNode()
+
+                    val dependencyNodes = pomNode.get("dependencies") as NodeList
+                    dependencyNodes.forEach {
+                        (it as Node).parent().remove(it)
+                    }
+                }
+            }
+        }
+    }
 }
