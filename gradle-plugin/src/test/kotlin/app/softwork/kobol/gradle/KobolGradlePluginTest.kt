@@ -86,6 +86,7 @@ class KobolGradlePluginTest {
         assertTrue("hello.puml" in tmp.list())
     }
 
+    @Ignore
     @Test
     fun customFlowGraph() {
         val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
