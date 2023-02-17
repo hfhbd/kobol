@@ -17,6 +17,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
         group = "Kobol"
     }
     
+    @Internal
     public val pluginConfiguration: String = project.configurations.register("${name}Plugin") {
         isVisible = false
         isCanBeConsumed = false
