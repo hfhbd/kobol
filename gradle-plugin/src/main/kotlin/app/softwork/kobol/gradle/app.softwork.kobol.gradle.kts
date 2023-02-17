@@ -1,5 +1,3 @@
-package app.softwork
-
 import app.softwork.kobol.gradle.*
 import org.gradle.api.plugins.JavaPlugin.*
 

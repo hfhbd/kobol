@@ -1,4 +1,4 @@
-import app.softwork.kobol.gradle.kobolVersion
+import app.softwork.kobol.gradle.*
 
 dependencyResolutionManagement.versionCatalogs.register("kobol") {
     val version = version("kobol", kobolVersion)
