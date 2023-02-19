@@ -63,3 +63,4 @@ include(":plugins:plugin-statistic")
 include(":plugins:plugin-useparameters")
 
 include(":intellij-env")
+include(":ssh-env")

@@ -45,7 +45,7 @@ private val upload = tasks.register("uploadCobol", UploadTask::class.java)
 private val buildCobol = tasks.register("buildCobol", BuildTask::class.java) {
     dependsOn(upload)
 }
-tasks.register("runCobol", KobolRunTask::class.java) {
+tasks.register("runCobol", SshCmdTask::class.java) {
     dependsOn(buildCobol)
 }
 

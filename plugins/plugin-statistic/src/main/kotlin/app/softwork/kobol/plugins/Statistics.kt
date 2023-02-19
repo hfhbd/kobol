@@ -3,11 +3,11 @@ package app.softwork.kobol.plugins
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
+import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.json.*
 import java.io.*
 
-public class Statistics(private val outputFolder: File) : FirCodeGenerator {
+public class Statistics(private val outputFolder: File, private val format: StringFormat) : FirCodeGenerator {
 
     public var results: Map<String, Results> = mapOf()
         private set
@@ -27,7 +27,7 @@ public class Statistics(private val outputFolder: File) : FirCodeGenerator {
             if (!exists()) {
                 createNewFile()
             }
-        }.writeText(Json.encodeToString(MapSerializer(String.serializer(), Results.serializer()), results))
+        }.writeText(format.encodeToString(MapSerializer(String.serializer(), Results.serializer()), results))
     }
 }
 
@@ -80,7 +80,7 @@ private fun Statement.complexity(action: () -> Unit) {
 
         is Eval -> {
             for (condition in conditions) {
-                for(cond in condition.conditions) {
+                for (cond in condition.conditions) {
                     action()
                     cond.complexity(action)
                 }
