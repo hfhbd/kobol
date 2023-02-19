@@ -58,7 +58,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @TaskAction
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
-            classpath.from(pluginDependencies, plugins)
+            classpath.from(pluginDependencies.get(), plugins)
         }.submit(FirKobolAction::class.java) {
             inputFiles.setFrom(sources)
             outputFolder.set(this@KobolFirPluginTask.outputFolder)
