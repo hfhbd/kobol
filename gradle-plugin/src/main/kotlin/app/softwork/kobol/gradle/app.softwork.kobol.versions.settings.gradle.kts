@@ -34,5 +34,6 @@ dependencyResolutionManagement.versionCatalogs.register("kobol") {
     plugin("optimize")
     plugin("private")
     plugin("readonlyvariables")
+    plugin("statistic")
     plugin("useparameters")
 }
