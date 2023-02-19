@@ -28,11 +28,12 @@ public abstract class SshCmdTask : DefaultTask() {
     public abstract val cmds: ListProperty<String>
 
     @get:Input
-    public open val export: String = "export PATH=${"$"}{PATH}:${"$"}{JAVA_HOME}/bin"
+    public abstract val export: ListProperty<String>
 
     init {
         group = "kobol"
         folder.convention(project.name)
+        export.convention(listOf("PATH=${"$"}{PATH}", "${"$"}{JAVA_HOME}/bin"))
     }
 
     @get:Internal
@@ -58,6 +59,7 @@ public abstract class SshCmdTask : DefaultTask() {
             user.set(this@SshCmdTask.user)
             folder.set(this@SshCmdTask.folder)
             cmds.set(this@SshCmdTask.cmds)
+            export.set(this@SshCmdTask.export)
         }
     }
 }
@@ -67,7 +69,7 @@ internal abstract class SshCmdAction : WorkAction<SshCmdAction.Parameters> {
         public val cmds: ListProperty<String>
         public val export: ListProperty<String>
     }
-    
+
     private val logger = Logging.getLogger(SshCmdAction::class.java)
 
     override fun execute() {
