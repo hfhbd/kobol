@@ -7,20 +7,32 @@ import net.schmizz.sshj.*
 import net.schmizz.sshj.xfer.*
 import org.gradle.api.*
 import org.gradle.api.file.*
+import org.gradle.api.logging.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitivity.*
 import org.gradle.work.*
+import org.gradle.workers.*
 import java.io.*
 import java.util.*
+import javax.inject.*
 
 @CacheableTask
-public abstract class UploadTask : DefaultTask(), SshTask {
+public abstract class UploadTask : DefaultTask() {
     init {
         group = "kobol"
         folder.convention(project.name)
     }
+
+    @get:Input
+    public abstract val host: Property<String>
+
+    @get:Input
+    public abstract val user: Property<String>
+
+    @get:Input
+    public abstract val folder: Property<String>
 
     @get:Incremental
     @get:PathSensitive(RELATIVE)
@@ -67,52 +79,115 @@ public abstract class UploadTask : DefaultTask(), SshTask {
         notTagged.convention(listOf("jar", "class"))
     }
 
+    @get:Internal
+    public val configuration: String = project.configurations.register("${name}Ssh") {
+        dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$kobolVersion"))
+    }.name
+
+    @get:InputFiles
+    @get:Classpath
+    internal val sshClasspath: FileCollection =
+        project.objects.fileCollection().from(project.configurations.named(configuration))
+
+
+    @get:Inject
+    internal abstract val workerExecutor: WorkerExecutor
+
+
     @TaskAction
     internal fun execute(inputChanges: InputChanges) {
-        val encoding = encoding.get()
-        val copyToMVS = mvsFolder.orNull
-        val keepUTF8 = keepUTF8.get()
-        val folder = folder.get()
-        val uploaded = uploaded.get().asFile
-        val notTagged: List<String> = notTagged.get()
+        val queue = workerExecutor.classLoaderIsolation {
+            classpath.setFrom(sshClasspath)
+        }
 
-        sshClient {
-            newSFTPClient().use { sftp ->
-                for (change in inputChanges.getFileChanges(files)) {
-                    if (change.fileType == FileType.DIRECTORY) continue
+        for (change in inputChanges.getFileChanges(files)) {
+            if (change.fileType == FileType.DIRECTORY) continue
 
-                    sftp.mkdirs(folder)
-                    val file = change.file
-                    val target = "$folder/${file.name}"
-
-                    when (change.changeType) {
-                        ChangeType.ADDED, ChangeType.MODIFIED -> {
-                            try {
-                                sftp.put(FileSystemFile(file), target)
-                            } catch (_: IOException) {
-                                sftp.put(FileSystemFile(file), target)
-                            }
-                            if (file.extension !in notTagged) {
-                                exec("iconv -T -f utf-8 -t $encoding $target > $target.conv")
-
-                                if (keepUTF8) {
-                                    exec("mv $target $target.utf8")
-                                }
-                                exec("mv $target.conv $target")
-                            }
-                            if (copyToMVS != null && file in mvsFiles) {
-                                val mvsName = file.nameWithoutExtension.uppercase()
-                                exec("""cp $target "//'$copyToMVS($mvsName)'" """)
-                            }
-                            file.copyTo(File(uploaded, file.name), true)
-                        }
-
-                        ChangeType.REMOVED -> {
-                            sftp.rm(target)
-                            File(uploaded, file.name).takeIf { it.exists() }?.delete()
-                        }
+            when (change.changeType) {
+                ChangeType.ADDED, ChangeType.MODIFIED -> {
+                    queue.submit(UploadAction::class.java) {
+                        this.file.set(change.file)
+                        this.encoding.set(this@UploadTask.encoding)
+                        this.mvsFolder.set(this@UploadTask.mvsFolder)
+                        this.keepUTF8.set(this@UploadTask.keepUTF8)
+                        this.mvsFiles.from(this@UploadTask.mvsFiles)
+                        this.uploaded.set(this@UploadTask.uploaded)
+                        this.notTagged.set(this@UploadTask.notTagged)
                     }
                 }
+
+                ChangeType.REMOVED -> {
+                    queue.submit(DeleteAction::class.java) {
+                        user.set(this@UploadTask.user)
+                        host.set(this@UploadTask.host)
+                        this.folder.set(this@UploadTask.folder)
+                        this.file.set(change.file)
+                    }
+                }
+            }
+        }
+    }
+}
+
+internal abstract class DeleteAction : WorkAction<DeleteAction.Parameters> {
+    interface Parameters : SshParameters {
+        val file: RegularFileProperty
+    }
+
+    override fun execute() {
+        val folder = parameters.folder.get()
+        val file = parameters.file.asFile.get()
+        val target = "$folder/${file.name}"
+        sshClient(host = parameters.host.get(), user = parameters.user.get()) {
+            newSFTPClient().use { sftp ->
+                sftp.rm(target)
+            }
+        }
+        file.delete()
+    }
+}
+
+internal abstract class UploadAction : WorkAction<UploadAction.Parameters> {
+    interface Parameters : SshParameters {
+        val file: RegularFileProperty
+        val encoding: Property<String>
+        val mvsFolder: Property<String>
+        val keepUTF8: Property<Boolean>
+        val mvsFiles: ConfigurableFileCollection
+        val uploaded: DirectoryProperty
+        val notTagged: ListProperty<String>
+    }
+
+    private val logger = Logging.getLogger(UploadAction::class.java)
+
+    override fun execute() {
+        sshClient(user = parameters.user.get(), host = parameters.host.get()) {
+            newSFTPClient().use { sftp ->
+
+                val folder = parameters.folder.get()
+                sftp.mkdirs(folder)
+                val file = parameters.file.asFile.get()
+                val target = "$folder/${file.name}"
+
+                try {
+                    sftp.put(FileSystemFile(file), target)
+                } catch (_: IOException) {
+                    sftp.put(FileSystemFile(file), target)
+                }
+                if (file.extension !in parameters.notTagged.get()) {
+                    exec("iconv -T -f utf-8 -t ${parameters.encoding.get()} $target > $target.conv", logger)
+
+                    if (parameters.keepUTF8.get()) {
+                        exec("mv $target $target.utf8", logger)
+                    }
+                    exec("mv $target.conv $target", logger)
+                }
+                val copyToMVS: String? = parameters.mvsFolder.orNull
+                if (copyToMVS != null && file in parameters.mvsFiles) {
+                    val mvsName = file.nameWithoutExtension.uppercase()
+                    exec("""cp $target "//'$copyToMVS($mvsName)'" """, logger)
+                }
+                file.copyTo(File(parameters.uploaded.asFile.get(), file.name), true)
             }
         }
     }
