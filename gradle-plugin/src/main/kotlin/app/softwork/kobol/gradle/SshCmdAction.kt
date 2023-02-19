@@ -33,7 +33,7 @@ public abstract class SshCmdTask : DefaultTask() {
     init {
         group = "kobol"
         folder.convention(project.name)
-        export.convention(listOf("PATH=${"$"}{PATH}", "${"$"}{JAVA_HOME}/bin"))
+        export.convention(listOf("PATH=${"$"}{PATH}:${"$"}{JAVA_HOME}/bin"))
     }
 
     @get:Internal
@@ -75,7 +75,7 @@ internal abstract class SshCmdAction : WorkAction<SshCmdAction.Parameters> {
     override fun execute() {
         sshClient(host = parameters.host.get(), user = parameters.user.get()) {
             val workdir = parameters.folder.get()
-            val export = parameters.export.get().joinToString(separator = ":", prefix = "export ")
+            val export = parameters.export.get().joinToString(prefix = "export ", separator = "; export", postfix = ";")
             for (cmd: String in parameters.cmds.get()) {
                 exec("""cd $workdir; export JAVA_HOME=/usr/lpp/java/current; $export $cmd""", logger = logger)
             }

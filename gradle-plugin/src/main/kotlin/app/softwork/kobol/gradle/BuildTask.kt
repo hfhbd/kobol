@@ -4,5 +4,7 @@ import org.gradle.work.*
 
 @DisableCachingByDefault
 public abstract class BuildTask : SshCmdTask() {
-    override val export: String = "export PATH=${"$"}{PATH}:/usr/lpp/IBM/cobol/igyv6r3/bin;"
+    init {
+        export.set(listOf("PATH=${"$"}{PATH}:/usr/lpp/IBM/cobol/igyv6r3/bin"))
+    }
 }
