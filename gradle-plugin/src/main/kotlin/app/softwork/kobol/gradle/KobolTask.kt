@@ -54,11 +54,9 @@ public abstract class KobolTask : DefaultTask() {
 
     @TaskAction
     internal fun generate() {
-        val s = workerExecutor.classLoaderIsolation {
+        workerExecutor.classLoaderIsolation {
             classpath.from(this@KobolTask.classpath)
-        }
-
-        s.submit(ExecuteKobol::class.java) {
+        }.submit(ExecuteKobol::class.java) {
             inputFiles.setFrom(sources)
             outputFolder.set(this@KobolTask.outputFolder)
             sqlFolder.set(this@KobolTask.sqlFolder)
