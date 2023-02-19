@@ -29,7 +29,7 @@ public abstract class KobolTask : DefaultTask() {
     public abstract val sqlFolder: DirectoryProperty
 
     @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:Classpath
     internal abstract val classpath: ConfigurableFileCollection
 
     @get:Input
