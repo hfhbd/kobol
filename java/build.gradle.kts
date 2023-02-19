@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.ir)
+    api(projects.ir)
     implementation("com.squareup:javapoet:1.13.0")
 
     testImplementation(projects.intellijEnv) {

@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.fir)
+    api(projects.fir)
 
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shade"
