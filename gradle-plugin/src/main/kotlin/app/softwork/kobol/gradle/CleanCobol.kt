@@ -4,7 +4,7 @@ import org.gradle.api.file.*
 import org.gradle.api.tasks.*
 
 @CacheableTask
-public abstract class CleanCobol : SshCmdTask() {
+public abstract class CleanCobol : KobolRunTask() {
     @get:Destroys
     public abstract val uploaded: DirectoryProperty
 
