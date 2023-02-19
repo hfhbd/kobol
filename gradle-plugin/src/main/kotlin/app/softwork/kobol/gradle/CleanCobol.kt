@@ -8,6 +8,11 @@ public abstract class CleanCobol : SshCmdTask() {
     @get:Destroys
     public abstract val uploaded: DirectoryProperty
 
+    init {
+        cmds.set(folder.map { listOf("cd ..; rm $it") })
+        cmds.finalizeValue()
+    }
+
     @TaskAction
     public fun clean() {
         val queue = workerExecutor.classLoaderIsolation {
