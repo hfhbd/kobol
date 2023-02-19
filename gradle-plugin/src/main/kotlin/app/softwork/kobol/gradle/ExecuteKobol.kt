@@ -32,6 +32,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
             val codeGeneratorConfig = config[CodeGenerator::class.qualifiedName!!] ?: emptyMap()
             val codeGenerator = codeGeneratorFactory(outputFolder, codeGeneratorConfig)
 
+            val closables = mutableListOf<Closeable>(codeGenerator)
             val irs = input.toIR(
                 firPlugins = firPlugins,
                 sqlPrecompiler = sql?.let {
@@ -41,24 +42,29 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                             fileName = it,
                             outputFolder = sqlFolder,
                             args = config[SqlPrecompiler::class.qualifiedName!!] ?: emptyMap()
-                        )
+                        ).also { closables.add(it) }
                     }
                 },
                 fileConverter = files?.let {
                     {
-                        files(it, config[FileHandling::class.qualifiedName!!] ?: emptyMap())
+                        files(it, config[FileHandling::class.qualifiedName!!] ?: emptyMap()).also { closables.add(it) }
                     }
                 },
                 serialization = serialization?.let {
                     {
-                        serialization(it, config[SerializationPlugin::class.qualifiedName!!] ?: emptyMap())
+                        serialization(
+                            it,
+                            config[SerializationPlugin::class.qualifiedName!!] ?: emptyMap()
+                        ).also { closables.add(it) }
                     }
                 },
                 irPlugins = irPlugins
             )
 
             codeGenerator.generate(irs)
-            codeGenerator.close()
+            for (toClose in closables) {
+                toClose.close()
+            }
         }
     }
 
@@ -67,11 +73,11 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
         val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
             FirPluginAfterPhase::class.java
         )
-        val irPlugins = ServiceLoader.load(IrPlugin::class.java)
+        val irPlugins = ServiceLoader.load(IrPlugin::class.java).toList()
         val sql = ServiceLoader.load(SqlPrecompilerFactory::class.java).singleOrNull()
         val files = ServiceLoader.load(FileHandlingFactory::class.java).singleOrNull()
         val serialization = ServiceLoader.load(SerializationPluginFactory::class.java).singleOrNull()
-        
+
         for (codeGenerator in codeGenerators) {
             invoke(
                 input = parameters.inputFiles.files,
@@ -86,5 +92,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                 codeGeneratorFactory = codeGenerator
             )
         }
+        firPlugins.forEach(Closeable::close)
+        irPlugins.forEach(Closeable::close)
     }
 }
