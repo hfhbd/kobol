@@ -18,8 +18,8 @@ import java.io.*
 import java.util.*
 import javax.inject.*
 
-@CacheableTask
-public abstract class UploadTask : DefaultTask() {
+@DisableCachingByDefault
+public abstract class SshTask : DefaultTask() {
     init {
         group = "kobol"
         folder.convention(project.name)
@@ -34,6 +34,23 @@ public abstract class UploadTask : DefaultTask() {
     @get:Input
     public abstract val folder: Property<String>
 
+    @get:Internal
+    public val configuration: String = project.configurations.register("${name}Ssh") {
+        dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$kobolVersion"))
+    }.name
+
+    @get:InputFiles
+    @get:Classpath
+    internal val sshClasspath: FileCollection =
+        project.objects.fileCollection().from(project.configurations.named(configuration))
+
+
+    @get:Inject
+    internal abstract val workerExecutor: WorkerExecutor
+}
+
+@CacheableTask
+public abstract class UploadTask : SshTask() {
     @get:Incremental
     @get:PathSensitive(RELATIVE)
     @get:InputFiles
@@ -78,21 +95,6 @@ public abstract class UploadTask : DefaultTask() {
     init {
         notTagged.convention(listOf("jar", "class"))
     }
-
-    @get:Internal
-    public val configuration: String = project.configurations.register("${name}Ssh") {
-        dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$kobolVersion"))
-    }.name
-
-    @get:InputFiles
-    @get:Classpath
-    internal val sshClasspath: FileCollection =
-        project.objects.fileCollection().from(project.configurations.named(configuration))
-
-
-    @get:Inject
-    internal abstract val workerExecutor: WorkerExecutor
-
 
     @TaskAction
     internal fun execute(inputChanges: InputChanges) {

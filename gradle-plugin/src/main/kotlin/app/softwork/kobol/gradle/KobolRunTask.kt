@@ -4,26 +4,14 @@ import com.jcraft.jsch.agentproxy.*
 import com.jcraft.jsch.agentproxy.connector.*
 import com.jcraft.jsch.agentproxy.sshj.*
 import net.schmizz.sshj.*
-import org.gradle.api.*
-import org.gradle.api.file.*
 import org.gradle.api.logging.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 import org.gradle.work.*
 import org.gradle.workers.*
-import javax.inject.*
 
 @DisableCachingByDefault
-public abstract class SshCmdTask : DefaultTask() {
-    @get:Input
-    public abstract val host: Property<String>
-
-    @get:Input
-    public abstract val user: Property<String>
-
-    @get:Input
-    public abstract val folder: Property<String>
-
+public abstract class KobolRunTask : SshTask() {
     @get:Input
     public abstract val cmds: ListProperty<String>
 
@@ -31,35 +19,19 @@ public abstract class SshCmdTask : DefaultTask() {
     public abstract val export: ListProperty<String>
 
     init {
-        group = "kobol"
-        folder.convention(project.name)
         export.convention(listOf("PATH=${"$"}{PATH}:${"$"}{JAVA_HOME}/bin"))
     }
-
-    @get:Internal
-    public val configuration: String = project.configurations.register("${name}Ssh") {
-        dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$kobolVersion"))
-    }.name
-
-    @get:InputFiles
-    @get:Classpath
-    internal val sshClasspath: FileCollection =
-        project.objects.fileCollection().from(project.configurations.named(configuration))
-
-
-    @get:Inject
-    internal abstract val workerExecutor: WorkerExecutor
 
     @TaskAction
     internal fun execute() {
         workerExecutor.classLoaderIsolation {
             classpath.setFrom(sshClasspath)
         }.submit(SshCmdAction::class.java) {
-            host.set(this@SshCmdTask.host)
-            user.set(this@SshCmdTask.user)
-            folder.set(this@SshCmdTask.folder)
-            cmds.set(this@SshCmdTask.cmds)
-            export.set(this@SshCmdTask.export)
+            host.set(this@KobolRunTask.host)
+            user.set(this@KobolRunTask.user)
+            folder.set(this@KobolRunTask.folder)
+            cmds.set(this@KobolRunTask.cmds)
+            export.set(this@KobolRunTask.export)
         }
     }
 }
