@@ -122,15 +122,13 @@ tasks.withType<GenerateModuleMetadata>().configureEach {
 // Remove dependencies from POM: uber jar has no dependencies
 publishing {
     publications {
-        withType<MavenPublication>().configureEach {
-            if (name == "mavenJava") {
-                pom.withXml {
-                    val pomNode = asNode()
+        named("mavenJava", MavenPublication::class) {
+            pom.withXml {
+                val pomNode = asNode()
 
-                    val dependencyNodes = pomNode.get("dependencies") as NodeList
-                    dependencyNodes.forEach {
-                        (it as Node).parent().remove(it)
-                    }
+                val dependencyNodes = pomNode.get("dependencies") as NodeList
+                dependencyNodes.forEach {
+                    (it as Node).parent().remove(it)
                 }
             }
         }
