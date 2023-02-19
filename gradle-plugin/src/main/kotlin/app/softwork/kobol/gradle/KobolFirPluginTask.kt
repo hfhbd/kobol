@@ -26,7 +26,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
 
     @get:InputFiles
     @get:Classpath
-    internal val pluginDependencies = project.configurations.getByName(pluginConfiguration).fileCollection()
+    internal val pluginDependencies = project.objects.fileCollection().from(project.configurations.named(pluginConfiguration))
     
     public fun firPlugin(dependency: Any) {
         project.dependencies.add(pluginConfiguration, dependency)
@@ -58,8 +58,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @TaskAction
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
-            val s = pluginDependencies 
-            classpath.from(s, plugins)
+            classpath.from(pluginDependencies, plugins)
         }.submit(FirKobolAction::class.java) {
             inputFiles.setFrom(sources)
             outputFolder.set(this@KobolFirPluginTask.outputFolder)
