@@ -21,8 +21,8 @@ public abstract class CobolSource @Inject constructor(
     override fun getName(): String = name
 
     public val plugins: String = project.configurations.register("kobol${nameTitle}Plugin") {
-        dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$kobolVersion"))
         dependencies.add(project.dependencies.create("app.softwork.kobol:ir:$kobolVersion"))
+        dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$kobolVersion"))
         isCanBeResolved = true
         isCanBeConsumed = false
         isVisible = false

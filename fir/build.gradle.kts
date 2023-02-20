@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
     implementation(projects.lexerParser)
     compileOnly(projects.intellijEnv) {
