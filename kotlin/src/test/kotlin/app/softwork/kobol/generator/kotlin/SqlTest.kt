@@ -90,9 +90,11 @@ class SqlTest {
         123456 DISPLAY BAR OF FOO.
         """.trimIndent().toIR(
             "INCLUDETESTING" to """
-                01 FOO.
-                  02 BAR PIC 9(2).
-            """.trimIndent(),
+            |01 FOO.
+            |123456 02 BAR PIC 9(2).
+            |       02 ABB PIC 9(2).
+            |
+            """.trimMargin(),
             sqlPrecompiler = { packageName, folder ->
                 SqlDelightPrecompiler("DB", folder, packageName, packageName)
             }
@@ -109,6 +111,8 @@ class SqlTest {
         
         public object FOO {
           public var BAR: Int? = null
+        
+          public var ABB: Int? = null
         }
         
         public fun main(): Unit {
