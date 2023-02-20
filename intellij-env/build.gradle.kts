@@ -50,8 +50,8 @@ tasks.shadowJar {
     include("com/github/benmanes/**")
 
     include("messages/*.properties")
+    include("gnu/**")
 
-    exclude("/groovy**")
     exclude("/kotlin/**")
 }
 
