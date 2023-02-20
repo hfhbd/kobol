@@ -10,10 +10,10 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(gradleTestKit())
+    testImplementation(projects.ir)
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shade"
     }
-    testImplementation(projects.ir)
     testImplementation(projects.plugins.pluginFlowGraphPlantuml)
     testImplementation(projects.kotlin)
     testImplementation(projects.java)
