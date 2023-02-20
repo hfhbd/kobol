@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.ir)
+    api(projects.ir)
     implementation("com.squareup:kotlinpoet:1.12.0")
 
     testImplementation(projects.intellijEnv) {
