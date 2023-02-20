@@ -27,8 +27,10 @@ public object CobolElementFactory {
             } else true
         }
         val fileText = requireNotNull(text) { "File $fileName not found in $fileIndex" }
-        val addLineNumber = fileText.lines().mapNotNull {
-            if (it.substring(0..5).toIntOrNull() != null && (it[6] in setOf('*', ' ', '/'))) {
+        val addLineNumber = fileText.lines().map { it.trim() }.mapNotNull {
+            if (it.isEmpty()) {
+                null
+            } else if (it.substring(0..5).toIntOrNull() != null && (it[6] in setOf('*', ' ', '/'))) {
                 it
             } else {
                 val first = it.firstOrNull() ?: return@mapNotNull null
