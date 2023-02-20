@@ -51,12 +51,12 @@ class FileTest {
         |123456 CLOSE EIN.
         |123456 CLOSE AUS.
         """.trimMargin().toIR(
-            firPlugins = listOf(NullableToZero()), 
+            firPlugins = listOf(NullableToZero()),
             fileConverter = {
-            JavaFilesKotlin()
-        }, serialization = {
-            KotlinxSerialization(it)
-        })
+                JavaFilesKotlin()
+            }, serialization = {
+                KotlinxSerialization(it)
+            })
 
         val output = generate(input)
 
@@ -124,7 +124,7 @@ class FileTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
-    
+
     @Test
     fun transactions() {
         //language=cobol
@@ -181,11 +181,15 @@ class FileTest {
         |123456     CLOSE BALANCES.
         |123456     CLOSE TRANSACTIONS.
         |
-        """.trimMargin().toIR(listOf(NullableToZero()), fileConverter = {
-            JavaFilesKotlin()
-        }, serialization = {
-            KotlinxSerialization(it)
-        })
+        """.trimMargin().toIR(
+            firPlugins = listOf(NullableToZero()),
+            fileConverter = {
+                JavaFilesKotlin()
+            },
+            serialization = {
+                KotlinxSerialization(it)
+            }
+        )
 
         val output = generate(input)
 

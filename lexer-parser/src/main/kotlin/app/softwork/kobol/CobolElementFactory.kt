@@ -11,7 +11,8 @@ public object CobolElementFactory {
     private fun createProgram(project: Project, text: String): CobolProgram {
         val name = "dummy.cbl"
         val cobolText = """123456 IDENTIFICATION DIVISION. PROGRAM-ID. $text. PROCEDURE DIVISION. CONTINUE."""
-        val file = PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType.INSTANCE, cobolText) as CobolFile
+        val file =
+            PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType.INSTANCE, cobolText) as CobolFile
         return file.program
     }
 
@@ -25,7 +26,7 @@ public object CobolElementFactory {
                 false
             } else true
         }
-        val fileText = requireNotNull(text)
+        val fileText = requireNotNull(text) { "File $fileName not found in $fileIndex" }
         val addLineNumber = fileText.lines().mapNotNull {
             if (it.substring(0..5).toIntOrNull() != null && (it[6] in setOf('*', ' ', '/'))) {
                 it

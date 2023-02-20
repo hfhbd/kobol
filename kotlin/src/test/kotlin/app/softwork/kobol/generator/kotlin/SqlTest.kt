@@ -78,10 +78,52 @@ class SqlTest {
     }
 
     @Test
+    fun include() {
+        //language=cobol
+        val input = """
+        123456 IDENTIFICATION DIVISION.
+        123456 PROGRAM-ID. SQL.
+        123456 DATA DIVISION.
+        123456 WORKING-STORAGE SECTION.
+        123456 EXEC SQL INCLUDE INCLUDETESTING END-EXEC.
+        123456 PROCEDURE DIVISION.
+        123456 DISPLAY BAR OF FOO.
+        """.trimIndent().toIR(
+            "INCLUDETESTING" to """
+                01 FOO.
+                  02 BAR PIC 9(2).
+            """.trimIndent(),
+            sqlPrecompiler = { packageName, folder ->
+                SqlDelightPrecompiler("DB", folder, packageName, packageName)
+            }
+        )
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+        package sql
+        
+        import kotlin.Int
+        import kotlin.Unit
+        
+        public object FOO {
+          public var BAR: Int? = null
+        }
+        
+        public fun main(): Unit {
+          println(FOO.BAR)
+        }
+        
+        """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
+
+    @Test
     fun createTable() {
         lateinit var sqlPrecompiler: SqlDelightPrecompiler
         //language=cobol
-        val input  = """
+        val input = """
         123456 IDENTIFICATION DIVISION.
         123456 PROGRAM-ID. SQL.
         123456 DATA DIVISION.

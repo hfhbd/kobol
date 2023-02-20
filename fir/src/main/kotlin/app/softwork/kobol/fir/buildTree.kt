@@ -165,7 +165,8 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
                     val include = """INCLUDE (.*)""".toRegex()
                     if (sqlString.contains(include)) {
                         include.findAll(sqlString).forEach {
-                            for (record in CobolElementFactory.includeSQL(project, it.groups[1]!!.value)) {
+                            val toInclude = it.groups[1]!!.value
+                            for (record in CobolElementFactory.includeSQL(project, toInclude)) {
                                 currentRecord = record(record, currentRecord)
                             }
                         }

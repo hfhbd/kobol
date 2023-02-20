@@ -53,8 +53,8 @@ class HelloWorldTest {
 }
 
 internal fun String.toIR(
-    firPlugins: List<FirPlugin> = emptyList(),
     vararg including: Pair<String, String>,
+    firPlugins: List<FirPlugin> = emptyList(),
     irPlugins: List<IrPlugin> = emptyList(),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
@@ -62,7 +62,7 @@ internal fun String.toIR(
 ): KobolIRTree {
     val temp = Files.createTempDirectory("testing").toFile()
     val files = including.map { (name, content) ->
-        File(temp, "$name.cbl").apply { writeText(content) }
+        File(temp, name).apply { writeText(content) }
     }
     return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR(
         firPlugins = firPlugins,
