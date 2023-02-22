@@ -4,8 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projects.ir)
-    compileOnly(projects.kotlin.kotlinSqldelight)
+    implementation(projects.ir)
     compileOnly(projects.sshEnv)
 
     testImplementation(kotlin("test"))
