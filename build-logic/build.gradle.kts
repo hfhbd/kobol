@@ -13,8 +13,4 @@ dependencies {
     implementation("app.softwork:serviceloader-gradle-plugin:0.0.2")
 }
 
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
+kotlin.jvmToolchain(17)
