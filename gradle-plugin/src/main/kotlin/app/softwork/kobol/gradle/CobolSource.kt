@@ -33,7 +33,7 @@ public abstract class CobolSource @Inject constructor(
         return add(plugins, dependency)
     }
 
-    public fun TaskContainer.convert(): TaskProvider<KobolTask> = named<KobolTask>(taskName)
+    public val TaskContainer.convert: TaskProvider<KobolTask> get() = named<KobolTask>(taskName)
     public fun TaskContainer.convert(configuration: Action<KobolTask>) {
         named<KobolTask>(taskName).configure(configuration)
     }
