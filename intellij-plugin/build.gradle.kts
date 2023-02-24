@@ -5,7 +5,11 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.lexerParser)
+    implementation(projects.lexerParser) {
+        exclude("org.jetbrains.kotlin", "kotlin-stdlib")
+        exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
+        exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+    }
 }
 
 val idea = "221.6008.13"
