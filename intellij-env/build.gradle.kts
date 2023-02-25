@@ -35,6 +35,10 @@ configurations.configureEach {
     exclude(group = "ai.grazie.nlp")
 }
 
+tasks.jar {
+    enabled = false
+}
+
 tasks.shadowJar {
     archiveClassifier.set("")
     configurations = listOf(shade)
@@ -127,6 +131,7 @@ tasks.withType<GenerateModuleMetadata>().configureEach {
 publishing {
     publications {
         named("mavenJava", MavenPublication::class) {
+            artifacts.artifact(tasks.shadowJar)
             pom.withXml {
                 val pomNode = asNode()
 
