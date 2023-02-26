@@ -242,7 +242,10 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "END-IF"                        { return END_IF; }
     "="                             { return EQUAL; }
     ">"                             { return BIGGER; }
+    "GREATER"                       { return BIGGER; }
     "<"                             { return SMALLER; }
+    "LESS"                          { return SMALLER; }
+    "THAN"                          { return THAN; }
     "+"                             { return PLUS; }
     "-"                             { return MINUS; }
     "EQUAL"                         { return EQUAL; }

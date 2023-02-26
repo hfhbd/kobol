@@ -426,6 +426,8 @@ class CobolLexerTest {
             123456     WHEN 1
             123456        ADD 1 TO a
             123456 END-EVALUATE
+            123456 IF FOO LESS THAN B
+            123456 END-IF
             123456 GOBACK.
         """.trimIndent()
         ) {
@@ -446,6 +448,8 @@ class CobolLexerTest {
             line(WHEN, sp, NUMBER, sp)
             line(ADD, sp, NUMBER, sp, TO, sp, VARNAME, sp)
             line(END_EVALUATE, sp)
+            line(IF, sp, VARNAME, sp, SMALLER, sp, THAN, sp, VARNAME, sp)
+            line(END_IF, sp)
             line(GOBACK, DOT)
         }
     }
