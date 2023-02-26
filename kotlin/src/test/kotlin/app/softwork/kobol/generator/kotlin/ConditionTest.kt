@@ -15,6 +15,7 @@ class ConditionTest {
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
+        123456 77 FOO PIC 9(2) VALUE 10.
         123456 PROCEDURE                   DIVISION.
         123456  IF WORLD = "WORLD!"
         123456* Some Comment
@@ -22,6 +23,12 @@ class ConditionTest {
         123456 ELSE
         123456     MOVE "42" TO WORLD
         123456     DISPLAY "ANSWER"WORLD
+        123456 END-IF
+        123546 IF FOO LESS THAN 42
+        123456     DISPLAY "FOO"
+        123456 END-IF
+        123546 IF FOO LESS THAN OR EQUAL TO 42
+        123456     DISPLAY "FOO"
         123456 END-IF.
         """.trimIndent().toIR()
 
@@ -31,10 +38,13 @@ class ConditionTest {
         val expected = """
         package helloif
         
+        import kotlin.Int
         import kotlin.String
         import kotlin.Unit
         
         public var WORLD: String = "WORLD!"
+        
+        public var FOO: Int = 10
         
         public fun main(): Unit {
           if (WORLD == "WORLD!") {
@@ -43,6 +53,12 @@ class ConditionTest {
           } else {
             WORLD = "42"
             println("ANSWER${'$'}WORLD")
+          }
+          if (FOO < 42) {
+            println("FOO")
+          }
+          if (FOO <= 42) {
+            println("FOO")
           }
         }
         

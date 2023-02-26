@@ -13,7 +13,6 @@
   tokenTypeClass="app.softwork.kobol.CobolTokenType"
 
   tokens=[
-    lineNumber="regexp:\r?\n\d{6}(\s|\*)"
     varName="regexp:[a-zA-Z]([\w\-_])*"
     comment="regexp:\*.*\r?\n\d{6}(\s|\*)"
     number="regexp:([+\-])?(\d+(\.\d+)?)|(\.\d+)"
@@ -21,16 +20,17 @@
     any="regexp:.*\."
     SP="regexp:\s+"
     PLUS='+'
+    MINUS='-'
+    EQUAL='='
+    LESS='<'
+    GREATER='>'
     DOT='.'
     LP='('
     RP=')'
+    COLON=':'
   ]
-
-//  extends(".*_file")=file
 }
 
-//root ::= root_item *
-//private root_item ::= !<<eof>> exps '.' {pin=1 recoverWhile=exps_recover}
 root ::= program
 
 program ::= comments idDiv [envDiv] [dataDiv] procedureDiv
@@ -148,6 +148,7 @@ if_else ::= ELSE procedures*
 eval ::= EVALUATE expr (ALSO expr)* whens* [when_other] END-EVALUATE
 whens ::= comments WHEN expr (ALSO expr)* procedures*
 when_other ::= comments WHEN OTHER procedures*
+// https://www.ibm.com/docs/en/cobol-zos/6.1?topic=expressions-general-relation-conditions
 boolean_expr ::= boolean_expr_or | boolean_expr_and | boolean_expr_clause
 boolean_expr_or ::= boolean_expr_clause OR boolean_expr
 boolean_expr_and ::= boolean_expr_clause AND boolean_expr
@@ -155,15 +156,12 @@ boolean_expr_clause ::= boolean_expr_clause_left (boolean_expr_clause_nt | boole
 boolean_expr_clause_left ::= expr
 boolean_expr_clause_right ::= expr
 boolean_expr_clause_nt ::= [nt] eql
-boolean_expr_clause_bigger ::= bigger [eql]
-boolean_expr_clause_smaller ::= smaller [eql]
+boolean_expr_clause_bigger ::= bigger [THAN] [[OR] eql [TO]]
+boolean_expr_clause_smaller ::= smaller [THAN] [[OR] eql [TO]]
 nt ::= NOT
 eql ::= EQUAL
 expr ::= math | literal | variable | stringConcat
-math ::= (literal | variable) (plus | minus) (literal | variable)
-minus ::= '-'
-bigger ::= '>'
-smaller ::= '<'
+math ::= (literal | variable) (PLUS | MINUS) (literal | variable)
 literal ::= string | number | [ALL] SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
 variable ::= varName [LP expr [colon expr] RP] [of_clause] {
@@ -171,7 +169,6 @@ variable ::= varName [LP expr [colon expr] RP] [of_clause] {
   implements="app.softwork.kobol.named.CobolNamedElement"
 }
 of_clause ::= (OF | IN) recordID
-colon ::= ':'
 
 sectionID ::= varName {
   mixin="app.softwork.kobol.named.CobolSectionElementImpl"
