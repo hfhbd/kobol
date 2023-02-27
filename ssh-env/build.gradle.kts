@@ -5,8 +5,8 @@ plugins {
 
 dependencies {
     api("com.hierynomus:sshj:0.35.0")
-    api("com.jcraft:jsch.agentproxy.sshj:0.0.12")
-    api("com.jcraft:jsch.agentproxy.pageant:0.0.12")
+    api("com.jcraft:jsch.agentproxy.sshj:0.0.13")
+    api("com.jcraft:jsch.agentproxy.pageant:0.0.13")
 }
 
 licensee {
