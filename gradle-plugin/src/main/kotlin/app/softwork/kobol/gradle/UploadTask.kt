@@ -55,6 +55,10 @@ public abstract class UploadTask : SshTask() {
     @get:PathSensitive(RELATIVE)
     @get:InputFiles
     public abstract val files: ConfigurableFileCollection
+    
+    public fun files(vararg cobols: NamedDomainObjectProvider<CobolSource>) {
+        files.from(cobols.map { it.file })
+    }
 
     @get:Optional
     @get:Input
@@ -108,6 +112,9 @@ public abstract class UploadTask : SshTask() {
             when (change.changeType) {
                 ChangeType.ADDED, ChangeType.MODIFIED -> {
                     queue.submit(UploadAction::class.java) {
+                        user.set(this@UploadTask.user)
+                        host.set(this@UploadTask.host)
+                        this.folder.set(this@UploadTask.folder)
                         this.file.set(change.file)
                         this.encoding.set(this@UploadTask.encoding)
                         this.mvsFolder.set(this@UploadTask.mvsFolder)
