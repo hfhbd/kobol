@@ -3,10 +3,10 @@ plugins {
 }
 
 dependencies {
+    api("net.java.dev.jna:jna-platform:5.13.0")
     api("com.hierynomus:sshj:0.35.0")
     api("com.jcraft:jsch.agentproxy.sshj:0.0.9") // remove stupid open net.schmizz:sshj:[0.8.1,)
     api("com.jcraft:jsch.agentproxy.pageant:0.0.9")
-    api("net.java.dev.jna:jna-platform:5.13.0")
 }
 
 licensee {
