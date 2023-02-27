@@ -20,7 +20,7 @@ val grammar by configurations.registering {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
 
     val idea = "221.6008.13"
     compileOnly("com.jetbrains.intellij.platform:util-ui:$idea")
