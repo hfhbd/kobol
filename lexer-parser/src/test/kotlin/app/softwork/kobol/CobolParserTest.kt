@@ -321,7 +321,7 @@ class CobolParserTest {
                     +NumberElementar(
                         "FOO7", recordName = null, formatter = Custom(Signed(6), Decimal(1)), value = .9, signed = true
                     )
-                    +NumberElementar("FOO8", recordName = null, formatter = Simple(1), value = .9, signed = true)
+                    +NumberElementar("FOO8", recordName = null, formatter = Simple(1), value = .9, signed = false)
                     +Record("RPICA") {
                         +NumberElementar("FOOPIC", recordName = "RPICA", formatter = Simple(3))
                     }

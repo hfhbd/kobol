@@ -62,7 +62,8 @@ public class SqlDelightPrecompiler(
                         mutable = false,
                         comments = emptyList(),
                         const = false,
-                        length = -1
+                        length = -1,
+                        isSigned = false
                     ),
                     IntDeclaration(
                         name = "newVersion",
@@ -71,7 +72,8 @@ public class SqlDelightPrecompiler(
                         mutable = false,
                         comments = emptyList(),
                         const = false,
-                        length = -1
+                        length = -1,
+                        isSigned = false
                     )
                 )
             ) {}

@@ -153,7 +153,7 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
             is Literal -> "expr"
             is Variable -> target.name
             is DoubleExpression.DoubleVariable.Use -> variable.target.name
-        }, value = null, mutable = false, private = false, comments = emptyList(), const = true, length = -1
+        }, value = null, mutable = false, private = false, comments = emptyList(), const = true, length = -1, isSigned = false,
     )
 
     is IntExpression -> IntDeclaration(
@@ -161,7 +161,7 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
             is Literal -> "expr"
             is Variable -> target.name
             is IntExpression.IntVariable.Use -> variable.target.name
-        }, value = null, mutable = false, private = false, comments = emptyList(), const = true, length = -1
+        }, value = null, mutable = false, private = false, comments = emptyList(), const = true, length = -1, isSigned = false
     )
 
     is StringExpression -> StringDeclaration(
@@ -539,7 +539,8 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
                 private = false,
                 comments = comments,
                 const = false,
-                length = formatter.length()
+                length = formatter.length(),
+                isSigned = signed
             )
 
             Formatter.NumberType.Double -> DoubleDeclaration(
@@ -549,7 +550,8 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
                 private = false,
                 comments = comments,
                 const = false,
-                length = formatter.length()
+                length = formatter.length(),
+                isSigned = signed
             )
         }
     }

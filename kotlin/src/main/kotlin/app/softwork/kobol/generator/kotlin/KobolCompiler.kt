@@ -17,12 +17,12 @@ internal fun generate(tree: KobolIRTree): FileSpec {
     return fileSpec.build()
 }
 
-private fun Declaration.toParameter() = ParameterSpec.builder(name, KType).apply {
+private fun Declaration.toParameter(packageName: String) = ParameterSpec.builder(name, KType).apply {
     this@toParameter.annotations.forEach { (annotation, values) ->
         addAnnotation(
             AnnotationSpec.builder(ClassName.bestGuess(annotation)).apply {
                 for (value in values) {
-                    addMember("%L", CodeBlock.of(value))
+                    addMember("%L", value.toTemplate(packageName = packageName, insideString = false))
                 }
             }.build()
         )
@@ -36,7 +36,7 @@ private fun KobolIRTree.Types.Function.toKotlin(packageName: String, isMain: Boo
             addModifiers(KModifier.PRIVATE)
         }
         this@toKotlin.parameters.forEach {
-            addParameter(it.toParameter())
+            addParameter(it.toParameter(packageName))
         }
         if (external) {
             addModifiers(KModifier.EXTERNAL, KModifier.OPERATOR)
@@ -447,7 +447,7 @@ private fun KobolIRTree.Types.Type.Class.toKotlin(packageName: String): TypeSpec
         classBuilder.primaryConstructor(
             FunSpec.constructorBuilder().apply {
                 for (const in const) {
-                    addParameter(const.toParameter())
+                    addParameter(const.toParameter(packageName))
                 }
             }.build()
         )
@@ -508,7 +508,7 @@ private fun Declaration.createProperty(packageName: String): PropertySpec {
             addAnnotation(
                 AnnotationSpec.builder(ClassName.bestGuess(annotation)).apply {
                     for (value in values) {
-                        addMember("%L", CodeBlock.of(value))
+                        addMember("%L", value.toTemplate(packageName, insideString = false))
                     }
                 }.build()
             )

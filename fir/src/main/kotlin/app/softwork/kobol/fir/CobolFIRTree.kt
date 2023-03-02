@@ -172,6 +172,22 @@ public data class CobolFIRTree(
                         is Simple -> length
                         is Custom -> parts.sumOf { it.length }
                     }
+                    
+                    public val isSigned: Boolean get() {
+                        return when (this) {
+                            is Simple -> false
+                            is Custom -> {
+                                for (part in parts) {
+                                    when (part) {
+                                        is Custom.Part.Signed -> return true
+
+                                        else -> continue
+                                    }
+                                }
+                                false
+                            }
+                        }
+                    }
 
                     public val numberType: NumberType
                         get() {

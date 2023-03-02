@@ -385,7 +385,7 @@ private fun single(
                 0.0
             } else it.toDouble()
         },
-        signed = true,
+        signed = false,
         comments = comments.asComments(),
         occurs = occurs.toFir(previous),
         compressed = compressed?.let {

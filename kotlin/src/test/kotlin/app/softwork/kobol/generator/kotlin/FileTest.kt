@@ -197,6 +197,8 @@ class FileTest {
         val expected = """
         package files
         
+        import app.softwork.serialization.flf.Ebcdic
+        import app.softwork.serialization.flf.Ebcdic.Format
         import app.softwork.serialization.flf.FixedLength
         import app.softwork.serialization.flf.append
         import app.softwork.serialization.flf.decode
@@ -217,6 +219,7 @@ class FileTest {
           public val FIRSTNAME: String,
           @FixedLength(10)
           public val LASTNAME: String,
+          @Ebcdic(Format.Zoned)
           @FixedLength(6)
           public val TRANSACTION: Int,
         ) {
@@ -240,6 +243,7 @@ class FileTest {
           public val FIRSTNAME: String,
           @FixedLength(10)
           public val LASTNAME: String,
+          @Ebcdic(Format.Zoned)
           @FixedLength(6)
           public val BALANCE: Int,
         ) {
