@@ -86,9 +86,13 @@ private fun CobolEnvDiv.toEnv(): EnvTree = EnvTree(configuration = config?.let {
                             it.varName!!.text
                         } else it.string!!.text.drop(1).dropLast(1)
                     }
+                    val type = if (it.fileLineSequential != null) { 
+                        File.FileType.LineSequential
+                    } else File.FileType.Sequential
                     FileControl.File(
                         file = it.fileConfigSelect.fileID.varName.text,
                         path = path,
+                        type = type,
                         fileStatus = it.fileConfigStatus?.fileStatusID?.varName?.text,
                         comments = it.comments.asComments()
                     )
@@ -224,7 +228,8 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
                 },
                 records = it.recordDefList.toRecords(),
                 fileStatus = file.fileStatus,
-                filePath = file.path
+                filePath = file.path,
+                type = file.type
             )
         }
     }

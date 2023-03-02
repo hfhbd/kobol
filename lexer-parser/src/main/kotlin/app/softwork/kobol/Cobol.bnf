@@ -58,7 +58,8 @@ specialNameValue ::= varName
 
 inputSection ::= comments INPUT-OUTPUT SECTION DOT [fileControl_clause]
 fileControl_clause ::= comments FILE-CONTROL DOT fileConfig*
-fileConfig ::= comments fileConfigSelect fileConfigAssign [ORGANIZATION [IS] [LINE] SEQUENTIAL] [fileConfigStatus] DOT
+fileConfig ::= comments fileConfigSelect fileConfigAssign [fileLineSequential] [fileConfigStatus] DOT
+fileLineSequential ::= ORGANIZATION [IS] [LINE] SEQUENTIAL
 fileConfigSelect ::= SELECT fileID
 fileID ::= varName
 fileConfigAssign ::= ASSIGN [TO] fileAssignID
