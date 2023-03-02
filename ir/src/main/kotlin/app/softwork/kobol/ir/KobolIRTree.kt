@@ -89,7 +89,7 @@ public data class KobolIRTree(
                     public val private: Boolean
                     public val value: Expression?
                     public val nullable: Boolean
-                    public val annotations: Map<String, List<String>>
+                    public val annotations: Map<String, List<Expression>>
 
                     @Serializable
                     public sealed interface Primitive : Declaration {
@@ -107,11 +107,13 @@ public data class KobolIRTree(
                         override val comments: List<String> = emptyList(),
                         override val const: Boolean = false,
                         override val length: Int,
-                        override val annotations: Map<String, List<String>> = emptyMap()
+                        override val annotations: Map<String, List<Expression>> = emptyMap()
                     ) : Primitive
 
                     @Serializable
-                    public sealed interface NumberDeclaration : Primitive
+                    public sealed interface NumberDeclaration : Primitive {
+                        public val isSigned: Boolean
+                    }
 
                     @Serializable
                     public data class IntDeclaration(
@@ -123,7 +125,8 @@ public data class KobolIRTree(
                         override val comments: List<String> = emptyList(),
                         override val const: Boolean,
                         override val length: Int,
-                        override val annotations: Map<String, List<String>> = emptyMap()
+                        override val isSigned: Boolean,
+                        override val annotations: Map<String, List<Expression>> = emptyMap()
                     ) : NumberDeclaration
 
                     @Serializable
@@ -136,7 +139,8 @@ public data class KobolIRTree(
                         override val comments: List<String> = emptyList(),
                         override val const: Boolean,
                         override val length: Int,
-                        override val annotations: Map<String, List<String>> = emptyMap()
+                        override val isSigned: Boolean,
+                        override val annotations: Map<String, List<Expression>> = emptyMap()
                     ) : NumberDeclaration
 
                     @Serializable
@@ -149,7 +153,7 @@ public data class KobolIRTree(
                         override val comments: List<String> = emptyList(),
                         override val const: Boolean,
                         override val length: Int,
-                        override val annotations: Map<String, List<String>> = emptyMap()
+                        override val annotations: Map<String, List<Expression>> = emptyMap()
                     ) : Primitive
 
                     @Serializable
@@ -162,7 +166,7 @@ public data class KobolIRTree(
                         override val mutable: Boolean = false,
                         override val private: Boolean = false,
                         override val comments: List<String> = emptyList(),
-                        override val annotations: Map<String, List<String>> = emptyMap()
+                        override val annotations: Map<String, List<Expression>> = emptyMap()
                     ) : Declaration
                 }
 

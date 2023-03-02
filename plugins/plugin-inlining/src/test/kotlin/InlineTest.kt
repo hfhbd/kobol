@@ -129,7 +129,8 @@ class InlineTest {
             mutable = true,
             private = false,
             length = 1,
-            const = false
+            const = false,
+            isSigned = false
         )
         val globalVariable = GlobalVariable(counter, doc = emptyList())
 

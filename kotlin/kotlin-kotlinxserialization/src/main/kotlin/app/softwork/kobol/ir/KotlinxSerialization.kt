@@ -7,49 +7,79 @@ import app.softwork.kobol.ir.KobolIRTree.Types.Function.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.ForEach
+import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
 
 public class KotlinxSerialization(
     private val packageName: String
 ) : SerializationPlugin {
 
-    override fun fileSection(fileSection: CobolFIRTree.DataTree.File): List<KobolIRTree.Types.Type.Class> {
+    override fun fileSection(fileSection: CobolFIRTree.DataTree.File): List<Class> {
         val records = fileSection.records
         return if (records.size == 1) {
             val ir = records.single().toIR(packageName)
+            val ebcdicAnno = Class(
+                "Ebcdic",
+                "app.softwork.serialization.flf"
+            )
+            val signedAnnotation: Map<String, List<KobolIRTree.Expression>> = mapOf(
+                "app.softwork.serialization.flf.Ebcdic" to listOf(
+                    Static(
+                        Class(
+                            name = "Format",
+                            packageName = "app.softwork.serialization.flf.Ebcdic"
+                        )
+                    ).use(
+                        ObjectDeclaration("Zoned", type = Class(
+                            name = "Format.Zoned",
+                            packageName = "app.softwork.serialization.flf.Ebcdic"
+                        ), value = null, nullable = false)
+                    )
+                )
+            )
             val members = ir.members.map {
                 when (it) {
                     is ObjectDeclaration -> it
                     is BooleanDeclaration -> it.copy(
                         annotations = mapOf(
-                            "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
+                            "app.softwork.serialization.flf.FixedLength" to listOf(it.length.l)
                         ),
                         nullable = false
                     )
 
-                    is DoubleDeclaration -> it.copy(
-                        annotations = mapOf(
-                            "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
-                        ),
-                        nullable = false
-                    )
+                    is DoubleDeclaration -> {
+                        val signed = if (it.isSigned) {
+                            signedAnnotation
+                        } else emptyMap()
+                        it.copy(
+                            annotations = signed + mapOf(
+                                "app.softwork.serialization.flf.FixedLength" to listOf(it.length.l)
+                            ),
+                            nullable = false
+                        )
+                    }
 
-                    is IntDeclaration -> it.copy(
-                        annotations = mapOf(
-                            "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
-                        ),
-                        nullable = false
-                    )
+                    is IntDeclaration -> {
+                        val signed = if (it.isSigned) {
+                            signedAnnotation
+                        } else emptyMap()
+                        it.copy(
+                            annotations = signed + mapOf(
+                                "app.softwork.serialization.flf.FixedLength" to listOf(it.length.l)
+                            ),
+                            nullable = false
+                        )
+                    }
 
                     is StringDeclaration -> it.copy(
                         annotations = mapOf(
-                            "app.softwork.serialization.flf.FixedLength" to listOf(it.length.toString())
+                            "app.softwork.serialization.flf.FixedLength" to listOf(it.length.l)
                         ),
                         nullable = false
                     )
                 }
             }
 
-            val inner = KobolIRTree.Types.Type.Class(
+            val inner = Class(
                 "companion",
                 packageName = packageName,
                 isObject = true,
@@ -86,7 +116,7 @@ public class KotlinxSerialization(
 
     private val decodeAsSequence by function { }
 
-    private val format = KobolIRTree.Types.Type.Class(
+    private val format = Class(
         "FixedLengthFormat",
         "app.softwork.serialization.flf",
         isObject = true,
@@ -108,7 +138,7 @@ public class KotlinxSerialization(
         toIR: List<CobolFIRTree.ProcedureTree.Statement>.() -> List<Statement>
     ): List<Statement> {
         val dataRecord = read.file.recordName
-        val klass = KobolIRTree.Types.Type.Class(
+        val klass = Class(
             packageName = packageName,
             name = dataRecord,
             isObject = true,
@@ -125,7 +155,7 @@ public class KotlinxSerialization(
         )
 
         val readBufferedReader = ObjectDeclaration(
-            type = KobolIRTree.Types.Type.Class(name = "BufferedReader", packageName = "java.io"),
+            type = Class(name = "BufferedReader", packageName = "java.io"),
             name = read.file.name,
             value = null,
             nullable = false
@@ -159,7 +189,7 @@ public class KotlinxSerialization(
         } + read.atEnd.toIR()
     }
 
-    private fun KobolIRTree.Types.Type.Class.serializer() = Use(
+    private fun Class.serializer() = Use(
         target = Static(this),
         action = FunctionCall(
             function = KobolIRTree.Types.Function(
@@ -172,7 +202,7 @@ public class KotlinxSerialization(
 
     override fun write(write: Write): List<Statement> = build {
         val readBufferedWriter = ObjectDeclaration(
-            type = KobolIRTree.Types.Type.Class(name = "BufferedWriter", packageName = "java.io"),
+            type = Class(name = "BufferedWriter", packageName = "java.io"),
             name = write.file.name,
             value = null,
             nullable = false
@@ -184,7 +214,7 @@ public class KotlinxSerialization(
         ) {}
 
         val dataRecord = write.file.recordName
-        val klass = KobolIRTree.Types.Type.Class(
+        val klass = Class(
             packageName = packageName,
             name = dataRecord,
             isObject = true,
