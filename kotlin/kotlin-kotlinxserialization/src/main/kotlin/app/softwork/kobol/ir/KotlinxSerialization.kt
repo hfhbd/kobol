@@ -2,6 +2,7 @@ package app.softwork.kobol.ir
 
 import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.File.FileType.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
@@ -17,10 +18,6 @@ public class KotlinxSerialization(
         val records = fileSection.records
         return if (records.size == 1) {
             val ir = records.single().toIR(packageName)
-            val ebcdicAnno = Class(
-                "Ebcdic",
-                "app.softwork.serialization.flf"
-            )
             val signedAnnotation: Map<String, List<KobolIRTree.Expression>> = mapOf(
                 "app.softwork.serialization.flf.Ebcdic" to listOf(
                     Static(
@@ -29,10 +26,12 @@ public class KotlinxSerialization(
                             packageName = "app.softwork.serialization.flf.Ebcdic"
                         )
                     ).use(
-                        ObjectDeclaration("Zoned", type = Class(
-                            name = "Format.Zoned",
-                            packageName = "app.softwork.serialization.flf.Ebcdic"
-                        ), value = null, nullable = false)
+                        ObjectDeclaration(
+                            "Zoned", type = Class(
+                                name = "Format.Zoned",
+                                packageName = "app.softwork.serialization.flf.Ebcdic"
+                            ), value = null, nullable = false
+                        )
                     )
                 )
             )
@@ -116,21 +115,12 @@ public class KotlinxSerialization(
 
     private val decodeAsSequence by function { }
 
-    private val format = Class(
+    private val Format = Class(
         "FixedLengthFormat",
         "app.softwork.serialization.flf",
         isObject = true,
         isData = false,
         functions = listOf(decodeAsSequence)
-    )
-    private val formatObject = ObjectDeclaration(
-        name = "FixedLengthFormat",
-        type = format,
-        comments = emptyList(),
-        mutable = false,
-        private = false,
-        value = null,
-        static = true
     )
 
     override fun readSequence(
@@ -162,27 +152,23 @@ public class KotlinxSerialization(
         )
 
         return build {
+            val lineSequence by function {}
+            val decode = KobolIRTree.Types.Function(
+                "decode",
+                topLevel = true,
+                packageName = "app.softwork.serialization.flf"
+            ) {}
+
+
             +ForEach(
                 variable = variable,
-                provider = Use(
-                    target = readBufferedReader,
-                    action = Use(
-                        target = FunctionCall(
-                            KobolIRTree.Types.Function(
-                                "lineSequence"
-                            ) {},
-                            parameters = emptyList()
-                        ),
-                        action = FunctionCall(
-                            KobolIRTree.Types.Function(
-                                "decode",
-                                topLevel = true,
-                                packageName = "app.softwork.serialization.flf"
-                            ) {},
-                            parameters = listOf(klass.serializer())
-                        ),
-                    )
-                ),
+                provider = when (read.file.type) {
+                    LineSequential ->
+                        readBufferedReader use lineSequence() use decode(klass.serializer())
+
+                    Sequential ->
+                        readBufferedReader use decode(klass.serializer(), Format("".l))
+                },
                 statements = read.action.toIR(),
                 comments = read.comments
             )
@@ -194,7 +180,7 @@ public class KotlinxSerialization(
         action = FunctionCall(
             function = KobolIRTree.Types.Function(
                 name = "serializer",
-                returnType = KobolIRTree.Types.Type.Void,
+                returnType = Void,
             ) {},
             parameters = emptyList()
         ),
@@ -208,7 +194,10 @@ public class KotlinxSerialization(
             nullable = false
         )
         val append = KobolIRTree.Types.Function(
-            name = "append",
+            name = when (write.file.type) {
+                Sequential -> "append"
+                LineSequential -> "appendLine"
+            },
             topLevel = true,
             packageName = "app.softwork.serialization.flf"
         ) {}
@@ -220,10 +209,8 @@ public class KotlinxSerialization(
             isObject = true,
             isData = false,
         )
+        val create by function { }
 
-        +(readBufferedWriter use append.call(listOf(
-            klass.serializer(),
-            (Static(klass) use (function("create") {} call emptyList())))
-        ))
+        +(readBufferedWriter use append(klass.serializer(), (Static(klass) use create())))
     }
 }

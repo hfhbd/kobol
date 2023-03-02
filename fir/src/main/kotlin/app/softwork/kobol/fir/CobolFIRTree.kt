@@ -65,11 +65,13 @@ public data class CobolFIRTree(
                 val files: List<File> = emptyList(),
                 val comments: List<String> = emptyList()
             ) {
+                // TODO: Use only one file class
                 @Serializable
                 public data class File(
                     val file: String,
                     val path: String,
                     val fileStatus: String?,
+                    val type: DataTree.File.FileType,
                     val comments: List<String> = emptyList()
                 )
             }
@@ -89,8 +91,14 @@ public data class CobolFIRTree(
             val description: FileDescription,
             val records: List<WorkingStorage.Record>,
             val fileStatus: String?,
-            val filePath: String
+            val filePath: String,
+            val type: FileType,
         ) {
+            @Serializable
+            public enum class FileType {
+                Sequential, LineSequential
+            }
+            
             val recordName: String = records.map { it.name }.let {
                 val name = it.distinct()
                 name.singleOrNull() ?: error("Different Record names found for file $name: $it")

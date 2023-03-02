@@ -65,7 +65,8 @@ class CobolParserTest {
                             InputOutput.FileControl.File(
                                 file = "FOO",
                                 path = "A",
-                                fileStatus = "EIN"
+                                fileStatus = "EIN",
+                                type = File.FileType.Sequential,
                             )
                         )
                     )
@@ -80,6 +81,7 @@ class CobolParserTest {
                         ),
                         filePath = "A",
                         fileStatus = "EIN",
+                        type = File.FileType.Sequential,
                         records = build {
                             +Record("BAR-1") {
                                 +StringElementar(
@@ -230,11 +232,13 @@ class CobolParserTest {
                                     file = "FOO-FILE",
                                     path = "FOO",
                                     fileStatus = "FOO-STATUS",
+                                    type = File.FileType.Sequential,
                                     comments = listOf("FOO I", "FOO II")
                                 ),
                                 InputOutput.FileControl.File(
                                     file = "FOO-FILE2",
                                     path = "FOO",
+                                    type = File.FileType.Sequential,
                                     fileStatus = "FOO-STATUS"
                                 )
                             ), comments = listOf("FILE I", "FILE II")
@@ -253,6 +257,7 @@ class CobolParserTest {
                             ),
                             filePath = "FOO",
                             fileStatus = "FOO-STATUS",
+                            type = File.FileType.Sequential,
                             records = listOf(Record(name = "F", elements = emptyList()))
                         )
                     ),

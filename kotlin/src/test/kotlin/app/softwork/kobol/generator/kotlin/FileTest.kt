@@ -16,9 +16,140 @@ class FileTest {
         |000210 INPUT-OUTPUT SECTION.
         |000220 FILE-CONTROL.
         |000240     SELECT EIN           ASSIGN A
-        |000250                             FILE STATUS EIN-STATUS.
+        |000250                          FILE STATUS EIN-STATUS.
         |000240     SELECT AUS           ASSIGN B
-        |000250                             FILE STATUS AUS-STATUS.
+        |000250                          FILE STATUS AUS-STATUS.
+        |000330 DATA DIVISION.
+        |000350 FILE SECTION.
+        |000380 FD  EIN
+        |000390     RECORDING               V
+        |000400     LABEL RECORD            STANDARD
+        |000410     DATA RECORD             EB1-EIN.
+        |000420
+        |000430 01  EB1-EIN.
+        |000440     05 FILLER               PIC X(1).
+        |000380 FD  AUS
+        |000400     LABEL RECORD            STANDARD
+        |000390     RECORDING               V
+        |000410     DATA RECORD             EB1-AUS.
+        |000420
+        |000430 01  EB1-AUS.
+        |000440     05 FILLER               PIC X(1).
+        |000440     05 FOO                  PIC S9(1) SIGN IS LEADING SEPARATE.
+        |123455 WORKING-STORAGE SECTION.
+        |123456 77 FI PIC X(1).
+        |123456 PROCEDURE DIVISION.
+        |123456 OPEN INPUT EIN
+        |123456 OPEN OUTPUT AUS
+        |123456 READ EIN
+        |123456   AT END
+        |123456     DISPLAY "HELLO " FI 
+        |123456   NOT AT END
+        |123456     MOVE FILLER OF EB1-EIN TO FI
+        |123456     MOVE FILLER OF EB1-EIN TO FILLER OF EB1-AUS
+        |123456     WRITE EB1-AUS
+        |123456 END-READ
+        |123456 CLOSE EIN.
+        |123456 CLOSE AUS.
+        """.trimMargin().toIR(
+            firPlugins = listOf(NullableToZero()),
+            fileConverter = {
+                JavaFilesKotlin()
+            }, serialization = {
+                KotlinxSerialization(it)
+            })
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+        package test
+        
+        import app.softwork.serialization.flf.Ebcdic
+        import app.softwork.serialization.flf.Ebcdic.Format
+        import app.softwork.serialization.flf.FixedLength
+        import app.softwork.serialization.flf.FixedLengthFormat
+        import app.softwork.serialization.flf.append
+        import app.softwork.serialization.flf.decode
+        import java.io.BufferedReader
+        import java.io.BufferedWriter
+        import java.io.File
+        import kotlin.Int
+        import kotlin.String
+        import kotlin.Unit
+        import kotlin.text.charset
+        import kotlinx.serialization.ExperimentalSerializationApi
+        import kotlinx.serialization.Serializable
+        
+        @ExperimentalSerializationApi
+        @Serializable
+        public data class `EB1-EIN`(
+          @FixedLength(1)
+          public val FILLER: String,
+        ) {
+          public companion object {
+            public var FILLER: String = ""
+        
+            public fun create(): `EB1-EIN` {
+              return `EB1-EIN`(FILLER)
+            }
+          }
+        }
+        
+        @ExperimentalSerializationApi
+        @Serializable
+        public data class `EB1-AUS`(
+          @FixedLength(1)
+          public val FILLER: String,
+          @Ebcdic(Format.Zoned)
+          @FixedLength(1)
+          public val FOO: Int,
+        ) {
+          public companion object {
+            public var FILLER: String = ""
+        
+            public var FOO: Int = 0
+        
+            public fun create(): `EB1-AUS` {
+              return `EB1-AUS`(FILLER, FOO)
+            }
+          }
+        }
+        
+        public var FI: String = ""
+        
+        public fun main(): Unit {
+          val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1047"))
+          val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1047"))
+          for (`EB1-EIN` in EIN.decode(`EB1-EIN`.serializer(), FixedLengthFormat(""))) {
+            FI = `EB1-EIN`.FILLER
+            `EB1-AUS`.FILLER = `EB1-EIN`.FILLER
+            AUS.append(`EB1-AUS`.serializer(), `EB1-AUS`.create())
+          }
+          println("HELLO ${'$'}FI")
+          EIN.close()
+          AUS.close()
+        }
+        
+        """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
+    
+    @Test
+    fun lineSequential() {
+        //language=cobol
+        val input = """
+        |000010 IDENTIFICATION DIVISION.
+        |000030 PROGRAM-ID.                 TEST.
+        |000160 ENVIRONMENT DIVISION.
+        |000210 INPUT-OUTPUT SECTION.
+        |000220 FILE-CONTROL.
+        |000240     SELECT EIN           ASSIGN A
+        |111111                          ORGANIZATION IS LINE SEQUENTIAL
+        |000250                          FILE STATUS EIN-STATUS.
+        |000240     SELECT AUS           ASSIGN B
+        |111111                          ORGANIZATION IS LINE SEQUENTIAL
+        |000250                          FILE STATUS AUS-STATUS.
         |000330 DATA DIVISION.
         |000350 FILE SECTION.
         |000380 FD  EIN
@@ -65,7 +196,7 @@ class FileTest {
         package test
         
         import app.softwork.serialization.flf.FixedLength
-        import app.softwork.serialization.flf.append
+        import app.softwork.serialization.flf.appendLine
         import app.softwork.serialization.flf.decode
         import java.io.BufferedReader
         import java.io.BufferedWriter
@@ -114,7 +245,7 @@ class FileTest {
           for (`EB1-EIN` in EIN.lineSequence().decode(`EB1-EIN`.serializer())) {
             FI = `EB1-EIN`.FILLER
             `EB1-AUS`.FILLER = `EB1-EIN`.FILLER
-            AUS.append(`EB1-AUS`.serializer(), `EB1-AUS`.create())
+            AUS.appendLine(`EB1-AUS`.serializer(), `EB1-AUS`.create())
           }
           println("HELLO ${'$'}FI")
           EIN.close()
@@ -134,8 +265,7 @@ class FileTest {
         |000030 ENVIRONMENT DIVISION.
         |000040 INPUT-OUTPUT SECTION.
         |000050 FILE-CONTROL.
-        |000060     SELECT TRANSACTIONS     ASSIGN T
-        |000070                             ORGANIZATION IS LINE SEQUENTIAL.
+        |000060     SELECT TRANSACTIONS     ASSIGN T.
         |000080     SELECT BALANCES         ASSIGN B
         |000090                             FILE STATUS B-STATUS.
         |000100 DATA DIVISION.
@@ -144,7 +274,7 @@ class FileTest {
         |000170 01  TRANSACTION.
         |000180     02 FIRSTNAME            PIC X(10).
         |000190     02 LASTNAME             PIC X(10).
-        |000190     02 TRANSACTION          PIC S9(6) SIGN IS LEADING SEPARATE.
+        |000190     02 TRANSACTION          PIC S9(6).
         |000191
         |000200 FD  BALANCES
         |000210     LABEL RECORD            STANDARD
@@ -200,6 +330,7 @@ class FileTest {
         import app.softwork.serialization.flf.Ebcdic
         import app.softwork.serialization.flf.Ebcdic.Format
         import app.softwork.serialization.flf.FixedLength
+        import app.softwork.serialization.flf.FixedLengthFormat
         import app.softwork.serialization.flf.append
         import app.softwork.serialization.flf.decode
         import java.io.BufferedReader
@@ -269,7 +400,7 @@ class FileTest {
         public fun main(): Unit {
           val TRANSACTIONS: BufferedReader = File("TRANSACTIONS").bufferedReader(charset("IBM-1047"))
           val BALANCES: BufferedWriter = File("BALANCES").bufferedWriter(charset("IBM-1047"))
-          for (TRANSACTION in TRANSACTIONS.lineSequence().decode(TRANSACTION.serializer())) {
+          for (TRANSACTION in TRANSACTIONS.decode(TRANSACTION.serializer(), FixedLengthFormat(""))) {
             COUNT += 0
             if (TRANSACTION.FIRSTNAME == BALANCE.FIRSTNAME && TRANSACTION.LASTNAME == BALANCE.LASTNAME) {
               BALANCE.BALANCE += TRANSACTION.TRANSACTION
