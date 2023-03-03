@@ -5,6 +5,7 @@ import app.softwork.kobol.flowgraph.*
 import app.softwork.kobol.generator.java.*
 import app.softwork.kobol.generator.kotlin.*
 import app.softwork.kobol.java.java8.*
+import app.softwork.kobol.plugins.ir.optimizations.*
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import java.io.*
@@ -23,6 +24,7 @@ class KobolGradlePluginTest {
         ExecuteKobol(
             input = setOf(cobolFile),
             outputFolder = tmp,
+            irPlugins = listOf(NoSynthetics()),
             codeGeneratorFactory = KotlinCodeGeneratorFactory()
         )
         val packageFolder = File(tmp, "kotlin/hello")
@@ -41,7 +43,7 @@ class KobolGradlePluginTest {
         ExecuteKobol(
             input = setOf(cobolFile),
             outputFolder = tmp,
-            irPlugins = listOf(Java8Plugin()),
+            irPlugins = listOf(Java8Plugin(), NoSynthetics()),
             codeGeneratorFactory = JavaCodeGeneratorFactory()
         )
         val packageFolder = File(tmp, "java/hello")

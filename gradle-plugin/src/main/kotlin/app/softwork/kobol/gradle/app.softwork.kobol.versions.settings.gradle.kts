@@ -35,5 +35,6 @@ dependencyResolutionManagement.versionCatalogs.register("kobol") {
     plugin("readonlyvariables")
     plugin("statistic")
     plugin("useparameters")
-    plugin("keepprocess")
+    plugin("exitprocess")
+    plugin("nosynthetic")
 }

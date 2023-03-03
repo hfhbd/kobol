@@ -2,14 +2,15 @@ package app.softwork.kobol.ir
 
 import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
-import app.softwork.kobol.fir.l
 import app.softwork.kobol.fir.CobolFIRTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.kobol.fir.l
 import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
+import app.softwork.kobol.plugins.ir.ExitProcessControlFlowHandlingFactory.*
 import kotlin.test.*
 
 class ToIrTest {
@@ -24,11 +25,11 @@ class ToIrTest {
                         +Display("FOO".l)
                         +Perform("BAR")
                         +Display("FOO2".l)
-                        +GoBack()
+                        +StopRun()
                     }
                     +Section("BAR") {
                         +Display("BAR".l)
-                        +GoBack()
+                        +StopRun()
                     }
                     +Section("C") {
                         +Display("C".l)
@@ -42,7 +43,7 @@ class ToIrTest {
         }
         val bar = Function("BAR") {
             +Print(StringLiteral("BAR"), emptyList())
-            +Exit(emptyList())
+            +exit()
         }
 
         val foo = Function(
@@ -54,7 +55,7 @@ class ToIrTest {
             +Print(StringLiteral("FOO"), emptyList())
             +FunctionCall(bar.declaration(), emptyList(), emptyList())
             +Print(StringLiteral("FOO2"), emptyList())
-            +Exit(emptyList())
+            +exit()
         }
 
         val ir = KobolIRTree(
@@ -76,8 +77,13 @@ class ToIrTest {
                 +foo
                 +bar
                 +c
+                +RC
             }
         )
-        assertEquals(expected = ir, actual = fir.toIRTree())
+        assertEquals(expected = ir, actual = fir.toIRTree(
+            controlFlowHandling = {
+                ExitProcessControlFlowHandling
+            }
+        ))
     }
 }

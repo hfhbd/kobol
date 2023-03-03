@@ -3,12 +3,12 @@ package app.softwork.kobol.ir
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
-import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Add
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.ForEach
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.If
 import app.softwork.kobol.ir.KobolIRTree.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.*
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
@@ -19,12 +19,14 @@ public fun File.toIR(
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
+    controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
     irPlugins: List<IrPlugin> = emptyList(),
 ): KobolIRTree = setOf(this).toIR(
     firPlugins,
     fileConverter,
     serialization,
     sqlPrecompiler,
+    controlFlowHandling,
     irPlugins
 ).single()
 
@@ -33,12 +35,13 @@ public fun Iterable<File>.toIR(
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
+    controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
     irPlugins: Iterable<IrPlugin> = emptyList(),
 ): Iterable<KobolIRTree> {
     val firTrees = toTree(firPlugins)
 
     var irTrees = firTrees.map {
-        it.toIRTree(fileConverter, serialization, sqlPrecompiler)
+        it.toIRTree(fileConverter, serialization, sqlPrecompiler, controlFlowHandling)
     }.associateBy { it.id }
 
     for (irPlugin in irPlugins) {
@@ -55,12 +58,14 @@ public fun Iterable<File>.toIR(
 public fun CobolFIRTree.toIRTree(
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
-    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null
+    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
+    controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
 ): KobolIRTree {
     val name = id.programID.toKotlinName()
     val fileHandler = fileConverter?.invoke(name)
     val serialization = serialization?.invoke(name)
     val sqlCompiler = sqlPrecompiler?.invoke(name)
+    val controlFlowHandling = controlFlowHandling?.invoke(name)
 
     val dataTypes = mutableListOf<Types.Type>()
 
@@ -100,11 +105,12 @@ public fun CobolFIRTree.toIRTree(
     val externalIR = external.toIR(dataTypes, name)
 
     val (main, functions) = procedure.functions(
-        dataTypes + externalIR, sqlInit, fileHandler, serialization, sqlCompiler
+        dataTypes + externalIR, sqlInit, fileHandler, serialization, sqlCompiler, controlFlowHandling
     )
     sqlCompiler?.close()
     serialization?.close()
     fileHandler?.close()
+    controlFlowHandling?.close()
     return KobolIRTree(
         id = fileName,
         name = name,
@@ -153,15 +159,29 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
             is Literal -> "expr"
             is Variable -> target.name
             is DoubleExpression.DoubleVariable.Use -> variable.target.name
-        }, value = null, mutable = false, private = false, comments = emptyList(), const = true, length = -1, isSigned = false,
+        },
+        value = null,
+        mutable = false,
+        private = false,
+        comments = emptyList(),
+        const = true,
+        length = -1,
+        isSigned = false,
     )
 
     is IntExpression -> IntDeclaration(
         name = when (this) {
             is Literal -> "expr"
             is Variable -> target.name
-            is IntExpression.IntVariable.Use -> variable.target.name
-        }, value = null, mutable = false, private = false, comments = emptyList(), const = true, length = -1, isSigned = false
+            is IntVariable.Use -> variable.target.name
+        },
+        value = null,
+        mutable = false,
+        private = false,
+        comments = emptyList(),
+        const = true,
+        length = -1,
+        isSigned = false
     )
 
     is StringExpression -> StringDeclaration(
@@ -184,7 +204,8 @@ private fun CobolFIRTree.ProcedureTree.functions(
     initSql: List<Types.Function.Statement>,
     fileHandler: FileHandling?,
     serialization: SerializationPlugin?,
-    sqlPrecompiler: SqlPrecompiler?
+    sqlPrecompiler: SqlPrecompiler?,
+    controlFlowHandling: ControlFlowHandling?,
 ): Pair<Types.Function, List<Types.Function>> {
     val sections = sections.map {
         Types.Function(
@@ -198,7 +219,16 @@ private fun CobolFIRTree.ProcedureTree.functions(
     }
 
     val topLevelStatements =
-        initSql + topLevel.flatMap { it.toIR(types, sections, fileHandler, serialization, sqlPrecompiler) }
+        initSql + topLevel.flatMap {
+            it.toIR(
+                types,
+                sections,
+                fileHandler,
+                serialization,
+                sqlPrecompiler,
+                controlFlowHandling
+            )
+        }
 
     val main = Types.Function(
         name = "main", parameters = emptyList(), returnType = Void, body = topLevelStatements + sections.map {
@@ -212,7 +242,16 @@ private fun CobolFIRTree.ProcedureTree.functions(
             name = it.name,
             parameters = emptyList(),
             returnType = Void,
-            body = it.statements.flatMap { it.toIR(types, sections, fileHandler, serialization, sqlPrecompiler) },
+            body = it.statements.flatMap {
+                it.toIR(
+                    types,
+                    sections,
+                    fileHandler,
+                    serialization,
+                    sqlPrecompiler,
+                    controlFlowHandling
+                )
+            },
             private = false,
             doc = it.comments
         )
@@ -261,7 +300,7 @@ private fun CobolFIRTree.ProcedureTree.Expression.NumberExpression.toIR(types: L
         is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberLiteral -> {
             val isInt = value.isInt()
             if (isInt != null) {
-                IntExpression.IntLiteral(isInt)
+                IntLiteral(isInt)
             } else {
                 DoubleExpression.DoubleLiteral(value)
             }
@@ -271,7 +310,7 @@ private fun CobolFIRTree.ProcedureTree.Expression.NumberExpression.toIR(types: L
             when (val declaration = types.declaration(target)) {
                 is Declaration -> {
                     when (target.formatter.numberType) {
-                        Formatter.NumberType.Int -> IntExpression.IntVariable(
+                        Formatter.NumberType.Int -> IntVariable(
                             declaration as IntDeclaration
                         )
 
@@ -281,7 +320,7 @@ private fun CobolFIRTree.ProcedureTree.Expression.NumberExpression.toIR(types: L
                     }
                 }
 
-                is IntExpression.IntVariable.Use -> {
+                is IntVariable.Use -> {
                     declaration
                 }
 
@@ -340,8 +379,8 @@ private fun List<Types.Type>.declaration(target: CobolFIRTree.DataTree.WorkingSt
                 is ObjectDeclaration -> TODO()
                 is BooleanDeclaration -> TODO()
                 is DoubleDeclaration -> TODO()
-                is IntDeclaration -> IntExpression.IntVariable.Use(
-                    type.variable(), member.variable() as IntExpression.IntVariable, emptyList()
+                is IntDeclaration -> IntVariable.Use(
+                    type.variable(), member.variable() as IntVariable, emptyList()
                 )
 
                 is StringDeclaration -> StringExpression.StringVariable.Use(
@@ -360,7 +399,8 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     sections: List<Types.Function>,
     fileHandler: FileHandling?,
     serialization: SerializationPlugin?,
-    sqlPrecompiler: SqlPrecompiler?
+    sqlPrecompiler: SqlPrecompiler?,
+    controlFlowHandling: ControlFlowHandling?
 ): List<Types.Function.Statement> = when (this) {
     is Move -> listOf(
         Assignment(
@@ -369,6 +409,7 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
             comments = comments
         )
     )
+
     is Add -> listOf(
         Math(
             declaration = types.declaration(target),
@@ -377,6 +418,7 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
             comments = comments
         )
     )
+
     is Sub -> listOf(
         Math(
             declaration = types.declaration(target),
@@ -413,7 +455,16 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
             counter = types.declaration(target = variable) as NumberDeclaration,
             from = from.toIR(types),
             step = by?.toIR(types),
-            statements = statements.flatMap { it.toIR(types, sections, fileHandler, serialization, sqlPrecompiler) },
+            statements = statements.flatMap {
+                it.toIR(
+                    types,
+                    sections,
+                    fileHandler,
+                    serialization,
+                    sqlPrecompiler,
+                    controlFlowHandling
+                )
+            },
             condition = BooleanExpression.Not(until.toIR(types)),
             comments = comments
         )
@@ -422,13 +473,25 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     is CobolFIRTree.ProcedureTree.Statement.While -> listOf(
         Types.Function.Statement.While(
             condition = BooleanExpression.Not(until.toIR(types)),
-            statements = statements.flatMap { it.toIR(types, sections, fileHandler, serialization, sqlPrecompiler) },
+            statements = statements.flatMap {
+                it.toIR(
+                    types,
+                    sections,
+                    fileHandler,
+                    serialization,
+                    sqlPrecompiler,
+                    controlFlowHandling
+                )
+            },
             comments = comments
         )
     )
 
     is Continue -> emptyList()
-    is GoBack -> listOf(Exit(comments))
+    is GoBack -> requireNotNull(controlFlowHandling) { "Got GoBack without ControlFlowHandling plugin" }.goBack(this)
+    is StopRun -> requireNotNull(controlFlowHandling) { "Got StopRun without ControlFlowHandling plugin" }
+        .stopRun(this, (types.declaration(returnCodeElementar) as IntDeclaration).variable() as IntVariable)
+
     is Call -> {
         val `class` = types.single {
             when (it) {
@@ -458,10 +521,19 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     is If -> listOf(
         Types.Function.Statement.If(
             condition = condition.toIR(types),
-            statements = statements.flatMap { it.toIR(types, sections, fileHandler, serialization, sqlPrecompiler) },
+            statements = statements.flatMap {
+                it.toIR(
+                    types,
+                    sections,
+                    fileHandler,
+                    serialization,
+                    sqlPrecompiler,
+                    controlFlowHandling
+                )
+            },
             elseStatements = elseStatements.flatMap {
                 it.toIR(
-                    types, sections, fileHandler, serialization, sqlPrecompiler
+                    types, sections, fileHandler, serialization, sqlPrecompiler, controlFlowHandling
                 )
             },
             comments = comments
@@ -471,7 +543,16 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     is Eval -> {
         val elseCase = other?.let {
             When.Else(
-                action = it.action.flatMap { it.toIR(types, sections, fileHandler, serialization, sqlPrecompiler) },
+                action = it.action.flatMap {
+                    it.toIR(
+                        types,
+                        sections,
+                        fileHandler,
+                        serialization,
+                        sqlPrecompiler,
+                        controlFlowHandling
+                    )
+                },
                 comments = it.comments
             )
         }
@@ -482,7 +563,7 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
                         When.Single.Case(
                             condition = it.conditions.single().toIR(types), action = it.action.flatMap {
                                 it.toIR(
-                                    types, sections, fileHandler, serialization, sqlPrecompiler
+                                    types, sections, fileHandler, serialization, sqlPrecompiler, controlFlowHandling
                                 )
                             }, comments = it.comments
                         )
@@ -503,7 +584,7 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
                                     BooleanExpression.And(left, right)
                                 }, action = it.action.flatMap {
                                 it.toIR(
-                                    types, sections, fileHandler, serialization, sqlPrecompiler
+                                    types, sections, fileHandler, serialization, sqlPrecompiler, controlFlowHandling
                                 )
                             }, comments = it.comments
 
@@ -517,7 +598,7 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     is Read -> {
         requireNotNull(serialization).readSequence(this) {
             flatMap {
-                it.toIR(types, sections, fileHandler, serialization, sqlPrecompiler)
+                it.toIR(types, sections, fileHandler, serialization, sqlPrecompiler, controlFlowHandling)
             }
         }
     }
@@ -536,6 +617,7 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
         private = false,
         comments = comments,
         const = false,
+        synthetic = synthetic,
         length = formatter.length()
     )
 
@@ -543,13 +625,14 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
         when (formatter.numberType) {
             Formatter.NumberType.Int -> IntDeclaration(
                 name = name,
-                value = value?.let { IntExpression.IntLiteral(it.toInt()) },
+                value = value?.let { IntLiteral(it.toInt()) },
                 mutable = true,
                 private = false,
                 comments = comments,
                 const = false,
                 length = formatter.length(),
-                isSigned = signed
+                isSigned = signed,
+                synthetic = synthetic
             )
 
             Formatter.NumberType.Double -> DoubleDeclaration(
@@ -560,7 +643,8 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
                 comments = comments,
                 const = false,
                 length = formatter.length(),
-                isSigned = signed
+                isSigned = signed,
+                synthetic = synthetic
             )
         }
     }

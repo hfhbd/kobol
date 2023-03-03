@@ -2,6 +2,7 @@ package app.softwork.kobol.generator.java
 
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.java.java8.*
+import app.softwork.kobol.plugins.ir.optimizations.*
 import com.squareup.javapoet.*
 import java.io.*
 import kotlin.test.*
@@ -49,8 +50,11 @@ class HelloWorldJavaTest {
     }
 }
 
-internal fun String.toIR() =
-    File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR()
+internal fun String.toIR(controlFlowHandling: ((String) -> ControlFlowHandling)? = null) =
+    File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR(
+        irPlugins = listOf(NoSynthetics()),
+        controlFlowHandling = controlFlowHandling
+    )
 
 internal fun generate(cobol: KobolIRTree, java8: Boolean): List<JavaFile> = generateJava(
     cobol.let {

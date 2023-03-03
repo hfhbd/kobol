@@ -7,21 +7,17 @@ import kotlin.test.*
 
 class InvalidTest {
     @Test
-    fun noDataDivision() {
+    fun returnCodeFound() {
         val input = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
         123456 PROCEDURE                   DIVISION.
-        123456     DISPLAY "HELLO"WORLD
-        123456     MOVE "42" TO WORLD
-        123456     DISPLAY "ANSWER"WORLD.
+        123456     MOVE "42" TO RETURN-CODE.
         """.trimIndent()
 
-        val error = assertFailsWith<IllegalStateException> {
-            input.toTree()
-        }
-        val message = assertNotNull(error.message)
-        assertEquals("No DATA DIVISION found", message)
+        assertNotNull(input.toTree().data.workingStorage.singleOrNull { 
+            it is CobolFIRTree.DataTree.WorkingStorage.Elementar && it.name == "RETURN-CODE" 
+        })
     }
 
     @Test

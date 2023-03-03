@@ -12,6 +12,8 @@ dependencies {
     }
     testImplementation(kotlin("test"))
     testImplementation(projects.java.javaJava8)
+    testImplementation(projects.plugins.pluginNosynthetic)
+    testImplementation(projects.plugins.pluginExitprocess)
 }
 
 serviceLoaders.register("app.softwork.kobol.ir.CodeGeneratorFactory") {

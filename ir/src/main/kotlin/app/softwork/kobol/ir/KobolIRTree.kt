@@ -95,6 +95,7 @@ public data class KobolIRTree(
                     public sealed interface Primitive : Declaration {
                         public val const: Boolean
                         public val length: Int
+                        public val synthetic: Boolean
                     }
 
                     @Serializable
@@ -106,6 +107,7 @@ public data class KobolIRTree(
                         override val private: Boolean,
                         override val comments: List<String> = emptyList(),
                         override val const: Boolean = false,
+                        override val synthetic: Boolean = false,
                         override val length: Int,
                         override val annotations: Map<String, List<Expression>> = emptyMap()
                     ) : Primitive
@@ -124,6 +126,7 @@ public data class KobolIRTree(
                         override val private: Boolean,
                         override val comments: List<String> = emptyList(),
                         override val const: Boolean,
+                        override val synthetic: Boolean = false,
                         override val length: Int,
                         override val isSigned: Boolean,
                         override val annotations: Map<String, List<Expression>> = emptyMap()
@@ -138,6 +141,7 @@ public data class KobolIRTree(
                         override val private: Boolean,
                         override val comments: List<String> = emptyList(),
                         override val const: Boolean,
+                        override val synthetic: Boolean = false,
                         override val length: Int,
                         override val isSigned: Boolean,
                         override val annotations: Map<String, List<Expression>> = emptyMap()
@@ -152,6 +156,7 @@ public data class KobolIRTree(
                         override val private: Boolean,
                         override val comments: List<String> = emptyList(),
                         override val const: Boolean,
+                        override val synthetic: Boolean = false,
                         override val length: Int,
                         override val annotations: Map<String, List<Expression>> = emptyMap()
                     ) : Primitive
@@ -219,11 +224,18 @@ public data class KobolIRTree(
 
                 @Serializable
                 public data class Exit(
+                    val returnVariable: Expression.NumberExpression.IntExpression,
                     override val comments: List<String> = emptyList()
                 ) : Statement
 
                 @Serializable
                 public data class Return(
+                    val expr: Expression,
+                    override val comments: List<String> = emptyList()
+                ) : Statement
+                
+                @Serializable
+                public data class Throw(
                     val expr: Expression,
                     override val comments: List<String> = emptyList()
                 ) : Statement

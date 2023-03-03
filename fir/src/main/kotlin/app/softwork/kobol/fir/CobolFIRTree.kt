@@ -15,7 +15,7 @@ public data class CobolFIRTree(
     val fileComments: List<String> = emptyList(),
     val id: ID,
     val env: EnvTree? = null,
-    val data: DataTree? = null,
+    val data: DataTree = returnCode,
     val procedure: ProcedureTree
 ) {
     @Serializable
@@ -160,6 +160,7 @@ public data class CobolFIRTree(
                     override val formatter: Formatter,
                     override val value: String? = null,
                     val occurs: Occurs? = null,
+                    val synthetic: Boolean = false,
                     override val comments: List<String> = emptyList()
                 ) : Elementar {
                     init {
@@ -277,7 +278,8 @@ public data class CobolFIRTree(
                     override val comments: List<String> = emptyList(),
                     val signed: Boolean = false,
                     val compressed: Compressed? = null,
-                    val binary: Boolean = false
+                    val binary: Boolean = false,
+                    val synthetic: Boolean = false,
                 ) : Elementar {
                     @Serializable
                     public enum class Compressed {
@@ -399,6 +401,11 @@ public data class CobolFIRTree(
 
             @Serializable
             public data class GoBack(
+                override val comments: List<String> = emptyList()
+            ) : Statement
+            
+            @Serializable
+            public data class StopRun(
                 override val comments: List<String> = emptyList()
             ) : Statement
 

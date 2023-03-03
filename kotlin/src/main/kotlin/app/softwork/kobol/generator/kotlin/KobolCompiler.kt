@@ -52,7 +52,7 @@ private fun KobolIRTree.Types.Function.toKotlin(packageName: String, isMain: Boo
             addKdoc(doc.joinToString(separator = "\n"))
             if (isMain) {
                 returns(UNIT)
-            } else if (body.any { it is Exit }) {
+            } else if (body.any { it is Exit || it is Throw }) {
                 returns(NOTHING)
             } else {
                 returns(returnType.KType())
@@ -115,7 +115,12 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
         is Declaration -> code.add(CodeBlock.of("%L", createProperty(packageName)))
         is FunctionCall -> code.add("%L", call(packageName))
 
-        is Exit -> code.add("%M(0)", MemberName("kotlin.system", "exitProcess", true))
+        is Exit -> code.add(
+            "%M(%L)",
+            MemberName("kotlin.system", "exitProcess", true),
+            returnVariable.toTemplate(packageName)
+        )
+        is Throw -> code.add("throws %L", expr.toTemplate(packageName))
         is Return -> code.add("return %L", expr.toTemplate(packageName))
         is LoadExternal -> code.add("System.loadLibrary(\"$libName\")")
         is DoWhile -> code.beginControlFlow("do").add("%L\n", functionCall.call(packageName)).unindent()

@@ -110,6 +110,7 @@ class CobolParserTest {
                         +fooRPICA
                     }
                     +StringElementar(name = "BAR", recordName = null, formatter = Simple(3))
+                    +returnCodeElementar
                 }), procedure = ProcedureTree(topLevel = build {
                 +Display(StringVariable(target = world))
                 +Display(StringVariable(target = foo))
@@ -141,7 +142,10 @@ class CobolParserTest {
                 id = ID(
                     programID = "HELLO"
                 ),
-                data = DataTree(workingStorage = listOf(world)),
+                data = DataTree(workingStorage = build { 
+                    +world
+                    +returnCodeElementar
+                }),
                 procedure = ProcedureTree(topLevel = build {
                     +Display(
                         Concat(
@@ -261,7 +265,9 @@ class CobolParserTest {
                             records = listOf(Record(name = "F", elements = emptyList()))
                         )
                     ),
-                    workingStorage = emptyList(), linkingSection = emptyList()
+                    workingStorage = build {
+                        +returnCodeElementar
+                    }, linkingSection = emptyList()
                 ),
                 procedure = ProcedureTree(
                     topLevel = listOf(
@@ -331,6 +337,7 @@ class CobolParserTest {
                         +NumberElementar("FOOPIC", recordName = "RPICA", formatter = Simple(3))
                     }
                     +NumberElementar("FOO9", recordName = null, formatter = Simple(3))
+                    +returnCodeElementar
                 }),
                 procedure = ProcedureTree(
                     topLevel = build {
@@ -370,6 +377,7 @@ class CobolParserTest {
                 id = ID(programID = "HELLO"),
                 data = DataTree(workingStorage = build {
                     +world2
+                    +returnCodeElementar
                 }),
                 procedure = ProcedureTree(topLevel = build {
                     +Perform("FOO", until = Equals(NumberVariable(world2), 2.l))
@@ -495,6 +503,7 @@ class CobolParserTest {
                         +sqlState
                     }
                     +foo
+                    +returnCodeElementar
                 }),
                 procedure = ProcedureTree(topLevel = build {
                     +ProcedureTree.Statement.Sql(
