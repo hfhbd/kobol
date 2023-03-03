@@ -3,6 +3,7 @@ package app.softwork.kobol.generator.kotlin
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Math.Operation.*
 import com.squareup.kotlinpoet.*
 
 internal fun generate(tree: KobolIRTree): FileSpec {
@@ -103,7 +104,13 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
         )
 
         is Assignment -> code.add("%L = %L", declaration.toDec(packageName), newValue.toTemplate(packageName))
-        is Add -> code.add("%L += %L", declaration.toDec(packageName), valueToAdd.toTemplate(packageName))
+        is Math -> {
+            val op = when(op) {
+                Add -> "+="
+                Sub -> "-="
+            }
+            code.add("%L $op %L", declaration.toDec(packageName), value.toTemplate(packageName))
+        }
         is Print -> code.println(this, packageName)
         is Declaration -> code.add(CodeBlock.of("%L", createProperty(packageName)))
         is FunctionCall -> code.add("%L", call(packageName))

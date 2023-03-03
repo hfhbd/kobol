@@ -89,7 +89,13 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
     }
     when (this) {
         is Assignment -> code.add("\$L = \$L;\n", declaration.dec(), newValue.toTemplate())
-        is Add -> code.add("\$L += \$L;\n", declaration.dec(), valueToAdd.toTemplate())
+        is Math -> {
+            val op = when (op) {
+                Math.Operation.Add -> "+="
+                Math.Operation.Sub -> "-="
+            }
+            code.add("\$L $op \$L;\n", declaration.dec(), value.toTemplate())
+        }
 
         is KobolIRTree.Expression.StringExpression.StringVariable.Use -> {
             val target = target.toTemplate()
