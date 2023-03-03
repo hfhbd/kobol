@@ -370,9 +370,18 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
         )
     )
     is Add -> listOf(
-        Types.Function.Statement.Add(
+        Math(
             declaration = types.declaration(target),
-            valueToAdd = value.toIR(types),
+            value = value.toIR(types),
+            op = Math.Operation.Add,
+            comments = comments
+        )
+    )
+    is Sub -> listOf(
+        Math(
+            declaration = types.declaration(target),
+            value = value.toIR(types),
+            op = Math.Operation.Sub,
             comments = comments
         )
     )

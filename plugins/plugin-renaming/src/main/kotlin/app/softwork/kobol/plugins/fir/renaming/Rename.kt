@@ -121,6 +121,10 @@ public abstract class Rename(
                     target = it.target.rename() as WorkingStorage.Elementar,
                     value = it.value.rename()
                 )
+                is CobolFIRTree.ProcedureTree.Statement.Sub -> it.copy(
+                    target = it.target.rename() as WorkingStorage.Elementar,
+                    value = it.value.rename()
+                )
 
                 is CobolFIRTree.ProcedureTree.Statement.Open -> it.copy(
                     file = it.file.rename()

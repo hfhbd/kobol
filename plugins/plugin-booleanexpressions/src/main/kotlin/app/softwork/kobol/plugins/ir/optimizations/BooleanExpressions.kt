@@ -42,7 +42,7 @@ private fun KobolIRTree.Types.Function.booleanExpressions() = copy(
 private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTree.Types.Function.Statement =
     when (this) {
         is KobolIRTree.Types.Function.Statement.Assignment -> copy(newValue = newValue.booleanExpressions())
-        is KobolIRTree.Types.Function.Statement.Add -> copy(valueToAdd = valueToAdd.booleanExpressions())
+        is KobolIRTree.Types.Function.Statement.Math -> copy(value = value.booleanExpressions())
         is KobolIRTree.Types.Function.Statement.Declaration -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.DoWhile -> booleanExpressions()
         is KobolIRTree.Types.Function.Statement.Exit -> this

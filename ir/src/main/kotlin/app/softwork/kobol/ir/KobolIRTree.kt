@@ -178,11 +178,18 @@ public data class KobolIRTree(
                 ) : Statement
                 
                 @Serializable
-                public data class Add(
+                public data class Math(
                     val declaration: Statement,
-                    val valueToAdd: Expression,
+                    val value: Expression,
+                    val op: Operation,
                     override val comments: List<String> = emptyList()
-                ) : Statement
+                ) : Statement {
+                    @Serializable
+                    public enum class Operation {
+                        Add, Sub, 
+                        // Multi, Div
+                    }
+                }
 
                 @Serializable
                 public data class Static(

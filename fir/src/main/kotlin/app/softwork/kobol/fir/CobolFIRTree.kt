@@ -331,6 +331,13 @@ public data class CobolFIRTree(
                 val value: Expression,
                 override val comments: List<String> = emptyList()
             ) : Statement
+            
+            @Serializable
+            public data class Sub(
+                val target: DataTree.WorkingStorage.Elementar,
+                val value: Expression,
+                override val comments: List<String> = emptyList()
+            ) : Statement
 
             @Serializable
             public data class Display(

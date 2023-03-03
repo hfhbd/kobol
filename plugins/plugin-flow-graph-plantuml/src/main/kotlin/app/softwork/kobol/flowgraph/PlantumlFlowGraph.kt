@@ -74,6 +74,7 @@ private fun StringBuilder.toUml(statement: CobolFIRTree.ProcedureTree.Statement)
 
             is Move -> +":MOVE ${value.toUml()} TO ${target.toUml()};"
             is Add -> +"${target.toUml()} += ${value.toUml()};"
+            is Sub -> +"${target.toUml()} -= ${value.toUml()};"
             is Perform -> {
                 val until = until
                 if (until == null) {
