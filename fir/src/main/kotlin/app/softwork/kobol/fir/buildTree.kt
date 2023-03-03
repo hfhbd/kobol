@@ -20,7 +20,7 @@ import com.intellij.testFramework.*
 public fun CobolFile.toTree(): CobolFIRTree {
     val id = program.idDiv.toID()
     val env = program.envDiv?.toEnv()
-    val data = program.dataDiv?.toData(env)
+    val data = program.dataDiv?.toData(env) ?: returnCode
     val procedure = program.procedureDiv.toProcedure(data)
 
     val fileComments = program.comments.asComments()
@@ -29,6 +29,19 @@ public fun CobolFile.toTree(): CobolFIRTree {
         fileName = name, id = id, env = env, data = data, procedure = procedure, fileComments = fileComments
     )
 }
+// https://www.ibm.com/docs/en/cobol-zos/6.3?topic=registers-return-code
+public val returnCodeElementar: NumberElementar = NumberElementar(
+    name = "RETURN-CODE",
+    recordName = null, 
+    value = 0.0,
+    formatter = Formatter.Simple(4),
+    signed = true,
+    synthetic = true,
+)
+
+internal val returnCode = DataTree(
+    workingStorage = listOf(returnCodeElementar) 
+)
 
 private fun CobolIdDiv.toID(): ID {
     val (programID, programmIDComments) = programIDClause.let { it.programIDID.varName.text to it.comments.asComments() }
@@ -146,7 +159,7 @@ private fun List<CobolRecordDef>.toRecords() = buildList {
 
 
 private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
-    val definitions = workingStorageSection?.stmList?.let {
+    val definitions: List<WorkingStorage> = workingStorageSection?.stmList?.let {
         buildList {
             var currentRecord: Record? = null
             for (stm in it) {
@@ -182,8 +195,10 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
                 }
             }
             currentRecord?.let { add(it) }
+
+            add(returnCodeElementar)
         }
-    }
+    } ?: listOf(returnCodeElementar)
     val linkage = linkingSection?.recordDefList?.toRecords()
 
     val fileSection = fileSection?.let {
@@ -225,7 +240,7 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
 
     return DataTree(
         fileSection = fileSection ?: emptyList(),
-        workingStorage = definitions ?: emptyList(),
+        workingStorage = definitions,
         linkingSection = linkage ?: emptyList(),
         comments = comments.asComments()
     )
@@ -331,7 +346,8 @@ private fun single(
         formatter = format,
         value = value?.drop(1)?.dropLast(1),
         comments = comments.asComments(),
-        occurs = occurs.toFir(previous)
+        occurs = occurs.toFir(previous),
+        synthetic = false
     )
 
     "9" -> {
@@ -457,10 +473,11 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statem
 
         proc.ctrl != null -> {
             val ctrl = proc.ctrl!!
-            when (ctrl.firstChild.elementType) {
-                CobolTypes.GOBACK -> listOf(GoBack(proc.comments.asComments()))
-                CobolTypes.CONTINUE -> listOf(Continue(proc.comments.asComments()))
-                else -> TODO()
+            when {
+                ctrl.ctrlGoBack != null -> listOf(GoBack(proc.comments.asComments()))
+                ctrl.ctrlContinue != null -> listOf(Continue(proc.comments.asComments()))
+                ctrl.ctrlStopRun != null -> listOf(StopRun(proc.comments.asComments()))
+                else -> TODO(ctrl.toString())
             }
         }
 

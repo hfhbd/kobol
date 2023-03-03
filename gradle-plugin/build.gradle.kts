@@ -17,6 +17,7 @@ dependencies {
     testImplementation(projects.kotlin)
     testImplementation(projects.java)
     testImplementation(projects.java.javaJava8)
+    testImplementation(projects.plugins.pluginNosynthetic)
 }
 
 tasks.validatePlugins {

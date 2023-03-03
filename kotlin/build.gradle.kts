@@ -20,6 +20,8 @@ dependencies {
     testImplementation(projects.plugins.pluginJavanames)
     testImplementation(projects.plugins.pluginKeepnames)
     testImplementation(projects.plugins.pluginInlining)
+    testImplementation(projects.plugins.pluginNosynthetic)
+    testImplementation(projects.plugins.pluginExitprocess)
 }
 
 serviceLoaders.register("app.softwork.kobol.ir.CodeGeneratorFactory") {

@@ -1,12 +1,9 @@
 package app.softwork.kobol.plugins.fir
 
-import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
 
 public class NullableToZero : FirPluginBeforePhase {
-    override fun invoke(tree: CobolFIRTree): CobolFIRTree {
-        return tree.copy(data = tree.data?.toNull())
-    }
+    override fun invoke(tree: CobolFIRTree): CobolFIRTree = tree.copy(data = tree.data.toNull())
 }
 
 private fun CobolFIRTree.DataTree.toNull(): CobolFIRTree.DataTree {

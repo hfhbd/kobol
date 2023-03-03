@@ -50,6 +50,7 @@ internal fun CobolFIRTree.complexity(): Map<String, Int> = buildMap {
 private fun Statement.complexity(action: () -> Unit) {
     when (this) {
         is GoBack,
+        is StopRun,
         is Call, is Continue,
         is Move, is Add, is Sub,
         is Perform,

@@ -39,7 +39,7 @@ public abstract class Rename(
                     }
                 )
             },
-            data = tree.data?.let {
+            data = tree.data.let {
                 it.copy(
                     fileSection = it.fileSection.map {
                         it.rename()
@@ -107,6 +107,7 @@ public abstract class Rename(
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.GoBack -> it
+                is CobolFIRTree.ProcedureTree.Statement.StopRun -> it
                 is CobolFIRTree.ProcedureTree.Statement.If -> it.copy(
                     condition = it.condition.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression,
                     statements = it.statements.rename(),

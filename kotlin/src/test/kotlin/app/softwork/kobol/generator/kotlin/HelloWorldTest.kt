@@ -2,6 +2,7 @@ package app.softwork.kobol.generator.kotlin
 
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.ir.*
+import app.softwork.kobol.plugins.ir.optimizations.*
 import app.softwork.kobol.sqldelightprecompiler.*
 import app.softwork.sqldelightwriter.*
 import java.io.*
@@ -55,10 +56,11 @@ class HelloWorldTest {
 internal fun String.toIR(
     vararg including: Pair<String, String>,
     firPlugins: List<FirPlugin> = emptyList(),
-    irPlugins: List<IrPlugin> = emptyList(),
+    irPlugins: List<IrPlugin> = listOf(NoSynthetics()),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String, File) -> SqlPrecompiler)? = null,
+    controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
 ): KobolIRTree {
     val temp = Files.createTempDirectory("testing").toFile()
     val files = including.map { (name, content) ->
@@ -73,6 +75,7 @@ internal fun String.toIR(
             {
                 getSQL(it, temp)
             }
-        }
+        },
+        controlFlowHandling = controlFlowHandling
     ).single()
 }

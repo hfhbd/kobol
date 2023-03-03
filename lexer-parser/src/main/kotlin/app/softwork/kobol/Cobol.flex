@@ -251,6 +251,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "EQUAL"                         { return EQUAL; }
     "NOT"                           { return NOT; }
     "GOBACK"                        { return GOBACK; }
+    "STOP"                          { return STOP; }
+    "RUN"                           { return RUN; }
     "INITIALIZE"                    { return INITIALIZE; }
     "EXEC"                          { return EXEC; }
     "SQL"                           { returnState = PROCEDURE; yybegin(SQL_STATE); return SQL; }

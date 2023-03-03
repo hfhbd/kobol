@@ -27,6 +27,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
             sql: SqlPrecompilerFactory? = null,
             files: FileHandlingFactory? = null,
             serialization: SerializationPluginFactory? = null,
+            controlFlowHandling: ControlFlowHandlingFactory? = null,
             codeGeneratorFactory: CodeGeneratorFactory
         ) {
             val codeGeneratorConfig = config[CodeGenerator::class.qualifiedName!!] ?: emptyMap()
@@ -58,6 +59,11 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                         ).also { closables.add(it) }
                     }
                 },
+                controlFlowHandling = controlFlowHandling?.let {
+                    {
+                        controlFlowHandling()
+                    }
+                },
                 irPlugins = irPlugins
             )
 
@@ -77,6 +83,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
         val sql = ServiceLoader.load(SqlPrecompilerFactory::class.java).singleOrNull()
         val files = ServiceLoader.load(FileHandlingFactory::class.java).singleOrNull()
         val serialization = ServiceLoader.load(SerializationPluginFactory::class.java).singleOrNull()
+        val controlFlowHandlingFactory = ServiceLoader.load(ControlFlowHandlingFactory::class.java).singleOrNull()
 
         for (codeGenerator in codeGenerators) {
             invoke(
@@ -89,7 +96,8 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                 sql = sql,
                 files = files,
                 serialization = serialization,
-                codeGeneratorFactory = codeGenerator
+                codeGeneratorFactory = codeGenerator,
+                controlFlowHandling = controlFlowHandlingFactory
             )
         }
         firPlugins.forEach(Closeable::close)

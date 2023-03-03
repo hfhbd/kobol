@@ -1,5 +1,6 @@
 package app.softwork.kobol.generator.java
 
+import app.softwork.kobol.plugins.ir.ExitProcessControlFlowHandlingFactory.*
 import kotlin.test.*
 
 class SectionJavaTest {
@@ -110,15 +111,17 @@ class SectionJavaTest {
             DISPLAY "FOO"
             PERFORM BAR
             DISPLAY "FOO2"
-            GOBACK.
+            STOP RUN.
 
             BAR SECTION.
             DISPLAY "BAR"
-            GOBACK.
+            STOP RUN.
 
             C SECTION.
             DISPLAY "C".
-        """.trimIndent().toIR()
+        """.trimIndent().toIR(controlFlowHandling = {
+            ExitProcessControlFlowHandling
+        })
 
         val output = generate(input, java8 = true).single()
 

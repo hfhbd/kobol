@@ -58,6 +58,7 @@ private fun StringBuilder.toUml(statement: CobolFIRTree.ProcedureTree.Statement)
             is Eval -> TODO()
             is ForEach -> TODO()
             is GoBack -> TODO()
+            is StopRun -> TODO()
             is If -> {
                 +"if (${condition.toUml()}) then"
                 for (statement in statements) {

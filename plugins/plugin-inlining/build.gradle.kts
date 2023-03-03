@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    api(projects.ir)
+    api(projects.plugins.pluginInliningUtil)
 
     testImplementation(kotlin("test"))
 }

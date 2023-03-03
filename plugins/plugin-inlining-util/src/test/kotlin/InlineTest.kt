@@ -34,7 +34,7 @@ class InlineTest {
             }
         )
 
-        val after = Inlining().invoke(before, emptyList()).single()
+        val after = before.inlineGlobalVariables(false)
 
         assertEquals(
             KobolIRTree(
@@ -42,7 +42,7 @@ class InlineTest {
                 id = "inlining",
                 main = KobolIRTree.Types.Function(name = "main") {
                     +string.copy(mutable = false)
-                    +Print(StringVariable(string))
+                    +Print(StringVariable(string.copy(mutable = false)))
                 },
                 types = emptyList()
             ), after
@@ -74,7 +74,7 @@ class InlineTest {
             }
         )
 
-        val after = Inlining().invoke(before, emptyList()).single()
+        val after = before.inlineGlobalVariables(false)
 
         assertEquals(before, after)
     }
@@ -104,7 +104,7 @@ class InlineTest {
             }
         )
 
-        val after = Inlining().invoke(before, emptyList()).single()
+        val after = before.inlineGlobalVariables(false)
 
         assertEquals(
             KobolIRTree(
@@ -147,7 +147,7 @@ class InlineTest {
             }
         )
 
-        val after = Inlining().invoke(before, emptyList()).single()
+        val after = before.inlineGlobalVariables(false)
 
         assertEquals(KobolIRTree(
             name = "inlining",

@@ -10,6 +10,7 @@ public fun List<Statement>.visit(action: Statement.() -> Statement?): List<State
         is Statement.Continue,
         is Statement.Display,
         is Statement.GoBack,
+        is Statement.StopRun,
         is Statement.Move,
         is Statement.Open,
         is Statement.Sql,
