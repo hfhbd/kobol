@@ -28,7 +28,6 @@ dependencyResolutionManagement.versionCatalogs.register("kobol") {
     plugin("flow-graph-plantuml")
     plugin("ifassignments")
     plugin("inlining")
-    plugin("ktor")
     plugin("nullabletozero")
     plugin("objects")
     plugin("optimize")
@@ -36,4 +35,5 @@ dependencyResolutionManagement.versionCatalogs.register("kobol") {
     plugin("readonlyvariables")
     plugin("statistic")
     plugin("useparameters")
+    plugin("keepprocess")
 }
