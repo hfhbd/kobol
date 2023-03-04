@@ -4,7 +4,7 @@ dependencyResolutionManagement.versionCatalogs.register("kobol") {
     val version = version("kobol", kobolVersion)
     plugin("kobol", "app.softwork.kobol").versionRef(version)
 
-    fun add(name: String, module: String) {
+    fun add(name: String, module: String = name) {
         library(name, "app.softwork.kobol", module).versionRef(version)
     }
 
@@ -12,14 +12,17 @@ dependencyResolutionManagement.versionCatalogs.register("kobol") {
         add(name = "plugin-$module", module = "plugin-$module")
     }
 
-    add("kotlin", "kotlin")
-    add("kotlin-sqldelight", "kotlin-sqldelight")
-    add("kotlin-kotlinxserialization", "kotlin-kotlinxserialization")
+    add("ir")
+    add("fir")
+    
+    add("kotlin")
+    add("kotlin-sqldelight")
+    add("kotlin-kotlinxserialization")
     add("kotlin-filejava", "kotlin-file-java")
 
-    add("java", "java")
-    add("java-java8", "java-java8")
-    add("java-jdbc", "java-jdbc")
+    add("java")
+    add("java-java8")
+    add("java-jdbc")
 
     plugin("booleanexpressions")
     plugin("javanames")
