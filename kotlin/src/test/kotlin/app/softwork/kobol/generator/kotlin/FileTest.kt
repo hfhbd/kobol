@@ -119,8 +119,8 @@ class FileTest {
         public var FI: String = ""
         
         public fun main(): Unit {
-          val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1047"))
-          val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1047"))
+          val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1140"))
+          val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1140"))
           for (`EB1-EIN` in EIN.decode(`EB1-EIN`.serializer(), FixedLengthFormat(""))) {
             FI = `EB1-EIN`.FILLER
             `EB1-AUS`.FILLER = `EB1-EIN`.FILLER
@@ -240,8 +240,8 @@ class FileTest {
         public var FI: String = ""
         
         public fun main(): Unit {
-          val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1047"))
-          val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1047"))
+          val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1140"))
+          val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1140"))
           for (`EB1-EIN` in EIN.lineSequence().decode(`EB1-EIN`.serializer())) {
             FI = `EB1-EIN`.FILLER
             `EB1-AUS`.FILLER = `EB1-EIN`.FILLER
@@ -398,8 +398,8 @@ class FileTest {
         public var COUNT: Int = 0
         
         public fun main(): Unit {
-          val TRANSACTIONS: BufferedReader = File("TRANSACTIONS").bufferedReader(charset("IBM-1047"))
-          val BALANCES: BufferedWriter = File("BALANCES").bufferedWriter(charset("IBM-1047"))
+          val TRANSACTIONS: BufferedReader = File("TRANSACTIONS").bufferedReader(charset("IBM-1140"))
+          val BALANCES: BufferedWriter = File("BALANCES").bufferedWriter(charset("IBM-1140"))
           for (TRANSACTION in TRANSACTIONS.decode(TRANSACTION.serializer(), FixedLengthFormat(""))) {
             COUNT += 0
             if (TRANSACTION.FIRSTNAME == BALANCE.FIRSTNAME && TRANSACTION.LASTNAME == BALANCE.LASTNAME) {
