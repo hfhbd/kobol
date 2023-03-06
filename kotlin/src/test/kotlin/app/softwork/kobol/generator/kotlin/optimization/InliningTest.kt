@@ -167,8 +167,8 @@ class InliningTest {
           var FIRSTNAME: String = ""
           var LASTNAME: String = ""
           var BALANCE: Int = 0
-          val TRANSACTIONS: BufferedReader = File("TRANSACTIONS").bufferedReader(charset("IBM-1047"))
-          val BALANCES: BufferedWriter = File("BALANCES").bufferedWriter(charset("IBM-1047"))
+          val TRANSACTIONS: BufferedReader = File("TRANSACTIONS").bufferedReader(charset("IBM-1140"))
+          val BALANCES: BufferedWriter = File("BALANCES").bufferedWriter(charset("IBM-1140"))
           for (TRANSACTION in TRANSACTIONS.lineSequence().decode(TRANSACTION.serializer())) {
             COUNT += 1
             if (TRANSACTION.FIRSTNAME == FIRSTNAME && TRANSACTION.LASTNAME == LASTNAME) {

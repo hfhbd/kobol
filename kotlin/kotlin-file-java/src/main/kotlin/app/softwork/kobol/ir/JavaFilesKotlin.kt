@@ -76,7 +76,7 @@ public class JavaFilesKotlin : FileHandling, FileHandlingFactory {
                                     packageName = "kotlin.text",
                                     topLevel = true,
                                 ) {},
-                                listOf(StringLiteral("IBM-1047"))
+                                listOf(StringLiteral("IBM-1140"))
                             )
                         ),
                     )
