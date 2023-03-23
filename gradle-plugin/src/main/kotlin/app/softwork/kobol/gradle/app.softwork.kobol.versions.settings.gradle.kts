@@ -12,6 +12,8 @@ dependencyResolutionManagement.versionCatalogs.register("kobol") {
         add(name = "plugin-$module", module = "plugin-$module")
     }
 
+    add("f-3.1")
+    
     add("ir")
     add("fir")
     

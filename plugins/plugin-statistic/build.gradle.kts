@@ -1,6 +1,5 @@
 plugins {
     setup
-    app.softwork.serviceloader
 }
 
 dependencies {
@@ -11,8 +10,4 @@ dependencies {
         targetConfiguration = "shade"
     }
     testImplementation(kotlin("test"))
-}
-
-serviceLoaders.register("app.softwork.kobol.fir.FirCodeGeneratorFactory") {
-    implementationClasses.add("app.softwork.kobol.plugins.Factory")
 }

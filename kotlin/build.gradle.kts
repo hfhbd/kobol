@@ -1,6 +1,5 @@
 plugins {
     setup
-    app.softwork.serviceloader
 }
 
 dependencies {
@@ -22,8 +21,4 @@ dependencies {
     testImplementation(projects.plugins.pluginInlining)
     testImplementation(projects.plugins.pluginNosynthetic)
     testImplementation(projects.plugins.pluginExitprocess)
-}
-
-serviceLoaders.register("app.softwork.kobol.ir.CodeGeneratorFactory") {
-    implementationClasses.add("app.softwork.kobol.generator.kotlin.KotlinCodeGeneratorFactory")
 }

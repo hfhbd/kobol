@@ -69,9 +69,6 @@ licensee {
     allowDependency("oro", "oro", "2.0.8") {
         because("Apache-2-0")
     }
-    allowDependency("one.util", "streamex", "0.8.1") {
-        because("Apache-2-0")
-    }
     allowDependency("net.jcip", "jcip-annotations", "1.0") {
         because("Apache-2.0")
     }
