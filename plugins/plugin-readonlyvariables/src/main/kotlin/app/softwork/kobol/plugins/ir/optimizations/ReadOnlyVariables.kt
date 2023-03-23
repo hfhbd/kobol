@@ -2,7 +2,9 @@ package app.softwork.kobol.plugins.ir.optimizations
 
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.serviceloader.ServiceLoader
 
+@ServiceLoader(IrPlugin::class)
 public class ReadOnlyVariables : IrPlugin {
     override fun invoke(tree: KobolIRTree, others: Iterable<KobolIRTree>): Iterable<KobolIRTree> {
         val variables = buildList {

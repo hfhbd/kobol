@@ -1,7 +1,9 @@
 package app.softwork.kobol.plugins.fir
 
 import app.softwork.kobol.fir.*
+import app.softwork.serviceloader.ServiceLoader
 
+@ServiceLoader(FirPluginBeforePhase::class)
 public class NullableToZero : FirPluginBeforePhase {
     override fun invoke(tree: CobolFIRTree): CobolFIRTree = tree.copy(data = tree.data.toNull())
 }

@@ -4,7 +4,9 @@ import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
+import app.softwork.serviceloader.ServiceLoader
 
+@ServiceLoader(FileHandlingFactory::class)
 public class JavaFilesKotlin : FileHandling, FileHandlingFactory {
     override fun invoke(packageName: String, args: Map<String, String>): JavaFilesKotlin = JavaFilesKotlin()
 

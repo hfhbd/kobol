@@ -9,8 +9,9 @@ dependencies {
     implementation("app.cash.licensee:licensee-gradle-plugin:1.7.0-SNAPSHOT")
     implementation("org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.13.0")
     implementation("org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2022.3.1")
-    implementation("gradle.plugin.com.github.johnrengelman:shadow:8.0.0")
-    implementation("app.softwork:serviceloader-gradle-plugin:0.0.2")
+    implementation("com.github.johnrengelman:shadow:8.1.1")
+    implementation("app.softwork.serviceloader:gradle-plugin:0.0.7")
+    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$kotlin-1.0.9")
 }
 
 kotlin.jvmToolchain(17)

@@ -1,9 +1,12 @@
 package app.softwork.kobol.plugins.ir.optimizations
 
-import app.softwork.kobol.ir.*
+import app.softwork.kobol.ir.IrPlugin
+import app.softwork.kobol.ir.KobolIRTree
 import app.softwork.kobol.ir.KobolIRTree.Expression.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.BooleanExpression.*
+import app.softwork.serviceloader.ServiceLoader
 
+@ServiceLoader(IrPlugin::class)
 public class BooleanExpressions : IrPlugin {
     override fun invoke(tree: KobolIRTree, others: Iterable<KobolIRTree>): Iterable<KobolIRTree> {
         return others + tree.copy(
@@ -66,6 +69,7 @@ private fun KobolIRTree.Types.Function.Statement.booleanExpressions(): KobolIRTr
         is StringExpression.StringVariable.Use -> copy(
             variable = variable.booleanExpressions() as StringExpression.StringVariable
         )
+
         is NumberExpression.IntExpression.IntVariable.Use -> copy(
             variable = variable.booleanExpressions() as NumberExpression.IntExpression.IntVariable
         )

@@ -69,7 +69,7 @@ public fun CobolFIRTree.toIRTree(
 
     val dataTypes = mutableListOf<Types.Type>()
 
-    val fileSection = data?.fileSection?.takeIf { it.isNotEmpty() }
+    val fileSection = data.fileSection.takeIf { it.isNotEmpty() }
     if (fileSection != null) {
         requireNotNull(serialization)
         for (file in fileSection) {
@@ -79,13 +79,11 @@ public fun CobolFIRTree.toIRTree(
     }
 
     val sqlInit = mutableListOf<Types.Function.Statement>()
-    val workingStorage = data?.workingStorage
-    if (workingStorage != null) {
-        for (data in workingStorage) {
-            when (val ir = data.toIR(name, sqlCompiler)) {
-                is IRResult.Typ -> dataTypes.add(ir.type)
-                is IRResult.SqlInit -> sqlInit.addAll(ir.sqlInit)
-            }
+    val workingStorage = data.workingStorage
+    for (data in workingStorage) {
+        when (val ir = data.toIR(name, sqlCompiler)) {
+            is IRResult.Typ -> dataTypes.add(ir.type)
+            is IRResult.SqlInit -> sqlInit.addAll(ir.sqlInit)
         }
     }
 

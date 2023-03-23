@@ -1,11 +1,14 @@
 package app.softwork.kobol.plugins.ir
 
-import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
-import app.softwork.kobol.ir.*
-import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.*
-import app.softwork.kobol.ir.KobolIRTree.Types.Function.*
-import java.io.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.GoBack
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.StopRun
+import app.softwork.kobol.ir.ControlFlowHandling
+import app.softwork.kobol.ir.ControlFlowHandlingFactory
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement
+import app.softwork.serviceloader.ServiceLoader
 
+@ServiceLoader(ControlFlowHandlingFactory::class)
 public class ExitProcessControlFlowHandlingFactory : ControlFlowHandlingFactory {
     override fun invoke(): ExitProcessControlFlowHandling =
         ExitProcessControlFlowHandling
