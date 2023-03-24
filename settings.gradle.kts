@@ -43,6 +43,7 @@ include(":java:java-jdbc")
 
 include(":gradle-plugin")
 include(":intellij-plugin")
+include(":catalog")
 
 include(":plugins:plugin-booleanexpressions")
 include(":plugins:plugin-javanames")
