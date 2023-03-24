@@ -17,7 +17,7 @@ catalog {
         plugin("kobol", "app.softwork.kobol").versionRef(version)
 
         fun add(name: String, module: String = name) {
-            library(name, "app.softwork.kobol", module).versionRef(version)
+            library("kobol-$name", "app.softwork.kobol", module).versionRef(version)
         }
 
         fun plugin(module: String) {
