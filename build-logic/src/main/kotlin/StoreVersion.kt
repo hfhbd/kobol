@@ -33,7 +33,7 @@ abstract class StoreVersion : DefaultTask() {
             """
             |package app.softwork.kobol.gradle
             |
-            |internal val kobolVersion = "${version.get()}"
+            |public val KOBOL_VERSION: String = "${version.get()}"
             |""".trimMargin()
         )
     }

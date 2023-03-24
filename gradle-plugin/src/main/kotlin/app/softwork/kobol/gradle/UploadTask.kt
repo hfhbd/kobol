@@ -36,7 +36,7 @@ public abstract class SshTask : DefaultTask() {
 
     @get:Internal
     public val configuration: String = project.configurations.register("${name}Ssh") {
-        dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$kobolVersion"))
+        dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$KOBOL_VERSION"))
     }.name
 
     @get:InputFiles
