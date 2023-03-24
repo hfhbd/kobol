@@ -3,6 +3,14 @@ plugins {
     publish
 }
 
+publishing {
+    publications {
+        register<MavenPublication>("maven") {
+            from(components["versionCatalog"])
+        }
+    }
+}
+
 catalog {
     versionCatalog {
         val version = version("kobol", project.version.toString())
