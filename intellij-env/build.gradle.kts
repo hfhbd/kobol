@@ -12,7 +12,7 @@ configurations.implementation {
     extendsFrom(shade)
 }
 
-val idea = "221.6008.13"
+val idea = "231.8109.197"
 dependencies {
     shade("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     shade("com.jetbrains.intellij.platform:core-impl:$idea") {
