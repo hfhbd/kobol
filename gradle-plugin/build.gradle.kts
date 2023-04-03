@@ -3,17 +3,16 @@ plugins {
     kotlinSetup
 }
 
-val addMinGradleVersionAttribute: Configuration.() -> Unit = {
-    attributes {
-        attribute(
-            GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-            objects.named<GradlePluginApiVersion>("8.0")
-        )
+configurations.configureEach {
+    if (isCanBeConsumed) {
+        attributes {
+            attribute(
+                GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+                objects.named<GradlePluginApiVersion>(GradleVersion.version("8.0").version)
+            )
+        }
     }
 }
-
-configurations.apiElements(addMinGradleVersionAttribute)
-configurations.runtimeElements(addMinGradleVersionAttribute)
 
 dependencies {
     implementation(projects.ir)
