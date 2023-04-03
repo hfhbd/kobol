@@ -3,6 +3,15 @@ plugins {
     kotlinSetup
 }
 
+configurations.configureEach {
+    attributes {
+        attribute(
+            GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+            objects.named<GradlePluginApiVersion>("8.0")
+        )
+    }
+}
+
 dependencies {
     implementation(projects.ir)
     compileOnly(projects.sshEnv)
