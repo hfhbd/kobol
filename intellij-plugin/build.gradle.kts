@@ -12,15 +12,13 @@ dependencies {
     }
 }
 
-val idea = "221.6008.13"
-// Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
-    version.set("IU-$idea")
+    version.set("IU-231.8109.175")
 }
 
 tasks {
     patchPluginXml {
-        sinceBuild.set("221")
+        sinceBuild.set("231")
         untilBuild.set("231.*")
         version.set(project.version.toString())
     }

@@ -15,7 +15,7 @@ publishing {
 
 pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
     extensions.configure<KotlinJvmProjectExtension>("kotlin") {
-        jvmToolchain(11)
+        jvmToolchain(17)
         explicitApi()
         target {
             compilations.configureEach {

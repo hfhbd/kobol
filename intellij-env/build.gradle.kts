@@ -22,6 +22,7 @@ dependencies {
     shade("com.jetbrains.intellij.platform:project-model-impl:$idea")
     shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
     shade("com.jetbrains.intellij.platform:indexing-impl:$idea")
+    shade("com.jetbrains.intellij.platform:util-ui:$idea")
 }
 
 configurations.configureEach {
