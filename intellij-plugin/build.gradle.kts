@@ -5,16 +5,17 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.lexerParser) {
-        exclude("org.jetbrains.kotlin", "kotlin-stdlib")
-        exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
-        exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
-    }
+    implementation(projects.lexerParser)
 }
 
-val idea = "221.6008.13"
-// Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
+configurations.implementation {
+    exclude("org.jetbrains.kotlin", "kotlin-stdlib")
+    exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
+    exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+}
+
 intellij {
+    val idea = "221.6008.13"
     version.set("IU-$idea")
 }
 

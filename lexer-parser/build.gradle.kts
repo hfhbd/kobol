@@ -4,26 +4,14 @@ plugins {
     org.jetbrains.grammarkit
 }
 
-val idea = "221.6008.13"
-
 grammarKit {
+    val idea = "221.6008.13"
     intellijRelease.set(idea)
-}
-
-val grammar by configurations.registering {
-    isCanBeResolved = true
-    isCanBeConsumed = false
-    isVisible = false
-    defaultDependencies {
-        add(project.dependencies.create("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"))
-    }
 }
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
 
-    val idea = "221.6008.13"
-    compileOnly("com.jetbrains.intellij.platform:util-ui:$idea")
     compileOnly(projects.intellijEnv) {
         targetConfiguration = "shade"
     }
@@ -31,13 +19,14 @@ dependencies {
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shade"
     }
-    testImplementation("com.jetbrains.intellij.platform:util-ui:$idea")
 
     testImplementation(kotlin("test"))
     testImplementation(projects.fir)
 }
 
-sourceSets["main"].java.srcDirs("$buildDir/generated/lexer/main/java", "$buildDir/generated/parser/main/java")
+sourceSets.main {
+    java.srcDirs("$buildDir/generated/lexer/main/java", "$buildDir/generated/parser/main/java")
+}
 
 tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
@@ -53,7 +42,6 @@ tasks {
         purgeOldFiles.set(true)
     }
     generateParser {
-        classpath(grammar)
         sourceFile.set(file("src/main/kotlin/app/softwork/kobol/Cobol.bnf"))
         targetRoot.set("$buildDir/generated/parser/main/java")
         

@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.*
-
 plugins {
     `maven-publish`
 }
@@ -11,8 +9,7 @@ publishing {
             credentials(PasswordCredentials::class)
         }
     }
-    publications.configureEach {
-        this as MavenPublication
+    publications.withType<MavenPublication>().configureEach {
         pom {
             name.set("app.softwork KOBOL")
             url.set("https://github.com/hfhbd/kobol")

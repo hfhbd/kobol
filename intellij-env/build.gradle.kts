@@ -6,7 +6,7 @@ plugins {
     com.github.johnrengelman.shadow
 }
 
-val shade by configurations.register("shade")
+val shade by configurations.creating
 
 configurations.implementation {
     extendsFrom(shade)
@@ -14,10 +14,9 @@ configurations.implementation {
 
 val idea = "221.6008.13"
 dependencies {
-    shade("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    shade("com.jetbrains.intellij.platform:core-impl:$idea") {
-        // https://youtrack.jetbrains.com/issue/IDEA-301677
-        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
+    shade("com.jetbrains.intellij.platform:core-impl:$idea")
+    shade("com.jetbrains.intellij.platform:util-ui:$idea") {
+        isTransitive = false
     }
     shade("com.jetbrains.intellij.platform:project-model-impl:$idea")
     shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
