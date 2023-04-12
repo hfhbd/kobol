@@ -14,17 +14,10 @@ abstract class StoreVersion : DefaultTask() {
     }
 
     @get:OutputDirectory
-    abstract val generated: DirectoryProperty
-
-    init {
-        generated.convention(project.layout.buildDirectory.dir("generated/kobol"))
-    }
-
-    @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
 
     init {
-        outputDirectory.convention(generated.dir("app/softwork/kobol/gradle"))
+        outputDirectory.convention(project.layout.buildDirectory.dir("generated/kobol/app/softwork/kobol/gradle"))
     }
 
     @TaskAction

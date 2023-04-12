@@ -40,14 +40,7 @@ java {
     withJavadocJar()
 }
 
-tasks {
-    val storeVersion by registering(StoreVersion::class) {
-        kotlin.sourceSets.main.configure {
-            kotlin.srcDir(generated)
-        }
-    }
-
-    compileKotlin {
-        dependsOn(storeVersion)
-    }
+val storeVersion by tasks.registering(StoreVersion::class)
+kotlin.sourceSets.main.configure {
+    kotlin.srcDir(storeVersion)
 }
