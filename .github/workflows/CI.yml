@@ -13,10 +13,9 @@ jobs:
       contents: read
       packages: read
 
-  env:
-    ORG_GRADLE_PROJECT_GitHubPackagesUsername: ${{ github.actor }}
-    ORG_GRADLE_PROJECT_GitHubPackagesPassword: ${{ secrets.GITHUB_TOKEN }}
     env:
+      ORG_GRADLE_PROJECT_GitHubPackagesUsername: ${{ github.actor }}
+      ORG_GRADLE_PROJECT_GitHubPackagesPassword: ${{ secrets.GITHUB_TOKEN }}
       GRADLE_OPTS: -Dorg.gradle.caching=true
 
     steps:
