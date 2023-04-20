@@ -6,7 +6,7 @@ dependencies {
     implementation(projects.fir)
 
     testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shade"
+        targetConfiguration = "shadow"
     }
     testImplementation(kotlin("test"))
 }
