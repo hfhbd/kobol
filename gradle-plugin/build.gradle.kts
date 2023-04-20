@@ -22,7 +22,7 @@ dependencies {
     testImplementation(gradleTestKit())
     testImplementation(projects.ir)
     testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shade"
+        targetConfiguration = "shadow"
     }
     testImplementation(projects.plugins.pluginFlowGraphPlantuml)
     testImplementation(projects.kotlin)

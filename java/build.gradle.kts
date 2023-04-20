@@ -7,7 +7,7 @@ dependencies {
     implementation("com.squareup:javapoet:1.13.0")
 
     testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shade"
+        targetConfiguration = "shadow"
     }
     testImplementation(kotlin("test"))
     testImplementation(projects.java.javaJava8)

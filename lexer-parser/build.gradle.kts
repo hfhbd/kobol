@@ -13,11 +13,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
 
     compileOnly(projects.intellijEnv) {
-        targetConfiguration = "shade"
+        targetConfiguration = "shadow"
     }
 
     testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shade"
+        targetConfiguration = "shadow"
     }
 
     testImplementation(kotlin("test"))

@@ -7,7 +7,7 @@ dependencies {
     implementation("com.squareup:kotlinpoet:1.13.0")
 
     testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shade"
+        targetConfiguration = "shadow"
     }
     testImplementation(kotlin("test"))
     testImplementation(projects.kotlin.kotlinSqldelight)

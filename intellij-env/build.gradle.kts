@@ -1,26 +1,16 @@
-import groovy.util.*
-
 plugins {
     setup
     repos
     com.github.johnrengelman.shadow
 }
 
-val shade by configurations.creating
-
-configurations.implementation {
-    extendsFrom(shade)
-}
-
 val idea = "221.6008.13"
 dependencies {
-    shade("com.jetbrains.intellij.platform:core-impl:$idea")
-    shade("com.jetbrains.intellij.platform:util-ui:$idea") {
-        isTransitive = false
-    }
-    shade("com.jetbrains.intellij.platform:project-model-impl:$idea")
-    shade("com.jetbrains.intellij.platform:analysis-impl:$idea")
-    shade("com.jetbrains.intellij.platform:indexing-impl:$idea")
+    shadow("com.jetbrains.intellij.platform:core-impl:$idea")
+    shadow("com.jetbrains.intellij.platform:util-ui:$idea")
+    shadow("com.jetbrains.intellij.platform:project-model-impl:$idea")
+    shadow("com.jetbrains.intellij.platform:analysis-impl:$idea")
+    shadow("com.jetbrains.intellij.platform:indexing-impl:$idea")
 }
 
 configurations.configureEach {
@@ -35,13 +25,9 @@ configurations.configureEach {
     exclude(group = "ai.grazie.nlp")
 }
 
-tasks.jar {
-    enabled = false
-}
-
 tasks.shadowJar {
     archiveClassifier.set("")
-    configurations = listOf(shade)
+    dependsOn(tasks.jar)
 
     include("*.jar")
     include("misc/*.properties")
@@ -59,9 +45,19 @@ tasks.shadowJar {
     exclude("/kotlin/**")
 }
 
-artifacts {
-    runtimeOnly(tasks.shadowJar)
-    archives(tasks.shadowJar)
+val licenseeShadow by tasks.registering(app.cash.licensee.LicenseeTask::class) {
+    configurationToCheck(configurations.shadow.get())
+    outputDir.set(reporting.baseDirectory.dir("licenseeShadow"))
+}
+
+tasks.check {
+    dependsOn(licenseeShadow)
+}
+
+afterEvaluate {
+    tasks.named("licensee") {
+        enabled = false
+    }
 }
 
 licensee {
@@ -117,26 +113,4 @@ licensee {
     allowDependency("com.jetbrains.intellij.platform", "util-xml-dom", idea)
     allowDependency("com.jetbrains.intellij.platform", "util-zip", idea)
     allowDependency("com.jetbrains.intellij.platform", "workspace-model-storage", idea)
-}
-
-// Disable Gradle module.json as it lists wrong dependencies
-tasks.withType<GenerateModuleMetadata>().configureEach {
-    enabled = false
-}
-
-// Remove dependencies from POM: uber jar has no dependencies
-publishing {
-    publications {
-        named("mavenJava", MavenPublication::class) {
-            artifacts.artifact(tasks.shadowJar)
-            pom.withXml {
-                val pomNode = asNode()
-
-                val dependencyNodes = pomNode.get("dependencies") as NodeList
-                dependencyNodes.forEach {
-                    (it as Node).parent().remove(it)
-                }
-            }
-        }
-    }
 }
