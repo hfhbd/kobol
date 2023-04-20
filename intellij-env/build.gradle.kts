@@ -45,6 +45,21 @@ tasks.shadowJar {
     exclude("/kotlin/**")
 }
 
+val licenseeShadow by tasks.registering(app.cash.licensee.LicenseeTask::class) {
+    configurationToCheck(configurations.shadow.get())
+    outputDir.set(reporting.baseDirectory.dir("licenseeShadow"))
+}
+
+tasks.check {
+    dependsOn(licenseeShadow)
+}
+
+afterEvaluate {
+    tasks.named("licensee") {
+        enabled = false
+    }
+}
+
 licensee {
     allow("BSD-2-Clause")
     allowDependency("oro", "oro", "2.0.8") {
