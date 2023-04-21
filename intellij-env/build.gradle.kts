@@ -13,7 +13,7 @@ dependencies {
     shadow("com.jetbrains.intellij.platform:indexing-impl:$idea")
 }
 
-configurations.configureEach {
+configurations.shadow {
     exclude(group = "com.jetbrains.rd")
     exclude(group = "com.github.jetbrains", module = "jetCheck")
     exclude(group = "com.jetbrains.intellij.platform", module = "wsl-impl")
@@ -27,7 +27,7 @@ configurations.configureEach {
 
 tasks.shadowJar {
     archiveClassifier.set("")
-    dependsOn(tasks.jar)
+    configurations = listOf(project.configurations.shadow.get())
 
     include("*.jar")
     include("misc/*.properties")
@@ -47,6 +47,10 @@ tasks.shadowJar {
 
 tasks.jar {
     enabled = false
+}
+
+publishing.publications.named<MavenPublication>("mavenJava") {
+    artifact(tasks.shadowJar)
 }
 
 val licenseeShadow by tasks.registering(app.cash.licensee.LicenseeTask::class) {
