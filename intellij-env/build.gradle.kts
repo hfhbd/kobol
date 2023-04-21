@@ -45,6 +45,10 @@ tasks.shadowJar {
     exclude("/kotlin/**")
 }
 
+tasks.jar {
+    enabled = false
+}
+
 val licenseeShadow by tasks.registering(app.cash.licensee.LicenseeTask::class) {
     configurationToCheck(configurations.shadow.get())
     outputDir.set(reporting.baseDirectory.dir("licenseeShadow"))
