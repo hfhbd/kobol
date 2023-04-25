@@ -1,3 +1,5 @@
+import app.cash.licensee.LicenseeTask
+
 plugins {
     setup
     repos
@@ -49,11 +51,18 @@ tasks.jar {
     enabled = false
 }
 
-publishing.publications.named<MavenPublication>("mavenJava") {
-    artifact(tasks.shadowJar)
+configurations {
+    apiElements {
+        outgoing.artifacts.removeIf { tasks.jar.get() in it.buildDependencies.getDependencies(null) }
+        outgoing.artifact(tasks.shadowJar)
+    }
+    runtimeElements {
+        outgoing.artifacts.removeIf { tasks.jar.get() in it.buildDependencies.getDependencies(null) }
+        outgoing.artifact(tasks.shadowJar)
+    }
 }
 
-val licenseeShadow by tasks.registering(app.cash.licensee.LicenseeTask::class) {
+val licenseeShadow by tasks.registering(LicenseeTask::class) {
     configurationToCheck(configurations.shadow.get())
     outputDir.set(reporting.baseDirectory.dir("licenseeShadow"))
 }
