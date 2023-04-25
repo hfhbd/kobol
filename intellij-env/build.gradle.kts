@@ -1,3 +1,5 @@
+import app.cash.licensee.LicenseeTask
+
 plugins {
     setup
     repos
@@ -13,7 +15,7 @@ dependencies {
     shadow("com.jetbrains.intellij.platform:indexing-impl:$idea")
 }
 
-configurations.configureEach {
+configurations.shadow {
     exclude(group = "com.jetbrains.rd")
     exclude(group = "com.github.jetbrains", module = "jetCheck")
     exclude(group = "com.jetbrains.intellij.platform", module = "wsl-impl")
@@ -27,7 +29,7 @@ configurations.configureEach {
 
 tasks.shadowJar {
     archiveClassifier.set("")
-    dependsOn(tasks.jar)
+    configurations = listOf(project.configurations.shadow.get())
 
     include("*.jar")
     include("misc/*.properties")
@@ -49,7 +51,18 @@ tasks.jar {
     enabled = false
 }
 
-val licenseeShadow by tasks.registering(app.cash.licensee.LicenseeTask::class) {
+configurations {
+    apiElements {
+        outgoing.artifacts.removeIf { tasks.jar.get() in it.buildDependencies.getDependencies(null) }
+        outgoing.artifact(tasks.shadowJar)
+    }
+    runtimeElements {
+        outgoing.artifacts.removeIf { tasks.jar.get() in it.buildDependencies.getDependencies(null) }
+        outgoing.artifact(tasks.shadowJar)
+    }
+}
+
+val licenseeShadow by tasks.registering(LicenseeTask::class) {
     configurationToCheck(configurations.shadow.get())
     outputDir.set(reporting.baseDirectory.dir("licenseeShadow"))
 }
