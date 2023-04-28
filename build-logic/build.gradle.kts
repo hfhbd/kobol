@@ -11,7 +11,7 @@ dependencies {
     implementation("org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2022.3.1")
     implementation("com.github.johnrengelman:shadow:8.1.1")
     implementation("app.softwork.serviceloader:gradle-plugin:0.0.8")
-    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$kotlin-1.0.10")
+    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$kotlin-1.0.11")
 }
 
 kotlin.jvmToolchain(17)
