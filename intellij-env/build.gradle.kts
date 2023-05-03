@@ -6,7 +6,7 @@ plugins {
     com.github.johnrengelman.shadow
 }
 
-val idea = "221.6008.13"
+val idea = "232.4652"
 dependencies {
     shadow("com.jetbrains.intellij.platform:core-impl:$idea")
     shadow("com.jetbrains.intellij.platform:util-ui:$idea")
