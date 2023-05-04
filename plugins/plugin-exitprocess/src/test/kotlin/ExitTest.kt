@@ -2,6 +2,7 @@ package app.softwork.kobol.ir
 
 import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.ReturnCode
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.fir.l
 import app.softwork.kobol.ir.KobolIRTree.*
@@ -18,7 +19,7 @@ class ExitTest {
         val before by cobolFir {
             procedure {
                 topLevel {
-                    +Move(returnCodeElementar, 8.l)
+                    +Move(ReturnCode(), 8.l)
                     +If(1.l eq 1.l, build {
                         +StopRun()
                     })
@@ -94,7 +95,7 @@ class ExitTest {
         val before by cobolFir {
             procedure {
                 topLevel {
-                    +Move(returnCodeElementar, 8.l)
+                    +Move(ReturnCode(), 8.l)
                     +If(1.l eq 1.l, build {
                         +StopRun()
                     })

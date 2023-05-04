@@ -123,7 +123,7 @@ class InlineTest {
 
     @Test
     fun forEach() {
-        val counter = IntDeclaration(
+        val counter = IntDeclaration.Normal(
             name = "A",
             value = null,
             mutable = true,

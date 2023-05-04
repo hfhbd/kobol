@@ -55,7 +55,7 @@ public class SqlDelightPrecompiler(
             Function(
                 "migrate", parameters = listOf(
                     driver.declaration,
-                    IntDeclaration(
+                    IntDeclaration.Normal(
                         name = "oldVersion",
                         value = null,
                         private = false,
@@ -65,7 +65,7 @@ public class SqlDelightPrecompiler(
                         length = -1,
                         isSigned = false
                     ),
-                    IntDeclaration(
+                    IntDeclaration.Normal(
                         name = "newVersion",
                         value = null,
                         private = false,

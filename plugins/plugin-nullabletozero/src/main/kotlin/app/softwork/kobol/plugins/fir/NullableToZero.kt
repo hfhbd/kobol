@@ -35,9 +35,10 @@ private fun <T : CobolFIRTree.DataTree.WorkingStorage> List<T>.toNull() = map {
 private fun <T : CobolFIRTree.DataTree.WorkingStorage> T.toNull(): T {
     return when (this) {
         is CobolFIRTree.DataTree.WorkingStorage.Elementar.EmptyElementar -> this
-        is CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar -> copy(
+        is CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.Normal -> copy(
             value = value ?: 0.0
         )
+        is CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.ReturnCode -> this
 
         is CobolFIRTree.DataTree.WorkingStorage.Elementar.Pointer -> this
         is CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar -> copy(

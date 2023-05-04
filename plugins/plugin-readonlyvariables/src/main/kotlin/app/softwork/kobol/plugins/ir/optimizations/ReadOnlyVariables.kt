@@ -35,7 +35,10 @@ public class ReadOnlyVariables : IrPlugin {
                         declaration = declaration.copy(mutable = false)
                     )
 
-                    is IntDeclaration -> it.copy(
+                    is IntDeclaration.Normal -> it.copy(
+                        declaration = declaration.copy(mutable = false)
+                    )
+                    is IntDeclaration.ReturnCode -> it.copy(
                         declaration = declaration.copy(mutable = false)
                     )
 

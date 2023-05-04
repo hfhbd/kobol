@@ -2,6 +2,10 @@ package app.softwork.kobol.generator.kotlin
 
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.plugins.fir.*
+import app.softwork.kobol.plugins.fir.renaming.KeepNames
+import app.softwork.kobol.plugins.ir.ExitProcessControlFlowHandlingFactory
+import app.softwork.kobol.plugins.ir.optimizations.BooleanExpressions
+import app.softwork.kobol.plugins.ir.optimizations.Inlining
 import kotlin.test.*
 
 class FileTest {
@@ -418,6 +422,180 @@ class FileTest {
         }
         
         """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
+
+    @Test
+    fun files() {
+        //language=cobol
+        val input = """
+000010 IDENTIFICATION DIVISION.
+000020 PROGRAM-ID.                 FILES.
+000030 ENVIRONMENT DIVISION.
+000040 INPUT-OUTPUT SECTION.
+000050 FILE-CONTROL.
+000060     SELECT TRANSACTS        ASSIGN TO "TRANSACT".
+000080     SELECT BALANCES         ASSIGN TO "BALANCES".
+000100 DATA DIVISION.
+000110 FILE SECTION.
+000120 FD  TRANSACTS
+000130     RECORDING               V
+000150     DATA RECORD             EB1-EIN.
+000170 01  TRANSACTION.
+000180     02 FIRSTNAME            PIC X(10).
+000190     02 LASTNAME             PIC X(10).
+000190     02 TRANSACTION          PIC S9(7).
+000191
+000200 FD  BALANCES
+000220     RECORDING               V
+000230     DATA RECORD             EB1-AUS.
+000250 01  BALANCE.
+000260     02 FIRSTNAME             PIC X(10).
+000260     02 LASTNAME              PIC X(10).
+000260     02 SALDO                 PIC S9(11).
+000270 WORKING-STORAGE SECTION.
+000300 77 COUNTER  PIC 9(4).
+123456
+123456 PROCEDURE DIVISION.
+123456     DISPLAY "START"
+123456     OPEN INPUT TRANSACTS
+123456     OPEN OUTPUT BALANCES
+123456     READ TRANSACTS
+123456       AT END
+111111         WRITE BALANCE
+123456       NOT AT END
+123456         ADD 1 TO COUNTER
+111111         IF FIRSTNAME OF TRANSACTION = FIRSTNAME OF BALANCE AND
+000000            LASTNAME OF TRANSACTION = LASTNAME OF BALANCE THEN
+000000              ADD TRANSACTION OF TRANSACTION TO SALDO OF BALANCE
+000000         ELSE
+111111           IF COUNTER NOT EQUAL 0 THEN
+111111             WRITE BALANCE
+111111           END-IF
+111111           MOVE FIRSTNAME OF TRANSACTION TO FIRSTNAME OF BALANCE
+111111           MOVE LASTNAME OF TRANSACTION TO LASTNAME OF BALANCE
+111111           MOVE TRANSACTION OF TRANSACTION TO SALDO OF BALANCE
+123456         END-IF
+123456     END-READ
+123456     CLOSE BALANCES
+123456     CLOSE TRANSACTS
+000000     STOP RUN.
+
+        """.toIR(
+            firPlugins = listOf(
+                KeepNames(),
+                NullableToZero(),
+            ),
+            irPlugins = listOf(
+                Inlining(),
+                BooleanExpressions()
+            ),
+            fileConverter = {
+                JavaFilesKotlin()
+            },
+            serialization = {
+                KotlinxSerialization(it)
+            },
+            controlFlowHandling = {
+                ExitProcessControlFlowHandlingFactory.ExitProcessControlFlowHandling
+            }
+        )
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected =
+"""package files
+
+import app.softwork.serialization.flf.Ebcdic
+import app.softwork.serialization.flf.Ebcdic.Format
+import app.softwork.serialization.flf.FixedLength
+import app.softwork.serialization.flf.FixedLengthFormat
+import app.softwork.serialization.flf.append
+import app.softwork.serialization.flf.decode
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.File
+import kotlin.Int
+import kotlin.String
+import kotlin.Unit
+import kotlin.system.exitProcess
+import kotlin.text.charset
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+
+@ExperimentalSerializationApi
+@Serializable
+public data class TRANSACTION(
+  @FixedLength(10)
+  public val FIRSTNAME: String,
+  @FixedLength(10)
+  public val LASTNAME: String,
+  @Ebcdic(Format.Zoned)
+  @FixedLength(7)
+  public val TRANSACTION: Int,
+) {
+  public companion object {
+    public var FIRSTNAME: String = ""
+
+    public var LASTNAME: String = ""
+
+    public var TRANSACTION: Int = 0
+
+    public fun create(): TRANSACTION {
+      return TRANSACTION(FIRSTNAME, LASTNAME, TRANSACTION)
+    }
+  }
+}
+
+@ExperimentalSerializationApi
+@Serializable
+public data class BALANCE(
+  @FixedLength(10)
+  public val FIRSTNAME: String,
+  @FixedLength(10)
+  public val LASTNAME: String,
+  @Ebcdic(Format.Zoned)
+  @FixedLength(11)
+  public val SALDO: Int,
+) {
+  public companion object {
+    public var FIRSTNAME: String = ""
+
+    public var LASTNAME: String = ""
+
+    public var SALDO: Int = 0
+
+    public fun create(): BALANCE {
+      return BALANCE(FIRSTNAME, LASTNAME, SALDO)
+    }
+  }
+}
+
+public fun main(): Unit {
+  var COUNTER: Int = 0
+  println("START")
+  val TRANSACTS: BufferedReader = File("TRANSACTS").bufferedReader(charset("IBM-1140"))
+  val BALANCES: BufferedWriter = File("BALANCES").bufferedWriter(charset("IBM-1140"))
+  for (TRANSACTION in TRANSACTS.decode(TRANSACTION.serializer(), FixedLengthFormat(""))) {
+    COUNTER += 1
+    if (TRANSACTION.FIRSTNAME == BALANCE.FIRSTNAME && TRANSACTION.LASTNAME == BALANCE.LASTNAME) {
+      BALANCE.SALDO += TRANSACTION.TRANSACTION
+    } else {
+      if (COUNTER != 0) {
+        BALANCES.append(BALANCE.serializer(), BALANCE.create())
+      }
+      BALANCE.FIRSTNAME = TRANSACTION.FIRSTNAME
+      BALANCE.LASTNAME = TRANSACTION.LASTNAME
+      BALANCE.SALDO = TRANSACTION.TRANSACTION
+    }
+  }
+  BALANCES.append(BALANCE.serializer(), BALANCE.create())
+  BALANCES.close()
+  TRANSACTS.close()
+  exitProcess(0)
+}
+"""
         assertEquals(expected, output.toString())
     }
 }

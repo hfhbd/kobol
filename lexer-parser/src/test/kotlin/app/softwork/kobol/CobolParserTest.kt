@@ -8,6 +8,7 @@ import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.Custom.Part.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.Compressed.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.ReturnCode
 import app.softwork.kobol.fir.CobolFIRTree.EnvTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.NumberExpression.*
@@ -110,7 +111,7 @@ class CobolParserTest {
                         +fooRPICA
                     }
                     +StringElementar(name = "BAR", recordName = null, formatter = Simple(3))
-                    +returnCodeElementar
+                    +ReturnCode()
                 }), procedure = ProcedureTree(topLevel = build {
                 +Display(StringVariable(target = world))
                 +Display(StringVariable(target = foo))
@@ -118,6 +119,20 @@ class CobolParserTest {
             })
         ), input.toTree()
         )
+    }
+
+    @Test
+    fun returnCodeFound() {
+        val input = """
+        123456 IDENTIFICATION              DIVISION.
+        123456 PROGRAM-ID.                 HELLO.
+        123456 PROCEDURE                   DIVISION.
+        123456     MOVE "42" TO RETURN-CODE.
+        """.trimIndent()
+
+        assertNotNull(input.toTree().data.workingStorage.singleOrNull {
+            it is Elementar && it.name == "RETURN-CODE"
+        })
     }
 
     @Test
@@ -144,7 +159,7 @@ class CobolParserTest {
                 ),
                 data = DataTree(workingStorage = build { 
                     +world
-                    +returnCodeElementar
+                    +ReturnCode()
                 }),
                 procedure = ProcedureTree(topLevel = build {
                     +Display(
@@ -266,7 +281,7 @@ class CobolParserTest {
                         )
                     ),
                     workingStorage = build {
-                        +returnCodeElementar
+                        +ReturnCode()
                     }, linkingSection = emptyList()
                 ),
                 procedure = ProcedureTree(
@@ -315,11 +330,11 @@ class CobolParserTest {
                 data = DataTree(workingStorage = build {
                     +Record("RPI") {
                         +EmptyElementar("FOO1", "RPI")
-                        val world2 = NumberElementar("WORLD2", recordName = "RPI", formatter = Simple(1), value = 9.0)
+                        val world2 = NumberElementar.Normal("WORLD2", recordName = "RPI", formatter = Simple(1), value = 9.0)
                         +world2
                         +Pointer("WORLD3", recordName = "RPI")
                         +world4
-                        +NumberElementar(
+                        +NumberElementar.Normal(
                             "FOO5",
                             recordName = "RPI",
                             formatter = Simple(9),
@@ -329,15 +344,15 @@ class CobolParserTest {
                     }
 
                     +StringElementar("WORLD6", recordName = null, formatter = Simple(1))
-                    +NumberElementar(
+                    +NumberElementar.Normal(
                         "FOO7", recordName = null, formatter = Custom(Signed(6), Decimal(1)), value = .9, signed = true
                     )
-                    +NumberElementar("FOO8", recordName = null, formatter = Simple(1), value = .9, signed = false)
+                    +NumberElementar.Normal("FOO8", recordName = null, formatter = Simple(1), value = .9, signed = false)
                     +Record("RPICA") {
-                        +NumberElementar("FOOPIC", recordName = "RPICA", formatter = Simple(3))
+                        +NumberElementar.Normal("FOOPIC", recordName = "RPICA", formatter = Simple(3))
                     }
-                    +NumberElementar("FOO9", recordName = null, formatter = Simple(3))
-                    +returnCodeElementar
+                    +NumberElementar.Normal("FOO9", recordName = null, formatter = Simple(3))
+                    +ReturnCode()
                 }),
                 procedure = ProcedureTree(
                     topLevel = build {
@@ -369,7 +384,7 @@ class CobolParserTest {
             123456 DISPLAY 'FOO'.
         """.trimIndent()
 
-        val world2 = NumberElementar("WORLD2", recordName = null, formatter = Simple(1), value = 9.0)
+        val world2 = NumberElementar.Normal("WORLD2", recordName = null, formatter = Simple(1), value = 9.0)
 
         assertEquals(
             CobolFIRTree(
@@ -377,7 +392,7 @@ class CobolParserTest {
                 id = ID(programID = "HELLO"),
                 data = DataTree(workingStorage = build {
                     +world2
-                    +returnCodeElementar
+                    +ReturnCode()
                 }),
                 procedure = ProcedureTree(topLevel = build {
                     +Perform("FOO", until = Equals(NumberVariable(world2), 2.l))
@@ -457,9 +472,9 @@ class CobolParserTest {
         """.trimIndent()
 
         val sqlState = StringElementar("SQLSTATE", "SQLCA", Simple(5))
-        val foo = NumberElementar("FOO", recordName = null, value = 1.0, formatter = Simple(1))
-        val bar = NumberElementar("BAR", recordName = null, value = 1.0, formatter = Simple(1))
-        val barResult = NumberElementar("BARRESULT", recordName = null, value = 1.0, formatter = Simple(1))
+        val foo = NumberElementar.Normal("FOO", recordName = null, value = 1.0, formatter = Simple(1))
+        val bar = NumberElementar.Normal("BAR", recordName = null, value = 1.0, formatter = Simple(1))
+        val barResult = NumberElementar.Normal("BARRESULT", recordName = null, value = 1.0, formatter = Simple(1))
 
         assertEquals(
             CobolFIRTree(
@@ -470,7 +485,7 @@ class CobolParserTest {
                     +barResult
                     +Record("SQLCA") {
                         +StringElementar("SQLCAID", recordName = "SQLCA", value = "SQLCA   ", formatter = Simple(8))
-                        +NumberElementar(
+                        +NumberElementar.Normal(
                             "SQLCABC",
                             recordName = "SQLCA",
                             value = 136.0,
@@ -478,7 +493,7 @@ class CobolParserTest {
                             compressed = COMP5,
                             formatter = Simple(9)
                         )
-                        +NumberElementar(
+                        +NumberElementar.Normal(
                             "SQLCODE",
                             recordName = "SQLCA",
                             signed = true,
@@ -487,7 +502,7 @@ class CobolParserTest {
                         )
                         +EmptyElementar("SQLERRM", recordName = "SQLCA")
                         +StringElementar("SQLERRP", recordName = "SQLCA", Simple(8))
-                        +NumberElementar(
+                        +NumberElementar.Normal(
                             "SQLERRD",
                             recordName = "SQLCA",
                             Simple(9),
@@ -503,7 +518,7 @@ class CobolParserTest {
                         +sqlState
                     }
                     +foo
-                    +returnCodeElementar
+                    +ReturnCode()
                 }),
                 procedure = ProcedureTree(topLevel = build {
                     +ProcedureTree.Statement.Sql(

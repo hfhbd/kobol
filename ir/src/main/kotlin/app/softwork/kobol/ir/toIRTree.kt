@@ -167,7 +167,7 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
         isSigned = false,
     )
 
-    is IntExpression -> IntDeclaration(
+    is IntExpression -> IntDeclaration.Normal(
         name = when (this) {
             is Literal -> "expr"
             is Variable -> target.name
@@ -488,7 +488,13 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     is Continue -> emptyList()
     is GoBack -> requireNotNull(controlFlowHandling) { "Got GoBack without ControlFlowHandling plugin" }.goBack(this)
     is StopRun -> requireNotNull(controlFlowHandling) { "Got StopRun without ControlFlowHandling plugin" }
-        .stopRun(this, (types.declaration(returnCodeElementar) as IntDeclaration).variable() as IntVariable)
+        .stopRun(
+            this,
+            types.mapNotNull {
+                val globalVariable = it as? GlobalVariable ?: return@mapNotNull null
+                globalVariable.declaration as? IntDeclaration.ReturnCode
+            }.single().variable() as IntVariable
+        )
 
     is Call -> {
         val `class` = types.single {
@@ -621,7 +627,7 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
 
     is NumberElementar -> {
         when (formatter.numberType) {
-            Formatter.NumberType.Int -> IntDeclaration(
+            Formatter.NumberType.Int -> IntDeclaration.Normal(
                 name = name,
                 value = value?.let { IntLiteral(it.toInt()) },
                 mutable = true,
@@ -660,6 +666,17 @@ private fun CobolFIRTree.DataTree.WorkingStorage.toIR(packageName: String, sqlPr
     when (this) {
         is CobolFIRTree.DataTree.WorkingStorage.Elementar -> IRResult.Typ(
             when (this) {
+                is NumberElementar.ReturnCode -> GlobalVariable(
+                    declaration =
+                    IntDeclaration.ReturnCode(
+                        name = name,
+                        value = IntLiteral(value.toInt()),
+                        mutable = true,
+                        const = false,
+                        length = formatter.length(),
+                        isSigned = signed,
+                    ), doc = comments
+                )
                 is StringElementar, is NumberElementar -> GlobalVariable(
                     declaration = declaration(), doc = comments
                 )

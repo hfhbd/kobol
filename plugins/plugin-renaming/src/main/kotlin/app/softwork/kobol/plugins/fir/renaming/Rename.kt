@@ -226,9 +226,12 @@ public abstract class Rename(
             recordName = recordName?.classes()
         )
 
-        is WorkingStorage.Elementar.NumberElementar -> copy(
+        is WorkingStorage.Elementar.NumberElementar.Normal -> copy(
             name = name.variables(),
             recordName = recordName?.classes()
+        )
+        is WorkingStorage.Elementar.NumberElementar.ReturnCode -> copy(
+            name = name.variables(),
         )
 
         is WorkingStorage.Elementar.Pointer -> copy(

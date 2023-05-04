@@ -5,12 +5,14 @@ import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
-import app.softwork.kobol.fir.l
+import app.softwork.kobol.ir.l as irL
 import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
 import app.softwork.kobol.plugins.ir.ExitProcessControlFlowHandlingFactory.*
+import java.nio.file.Files
+import kotlin.io.path.writeText
 import kotlin.test.*
 
 class ToIrTest {
@@ -86,4 +88,56 @@ class ToIrTest {
             }
         ))
     }
+
+    @Test
+    fun returnCodeFound() {
+        //language=Cobol
+        val input = """
+        123456 IDENTIFICATION              DIVISION.
+        123456 PROGRAM-ID.                 HELLO.
+        123456 DATA DIVISION.
+        123456 WORKING-STORAGE SECTION.
+        123456 77 COUNTER  PIC 9(4).
+        123456 PROCEDURE                   DIVISION.
+        123456     MOVE 42 TO RETURN-CODE.
+        """.trimIndent()
+
+        val actual = input.toIR()
+        
+        val counter = Declaration.IntDeclaration.Normal(
+            name = "COUNTER",
+            length = 4,
+            value = null,
+            const = false,
+            mutable = true,
+            private = false,
+            isSigned = false
+        )
+        val expected = KobolIRTree(
+            id = "testing.cbl",
+            name = "hello",
+            main = Function(
+                name = "main",
+                parameters = emptyList(),
+                returnType = Void,
+                body = build {
+                    +Assignment(testingReturnCodeIr, 42.irL)
+                },
+                private = false,
+                doc = emptyList()
+            ),
+            types = build {
+                +GlobalVariable(counter, emptyList())
+                +RC
+            }
+        )
+        assertEquals(expected, actual)
+    }
+}
+
+private fun String.toIR(): KobolIRTree {
+    return listOf(
+        Files.createTempFile("kobol", ".cbl").apply { writeText(this@toIR) }
+            .toFile()
+    ).toIR().single().copy(id = "testing.cbl")
 }

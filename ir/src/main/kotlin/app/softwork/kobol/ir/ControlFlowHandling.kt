@@ -7,7 +7,11 @@ import java.io.*
 
 public interface ControlFlowHandling : Closeable {
     public fun goBack(goBack: GoBack): List<Statement>
-    public fun stopRun(stopRun: StopRun, returnCode: IntExpression): List<Statement>
+
+    public fun stopRun(
+        stopRun: StopRun,
+        returnCode: IntExpression,
+    ): List<Statement>
 
     override fun close() {}
 }
