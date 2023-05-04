@@ -14,7 +14,7 @@ public class ExitProcessControlFlowHandlingFactory : ControlFlowHandlingFactory 
         ExitProcessControlFlowHandling
 
     public companion object ExitProcessControlFlowHandling : ControlFlowHandling {
-        override fun goBack(goBack: GoBack): List<Statement> = 
+        override fun goBack(goBack: GoBack): Nothing = 
             TODO("GoBack is platform/application agnostic. Use your own ControlFlowHandling.")
 
         override fun stopRun(stopRun: StopRun, returnCode: IntExpression): List<Statement> =
