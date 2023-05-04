@@ -1,7 +1,7 @@
 plugins {
-    setup
-    repos
-    org.jetbrains.grammarkit
+    id("setup")
+    id("repos")
+    id("org.jetbrains.grammarkit")
 }
 
 grammarKit {

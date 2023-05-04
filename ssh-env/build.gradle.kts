@@ -1,6 +1,6 @@
 plugins {
-    setup
-    repos
+    id("setup")
+    id("repos")
 }
 
 dependencies {

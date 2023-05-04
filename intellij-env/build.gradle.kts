@@ -1,9 +1,9 @@
 import app.cash.licensee.LicenseeTask
 
 plugins {
-    setup
-    repos
-    com.github.johnrengelman.shadow
+    id("setup")
+    id("repos")
+    id("com.github.johnrengelman.shadow")
 }
 
 val idea = "221.6008.13"

@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
-    app.cash.licensee
+    id("app.cash.licensee")
     id("publish")
 }
 
