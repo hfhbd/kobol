@@ -22,7 +22,3 @@ dependencies {
     testImplementation(projects.plugins.pluginNosynthetic)
     testImplementation(projects.plugins.pluginExitprocess)
 }
-
-tasks.test {
-    this.jvmArgs
-}
