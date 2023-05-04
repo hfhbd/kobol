@@ -112,7 +112,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
             code.add("%L $op %L", declaration.toDec(packageName), value.toTemplate(packageName))
         }
         is Print -> code.println(this, packageName)
-        is Declaration -> code.add(CodeBlock.of("%L", createProperty(packageName)))
+        is Declaration -> code.add(CodeBlock.of("%L", createProperty(packageName, topLevel = false)))
         is FunctionCall -> code.add("%L", call(packageName))
 
         is Exit -> code.add(
@@ -466,7 +466,7 @@ private fun KobolIRTree.Types.Type.Class.toKotlin(packageName: String): TypeSpec
     }
 
     for (member in members) {
-        classBuilder.addProperty(member.createProperty(packageName).let {
+        classBuilder.addProperty(member.createProperty(packageName, topLevel = true).let {
             if (isData) {
                 it.toBuilder().initializer(member.name).apply {
                     annotations.clear()
@@ -491,7 +491,7 @@ private fun FileSpec.Builder.addGlobalVariable(packageName: String, data: KobolI
     val declaration = data.declaration
 
     addProperty(
-        declaration.createProperty(packageName).toBuilder().apply {
+        declaration.createProperty(packageName, topLevel = true).toBuilder().apply {
             if (declaration is Primitive && declaration.const) {
                 addModifiers(KModifier.CONST)
             }
@@ -499,7 +499,7 @@ private fun FileSpec.Builder.addGlobalVariable(packageName: String, data: KobolI
     )
 }
 
-private fun Declaration.createProperty(packageName: String): PropertySpec {
+private fun Declaration.createProperty(packageName: String, topLevel: Boolean): PropertySpec {
     val init = when (this) {
         is StringDeclaration -> value?.toTemplate(packageName)
         is BooleanDeclaration -> value?.toTemplate(packageName)
@@ -511,7 +511,7 @@ private fun Declaration.createProperty(packageName: String): PropertySpec {
         name = name, type = KType.copy(nullable = nullable)
     ).apply {
         mutable(mutable)
-        if (private) {
+        if (private && topLevel) {
             addModifiers(KModifier.PRIVATE)
         }
         initializer(init ?: CodeBlock.of("null").takeIf { nullable })

@@ -29,18 +29,9 @@ public fun CobolFile.toTree(): CobolFIRTree {
         fileName = name, id = id, env = env, data = data, procedure = procedure, fileComments = fileComments
     )
 }
-// https://www.ibm.com/docs/en/cobol-zos/6.3?topic=registers-return-code
-public val returnCodeElementar: NumberElementar = NumberElementar(
-    name = "RETURN-CODE",
-    recordName = null, 
-    value = 0.0,
-    formatter = Formatter.Simple(4),
-    signed = true,
-    synthetic = true,
-)
 
 internal val returnCode = DataTree(
-    workingStorage = listOf(returnCodeElementar) 
+    workingStorage = listOf(NumberElementar.ReturnCode())
 )
 
 private fun CobolIdDiv.toID(): ID {
@@ -157,7 +148,6 @@ private fun List<CobolRecordDef>.toRecords() = buildList {
     }
 } as List<Record>
 
-
 private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
     val definitions: List<WorkingStorage> = workingStorageSection?.stmList?.let {
         buildList {
@@ -196,9 +186,9 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
             }
             currentRecord?.let { add(it) }
 
-            add(returnCodeElementar)
+            add(NumberElementar.ReturnCode())
         }
-    } ?: listOf(returnCodeElementar)
+    } ?: listOf(NumberElementar.ReturnCode())
     val linkage = linkingSection?.recordDefList?.toRecords()
 
     val fileSection = fileSection?.let {
@@ -246,10 +236,10 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
     )
 }
 
-private fun DataTree?.findFile(fileName: String): File = notNull.fileSection.single { it.name == fileName }
+private fun DataTree.findFile(fileName: String): File = fileSection.single { it.name == fileName }
 
-private fun DataTree?.findFile(fileRecord: Record): File =
-    notNull.fileSection.single { it.recordName == fileRecord.name }
+private fun DataTree.findFile(fileRecord: Record): File =
+    fileSection.single { it.recordName == fileRecord.name }
 
 private fun sa(it: CobolRecordDef, recordName: String?, previous: List<NumberElementar>): Elementar? {
     val name = it.recordID?.varName?.text ?: return null
@@ -351,16 +341,23 @@ private fun single(
     )
 
     "9" -> {
-        NumberElementar(name = name, recordName = recordName, formatter = format, value = value?.let {
-            if (it.startsWith("ZERO")) {
-                0.0
-            } else it.toDouble()
-        }, comments = comments.asComments(), occurs = occurs.toFir(previous), compressed = compressed?.let {
-            NumberElementar.Compressed.valueOf(it.replace("-", ""))
-        })
+        Elementar.NumberElementar.Normal(
+            name = name,
+            recordName = recordName,
+            formatter = format,
+            value = value?.let {
+                if (it.startsWith("ZERO")) {
+                    0.0
+                } else it.toDouble()
+            },
+            comments = comments.asComments(),
+            occurs = occurs.toFir(previous),
+            compressed = compressed?.let {
+                NumberElementar.Compressed.valueOf(it.replace("-", ""))
+            })
     }
 
-    "S9" -> NumberElementar(name = name,
+    "S9" -> NumberElementar.Normal(name = name,
         recordName = recordName,
         formatter = format,
         value = value?.let {
@@ -375,7 +372,7 @@ private fun single(
             NumberElementar.Compressed.valueOf(it.replace("-", ""))
         })
 
-    "V9" -> NumberElementar(name = name,
+    "V9" -> NumberElementar.Normal(name = name,
         recordName = recordName,
         formatter = format,
         value = value?.let {
@@ -393,7 +390,7 @@ private fun single(
     else -> TODO(type)
 }
 
-private fun CobolProcedureDiv.toProcedure(dataTree: DataTree?) = ProcedureTree(topLevel = sentencesList.flatMap {
+private fun CobolProcedureDiv.toProcedure(dataTree: DataTree) = ProcedureTree(topLevel = sentencesList.flatMap {
     it.proceduresList.asStatements(dataTree)
 }, sections = procedureSectionList.map {
     Section(
@@ -404,7 +401,7 @@ private fun CobolProcedureDiv.toProcedure(dataTree: DataTree?) = ProcedureTree(t
 }, comments = comments.asComments()
 )
 
-private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statement> = flatMap { proc ->
+private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Statement> = flatMap { proc ->
     when {
         proc.displaying != null -> listOf(
             Display(
@@ -415,7 +412,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statem
 
         proc.moving != null -> proc.moving!!.variableList.map {
             Move(
-                target = dataTree.notNull.find(it) as Elementar,
+                target = dataTree.find(it) as Elementar,
                 value = proc.moving!!.expr.toExpr(dataTree).single(),
                 comments = proc.comments.asComments()
             )
@@ -423,7 +420,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statem
 
         proc.adding != null -> proc.adding!!.variableList.map {
             Add(
-                target = dataTree.notNull.find(it) as Elementar,
+                target = dataTree.find(it) as Elementar,
                 value = proc.adding!!.expr.toExpr(dataTree).single(),
                 comments = proc.comments.asComments()
             )
@@ -431,7 +428,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statem
 
         proc.subtracting != null -> listOf(
             Sub(
-                target = dataTree.notNull.find(proc.subtracting!!.variable) as Elementar,
+                target = dataTree.find(proc.subtracting!!.variable) as Elementar,
                 value = proc.subtracting!!.expr.toExpr(dataTree).single(),
                 comments = proc.comments.asComments()
             )
@@ -452,7 +449,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statem
             } else if (forEach != null) {
                 listOf(
                     ForEach(
-                        variable = dataTree.notNull.find(forEach.variable) as NumberElementar,
+                        variable = dataTree.find(forEach.variable) as NumberElementar,
                         from = forEach.expr.toExpr(dataTree).single() as Expression.NumberExpression,
                         by = forEach.forEachBy?.expr?.toExpr(dataTree)?.single() as Expression.NumberExpression?,
                         until = forEach.booleanExpr.toFir(dataTree),
@@ -520,9 +517,9 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statem
                     else -> Statement.Sql.SqlType.Execute
                 }
                 Statement.Sql(sql = it.text, comments = proc.comments.asComments(), hostVariables = hostVariables.map {
-                    (dataTree.notNull.workingStorage.find(it, null) as Elementar).toVariable()
+                    (dataTree.workingStorage.find(it, null) as Elementar).toVariable()
                 }, parameter = bindParameter.map {
-                    (dataTree.notNull.workingStorage.find(it, null) as Elementar).toVariable()
+                    (dataTree.workingStorage.find(it, null) as Elementar).toVariable()
                 }, type = type
                 )
             }
@@ -574,10 +571,10 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree?): List<Statem
 
         proc.writing != null -> {
             val writing = proc.writing!!
-            val fileRecord = dataTree.notNull.find(writing.variable) as Record
+            val fileRecord = dataTree.find(writing.variable) as Record
             val file = dataTree.findFile(fileRecord)
             val from = writing.writingFrom?.variable?.let {
-                dataTree.notNull.find(it)
+                dataTree.find(it)
             }
 
             listOf(
@@ -645,7 +642,7 @@ private fun PsiElement.asSequence(): Sequence<PsiElement> = sequence {
     }
 }
 
-private fun CobolBooleanExpr.toFir(dataTree: DataTree?): Expression.BooleanExpression {
+private fun CobolBooleanExpr.toFir(dataTree: DataTree): Expression.BooleanExpression {
     val or = booleanExprOr
     val and = booleanExprAnd
     val clause = booleanExprClause
@@ -663,7 +660,7 @@ private fun CobolBooleanExpr.toFir(dataTree: DataTree?): Expression.BooleanExpre
     }
 }
 
-private fun CobolBooleanExprClause.toFir(dataTree: DataTree?): Expression.BooleanExpression {
+private fun CobolBooleanExprClause.toFir(dataTree: DataTree): Expression.BooleanExpression {
     val left = booleanExprClauseLeft.expr.toExpr(dataTree).single()
     val right = booleanExprClauseRight.expr.toExpr(dataTree).single()
 
@@ -696,12 +693,7 @@ private fun CobolBooleanExprClause.toFir(dataTree: DataTree?): Expression.Boolea
     }
 }
 
-private val DataTree?.notNull
-    get() = checkNotNull(this) {
-        "No DATA DIVISION found"
-    }
-
-private fun CobolExpr.toExpr(dataTree: DataTree?): List<Expression> {
+private fun CobolExpr.toExpr(dataTree: DataTree): List<Expression> {
     val literal = literal
     val variable = variable
     val stringConcat = stringConcat
@@ -715,7 +707,7 @@ private fun CobolExpr.toExpr(dataTree: DataTree?): List<Expression> {
                     elementType == CobolTypes.NUMBER -> listOf(Expression.NumberExpression.NumberLiteral(number.text.toDouble()))
                     number is CobolVariable -> listOf(
                         Expression.NumberExpression.NumberVariable(
-                            dataTree.notNull.find(number) as NumberElementar
+                            dataTree.find(number) as NumberElementar
                         )
                     )
 
@@ -730,7 +722,7 @@ private fun CobolExpr.toExpr(dataTree: DataTree?): List<Expression> {
         }
 
         variable != null -> {
-            when (val found = dataTree.notNull.find(variable)) {
+            when (val found = dataTree.find(variable)) {
                 is Record -> found.elements.map { it.toVariable() }
                 is Elementar -> listOf(found.toVariable())
                 is WorkingStorage.Sql -> notPossible()
@@ -742,14 +734,14 @@ private fun CobolExpr.toExpr(dataTree: DataTree?): List<Expression> {
     }
 }
 
-private fun PsiElement.singleAsString(dataTree: DataTree?): Expression.StringExpression {
+private fun PsiElement.singleAsString(dataTree: DataTree): Expression.StringExpression {
     return when {
         elementType == CobolTypes.STRING || elementType == CobolTypes.STRING_VAR -> Expression.StringExpression.StringLiteral(
             value = text.drop(1).dropLast(1)
         )
 
         this is CobolVariable -> {
-            when (val elementar = dataTree.notNull.find(this)) {
+            when (val elementar = dataTree.find(this)) {
                 is StringElementar -> Expression.StringExpression.StringVariable(elementar)
                 is EmptyElementar -> notPossible()
                 is NumberElementar -> Expression.StringExpression.Interpolation(
@@ -768,7 +760,7 @@ private fun PsiElement.singleAsString(dataTree: DataTree?): Expression.StringExp
     }
 }
 
-private fun CobolStringConcat.toExpr(dataTree: DataTree?): Expression.StringExpression {
+private fun CobolStringConcat.toExpr(dataTree: DataTree): Expression.StringExpression {
     val allChildren = children.toList()
     require(allChildren.isNotEmpty())
     if (allChildren.count() == 1) {
@@ -800,13 +792,6 @@ private inline fun <T, R> Iterable<T>.foldSecond(initial: R, operation: (acc: R,
         }
     }
     return accumulator
-}
-
-private fun DataTree.findInLinking(variable: CobolVariable): WorkingStorage {
-    val name: String = variable.varName.text
-    val of = variable.ofClause?.recordID?.varName?.text
-
-    return linkingSection.find(name, of) ?: error("Record with name $name not found in LINKAGE SECTION")
 }
 
 private fun List<WorkingStorage>.find(

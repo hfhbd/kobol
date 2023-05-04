@@ -33,18 +33,14 @@ public operator fun Callable.invoke(vararg parameters: KobolIRTree.Expression): 
 public val Int.l: IntLiteral get() = IntLiteral(this)
 public val String.l: StringLiteral get() = StringLiteral(this)
 
-public val testingReturnCodeIr: Declaration.IntDeclaration = Declaration.IntDeclaration(
+public val testingReturnCodeIr: Declaration.IntDeclaration = Declaration.IntDeclaration.ReturnCode(
     name = "RETURN-CODE",
     const = false,
     mutable = true,
     isSigned = true,
-    nullable = false,
-    comments = emptyList(),
     annotations = emptyMap(),
     length = 4,
-    private = false,
     value = IntLiteral(0),
-    synthetic = true
 )
 
 public fun Builder<Statement>.exit(): Exit = Exit(testingReturnCodeIr.variable() as KobolIRTree.Expression.NumberExpression.IntExpression, emptyList())

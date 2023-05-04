@@ -44,10 +44,16 @@ internal fun KobolIRTree.inlineGlobalVariables(syntheticOnly: Boolean): KobolIRT
 
             else -> null
         }
-        val isSynthetic = syntheticOnly && (globalVariable.target as? Declaration.Primitive)?.synthetic == true
+        val isSynthetic = (globalVariable.target as? Declaration.Primitive)?.synthetic == true
         when {
             (singleWrite != null && singleWrite == singleRead) || (singleWrite == null && singleRead != null) -> {
-                inline(globalVariable, noWrites = singleWrite == null, singleRead, isSynthetic)
+                inline(
+                    globalVariable = globalVariable,
+                    noWrites = singleWrite == null,
+                    writesAndReadsInSameFunction = singleWrite == singleRead,
+                    singleRead = singleRead,
+                    isSynthetic = isSynthetic
+                )
             }
 
             isSynthetic -> {
@@ -67,22 +73,28 @@ internal fun KobolIRTree.inlineGlobalVariables(syntheticOnly: Boolean): KobolIRT
 private fun inline(
     globalVariable: GlobalVariable,
     noWrites: Boolean,
+    writesAndReadsInSameFunction: Boolean,
     singleRead: Types.Function,
     isSynthetic: Boolean
 ): GlobalVariable {
     val dec = globalVariable.declaration
     val expr = when {
         noWrites && isSynthetic -> (dec as Declaration.Primitive).value!!
+        writesAndReadsInSameFunction -> {
+            singleRead.body.add(0, dec)
+            dec.variable()
+        }
         noWrites -> {
-            val mutableDec = when (dec) {
+            val nonMutableDec = when (dec) {
                 is Declaration.ObjectDeclaration -> dec.copy(mutable = false)
                 is Declaration.BooleanDeclaration -> dec.copy(mutable = false)
                 is Declaration.DoubleDeclaration -> dec.copy(mutable = false)
-                is Declaration.IntDeclaration -> dec.copy(mutable = false)
+                is Declaration.IntDeclaration.Normal -> dec.copy(mutable = false)
+                is Declaration.IntDeclaration.ReturnCode -> dec.copy(mutable = false)
                 is Declaration.StringDeclaration -> dec.copy(mutable = false)
             }
-            singleRead.body.add(0, mutableDec)
-            mutableDec.variable()
+            singleRead.body.add(0, nonMutableDec)
+            nonMutableDec.variable()
         }
 
         isSynthetic -> (dec as Declaration.Primitive).value!!
@@ -262,11 +274,17 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
         ) as NumberExpression.DoubleExpression?
     )
 
-    is Declaration.IntDeclaration -> copy(
+    is Declaration.IntDeclaration.Normal -> copy(
         value = value?.useInlineVariable(
             globalVariable,
             variable
         ) as NumberExpression.IntExpression?
+    )
+    is Declaration.IntDeclaration.ReturnCode -> copy(
+        value = value.useInlineVariable(
+            globalVariable,
+            variable
+        ) as NumberExpression.IntExpression
     )
 
     is Declaration.StringDeclaration -> copy(

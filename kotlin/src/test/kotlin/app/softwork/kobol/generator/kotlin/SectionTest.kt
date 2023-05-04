@@ -165,12 +165,13 @@ class SectionTest {
     fun exitInMain() {
         //language=cobol
         val input = """
-            IDENTIFICATION DIVISION.
-            PROGRAM-ID. CALLING.
-            DATA DIVISION.
-            PROCEDURE DIVISION.
-            DISPLAY "FOO"
-            STOP RUN.
+            123456 IDENTIFICATION DIVISION.
+            123456 PROGRAM-ID. CALLING.
+            123456 DATA DIVISION.
+            123456 PROCEDURE DIVISION.
+            123456 DISPLAY "FOO"
+            123456 MOVE 42 TO RETURN-CODE
+            123456 STOP RUN.
         """.trimIndent().toIR(controlFlowHandling = {
             ExitProcessControlFlowHandling
         })
@@ -181,15 +182,58 @@ class SectionTest {
         val expected = """
         package calling
         
+        import kotlin.Int
         import kotlin.Unit
         import kotlin.system.exitProcess
         
         public fun main(): Unit {
+          var `RETURN-CODE`: Int = 0
           println("FOO")
-          exitProcess(0)
+          `RETURN-CODE` = 42
+          exitProcess(`RETURN-CODE`)
         }
         
         """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
+
+    @Test
+    fun exitInMainWithType() {
+        //language=cobol
+        val input = """
+            123456 IDENTIFICATION DIVISION.
+            123456 PROGRAM-ID. CALLING.
+            123456 DATA DIVISION.
+            123456 PROCEDURE DIVISION.
+            123456 DISPLAY "FOO"
+            123456 MOVE 42 TO RETURN-CODE
+            123456 STOP RUN.
+        """.trimIndent().toIR(
+            irPlugins = emptyList(),
+            controlFlowHandling = {
+            ExitProcessControlFlowHandling
+        })
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+        package calling
+        
+        import kotlin.Int
+        import kotlin.Unit
+        import kotlin.system.exitProcess
+        
+        private var `RETURN-CODE`: Int = 0
+        
+        public fun main(): Unit {
+          println("FOO")
+          `RETURN-CODE` = 42
+          exitProcess(`RETURN-CODE`)
+        }
+        
+        """.trimIndent()
+
         assertEquals(expected, output.toString())
     }
 }

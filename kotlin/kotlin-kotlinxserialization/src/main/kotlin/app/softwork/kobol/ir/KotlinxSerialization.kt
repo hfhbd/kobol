@@ -57,7 +57,7 @@ public class KotlinxSerialization(
                         )
                     }
 
-                    is IntDeclaration -> {
+                    is IntDeclaration.Normal -> {
                         val signed = if (it.isSigned) {
                             signedAnnotation
                         } else emptyMap()
@@ -66,6 +66,16 @@ public class KotlinxSerialization(
                                 "app.softwork.serialization.flf.FixedLength" to listOf(it.length.l)
                             ),
                             nullable = false
+                        )
+                    }
+                    is IntDeclaration.ReturnCode -> {
+                        val signed = if (it.isSigned) {
+                            signedAnnotation
+                        } else emptyMap()
+                        it.copy(
+                            annotations = signed + mapOf(
+                                "app.softwork.serialization.flf.FixedLength" to listOf(it.length.l)
+                            ),
                         )
                     }
 

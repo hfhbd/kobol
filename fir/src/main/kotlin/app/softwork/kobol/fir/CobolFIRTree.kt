@@ -98,7 +98,7 @@ public data class CobolFIRTree(
             public enum class FileType {
                 Sequential, LineSequential
             }
-            
+
             val recordName: String = records.map { it.name }.let {
                 val name = it.distinct()
                 name.singleOrNull() ?: error("Different Record names found for file $name: $it")
@@ -172,7 +172,11 @@ public data class CobolFIRTree(
                 }
 
                 @Serializable
-                public data class Occurs(val from: Int, val to: Int? = null, val dependingOn: NumberElementar? = null)
+                public data class Occurs(
+                    val from: Int,
+                    val to: Int? = null,
+                    val dependingOn: NumberElementar? = null
+                )
 
                 @Serializable
                 public sealed interface Formatter {
@@ -181,22 +185,23 @@ public data class CobolFIRTree(
                         is Simple -> length
                         is Custom -> parts.sumOf { it.length }
                     }
-                    
-                    public val isSigned: Boolean get() {
-                        return when (this) {
-                            is Simple -> false
-                            is Custom -> {
-                                for (part in parts) {
-                                    when (part) {
-                                        is Custom.Part.Signed -> return true
 
-                                        else -> continue
+                    public val isSigned: Boolean
+                        get() {
+                            return when (this) {
+                                is Simple -> false
+                                is Custom -> {
+                                    for (part in parts) {
+                                        when (part) {
+                                            is Custom.Part.Signed -> return true
+
+                                            else -> continue
+                                        }
                                     }
+                                    false
                                 }
-                                false
                             }
                         }
-                    }
 
                     public val numberType: NumberType
                         get() {
@@ -269,18 +274,46 @@ public data class CobolFIRTree(
                 }
 
                 @Serializable
-                public data class NumberElementar(
-                    override val name: String,
-                    override val recordName: String?,
-                    override val formatter: Formatter,
-                    override val value: Double? = null,
-                    val occurs: Occurs? = null,
-                    override val comments: List<String> = emptyList(),
-                    val signed: Boolean = false,
-                    val compressed: Compressed? = null,
-                    val binary: Boolean = false,
-                    val synthetic: Boolean = false,
-                ) : Elementar {
+                public sealed interface NumberElementar : Elementar {
+                    override val value: Double?
+                    override val formatter: Formatter
+                    public val occurs: Occurs?
+                    public val signed: Boolean
+                    public val compressed: Compressed?
+                    public val binary: Boolean
+                    public val synthetic: Boolean
+
+                    @Serializable
+                    public data class Normal(
+                        override val name: String,
+                        override val recordName: String?,
+                        override val formatter: Formatter,
+                        override val value: Double? = null,
+                        override val occurs: Occurs? = null,
+                        override val comments: List<String> = emptyList(),
+                        override val signed: Boolean = false,
+                        override val compressed: Compressed? = null,
+                        override val binary: Boolean = false,
+                        override val synthetic: Boolean = false,
+                    ) : NumberElementar
+
+                    // https://www.ibm.com/docs/en/cobol-zos/6.3?topic=registers-return-code
+                    @Serializable
+                    public data class ReturnCode(
+                        override val name: String = "RETURN-CODE",
+                    ) : NumberElementar {
+                        override val value: Double = 0.0
+                        override val occurs: Occurs? = null
+                        override val signed: Boolean = true
+                        override val compressed: Compressed? = null
+                        override val binary: Boolean = false
+
+                        override val formatter: Formatter = Formatter.Simple(4)
+                        override val comments: List<String> = emptyList()
+                        override val recordName: String? = null
+                        override val synthetic: Boolean = true
+                    }
+
                     @Serializable
                     public enum class Compressed {
                         COMP, COMP3, COMP5
@@ -309,10 +342,14 @@ public data class CobolFIRTree(
 
         @Serializable
         public data class Section(
-            val name: String, val statements: List<Statement> = emptyList(), val comments: List<String> = emptyList()
+            val name: String,
+            val statements: List<Statement> = emptyList(),
+            val comments: List<String> = emptyList()
         ) {
             public constructor(
-                name: String, comments: List<String> = emptyList(), builder: Builder<Statement>.() -> Unit
+                name: String,
+                comments: List<String> = emptyList(),
+                builder: Builder<Statement>.() -> Unit
             ) : this(name, build(builder), comments)
         }
 
@@ -326,14 +363,14 @@ public data class CobolFIRTree(
                 val value: Expression,
                 override val comments: List<String> = emptyList()
             ) : Statement
-            
+
             @Serializable
             public data class Add(
                 val target: DataTree.WorkingStorage.Elementar,
                 val value: Expression,
                 override val comments: List<String> = emptyList()
             ) : Statement
-            
+
             @Serializable
             public data class Sub(
                 val target: DataTree.WorkingStorage.Elementar,
@@ -343,7 +380,8 @@ public data class CobolFIRTree(
 
             @Serializable
             public data class Display(
-                val expr: Expression.StringExpression, override val comments: List<String> = emptyList()
+                val expr: Expression.StringExpression,
+                override val comments: List<String> = emptyList()
             ) : Statement
 
             @Serializable
@@ -403,7 +441,7 @@ public data class CobolFIRTree(
             public data class GoBack(
                 override val comments: List<String> = emptyList()
             ) : Statement
-            
+
             @Serializable
             public data class StopRun(
                 override val comments: List<String> = emptyList()
@@ -474,16 +512,19 @@ public data class CobolFIRTree(
             @Serializable
             public sealed interface BooleanExpression : Expression {
                 @Serializable
-                public data class Equals(val left: Expression, val right: Expression) : BooleanExpression
+                public data class Equals(val left: Expression, val right: Expression) :
+                    BooleanExpression
 
                 @Serializable
                 public data class Not(val target: BooleanExpression) : BooleanExpression
 
                 @Serializable
-                public data class Or(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
+                public data class Or(val left: BooleanExpression, val right: BooleanExpression) :
+                    BooleanExpression
 
                 @Serializable
-                public data class And(val left: BooleanExpression, val right: BooleanExpression) : BooleanExpression
+                public data class And(val left: BooleanExpression, val right: BooleanExpression) :
+                    BooleanExpression
 
                 @Serializable
                 public data class Greater(
@@ -515,7 +556,8 @@ public data class CobolFIRTree(
                 public operator fun plus(right: Expression): Concat = Concat(this, right)
 
                 @Serializable
-                public data class StringLiteral(override val value: String) : StringExpression, Literal {
+                public data class StringLiteral(override val value: String) : StringExpression,
+                    Literal {
                     init {
                         require(!value.startsWith("\""))
                         require(!value.startsWith("'"))
@@ -527,7 +569,8 @@ public data class CobolFIRTree(
                     StringExpression, Variable
 
                 @Serializable
-                public data class Concat(val left: Expression, val right: Expression) : StringExpression
+                public data class Concat(val left: Expression, val right: Expression) :
+                    StringExpression
 
                 @Serializable
                 public data class Interpolation(val value: Expression) : StringExpression
@@ -536,7 +579,8 @@ public data class CobolFIRTree(
             @Serializable
             public sealed interface NumberExpression : Expression {
                 @Serializable
-                public data class NumberLiteral(override val value: Double) : NumberExpression, Literal
+                public data class NumberLiteral(override val value: Double) : NumberExpression,
+                    Literal
 
                 @Serializable
                 public data class NumberVariable(override val target: DataTree.WorkingStorage.Elementar.NumberElementar) :

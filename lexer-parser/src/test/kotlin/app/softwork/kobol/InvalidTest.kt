@@ -7,20 +7,6 @@ import kotlin.test.*
 
 class InvalidTest {
     @Test
-    fun returnCodeFound() {
-        val input = """
-        123456 IDENTIFICATION              DIVISION.
-        123456 PROGRAM-ID.                 HELLO.
-        123456 PROCEDURE                   DIVISION.
-        123456     MOVE "42" TO RETURN-CODE.
-        """.trimIndent()
-
-        assertNotNull(input.toTree().data.workingStorage.singleOrNull { 
-            it is CobolFIRTree.DataTree.WorkingStorage.Elementar && it.name == "RETURN-CODE" 
-        })
-    }
-
-    @Test
     fun elementarNotFound() {
         val input = """
         123456 IDENTIFICATION              DIVISION.

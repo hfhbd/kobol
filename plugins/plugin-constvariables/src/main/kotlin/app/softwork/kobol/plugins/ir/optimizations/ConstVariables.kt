@@ -23,7 +23,8 @@ internal fun KobolIRTree.Types.constVariable() = when (this) {
                 declaration = when (val declaration = declaration as Primitive) {
                     is BooleanDeclaration -> declaration.copy(const = true)
                     is DoubleDeclaration -> declaration.copy(const = true)
-                    is IntDeclaration -> declaration.copy(const = true)
+                    is IntDeclaration.Normal -> declaration.copy(const = true)
+                    is IntDeclaration.ReturnCode -> declaration.copy(const = true)
                     is StringDeclaration -> declaration.copy(const = true)
                 }
             )
