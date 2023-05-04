@@ -5,13 +5,10 @@ plugins {
 }
 
 grammarKit {
-    val idea = "221.6008.13"
-    intellijRelease.set(idea)
+    intellijRelease.set(libs.versions.idea)
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.0")
-
     compileOnly(projects.intellijEnv) {
         targetConfiguration = "shadow"
     }

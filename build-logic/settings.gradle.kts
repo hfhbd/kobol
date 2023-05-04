@@ -5,6 +5,10 @@ dependencyResolutionManagement {
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         gradlePluginPortal()
     }
+
+    versionCatalogs.register("libs") {
+        from(files("../gradle/libs.versions.toml"))
+    }
 }
 
 rootProject.name = "build-logic"

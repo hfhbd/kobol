@@ -3,15 +3,14 @@ plugins {
 }
 
 dependencies {
-    val kotlin = "1.8.21"
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-serialization:$kotlin")
-    implementation("app.cash.licensee:licensee-gradle-plugin:1.7.0-SNAPSHOT")
-    implementation("org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.13.3")
-    implementation("org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2022.3.1")
-    implementation("com.github.johnrengelman:shadow:8.1.1")
-    implementation("app.softwork.serviceloader:gradle-plugin:0.0.8")
-    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$kotlin-1.0.11")
+    implementation(libs.kotlin.gradlePlugin)
+    implementation(libs.kotlin.serialization)
+    implementation(libs.licensee.gradlePlugin)
+    implementation(libs.intellij.gradlePlugin)
+    implementation(libs.grammar.gradlePlugin)
+    implementation(libs.shadow.gradlePlugin)
+    implementation(libs.serviceloader.gradlePlugin)
+    implementation(libs.ksp.gradlePlugin)
 }
 
 kotlin.jvmToolchain(17)
