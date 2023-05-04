@@ -1,12 +1,12 @@
 plugins {
-    setup
+    id("setup")
 }
 
 dependencies {
     api(projects.ir)
     api(projects.fir)
 
-    api("app.softwork:sqldelight-writer:0.0.2")
+    api(libs.sqldelight.writer)
 
     testImplementation(kotlin("test"))
 }

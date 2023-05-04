@@ -1,0 +1,31 @@
+[versions]
+kotlin = "1.8.21"
+idea = "221.6008.13"
+serialization = "1.5.0"
+
+[libraries]
+serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
+serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
+db2-dialect = { module = "app.softwork:sqldelight-db2-dialect", version = "0.0.3-SNAPSHOT" }
+
+kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.13.1" }
+javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
+
+sqldelight-writer = { module = "app.softwork:sqldelight-writer", version = "0.0.2" }
+idea-core-impl = { module = "com.jetbrains.intellij.platform:core-impl", version.ref = "idea" }
+idea-project-model-impl = { module = "com.jetbrains.intellij.platform:project-model-impl", version.ref = "idea" }
+idea-analysis-impl = { module = "com.jetbrains.intellij.platform:analysis-impl", version.ref = "idea" }
+idea-indexing-impl = { module = "com.jetbrains.intellij.platform:indexing-impl", version.ref = "idea" }
+
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+ksp-gradlePlugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version = "1.8.21-1.0.11" }
+shadow-gradlePlugin = { module = "com.github.johnrengelman:shadow", version = "8.1.1" }
+serviceloader-gradlePlugin = { module = "app.softwork.serviceloader:gradle-plugin", version = "0.0.8" }
+licensee-gradlePlugin = { module = "app.cash.licensee:licensee-gradle-plugin", version = "1.7.0-SNAPSHOT" }
+intellij-gradlePlugin = { module = "org.jetbrains.intellij.plugins:gradle-intellij-plugin", version = "1.13.3" }
+grammar-gradlePlugin = { module = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin", version = "2022.3.1" }
+
+[bundles]
+idea = ["idea-core-impl", "idea-project-model-impl", "idea-analysis-impl", "idea-indexing-impl"]

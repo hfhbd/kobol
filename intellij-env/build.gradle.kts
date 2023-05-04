@@ -1,17 +1,13 @@
 import app.cash.licensee.LicenseeTask
 
 plugins {
-    setup
-    repos
-    com.github.johnrengelman.shadow
+    id("setup")
+    id("repos")
+    id("com.github.johnrengelman.shadow")
 }
 
-val idea = "221.6008.13"
 dependencies {
-    shadow("com.jetbrains.intellij.platform:core-impl:$idea")
-    shadow("com.jetbrains.intellij.platform:project-model-impl:$idea")
-    shadow("com.jetbrains.intellij.platform:analysis-impl:$idea")
-    shadow("com.jetbrains.intellij.platform:indexing-impl:$idea")
+    shadow(libs.bundles.idea)
 }
 
 configurations.shadow {
@@ -113,8 +109,9 @@ licensee {
         because("Apache-2.0")
     }
 
+    // https://youtrack.jetbrains.com/issue/IDEA-313536/IntelliJ-platform-artifacts-Add-license-information-to-pom-artifacts
     fun allowIdea(module: String) {
-        allowDependency("com.jetbrains.intellij.platform", module, idea) {
+        allowDependency("com.jetbrains.intellij.platform", module, libs.versions.idea.get()) {
             because("Apache-2.0")
         }
     }

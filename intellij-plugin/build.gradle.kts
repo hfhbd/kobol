@@ -1,7 +1,7 @@
 plugins {
-    setup
-    repos
-    org.jetbrains.intellij
+    id("setup")
+    id("repos")
+    id("org.jetbrains.intellij")
 }
 
 dependencies {
@@ -15,8 +15,7 @@ configurations.implementation {
 }
 
 intellij {
-    val idea = "221.6008.13"
-    version.set("IU-$idea")
+    version.set(libs.versions.idea.map { "IU-$it" })
 }
 
 tasks {
@@ -36,7 +35,7 @@ tasks {
         from(buildPlugin)
         into("build/customRepo")
     }
-    val createPluginRepo by registering(CreatePluginRepo::class) {
+    register("createPluginRepo", CreatePluginRepo::class) {
         dependsOn(copyRepoPlugin, patchPluginXml)
         fileName.set(project.name)
         sinceBuild.set(patchPluginXml.flatMap { it.sinceBuild })

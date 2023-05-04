@@ -1,10 +1,10 @@
 plugins {
-    setup
+    id("setup")
 }
 
 dependencies {
     implementation(projects.ir)
-    implementation("com.squareup:kotlinpoet:1.13.1")
+    implementation(libs.kotlinpoet)
 
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"

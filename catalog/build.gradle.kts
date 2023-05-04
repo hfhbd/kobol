@@ -1,6 +1,6 @@
 plugins {
-    `version-catalog`
-    publish
+    id("version-catalog")
+    id("publish")
 }
 
 publishing {

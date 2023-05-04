@@ -1,10 +1,10 @@
 plugins {
-    setup
+    id("setup")
 }
 
 dependencies {
     implementation(projects.ir)
-    implementation("com.squareup:javapoet:1.13.0")
+    implementation(libs.javapoet)
 
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"
