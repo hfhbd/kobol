@@ -123,8 +123,14 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
         is Throw -> code.add("throws %L", expr.toTemplate(packageName))
         is Return -> code.add("return %L", expr.toTemplate(packageName))
         is LoadExternal -> code.add("System.loadLibrary(\"$libName\")")
-        is DoWhile -> code.beginControlFlow("do").add("%L\n", functionCall.call(packageName)).unindent()
-            .add("} while (%L)", condition.toTemplate(packageName))
+        is DoWhile -> {
+            code.beginControlFlow("do")
+            for (statement in statements) {
+                code.add("%L\n", statement.toKotlin(packageName))
+            }
+            code.unindent()
+            code.add("} while (%L)", condition.toTemplate(packageName))
+        }
 
         is For -> {
             code.add("%L = %L\n", counter.name, from.toTemplate(packageName))

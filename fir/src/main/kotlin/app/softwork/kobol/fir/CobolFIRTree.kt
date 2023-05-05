@@ -388,8 +388,15 @@ public data class CobolFIRTree(
             public data class Perform(
                 val sectionName: String,
                 override val comments: List<String> = emptyList(),
-                val until: Expression.BooleanExpression? = null
-            ) : Statement
+                val until: Expression.BooleanExpression? = null,
+                val testing: Testing = Testing.Before
+            ) : Statement {
+                @Serializable
+                public enum class Testing {
+                    After,
+                    Before,
+                }
+            }
 
             @Serializable
             public data class While(

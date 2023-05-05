@@ -1,18 +1,23 @@
 package app.softwork.kobol.ir
 
-import app.softwork.kobol.fir.*
+import app.softwork.kobol.fir.CobolFIRTree
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.ForEach
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.If
-import app.softwork.kobol.ir.KobolIRTree.*
+import app.softwork.kobol.fir.FirPlugin
+import app.softwork.kobol.fir.toTree
+import app.softwork.kobol.ir.KobolIRTree.Expression
 import app.softwork.kobol.ir.KobolIRTree.Expression.*
-import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.*
-import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.*
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.DoubleExpression
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable
+import app.softwork.kobol.ir.KobolIRTree.Types
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
-import java.io.*
+import java.io.File
 
 public fun File.toIR(
     firPlugins: List<FirPlugin> = emptyList(),
@@ -429,22 +434,32 @@ private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     is Display -> listOf(Print(expr = expr.toIR(types), comments = comments))
 
     is Perform -> {
+        val until = until
         val functionCall = FunctionCall(
             function = sections.single { section -> sectionName == section.name },
             parameters = emptyList(),
-            comments = comments
+            comments = if (until == null) comments else emptyList()
         )
-        val until = until
         if (until == null) {
             listOf(functionCall)
         } else {
-            listOf(
-                DoWhile(
-                    functionCall = functionCall,
-                    condition = BooleanExpression.Not(until.toIR(types)),
-                    comments = comments
+            when (testing) {
+                Perform.Testing.After -> listOf(
+                    DoWhile(
+                        statements = listOf(functionCall),
+                        condition = BooleanExpression.Not(until.toIR(types)),
+                        comments = comments
+                    )
                 )
-            )
+
+                Perform.Testing.Before -> listOf(
+                    Types.Function.Statement.While(
+                        statements = listOf(functionCall),
+                        condition = BooleanExpression.Not(until.toIR(types)),
+                        comments = comments
+                    )
+                )
+            }
         }
     }
 
@@ -677,6 +692,7 @@ private fun CobolFIRTree.DataTree.WorkingStorage.toIR(packageName: String, sqlPr
                         isSigned = signed,
                     ), doc = comments
                 )
+
                 is StringElementar, is NumberElementar -> GlobalVariable(
                     declaration = declaration(), doc = comments
                 )

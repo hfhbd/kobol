@@ -269,7 +269,7 @@ public data class KobolIRTree(
 
                 @Serializable
                 public data class DoWhile(
-                    val functionCall: FunctionCall,
+                    val statements: List<Statement>,
                     val condition: Expression.BooleanExpression,
                     override val comments: List<String> = emptyList()
                 ) : Statement

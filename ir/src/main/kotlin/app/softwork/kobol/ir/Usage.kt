@@ -65,7 +65,7 @@ private infix fun KobolIRTree.Types.Function.Statement.assigns(declaration: Decl
     is Assignment -> this.declaration == declaration
     is Math -> this.declaration == declaration
     is Declaration -> false
-    is DoWhile -> functionCall assigns declaration
+    is DoWhile -> statements assigns declaration
     is Exit -> false
     is Throw -> false
     is For -> counter == declaration || statements assigns declaration
@@ -112,7 +112,8 @@ private infix fun Declaration.usedIn(it: KobolIRTree.Types.Function.Statement): 
         is Assignment -> this in it.newValue
         is Math -> this in it.value
         is Declaration -> this in it.value
-        is DoWhile -> this in it.functionCall.parameters || this in it.condition
+        is DoWhile -> this in it.condition || this usedIn it.statements
+        is While -> this in it.condition || this usedIn it.statements
         is Exit -> this in it.returnVariable
         is Throw -> this in it.expr
         is For -> {
@@ -138,9 +139,6 @@ private infix fun Declaration.usedIn(it: KobolIRTree.Types.Function.Statement): 
         is When.Single -> this in it.expr || this usedIn it.elseCase?.action || it.cases.any {
             this in it.condition || this usedIn it.action
         }
-
-        is While -> this in it.condition || this usedIn it.statements
-
         is Return -> this in it.expr
         is Static -> false
         is Use -> this usedIn it.target || this usedIn it.action

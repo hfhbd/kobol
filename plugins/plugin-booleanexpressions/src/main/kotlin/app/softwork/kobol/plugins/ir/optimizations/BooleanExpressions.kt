@@ -138,8 +138,8 @@ private fun KobolIRTree.Expression.booleanExpressions(): KobolIRTree.Expression 
 }
 
 private fun KobolIRTree.Types.Function.Statement.DoWhile.booleanExpressions() = copy(
-    functionCall = functionCall.booleanExpressions(),
-    condition = condition.optimize()
+    condition = condition.optimize(),
+    statements = statements.map { it.booleanExpressions() }
 )
 
 private fun KobolIRTree.Types.Function.Statement.For.booleanExpressions() = copy(

@@ -295,8 +295,8 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
     )
 
     is DoWhile -> copy(
-        functionCall = ((functionCall as Statement).useInlineVariable(globalVariable, variable)) as FunctionCall,
-        condition = condition.useInlineVariable(globalVariable, variable) as BooleanExpression
+        condition = condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
+        statements = statements.useInlineVariable(globalVariable, variable)
     )
 
     is Exit -> copy(
