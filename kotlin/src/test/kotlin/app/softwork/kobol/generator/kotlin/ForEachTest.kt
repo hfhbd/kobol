@@ -17,7 +17,7 @@ class ForEachTest {
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 PROCEDURE                   DIVISION.
         123456*COMMENT I
-        123456 PERFORM FOO UNTIL WORLD = 'FOO'.
+        123456 PERFORM FOO WITH TEST AFTER UNTIL WORLD = 'FOO'.
         123456 FOO SECTION.
         123456   DISPLAY 'FOO'.
         """.trimIndent().toIR()
@@ -42,6 +42,52 @@ class ForEachTest {
           do {
             FOO()
           } while (!(WORLD == "FOO"))
+          FOO()
+        }
+        
+        """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
+    
+    @Test
+    fun performWhile() {
+        //language=cobol
+        val input = """
+        123456 IDENTIFICATION              DIVISION.
+        123456 PROGRAM-ID.                 HELLO.
+        123456 AUTHOR. WEDEMANN / Softwork.app
+        123456 INSTALLATION. Softwork.app
+        123456 DATE-WRITTEN TODAY.
+        123456 DATA                        DIVISION.
+        123456 WORKING-STORAGE SECTION.
+        123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
+        123456 PROCEDURE                   DIVISION.
+        123456*COMMENT I
+        123456 PERFORM FOO WITH TEST BEFORE UNTIL WORLD = 'FOO'.
+        123456 FOO SECTION.
+        123456   DISPLAY 'FOO'.
+        """.trimIndent().toIR()
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+        package hello
+        
+        import kotlin.String
+        import kotlin.Unit
+        
+        public fun FOO(): Unit {
+          println("FOO")
+        }
+        
+        public var WORLD: String = "WORLD!"
+        
+        public fun main(): Unit {
+          // COMMENT I
+          while (!(WORLD == "FOO")) {
+            FOO()
+          }
           FOO()
         }
         

@@ -17,7 +17,7 @@ class ForEachJavaTest {
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
         123456 PROCEDURE                   DIVISION.
         123456*COMMENT I
-        123456 PERFORM FOO UNTIL WORLD = 'FOO'.
+        123456 PERFORM FOO WITH TEST AFTER UNTIL WORLD = 'FOO'.
         123456 FOO SECTION.
         123456   DISPLAY 'FOO'.
         """.trimIndent().toIR()

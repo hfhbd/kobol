@@ -235,6 +235,10 @@ VARNAME=[a-zA-Z]([\w\-_])*
     "MOVE"                          { return MOVE; }
     "PERFORM"                       { return PERFORM; }
     "END-PERFORM"                   { return END_PERFORM; }
+    "WITH"                          { return WITH; }
+    "TEST"                          { return TEST; }
+    "AFTER"                         { return AFTER; }
+    "BEFORE"                        { return BEFORE; }
     "UNTIL"                         { return UNTIL; }
     "IF"                            { return IF; }
     "THEN"                          { return THEN; }

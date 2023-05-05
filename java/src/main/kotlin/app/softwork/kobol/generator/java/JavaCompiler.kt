@@ -124,8 +124,14 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
         is Throw -> code.add("throw \$L;\n", expr.toTemplate())
         is Return -> code.add("return \$L;\n", expr.toTemplate())
         is LoadExternal -> code.add("System.loadLibrary(\"$libName\");\n")
-        is DoWhile -> code.beginControlFlow("do").add(functionCall.call()).unindent()
-            .add("} while (\$L);\n", condition.toTemplate())
+        is DoWhile -> {
+            code.beginControlFlow("do")
+            for (statement in statements) {
+                code.add(statement.toJava())
+            }
+            code.unindent()
+            code.add("} while (\$L);\n", condition.toTemplate())
+        }
 
         is For -> {
             val init = CodeBlock.of("\$L = \$L", counter.name, from.toTemplate())

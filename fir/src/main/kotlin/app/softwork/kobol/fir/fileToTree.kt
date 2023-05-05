@@ -33,7 +33,7 @@ public fun Iterable<File>.toTree(firPlugins: Iterable<FirPlugin> = emptyList()):
                 }
                 this[tree.fileName] = tree
             } catch (e: Exception) {
-                throw IllegalStateException(file.virtualFile.presentableUrl, e).apply {
+                throw IllegalStateException(file.virtualFile.name, e).apply {
                     stackTrace = e.stackTrace
                 }
             }

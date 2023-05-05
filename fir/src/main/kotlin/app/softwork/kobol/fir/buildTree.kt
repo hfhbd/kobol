@@ -18,6 +18,12 @@ import com.intellij.psi.util.*
 import com.intellij.testFramework.*
 
 public fun CobolFile.toTree(): CobolFIRTree {
+    val errors = this.childrenOfType<PsiErrorElement>()
+    if(errors.isNotEmpty()) {
+        error(errors.joinToString(separator = "\n") { 
+            it.errorDescription
+        })
+    }
     val id = program.idDiv.toID()
     val env = program.envDiv?.toEnv()
     val data = program.dataDiv?.toData(env) ?: returnCode
@@ -436,14 +442,18 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
 
         proc.performing != null -> {
             val isWhile = proc.performing!!.`while`
-            val doWhile = proc.performing!!.doWhile
+            val performWhile = proc.performing!!.performWhile
             val forEach = proc.performing!!.forEach
-            if (doWhile != null) {
+            if (performWhile != null) {
                 listOf(
                     Perform(
-                        sectionName = doWhile.sectionID.varName.text,
+                        sectionName = performWhile.sectionID.varName.text,
                         comments = proc.comments.asComments(),
-                        until = doWhile.booleanExpr?.toFir(dataTree)
+                        until = performWhile.booleanExpr?.toFir(dataTree),
+                        // https://www.ibm.com/docs/en/cobol-zos/6.3?topic=statement-perform-varying-phrase
+                        testing = performWhile.asDoWhile?.afterWhile?.let { 
+                            Perform.Testing.After
+                        } ?: Perform.Testing.Before
                     )
                 )
             } else if (forEach != null) {
