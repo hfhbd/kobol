@@ -76,18 +76,18 @@ tasks.jar {
 
 configurations {
     apiElements {
-        outgoing.artifacts.removeIf { tasks.jar.get() in it.buildDependencies.getDependencies(null) }
+        outgoing.artifacts.removeIf { tasks.jar.name in it.buildDependencies.getDependencies(null).map { it.name } }
         outgoing.artifact(tasks.shadowJar)
     }
     runtimeElements {
-        outgoing.artifacts.removeIf { tasks.jar.get() in it.buildDependencies.getDependencies(null) }
+        outgoing.artifacts.removeIf { tasks.jar.name in it.buildDependencies.getDependencies(null).map { it.name } }
         outgoing.artifact(tasks.shadowJar)
     }
 }
 
 val licenseeShadow by tasks.registering(LicenseeTask::class) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
-    configurationToCheck(configurations.shadow.get())
+    configurationToCheck(configurations.shadow)
     outputDir.set(reporting.baseDirectory.dir("licenseeShadow"))
 }
 
@@ -95,6 +95,7 @@ tasks.check {
     dependsOn(licenseeShadow)
 }
 
+// https://github.com/cashapp/licensee/pull/194
 afterEvaluate {
     tasks.named("licensee") {
         enabled = false
