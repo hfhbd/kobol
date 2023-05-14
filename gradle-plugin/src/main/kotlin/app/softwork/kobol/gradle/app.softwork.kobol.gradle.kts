@@ -10,26 +10,28 @@ private val convertAll = tasks.register("convertCobol") {
 
 private val cobolFiles = layout.projectDirectory.asFileTree.matching {
     include {
-        it.name.endsWith(".cbl")
+        !it.isDirectory && it.name.endsWith(".cbl")
     }
-}.elements.map {
-    it.map { file ->
+}.elements.map { cobolFiles ->
+    cobolFiles.map { cobolFile ->
+        cobolFile as RegularFile
         val cobolSource = objects.newInstance(
             CobolSource::class.java,
-            file.asFile.nameWithoutExtension,
-            file
+            cobolFile.asFile.nameWithoutExtension,
+            cobolFile
         )
         val convert = tasks.register(cobolSource.taskName, KobolTask::class.java) {
             classpath.from(configurations.named(cobolSource.plugins))
-            sources.from(file)
+            sources.from(cobolFiles)
         }
 
-        convertAll.configure {
+        convertAll {
             dependsOn(convert)
         }
         cobolSource
     }
 }
+// https://github.com/gradle/gradle/issues/23540
 cobols.addAll(cobolFiles.get())
 
 

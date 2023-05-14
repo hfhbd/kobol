@@ -41,6 +41,6 @@ java {
 }
 
 val storeVersion by tasks.registering(StoreVersion::class)
-kotlin.sourceSets.main.configure {
+kotlin.sourceSets.main {
     kotlin.srcDir(storeVersion)
 }
