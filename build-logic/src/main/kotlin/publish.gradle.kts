@@ -1,18 +1,27 @@
+import org.gradle.api.publish.maven.*
+import org.gradle.api.tasks.bundling.*
+import org.gradle.kotlin.dsl.*
+import java.util.*
+
 plugins {
     id("maven-publish")
+    id("signing")
 }
 
+val emptyJar by tasks.registering(Jar::class) { }
+
 publishing {
-    repositories {
-        maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {
-            name = "GitHubPackages"
-            credentials(PasswordCredentials::class)
-        }
-    }
     publications.withType<MavenPublication>().configureEach {
         pom {
             name.set("app.softwork KOBOL")
+            description.set("A Cobol to Kotlin converter")
             url.set("https://github.com/hfhbd/kobol")
+            licenses {
+                license {
+                    name.set("The Apache License, Version 2.0")
+                    url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                }
+            }
             developers {
                 developer {
                     id.set("hfhbd")
@@ -27,6 +36,19 @@ publishing {
             }
         }
     }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey?.let { String(Base64.getDecoder().decode(it)).trim() }, signingPassword)
+    sign(publishing.publications)
+}
+
+// https://youtrack.jetbrains.com/issue/KT-46466
+val signingTasks = tasks.withType<Sign>()
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    dependsOn(signingTasks)
 }
 
 tasks.withType<AbstractArchiveTask>().configureEach {

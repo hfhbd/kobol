@@ -26,6 +26,7 @@ serviceloader-gradlePlugin = { module = "app.softwork.serviceloader:gradle-plugi
 licensee-gradlePlugin = { module = "app.cash.licensee:licensee-gradle-plugin", version = "1.7.0" }
 intellij-gradlePlugin = { module = "org.jetbrains.intellij.plugins:gradle-intellij-plugin", version = "1.13.3" }
 grammar-gradlePlugin = { module = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin", version = "2022.3.1" }
+publish-gradlePlugin = { module = "io.github.gradle-nexus:publish-plugin", version = "1.1.0" }
 
 [bundles]
 idea = ["idea-core-impl", "idea-project-model-impl", "idea-analysis-impl", "idea-indexing-impl"]

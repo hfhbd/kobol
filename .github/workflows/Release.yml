@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
       pages: write
       id-token: write
 
@@ -22,8 +21,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     env:
-      ORG_GRADLE_PROJECT_GitHubPackagesUsername: ${{ github.actor }}
-      ORG_GRADLE_PROJECT_GitHubPackagesPassword: ${{ secrets.GITHUB_TOKEN }}
       GRADLE_OPTS: -Dorg.gradle.caching=true
 
     steps:
@@ -42,6 +39,12 @@ jobs:
         run: ./gradlew build
       - name: Publish
         run: ./gradlew -Pversion=$version publish
+        env:
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONARTYPE_APIKEY }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONARTYPE_APITOKEN }}
+
       - run: ./gradlew -Pversion=$version createPluginRepo
       - uses: actions/upload-pages-artifact@v1
         with:
