@@ -35,12 +35,12 @@ tasks.validatePlugins {
     enableStricterValidation.set(true)
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 val storeVersion by tasks.registering(StoreVersion::class)
 kotlin.sourceSets.main {
     kotlin.srcDir(storeVersion)
+}
+
+gradlePlugin.plugins.configureEach {
+    displayName = "Kobol Gradle Plugin"
+    description = "Kobol Gradle Plugin"
 }
