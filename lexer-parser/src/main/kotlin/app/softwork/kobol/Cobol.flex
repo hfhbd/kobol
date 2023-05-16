@@ -50,8 +50,6 @@ VARNAME=[a-zA-Z]([\w\-_])*
 
 %{
   private boolean isID = false;
-  
-  public int yycolumn;
 
   private IElementType number() {
       if (yycolumn > 5) {

@@ -32,20 +32,11 @@ tasks {
 
     generateLexer {
         sourceFile.set(file("src/main/kotlin/app/softwork/kobol/Cobol.flex"))
-        targetDir.set("$buildDir/generated/lexer/main/java/app/softwork/kobol/")
-
-        targetClass.set("CobolLexer") // Useless
-
-        purgeOldFiles.set(true)
+        targetOutputDir.set(layout.buildDirectory.dir("generated/lexer/main/java/app/softwork/kobol/"))
     }
     generateParser {
         sourceFile.set(file("src/main/kotlin/app/softwork/kobol/Cobol.bnf"))
-        targetRoot.set("$buildDir/generated/parser/main/java")
-        
-        pathToParser.set("CobolParserGenerated.java") // Useless
-        pathToPsiRoot.set("") // Useless
-        
-        purgeOldFiles.set(true)
+        targetRootOutputDir.set(layout.buildDirectory.dir("generated/parser/main/java"))
     }
 }
 
