@@ -14,7 +14,6 @@ private val cobolFiles = layout.projectDirectory.asFileTree.matching {
     }
 }.elements.map { cobolFiles ->
     cobolFiles.map { cobolFile ->
-        cobolFile as RegularFile
         val cobolSource = objects.newInstance(
             CobolSource::class.java,
             cobolFile.asFile.nameWithoutExtension,
