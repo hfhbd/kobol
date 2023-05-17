@@ -8,7 +8,7 @@ based on the
 
 Thank you for your interest in contributing to Jan Philip Wedemann's Kobol ("We" or "Us").
 
-The purpose of this contributor agreement ("Agreement") is to clarify and document the rights granted by contributors to Us. To make this document effective, please send the filled and signed to info@softwork.app
+The purpose of this contributor agreement ("Agreement") is to clarify and document the rights granted by contributors to Us. To make this document effective, send the filled and signed Agreement to info@softwork.app
 
 ### 0\. Preamble
 
