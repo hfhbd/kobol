@@ -12,7 +12,7 @@ import javax.inject.*
 
 public abstract class CobolSource @Inject constructor(
     name: String,
-    public val file: RegularFile,
+    public val file: FileSystemLocation,
     project: Project
 ) : Named {
     private val name = name.lowercase()
@@ -56,4 +56,4 @@ public fun TaskContainer.convert(source: NamedDomainObjectProvider<CobolSource>,
     named<KobolTask>(source.name.taskName()).configure(configuration)
 }
 
-public val NamedDomainObjectProvider<CobolSource>.file: Provider<RegularFile> get() = map { it.file }
+public val NamedDomainObjectProvider<CobolSource>.file: Provider<FileSystemLocation> get() = map { it.file }

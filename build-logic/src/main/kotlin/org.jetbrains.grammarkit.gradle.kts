@@ -1,4 +1,6 @@
 // Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+// https://github.com/JetBrains/gradle-grammar-kit-plugin
+// Changes by hfhbd: Refactor plugin code to precompiled plugin
 
 import gradle.kotlin.dsl.accessors._64de664e3f3ca753fb856e13fe0d41c2.compileClasspath
 import gradle.kotlin.dsl.accessors._64de664e3f3ca753fb856e13fe0d41c2.compileOnly

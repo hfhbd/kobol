@@ -25,6 +25,9 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+// https://github.com/ymnk/jsch-agent-proxy
+// Changes by hfhbd: Refactor to Kotlin
+
 package com.jcraft.jsch.agentproxy
 
 internal class AgentProxyException(
