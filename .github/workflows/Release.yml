@@ -44,7 +44,12 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONARTYPE_APIKEY }}
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONARTYPE_APITOKEN }}
-
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          path: |
+            build/reports/configuration-cache/**/configuration-cache-report.html
       - run: ./gradlew -Pversion=$version createPluginRepo
       - uses: actions/upload-pages-artifact@v1
         with:
