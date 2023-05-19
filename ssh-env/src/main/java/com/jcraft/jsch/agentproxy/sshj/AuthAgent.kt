@@ -30,39 +30,40 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch.agentproxy.sshj
 
-import com.jcraft.jsch.agentproxy.*
-import net.schmizz.sshj.common.*
-import net.schmizz.sshj.common.Buffer.*
-import net.schmizz.sshj.transport.*
-import net.schmizz.sshj.userauth.*
-import net.schmizz.sshj.userauth.method.*
+import com.jcraft.jsch.agentproxy.Identity
+import com.jcraft.jsch.agentproxy.PAgentProxy
+import net.schmizz.sshj.common.Buffer.PlainBuffer
+import net.schmizz.sshj.common.Message
+import net.schmizz.sshj.common.SSHPacket
+import net.schmizz.sshj.transport.TransportException
+import net.schmizz.sshj.userauth.UserAuthException
+import net.schmizz.sshj.userauth.method.AbstractAuthMethod
 
 /**
  * An AuthMethod for sshj authentication with an agent.
  */
-public class AuthAgent(
+internal class AuthAgent(
     /** The AgentProxy instance that is used for signing  */
-    private val agentProxy: AgentProxy,
+    private val agentProxy: PAgentProxy,
     /** The identity from Agent  */
     private val identity: Identity
 ) : AbstractAuthMethod("publickey") {
 
     /** The identity's key algorithm  */
-    private val algorithm: String = PlainBuffer(identity.blob).readString()
-    private val comment: String = String(identity.comment)
+    private val algorithm = PlainBuffer(identity.blob).readString()
 
     /** Internal use.  */
     override fun handle(cmd: Message, buf: SSHPacket) {
         if (cmd == Message.USERAUTH_60) sendSignedReq() else super.handle(cmd, buf)
     }
-    
+
     private fun putPubKey(reqBuf: SSHPacket): SSHPacket {
         reqBuf
             .putString(algorithm)
             .putBytes(identity.blob).compactData
         return reqBuf
     }
-    
+
     private fun putSig(reqBuf: SSHPacket): SSHPacket {
         val dataToSign = PlainBuffer()
             .putString(params.transport.sessionID)

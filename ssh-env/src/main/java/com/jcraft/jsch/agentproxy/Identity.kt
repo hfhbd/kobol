@@ -30,4 +30,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch.agentproxy
 
-public class Identity internal constructor(public val blob: ByteArray, public val comment: ByteArray)
+internal class Identity(val blob: ByteArray, val comment: ByteArray)

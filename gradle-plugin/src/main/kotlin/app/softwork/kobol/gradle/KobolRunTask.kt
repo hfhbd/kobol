@@ -59,8 +59,7 @@ internal fun sshClient(host: String, user: String, action: SSHClient.() -> Unit)
     SSHClient().use { ssh ->
         ssh.loadKnownHosts()
         ssh.connect(host)
-        val proxy = AgentProxy(PageantConnector())
-        ssh.auth(user, proxy.identities.map { AuthAgent(proxy, it) })
+        ssh.auth(user, PAgentProxy.authAgents())
         ssh.action()
     }
 }
