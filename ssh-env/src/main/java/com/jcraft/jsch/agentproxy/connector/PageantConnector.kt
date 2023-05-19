@@ -30,15 +30,19 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch.agentproxy.connector
 
-import com.jcraft.jsch.agentproxy.*
-import com.sun.jna.*
+import com.jcraft.jsch.agentproxy.AgentProxyException
+import com.jcraft.jsch.agentproxy.Buffer
+import com.sun.jna.Memory
+import com.sun.jna.Native
+import com.sun.jna.Pointer
+import com.sun.jna.Structure
 import com.sun.jna.platform.win32.*
-import com.sun.jna.platform.win32.WinBase.*
-import com.sun.jna.platform.win32.WinDef.*
+import com.sun.jna.platform.win32.WinDef.HWND
+import com.sun.jna.platform.win32.WinDef.WPARAM
 import com.sun.jna.platform.win32.WinNT.*
-import com.sun.jna.win32.*
+import com.sun.jna.win32.W32APIOptions
 
-public class PageantConnector : Connector {
+internal class PageantConnector {
     private val libU: User32
     private val libK: Kernel32
 
@@ -53,11 +57,8 @@ public class PageantConnector : Connector {
         }
     }
 
-    override val name: String = "pageant"
-    override val isAvailable: Boolean = isConnectorAvailable()
-
     internal interface User32 : com.sun.jna.platform.win32.User32 {
-        fun SendMessage(hWnd: HWND?, msg: Int, num1: WPARAM?, num2: ByteArray?): Long
+        fun SendMessage(hWnd: HWND, msg: Int, num1: WPARAM?, num2: ByteArray): Long
 
         companion object {
             internal val INSTANCE: User32 = Native.load(
@@ -68,13 +69,6 @@ public class PageantConnector : Connector {
         }
     }
 
-    internal class COPYDATASTRUCT32 : Structure() {
-        var dwData = 0
-        var cbData = 0
-        var lpData: Pointer? = null
-        override fun getFieldOrder(): List<String> = listOf("dwData", "cbData", "lpData")
-    }
-
     internal class COPYDATASTRUCT64 : Structure() {
         var dwData = 0
         var cbData: Long = 0
@@ -82,16 +76,14 @@ public class PageantConnector : Connector {
         override fun getFieldOrder(): List<String> = listOf("dwData", "cbData", "lpData")
     }
 
-    override fun query(buffer: Buffer) {
-        val hwnd = libU.FindWindow("Pageant", "Pageant") 
+    fun query(buffer: Buffer) {
+        val hwnd = libU.FindWindow("Pageant", "Pageant")
             ?: throw AgentProxyException("Pageant is not runnning.", null)
         val mapname = String.format("PageantRequest%08x", libK.GetCurrentThreadId())
 
-        // TODO
-        val psa: SECURITY_ATTRIBUTES? = null
-        val sharedFile: HANDLE = libK.CreateFileMapping(
+        val sharedFile = libK.CreateFileMapping(
             WinBase.INVALID_HANDLE_VALUE,
-            psa,
+            null,
             PAGE_READWRITE,
             0,
             8192,  // AGENT_MAX_MSGLEN
@@ -104,15 +96,9 @@ public class PageantConnector : Connector {
         )
         try {
             sharedMemory.write(0, buffer.buffer, 0, buffer.length)
-            val rcode = if (Platform.is64Bit()) {
-                val cds64 = COPYDATASTRUCT64()
-                val data = install64(mapname, cds64)
-                sendMessage(hwnd, data)
-            } else {
-                val cds32 = COPYDATASTRUCT32()
-                val data = install32(mapname, cds32)
-                sendMessage(hwnd, data)
-            }
+            val cds64 = COPYDATASTRUCT64()
+            val data = install64(mapname, cds64)
+            val rcode = sendMessage(hwnd, data)
             buffer.rewind()
             if (rcode != 0L) {
                 sharedMemory.read(0, buffer.buffer, 0, 4) // length
@@ -125,20 +111,6 @@ public class PageantConnector : Connector {
             libK.UnmapViewOfFile(sharedMemory)
             libK.CloseHandle(sharedFile)
         }
-    }
-
-    private fun install32(mapname: String, cds: COPYDATASTRUCT32): ByteArray {
-        cds.dwData = -0x7fb1af46 // AGENT_COPYDATA_ID
-        cds.cbData = mapname.length + 1
-        cds.lpData = Memory((mapname.length + 1).toLong())
-        val foo = mapname.toByteArray()
-        (cds.lpData as Memory).write(0, foo, 0, foo.size)
-        (cds.lpData as Memory).setByte(foo.size.toLong(), 0.toByte())
-        cds.write()
-        val data = ByteArray(12)
-        val cdsp = cds.pointer
-        cdsp.read(0, data, 0, 12)
-        return data
     }
 
     private fun install64(mapname: String, cds: COPYDATASTRUCT64): ByteArray {
@@ -155,14 +127,10 @@ public class PageantConnector : Connector {
         return data
     }
 
-    private fun sendMessage(hwnd: HWND?, data: ByteArray?): Long = libU.SendMessage(
+    private fun sendMessage(hwnd: HWND, data: ByteArray): Long = libU.SendMessage(
         hwnd,
         0x004A,  //WM_COPYDATA
         null,
         data
     )
-    
-    private companion object {
-        fun isConnectorAvailable() = System.getProperty("os.name").startsWith("Windows")
-    }
 }
