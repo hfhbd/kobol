@@ -21,13 +21,13 @@ class HelloWorldTest {
         123456 DATE-WRITTEN TODAY.
         123456 DATA                        DIVISION.
         123456 WORKING-STORAGE SECTION.
-        123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
+        123456 77 WO-RLD PIC X(6) VALUE 'WORLD!'.
         123456 PROCEDURE                   DIVISION.
         123456
         123456* Some Comment
-        123456     DISPLAY "HELLO " WORLD
-        123456     MOVE "42" TO WORLD
-        123456     DISPLAY "ANSWER"WORLD.
+        123456     DISPLAY "HELLO " WO-RLD
+        123456     MOVE "42" TO WO-RLD
+        123456     DISPLAY "ANSWER"WO-RLD.
         """.trimIndent().toIR()
 
         val output = generate(input)
@@ -39,13 +39,13 @@ class HelloWorldTest {
         import kotlin.String
         import kotlin.Unit
         
-        public var WORLD: String = "WORLD!"
+        public var `WO-RLD`: String = "WORLD!"
         
         public fun main(): Unit {
           // Some Comment
-          println("HELLO ${'$'}WORLD")
-          WORLD = "42"
-          println("ANSWER${'$'}WORLD")
+          println("HELLO ${'$'}`WO-RLD`")
+          `WO-RLD` = "42"
+          println("ANSWER${'$'}`WO-RLD`")
         }
         
         """.trimIndent()

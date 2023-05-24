@@ -226,7 +226,7 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
 
 private fun KobolIRTree.Types.Function.Statement.toDec(packageName: String): CodeBlock {
     return if (this is Declaration) {
-        CodeBlock.of("%M", member(packageName))
+        CodeBlock.of("%N", member(packageName))
     } else {
         toKotlin(packageName)
     }
@@ -313,10 +313,10 @@ private fun Declaration.member(packageName: String) = when (this) {
 private fun KobolIRTree.Expression.Variable.toCodeBlock(packageName: String, insideString: Boolean): CodeBlock {
     return if (insideString) {
         val memberName = target.member(packageName)
-        CodeBlock.of("$%M", memberName)
+        CodeBlock.of("$%N", memberName)
     } else {
         val memberName = target.member(packageName)
-        CodeBlock.of("%M", memberName)
+        CodeBlock.of("%N", memberName)
     }
 }
 
