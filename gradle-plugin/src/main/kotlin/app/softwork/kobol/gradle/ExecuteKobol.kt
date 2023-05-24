@@ -33,7 +33,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
             val codeGeneratorConfig = config[CodeGenerator::class.qualifiedName!!] ?: emptyMap()
             val codeGenerator = codeGeneratorFactory(outputFolder, codeGeneratorConfig)
 
-            val closables = mutableListOf<Closeable>(codeGenerator)
+            val closeables = mutableListOf<AutoCloseable>(codeGenerator)
             val irs = input.toIR(
                 firPlugins = firPlugins,
                 sqlPrecompiler = sql?.let {
@@ -43,12 +43,12 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                             fileName = it,
                             outputFolder = sqlFolder,
                             args = config[SqlPrecompiler::class.qualifiedName!!] ?: emptyMap()
-                        ).also { closables.add(it) }
+                        ).also { closeables.add(it) }
                     }
                 },
                 fileConverter = files?.let {
                     {
-                        files(it, config[FileHandling::class.qualifiedName!!] ?: emptyMap()).also { closables.add(it) }
+                        files(it, config[FileHandling::class.qualifiedName!!] ?: emptyMap()).also { closeables.add(it) }
                     }
                 },
                 serialization = serialization?.let {
@@ -56,7 +56,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                         serialization(
                             it,
                             config[SerializationPlugin::class.qualifiedName!!] ?: emptyMap()
-                        ).also { closables.add(it) }
+                        ).also { closeables.add(it) }
                     }
                 },
                 controlFlowHandling = controlFlowHandling?.let {
@@ -68,7 +68,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
             )
 
             codeGenerator.generate(irs)
-            for (toClose in closables) {
+            for (toClose in closeables) {
                 toClose.close()
             }
         }
@@ -100,7 +100,7 @@ public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                 controlFlowHandling = controlFlowHandlingFactory
             )
         }
-        firPlugins.forEach(Closeable::close)
-        irPlugins.forEach(Closeable::close)
+        firPlugins.forEach(AutoCloseable::close)
+        irPlugins.forEach(AutoCloseable::close)
     }
 }

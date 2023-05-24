@@ -1,8 +1,6 @@
 package app.softwork.kobol.gradle
 
 import com.jcraft.jsch.agentproxy.*
-import com.jcraft.jsch.agentproxy.connector.*
-import com.jcraft.jsch.agentproxy.sshj.*
 import net.schmizz.sshj.*
 import org.gradle.api.logging.*
 import org.gradle.api.provider.*

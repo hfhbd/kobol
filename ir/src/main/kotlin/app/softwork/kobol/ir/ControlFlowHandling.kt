@@ -3,9 +3,8 @@ package app.softwork.kobol.ir
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.*
-import java.io.*
 
-public interface ControlFlowHandling : Closeable {
+public interface ControlFlowHandling : AutoCloseable {
     public fun goBack(goBack: GoBack): List<Statement>
 
     public fun stopRun(

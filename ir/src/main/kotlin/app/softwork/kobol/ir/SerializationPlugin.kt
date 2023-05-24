@@ -1,9 +1,8 @@
 package app.softwork.kobol.ir
 
 import app.softwork.kobol.fir.*
-import java.io.*
 
-public interface SerializationPlugin: Closeable {
+public interface SerializationPlugin: AutoCloseable {
     /**
      * Converts the records of the file section into classes
      */
