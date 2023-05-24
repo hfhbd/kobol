@@ -395,7 +395,7 @@ private fun List<Types.Type>.declaration(target: CobolFIRTree.DataTree.WorkingSt
 
         else -> null
     }
-}.single()
+}.singleOrNull() ?: error("${target.name} of ${target.recordName} not found}")
 
 private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     types: List<Types.Type>,
