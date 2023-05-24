@@ -1,8 +1,8 @@
 package app.softwork.kobol.ir
 
-import java.io.*
+import java.io.File
 
-public fun interface CodeGenerator : Closeable {
+public fun interface CodeGenerator : AutoCloseable {
     public fun generate(ir: Iterable<KobolIRTree>)
 
     override fun close() {}

@@ -1,8 +1,6 @@
 package app.softwork.kobol.fir
 
-import java.io.*
-
-public fun interface FirCodeGenerator : Closeable {
+public fun interface FirCodeGenerator : AutoCloseable {
     public fun generate(fir: Iterable<CobolFIRTree>)
 
     override fun close() {}

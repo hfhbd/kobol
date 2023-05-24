@@ -1,8 +1,6 @@
 package app.softwork.kobol.fir
 
-import java.io.*
-
-public sealed interface FirPlugin : Closeable {
+public sealed interface FirPlugin : AutoCloseable {
     override fun close() {}
 }
 
