@@ -27,6 +27,7 @@ class HelloWorldTest {
         123456* Some Comment
         123456     DISPLAY "HELLO " WO-RLD
         123456     MOVE "42" TO WO-RLD
+        123456     DISPLAY WO-RLD
         123456     DISPLAY "ANSWER"WO-RLD.
         """.trimIndent().toIR()
 
@@ -45,6 +46,7 @@ class HelloWorldTest {
           // Some Comment
           println("HELLO ${'$'}`WO-RLD`")
           `WO-RLD` = "42"
+          println(`WO-RLD`)
           println("ANSWER${'$'}`WO-RLD`")
         }
         

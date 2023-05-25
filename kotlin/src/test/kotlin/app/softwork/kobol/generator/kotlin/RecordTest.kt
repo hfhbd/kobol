@@ -18,15 +18,15 @@ class RecordTest {
         123456 01 FOO.
         123456* WORLD I
         123456* WORLD II
-        123456 05 WORLD PIC 9(6).
+        123456 05 WO-RLD PIC 9(6).
         123456* BAR I
         123456* BAR II
         123456 01 BAR.
         123456 05 WORLD PIC x(6) VALUE "BAR".
         123456 PROCEDURE                   DIVISION.
-        123456  ADD 42 TO WORLD OF FOO
+        123456  ADD 42 TO WO-RLD OF FOO
         123456  * Some Comment
-        123456  DISPLAY "HELLO " WORLD OF FOO
+        123456  DISPLAY "HELLO " WO-RLD OF FOO
         123456  DISPLAY "HELLO " WORLD OF BAR.
         """.trimIndent().toIR(
             firPlugins = listOf(NullableToZero())
@@ -47,7 +47,7 @@ class RecordTest {
            * WORLD I
            * WORLD II
            */
-          public var WORLD: Int = 0
+          public var `WO-RLD`: Int = 0
         }
         
         /**
@@ -59,9 +59,9 @@ class RecordTest {
         }
         
         public fun main(): Unit {
-          FOO.WORLD += 42
+          FOO.`WO-RLD` += 42
           // Some Comment
-          println("HELLO ${'$'}{FOO.WORLD}")
+          println("HELLO ${'$'}{FOO.`WO-RLD`}")
           println("HELLO ${'$'}{BAR.WORLD}")
         }
         
