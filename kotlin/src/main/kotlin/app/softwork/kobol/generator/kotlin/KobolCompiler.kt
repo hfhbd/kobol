@@ -239,7 +239,7 @@ private fun CodeBlock.Builder.println(it: Print, packageName: String) {
         }
 
         is KobolIRTree.Expression.StringExpression.StringVariable -> {
-            add("println(%L)", expr.target.member(packageName))
+            add("println(%N)", expr.target.member(packageName))
         }
 
         is KobolIRTree.Expression.StringExpression.Concat -> {
