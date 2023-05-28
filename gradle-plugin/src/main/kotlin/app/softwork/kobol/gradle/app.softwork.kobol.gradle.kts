@@ -1,5 +1,4 @@
 import app.softwork.kobol.gradle.*
-import org.gradle.api.plugins.JavaPlugin.*
 
 private val cobols = objects.domainObjectContainer(CobolSource::class.java)
 extensions.add("cobol", cobols)
@@ -23,6 +22,7 @@ private val cobolFiles = layout.projectDirectory.asFileTree.matching {
             classpath.from(configurations.named(cobolSource.plugins))
             sources.from(cobolFiles)
         }
+        project.configureTasks(convert)
 
         convertAll {
             dependsOn(convert)
@@ -32,15 +32,6 @@ private val cobolFiles = layout.projectDirectory.asFileTree.matching {
 }
 // https://github.com/gradle/gradle/issues/23540
 cobols.addAll(cobolFiles.get())
-
-
-plugins.withId("org.jetbrains.kotlin.jvm") {
-    tasks.named("compileKotlin") { dependsOn(convertAll) }
-}
-
-plugins.withId("org.gradle.java") {
-    tasks.named(COMPILE_JAVA_TASK_NAME) { dependsOn(convertAll) }
-}
 
 private val upload = tasks.register("uploadCobol", UploadTask::class.java)
 private val buildCobol = tasks.register("buildCobol", BuildTask::class.java) {
