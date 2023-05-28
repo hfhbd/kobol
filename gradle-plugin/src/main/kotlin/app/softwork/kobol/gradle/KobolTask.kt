@@ -4,7 +4,6 @@ import app.softwork.kobol.ir.*
 import org.gradle.api.*
 import org.gradle.api.artifacts.*
 import org.gradle.api.file.*
-import org.gradle.api.internal.tasks.JvmConstants.COMPILE_JAVA_TASK_NAME
 import org.gradle.api.provider.*
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
@@ -62,15 +61,9 @@ internal fun Project.configureTasks(kobolTask: Provider<KobolTask>) {
         val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
         val kotlin = srcSet.extensions.getByName("kotlin") as SourceDirectorySet
         kotlin.srcDir(kobolTask.flatMap { it.outputFolder.dir("kotlin") })
-        project.tasks.named("compileKotlin") {
-            dependsOn(kobolTask)
-        }
     }
     project.plugins.withId("org.gradle.java") {
         val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
         srcSet.java.srcDir(kobolTask.flatMap { it.outputFolder.dir("java") })
-        project.tasks.named(COMPILE_JAVA_TASK_NAME) {
-            dependsOn(kobolTask)
-        }
     }
 }
