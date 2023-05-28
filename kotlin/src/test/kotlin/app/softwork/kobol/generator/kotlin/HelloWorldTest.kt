@@ -3,8 +3,6 @@ package app.softwork.kobol.generator.kotlin
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.plugins.ir.optimizations.*
-import app.softwork.kobol.sqldelightprecompiler.*
-import app.softwork.sqldelightwriter.*
 import java.io.*
 import java.nio.file.*
 import kotlin.test.*

@@ -19,7 +19,6 @@ dependencies {
     compileOnly(projects.sshEnv)
 
     testImplementation(kotlin("test"))
-    testImplementation(gradleTestKit())
     testImplementation(projects.ir)
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"
