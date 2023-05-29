@@ -32,9 +32,8 @@ class SectionTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
-        public fun FOO(): Unit {
+        public fun FOO() {
           // Some Comment
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
@@ -44,7 +43,7 @@ class SectionTest {
         
         public var HELLO: String = "HELLO"
         
-        public fun main(): Unit {
+        public fun main() {
           println("${'$'}HELLO${'$'}WORLD")
           FOO()
         }
@@ -80,9 +79,8 @@ class SectionTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
-        public fun FOO(): Unit {
+        public fun FOO() {
           // Some Comment
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
@@ -92,7 +90,7 @@ class SectionTest {
         
         public var HELLO: String = "HELLO"
         
-        public fun main(): Unit {
+        public fun main() {
           FOO()
         }
         
@@ -132,7 +130,6 @@ class SectionTest {
         package calling
         
         import kotlin.Nothing
-        import kotlin.Unit
         import kotlin.system.exitProcess
         
         public fun FOO(): Nothing {
@@ -147,11 +144,11 @@ class SectionTest {
           exitProcess(0)
         }
         
-        public fun C(): Unit {
+        public fun C() {
           println("C")
         }
         
-        public fun main(): Unit {
+        public fun main() {
           FOO()
           BAR()
           C()
@@ -183,10 +180,9 @@ class SectionTest {
         package calling
         
         import kotlin.Int
-        import kotlin.Unit
         import kotlin.system.exitProcess
         
-        public fun main(): Unit {
+        public fun main() {
           var `RETURN-CODE`: Int = 0
           println("FOO")
           `RETURN-CODE` = 42
@@ -221,12 +217,11 @@ class SectionTest {
         package calling
         
         import kotlin.Int
-        import kotlin.Unit
         import kotlin.system.exitProcess
         
         private var `RETURN-CODE`: Int = 0
         
-        public fun main(): Unit {
+        public fun main() {
           println("FOO")
           `RETURN-CODE` = 42
           exitProcess(`RETURN-CODE`)

@@ -39,9 +39,8 @@ class InliningTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
-        public fun main(): Unit {
+        public fun main() {
           val HELLO: String = "HELLO"
           var WORLD: String = "WORLD!"
           println("${'$'}HELLO${'$'}WORLD")
@@ -135,8 +134,7 @@ class InliningTest {
         import java.io.File
         import kotlin.Int
         import kotlin.String
-        import kotlin.Unit
-        import kotlin.text.charset
+                import kotlin.text.charset
         import kotlinx.serialization.ExperimentalSerializationApi
         import kotlinx.serialization.Serializable
         
@@ -162,7 +160,7 @@ class InliningTest {
           public val BALANCE: Int,
         )
         
-        public fun main(): Unit {
+        public fun main() {
           var COUNT: Int = 0
           var FIRSTNAME: String = ""
           var LASTNAME: String = ""

@@ -39,13 +39,12 @@ class OptimizationTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
         public var WORLD: String = "WORLD!"
         
         public val HELLO: String = "HELLO"
         
-        public fun main(): Unit {
+        public fun main() {
           println("${'$'}HELLO${'$'}WORLD")
           // Some Comment
           WORLD = "42"
@@ -86,13 +85,12 @@ class OptimizationTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
         public var WORLD: String = "WORLD!"
         
         public const val HELLO: String = "HELLO"
         
-        public fun main(): Unit {
+        public fun main() {
           println("${'$'}HELLO${'$'}WORLD")
           // Some Comment
           WORLD = "42"
@@ -132,13 +130,12 @@ class OptimizationTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
         private var WORLD: String = "WORLD!"
         
         private var HELLO: String = "HELLO"
         
-        public fun main(): Unit {
+        public fun main() {
           println("${'$'}HELLO${'$'}WORLD")
           // Some Comment
           WORLD = "42"
@@ -179,9 +176,8 @@ class OptimizationTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
-        public fun fooBar(): Unit {
+        public fun fooBar() {
           // Some Comment
           world = "42"
           println("ANSWER${'$'}world")
@@ -191,7 +187,7 @@ class OptimizationTest {
         
         public var hello: String = "HELLO"
         
-        public fun main(): Unit {
+        public fun main() {
           println("${'$'}hello${'$'}world")
           fooBar()
         }
@@ -230,9 +226,8 @@ class OptimizationTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
-        public fun FOO_BAR(): Unit {
+        public fun FOO_BAR() {
           // Some Comment
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
@@ -242,7 +237,7 @@ class OptimizationTest {
         
         public var HELLO: String = "HELLO"
         
-        public fun main(): Unit {
+        public fun main() {
           println("${'$'}HELLO${'$'}WORLD")
           FOO_BAR()
         }
@@ -287,9 +282,8 @@ class OptimizationTest {
         
         import kotlin.Int
         import kotlin.String
-        import kotlin.Unit
         
-        private fun foo(): Unit {
+        private fun foo() {
           // Some Comment
           world = "42"
           foo = 1
@@ -306,7 +300,7 @@ class OptimizationTest {
         
         private const val hello: String = "HELLO"
         
-        public fun main(): Unit {
+        public fun main() {
           println("${'$'}hello${'$'}world")
           foo()
         }

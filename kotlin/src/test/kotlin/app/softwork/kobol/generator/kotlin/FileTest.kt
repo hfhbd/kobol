@@ -80,7 +80,6 @@ class FileTest {
         import java.io.File
         import kotlin.Int
         import kotlin.String
-        import kotlin.Unit
         import kotlin.text.charset
         import kotlinx.serialization.ExperimentalSerializationApi
         import kotlinx.serialization.Serializable
@@ -122,7 +121,7 @@ class FileTest {
         
         public var FI: String = ""
         
-        public fun main(): Unit {
+        public fun main() {
           val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1140"))
           val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1140"))
           for (`EB1-EIN` in EIN.decode(`EB1-EIN`.serializer(), FixedLengthFormat(""))) {
@@ -206,7 +205,6 @@ class FileTest {
         import java.io.BufferedWriter
         import java.io.File
         import kotlin.String
-        import kotlin.Unit
         import kotlin.text.charset
         import kotlinx.serialization.ExperimentalSerializationApi
         import kotlinx.serialization.Serializable
@@ -243,7 +241,7 @@ class FileTest {
         
         public var FI: String = ""
         
-        public fun main(): Unit {
+        public fun main() {
           val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1140"))
           val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1140"))
           for (`EB1-EIN` in EIN.lineSequence().decode(`EB1-EIN`.serializer())) {
@@ -342,7 +340,6 @@ class FileTest {
         import java.io.File
         import kotlin.Int
         import kotlin.String
-        import kotlin.Unit
         import kotlin.text.charset
         import kotlinx.serialization.ExperimentalSerializationApi
         import kotlinx.serialization.Serializable
@@ -401,7 +398,7 @@ class FileTest {
         
         public var COUNT: Int = 0
         
-        public fun main(): Unit {
+        public fun main() {
           val TRANSACTIONS: BufferedReader = File("TRANSACTIONS").bufferedReader(charset("IBM-1140"))
           val BALANCES: BufferedWriter = File("BALANCES").bufferedWriter(charset("IBM-1140"))
           for (TRANSACTION in TRANSACTIONS.decode(TRANSACTION.serializer(), FixedLengthFormat(""))) {
@@ -518,7 +515,6 @@ import java.io.BufferedWriter
 import java.io.File
 import kotlin.Int
 import kotlin.String
-import kotlin.Unit
 import kotlin.system.exitProcess
 import kotlin.text.charset
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -572,7 +568,7 @@ public data class BALANCE(
   }
 }
 
-public fun main(): Unit {
+public fun main() {
   var COUNTER: Int = 0
   println("START")
   val TRANSACTS: BufferedReader = File("TRANSACTS").bufferedReader(charset("IBM-1140"))
