@@ -38,7 +38,6 @@ class SqlTest {
         package sql
         
         import kotlin.Int
-        import kotlin.Unit
         
         public var FOO: Int? = null
         
@@ -46,7 +45,7 @@ class SqlTest {
         
         public var BAZ: Int? = null
         
-        public fun main(): Unit {
+        public fun main() {
           val db: DB = DB(driver)
           /**
            * Get AVG of 42
@@ -107,7 +106,6 @@ class SqlTest {
         package sql
         
         import kotlin.Int
-        import kotlin.Unit
         
         public object FOO {
           public var BAR: Int? = null
@@ -115,7 +113,7 @@ class SqlTest {
           public var ABB: Int? = null
         }
         
-        public fun main(): Unit {
+        public fun main() {
           println(FOO.BAR)
         }
         
@@ -186,13 +184,12 @@ class SqlTest {
         package sql
         
         import kotlin.Int
-        import kotlin.Unit
         
         public var FOO: Int? = null
         
         public var BAR: Int? = null
         
-        public fun main(): Unit {
+        public fun main() {
           val db: DB = DB(driver)
           DB.Schema.migrate(driver, 0, 1)
           // INSERT COMMENT

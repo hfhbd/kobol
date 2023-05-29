@@ -70,13 +70,12 @@ class CommentTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
         /**
          * FOO I
          * FOO II
          */
-        public fun FOO(): Unit {
+        public fun FOO() {
           // MOVE I
           // MOVE II
           WORLD = HELLO
@@ -101,7 +100,7 @@ class CommentTest {
          * PROCEDURE I
          * PROCEDURE II
          */
-        public fun main(): Unit {
+        public fun main() {
           // DISPLAY I
           // DISPLAY II
           println("${'$'}HELLO${'$'}WORLD")

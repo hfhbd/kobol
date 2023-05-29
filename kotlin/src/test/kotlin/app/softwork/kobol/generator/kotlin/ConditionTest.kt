@@ -40,13 +40,12 @@ class ConditionTest {
         
         import kotlin.Int
         import kotlin.String
-        import kotlin.Unit
         
         public var WORLD: String = "WORLD!"
         
         public var FOO: Int = 10
         
-        public fun main(): Unit {
+        public fun main() {
           if (WORLD == "WORLD!") {
             // Some Comment
             println("HELLO ${'$'}WORLD")
@@ -99,7 +98,6 @@ class ConditionTest {
         
         import kotlin.Int
         import kotlin.String
-        import kotlin.Unit
         
         public var FOO: String = "WORLD!"
         
@@ -107,7 +105,7 @@ class ConditionTest {
         
         public var WORLD: Int = 1
         
-        public fun main(): Unit {
+        public fun main() {
           when {
             FOO == "" && WORLD == 1 && BAR == "" -> {
               println("right")
@@ -156,13 +154,12 @@ class ConditionTest {
         
         import kotlin.Int
         import kotlin.String
-        import kotlin.Unit
         
         public var FOO: String = "WORLD!"
         
         public var WORLD: Int = 1
         
-        public fun main(): Unit {
+        public fun main() {
           when (FOO) {
             "" -> {
               println("right")

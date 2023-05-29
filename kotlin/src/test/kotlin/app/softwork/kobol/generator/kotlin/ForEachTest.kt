@@ -29,15 +29,14 @@ class ForEachTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
-        public fun FOO(): Unit {
+        public fun FOO() {
           println("FOO")
         }
         
         public var WORLD: String = "WORLD!"
         
-        public fun main(): Unit {
+        public fun main() {
           // COMMENT I
           do {
             FOO()
@@ -75,15 +74,14 @@ class ForEachTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
-        public fun FOO(): Unit {
+        public fun FOO() {
           println("FOO")
         }
         
         public var WORLD: String = "WORLD!"
         
-        public fun main(): Unit {
+        public fun main() {
           // COMMENT I
           while (!(WORLD == "FOO")) {
             FOO()
@@ -118,11 +116,10 @@ class ForEachTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
         public var WORLD: String = "WORLD!"
         
-        public fun main(): Unit {
+        public fun main() {
           // COMMENT I
           while (!(WORLD == "FOO")) {
             println("FOO")
@@ -158,11 +155,10 @@ class ForEachTest {
         package hello
         
         import kotlin.Int
-        import kotlin.Unit
         
         public var WORLD: Int = 0
         
-        public fun main(): Unit {
+        public fun main() {
           WORLD = 1
           while (!(WORLD == 42)) {
             println("FOO")

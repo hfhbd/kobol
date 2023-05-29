@@ -40,7 +40,6 @@ class RecordTest {
         
         import kotlin.Int
         import kotlin.String
-        import kotlin.Unit
         
         public object FOO {
           /**
@@ -58,7 +57,7 @@ class RecordTest {
           public var WORLD: String = "BAR"
         }
         
-        public fun main(): Unit {
+        public fun main() {
           FOO.`WO-RLD` += 42
           // Some Comment
           println("HELLO ${'$'}{FOO.`WO-RLD`}")

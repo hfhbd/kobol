@@ -24,9 +24,7 @@ class CallTest {
         val expected = """
         package calling
         
-        import kotlin.Unit
-        
-        public fun FOO(): Unit {
+        public fun FOO() {
           LONDON()
         }
         
@@ -35,10 +33,10 @@ class CallTest {
             System.loadLibrary("london")
           }
         
-          public external operator fun invoke(): Unit
+          public external operator fun invoke()
         }
         
-        public fun main(): Unit {
+        public fun main() {
           // LONDON CALLING
           LONDON()
           println("FOO")
@@ -76,9 +74,8 @@ class CallTest {
         |
         |import kotlin.Int
         |import kotlin.String
-        |import kotlin.Unit
         |
-        |public fun FOO(): Unit {
+        |public fun FOO() {
         |  LONDON(FOO.BAR, FOO.C)
         |}
         |
@@ -93,10 +90,10 @@ class CallTest {
         |    System.loadLibrary("london")
         |  }
         |
-        |  public external operator fun invoke(BAR: Int, C: String): Unit
+        |  public external operator fun invoke(BAR: Int, C: String)
         |}
         |
-        |public fun main(): Unit {
+        |public fun main() {
         |  // LONDON CALLING
         |  LONDON(FOO.BAR, FOO.C)
         |  println("FOO")

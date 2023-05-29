@@ -31,11 +31,10 @@ class VariableTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
         public var WORLD: String? = null
         
-        public fun main(): Unit {
+        public fun main() {
           WORLD = "WORLD!"
           // Some Comment
           println("HELLO ${'$'}WORLD")
@@ -74,11 +73,10 @@ class VariableTest {
         package hello
         
         import kotlin.Int
-        import kotlin.Unit
         
         public var WORLD: Int = 0
         
-        public fun main(): Unit {
+        public fun main() {
           WORLD += 42
           // Some Comment
           println("HELLO ${'$'}WORLD")

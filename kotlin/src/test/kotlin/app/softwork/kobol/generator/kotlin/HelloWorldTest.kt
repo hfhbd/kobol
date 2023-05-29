@@ -36,11 +36,10 @@ class HelloWorldTest {
         package hello
         
         import kotlin.String
-        import kotlin.Unit
         
         public var `WO-RLD`: String = "WORLD!"
         
-        public fun main(): Unit {
+        public fun main() {
           // Some Comment
           println("HELLO ${'$'}`WO-RLD`")
           `WO-RLD` = "42"
