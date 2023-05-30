@@ -1,5 +1,6 @@
 plugins {
     `kotlin-dsl`
+    kotlin("plugin.serialization") version embeddedKotlinVersion
 }
 
 dependencies {
@@ -11,6 +12,10 @@ dependencies {
     implementation(libs.shadow.gradlePlugin)
     implementation(libs.serviceloader.gradlePlugin)
     implementation(libs.ksp.gradlePlugin)
+    
+    implementation(libs.serialization.json)
+    implementation(libs.datetime)
+    implementation(libs.ktor.cio)
 }
 
 kotlin.jvmToolchain(17)

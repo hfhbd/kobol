@@ -9,6 +9,7 @@ import org.jetbrains.grammarkit.GrammarKitPluginExtension
 import org.jetbrains.grammarkit.tasks.GenerateLexerTask
 import org.jetbrains.grammarkit.tasks.GenerateParserTask
 import org.jetbrains.grammarkit.zip
+import java.io.File
 
 plugins {
     id("java")
