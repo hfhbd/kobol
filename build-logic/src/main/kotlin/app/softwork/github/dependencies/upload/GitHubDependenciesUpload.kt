@@ -2,9 +2,10 @@ package app.softwork.github.dependencies.upload
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.result.ResolvedComponentResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
@@ -72,14 +73,22 @@ abstract class GitHubDependenciesUpload
     val projectName = project.name
 
     @get:Input
-    internal abstract val resolvedComponentResult: Property<ResolvedComponentResult>
+    internal abstract val resolvedComponentResult: ListProperty<ResolvedDependencyResult>
 
     fun uploadConfiguration(configuration: Configuration) {
-        resolvedComponentResult.set(configuration.incoming.resolutionResult.rootComponent)
+        resolvedComponentResult.set(configuration.incoming.resolutionResult.rootComponent.map {
+            it.dependencies.mapNotNull {
+                it as? ResolvedDependencyResult
+            }
+        })
     }
 
     fun uploadConfiguration(configuration: Provider<Configuration>) {
-        resolvedComponentResult.set(configuration.flatMap { it.incoming.resolutionResult.rootComponent })
+        resolvedComponentResult.set(configuration.flatMap { it.incoming.resolutionResult.rootComponent }.map {
+            it.dependencies.mapNotNull {
+                it as? ResolvedDependencyResult
+            }
+        })
     }
 
     @get:Inject

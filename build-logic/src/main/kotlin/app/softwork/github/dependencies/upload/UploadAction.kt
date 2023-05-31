@@ -9,9 +9,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
-import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
@@ -27,7 +27,7 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
         val jobID: Property<String>
         val jobCorrelator: Property<String>
         val jobUrl: Property<String>
-        val dependencies: Property<ResolvedComponentResult>
+        val dependencies: ListProperty<ResolvedDependencyResult>
         val manifestFileName: Property<String>
         val manifestFileLocation: Property<String>
         val projectName: Property<String>
@@ -66,10 +66,8 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
 
         val dependencies = mutableMapOf<String, Resolved>()
         val scope = parameters.scope.get()
-        for (dependency in resolved.dependencies) {
-            if (dependency is ResolvedDependencyResult) {
-                dependency.handle(RelationShip.Direct, scope, dependencies)
-            }
+        for (dependency in resolved) {
+            dependency.handle(RelationShip.Direct, scope, dependencies)
         }
 
         val upload = Upload(
