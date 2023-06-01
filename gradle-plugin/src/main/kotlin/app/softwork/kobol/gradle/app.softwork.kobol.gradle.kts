@@ -22,7 +22,18 @@ private val cobolFiles = layout.projectDirectory.asFileTree.matching {
             classpath.from(configurations.named(cobolSource.plugins))
             sources.from(cobolFiles)
         }
-        project.configureTasks(convert)
+        
+        project.project.pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+            project.extensions.getByType(SourceSetContainer::class.java).named("main") {
+                val kotlin = extensions.getByName("kotlin") as SourceDirectorySet
+                kotlin.srcDir(convert.flatMap { it.outputFolder.dir("kotlin") })
+            }
+        }
+        project.project.pluginManager.withPlugin("org.gradle.java") {
+            project.extensions.getByType(SourceSetContainer::class.java).named("main") {
+                java.srcDir(convert.flatMap { it.outputFolder.dir("java") })
+            }
+        }
 
         convertAll {
             dependsOn(convert)

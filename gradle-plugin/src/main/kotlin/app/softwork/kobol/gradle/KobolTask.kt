@@ -5,7 +5,6 @@ import org.gradle.api.*
 import org.gradle.api.artifacts.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.workers.*
 import javax.inject.*
@@ -53,17 +52,5 @@ public abstract class KobolTask : DefaultTask() {
             sqlFolder.set(this@KobolTask.sqlFolder)
             config.set(pluginConfiguration)
         }
-    }
-}
-
-internal fun Project.configureTasks(kobolTask: Provider<KobolTask>) {
-    project.plugins.withId("org.jetbrains.kotlin.jvm") {
-        val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
-        val kotlin = srcSet.extensions.getByName("kotlin") as SourceDirectorySet
-        kotlin.srcDir(kobolTask.flatMap { it.outputFolder.dir("kotlin") })
-    }
-    project.plugins.withId("org.gradle.java") {
-        val srcSet = project.extensions.findByType(SourceSetContainer::class.java)!!.getByName("main")
-        srcSet.java.srcDir(kobolTask.flatMap { it.outputFolder.dir("java") })
     }
 }
