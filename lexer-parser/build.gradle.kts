@@ -22,14 +22,10 @@ dependencies {
 }
 
 sourceSets.main {
-    java.srcDirs("$buildDir/generated/lexer/main/java", "$buildDir/generated/parser/main/java")
+    java.srcDirs(tasks.generateLexer, tasks.generateParser)
 }
 
 tasks {
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        dependsOn(generateParser, generateLexer)
-    }
-
     generateLexer {
         sourceFile.set(file("src/main/kotlin/app/softwork/kobol/Cobol.flex"))
         targetOutputDir.set(layout.buildDirectory.dir("generated/lexer/main/java/app/softwork/kobol/"))
