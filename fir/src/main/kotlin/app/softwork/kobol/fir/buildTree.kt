@@ -19,8 +19,8 @@ import com.intellij.testFramework.*
 
 public fun CobolFile.toTree(): CobolFIRTree {
     val errors = this.childrenOfType<PsiErrorElement>()
-    if(errors.isNotEmpty()) {
-        error(errors.joinToString(separator = "\n") { 
+    if (errors.isNotEmpty()) {
+        error(errors.joinToString(separator = "\n") {
             it.errorDescription
         })
     }
@@ -419,7 +419,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
         proc.moving != null -> proc.moving!!.variableList.map {
             Move(
                 target = dataTree.find(it) as Elementar,
-                value = proc.moving!!.expr.toExpr(dataTree).single(),
+                value = proc.moving!!.expr.toExpr(dataTree),
                 comments = proc.comments.asComments()
             )
         }
@@ -427,7 +427,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
         proc.adding != null -> proc.adding!!.variableList.map {
             Add(
                 target = dataTree.find(it) as Elementar,
-                value = proc.adding!!.expr.toExpr(dataTree).single(),
+                value = proc.adding!!.expr.toExpr(dataTree),
                 comments = proc.comments.asComments()
             )
         }
@@ -435,7 +435,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
         proc.subtracting != null -> listOf(
             Sub(
                 target = dataTree.find(proc.subtracting!!.variable) as Elementar,
-                value = proc.subtracting!!.expr.toExpr(dataTree).single(),
+                value = proc.subtracting!!.expr.toExpr(dataTree),
                 comments = proc.comments.asComments()
             )
         )
@@ -451,7 +451,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
                         comments = proc.comments.asComments(),
                         until = performWhile.booleanExpr?.toFir(dataTree),
                         // https://www.ibm.com/docs/en/cobol-zos/6.3?topic=statement-perform-varying-phrase
-                        testing = performWhile.asDoWhile?.afterWhile?.let { 
+                        testing = performWhile.asDoWhile?.afterWhile?.let {
                             Perform.Testing.After
                         } ?: Perform.Testing.Before
                     )
@@ -460,8 +460,8 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
                 listOf(
                     ForEach(
                         variable = dataTree.find(forEach.variable) as NumberElementar,
-                        from = forEach.expr.toExpr(dataTree).single() as Expression.NumberExpression,
-                        by = forEach.forEachBy?.expr?.toExpr(dataTree)?.single() as Expression.NumberExpression?,
+                        from = forEach.expr.toExpr(dataTree) as Expression.NumberExpression,
+                        by = forEach.forEachBy?.expr?.toExpr(dataTree) as Expression.NumberExpression?,
                         until = forEach.booleanExpr.toFir(dataTree),
                         statements = forEach.proceduresList.asStatements(dataTree),
                         comments = proc.comments.asComments()
@@ -495,7 +495,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
             requireNotNull(target) {
                 "Non hard-coded CALL is not supported due to compiler and linker limitations."
             }
-            val parameters = calling.callingParameter?.exprList?.flatMap {
+            val parameters = calling.callingParameter?.exprList?.map {
                 it.toExpr(dataTree)
             } ?: emptyList()
             listOf(
@@ -550,9 +550,9 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
         proc.eval != null -> {
             val eval = proc.eval!!
 
-            listOf(Eval(values = eval.exprList.flatMap { it.toExpr(dataTree) }, conditions = eval.whensList.map {
+            listOf(Eval(values = eval.exprList.map { it.toExpr(dataTree) }, conditions = eval.whensList.map {
                 Eval.Condition(
-                    conditions = it.exprList.flatMap { it.toExpr(dataTree) },
+                    conditions = it.exprList.map { it.toExpr(dataTree) },
                     action = it.proceduresList.asStatements(dataTree),
                     comments = it.comments.asComments()
                 )
@@ -671,8 +671,8 @@ private fun CobolBooleanExpr.toFir(dataTree: DataTree): Expression.BooleanExpres
 }
 
 private fun CobolBooleanExprClause.toFir(dataTree: DataTree): Expression.BooleanExpression {
-    val left = booleanExprClauseLeft.expr.toExpr(dataTree).single()
-    val right = booleanExprClauseRight.expr.toExpr(dataTree).single()
+    val left = booleanExprClauseLeft.expr.toExpr(dataTree)
+    val right = booleanExprClauseRight.expr.toExpr(dataTree)
 
     val nt = booleanExprClauseNt
     val bigger = booleanExprClauseBigger
@@ -703,43 +703,42 @@ private fun CobolBooleanExprClause.toFir(dataTree: DataTree): Expression.Boolean
     }
 }
 
-private fun CobolExpr.toExpr(dataTree: DataTree): List<Expression> {
+private fun CobolExpr.toExpr(dataTree: DataTree): Expression {
     val literal = literal
     val variable = variable
     val stringConcat = stringConcat
     return when {
         literal != null -> when {
-            literal.string != null -> listOf(literal.string!!.singleAsString(dataTree))
+            literal.string != null -> literal.string!!.singleAsString(dataTree)
             literal.number != null -> {
                 val number = literal.number!!
                 val elementType = number.elementType
                 when {
-                    elementType == CobolTypes.NUMBER -> listOf(Expression.NumberExpression.NumberLiteral(number.text.toDouble()))
-                    number is CobolVariable -> listOf(
+                    elementType == CobolTypes.NUMBER -> Expression.NumberExpression.NumberLiteral(number.text.toDouble())
+                    number is CobolVariable ->
                         Expression.NumberExpression.NumberVariable(
                             dataTree.find(number) as NumberElementar
                         )
-                    )
 
                     else -> TODO()
                 }
             }
 
             else -> when (literal.text) {
-                "ZERO", "ZEROS", "ZEROES" -> listOf(Expression.NumberExpression.NumberLiteral(0.0))
+                "ZERO", "ZEROS", "ZEROES" -> Expression.NumberExpression.NumberLiteral(0.0)
                 else -> TODO("${literal.elementType} ${literal.text}")
             }
         }
 
         variable != null -> {
             when (val found = dataTree.find(variable)) {
-                is Record -> found.elements.map { it.toVariable() }
-                is Elementar -> listOf(found.toVariable())
+                is Record -> app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.Group(found)
+                is Elementar -> found.toVariable()
                 is WorkingStorage.Sql -> notPossible()
             }
         }
 
-        stringConcat != null -> listOf(stringConcat.toExpr(dataTree))
+        stringConcat != null -> stringConcat.toExpr(dataTree)
         else -> TODO("$elementType")
     }
 }

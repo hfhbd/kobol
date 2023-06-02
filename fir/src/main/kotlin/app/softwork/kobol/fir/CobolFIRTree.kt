@@ -554,6 +554,11 @@ public data class CobolFIRTree(
             }
 
             @Serializable
+            public data class Group(
+                public val target: DataTree.WorkingStorage.Record
+            ): Expression
+
+            @Serializable
             public sealed interface Variable : Expression {
                 public val target: DataTree.WorkingStorage.Elementar
             }

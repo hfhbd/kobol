@@ -117,6 +117,7 @@ private fun CobolFIRTree.ProcedureTree.Expression.toUml(): String = when (this) 
     is Concat -> "${left.toUml()} ${right.toUml()}"
     is Interpolation -> TODO()
     is StringVariable -> target.toUml()
+    is CobolFIRTree.ProcedureTree.Expression.Group -> target.name
 }
 
 private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.toUml(): String {

@@ -267,6 +267,7 @@ private fun CobolFIRTree.ProcedureTree.Expression.toIR(types: List<Types.Type>):
     is CobolFIRTree.ProcedureTree.Expression.StringExpression -> toIR(types)
     is CobolFIRTree.ProcedureTree.Expression.NumberExpression -> toIR(types)
     is CobolFIRTree.ProcedureTree.Expression.BooleanExpression -> toIR(types)
+    is CobolFIRTree.ProcedureTree.Expression.Group -> target.toIR(types)
 }
 
 private fun CobolFIRTree.ProcedureTree.Expression.BooleanExpression.toIR(types: List<Types.Type>): BooleanExpression =

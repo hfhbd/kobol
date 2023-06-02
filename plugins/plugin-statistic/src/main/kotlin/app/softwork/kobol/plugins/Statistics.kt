@@ -142,6 +142,7 @@ private fun Expression.complexity(action: () -> Unit) {
 
         is Expression.Literal,
         is Expression.Variable,
+        is Expression.Group,
         is Expression.StringExpression.Concat,
         is Expression.StringExpression.Interpolation -> Unit
     }

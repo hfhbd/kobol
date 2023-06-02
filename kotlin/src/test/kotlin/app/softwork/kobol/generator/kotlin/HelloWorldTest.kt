@@ -51,6 +51,125 @@ class HelloWorldTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
+
+    @Test
+    fun jniMain() {
+        //language=cobol
+        val input = """
+000010 IDENTIFICATION DIVISION.
+000020 PROGRAM-ID. MAIN.
+000021 DATA DIVISION.
+000022 WORKING-STORAGE SECTION.
+000023 01 AO.
+000023* FFF
+000024  05 FOO PIC X(12) VALUE 'RSTXYZRSTXYZ'.
+000025  05 B PIC 9 VALUE 5.
+000030 PROCEDURE DIVISION.
+000040     DISPLAY "MAIN " FOO
+000050     CALL 'HELLO' USING AO.
+
+        """.trimIndent().toIR()
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+package main
+
+import kotlin.Int
+import kotlin.String
+import kotlin.Unit
+
+public object AO {
+  /**
+   * FFF
+   */
+  public var FOO: String = "RSTXYZRSTXYZ"
+
+  public var B: Int = 5
+}
+
+public object HELLO {
+  init {
+    System.loadLibrary("hello")
+  }
+
+  public external operator fun invoke(FOO: String, B: Int): Unit
+}
+
+public fun main(): Unit {
+  println("MAIN ${'$'}{AO.FOO}")
+  HELLO(AO.FOO, AO.B)
+}
+
+        """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
+
+    @Test
+    fun jniHello() {
+        //language=cobol
+        val input = """
+000010 IDENTIFICATION DIVISION.
+000020 PROGRAM-ID. HELLO.
+000030 DATA DIVISION.
+111111 WORKING-STORAGE SECTION.
+000000 77 W1-EBCDIC    PIC X(12).
+000000 77 W1-CCSID     PIC X(4) VALUE '1140'.
+000000 77 W2-UTF-8     PIC X(12).
+000000 77 W2-CCSID     PIC X(4) VALUE '1208'.
+000040 LINKAGE SECTION.
+000041 01 BB.
+000042   05 BAR PIC X(6).
+000042   05 BAR2 PIC X(6).
+000043* 77 AB PIC S9(9) USAGE IS BINARY.
+000050 PROCEDURE DIVISION USING BB.
+00000      MOVE BB TO W2-UTF-8
+000000*    MOVE FUNCTION DISPLAY-OF (FUNCTION NATIONAL-OF
+000000*          (W2-UTF-8, 1208), 1140) TO W1-EBCDIC
+000000
+000000     DISPLAY W1-EBCDIC
+000000
+000060     DISPLAY "HELLO"
+234234     DISPLAY "InOrder: " BAR BAR2.
+
+        """.trimIndent().toIR()
+
+        val output = generate(input)
+
+        //language=kotlin
+        val expected = """
+package main
+
+import kotlin.Int
+import kotlin.String
+import kotlin.Unit
+
+public object AO {
+  /**
+   * FFF
+   */
+  public var FOO: String = "RSTXYZRSTXYZ"
+
+  public var B: Int = 5
+}
+
+public object HELLO {
+  init {
+    System.loadLibrary("hello")
+  }
+
+  public external operator fun invoke(FOO: String, B: Int): Unit
+}
+
+public fun main(): Unit {
+  println("MAIN ${'$'}{AO.FOO}")
+  HELLO(AO.FOO, AO.B)
+}
+
+        """.trimIndent()
+        assertEquals(expected, output.toString())
+    }
 }
 
 internal fun String.toIR(
