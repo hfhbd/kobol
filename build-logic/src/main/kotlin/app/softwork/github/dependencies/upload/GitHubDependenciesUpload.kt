@@ -46,12 +46,17 @@ abstract class GitHubDependenciesUpload
     val jobID = objects.property<String>().convention(providers.environmentVariable("GITHUB_RUN_ID"))
 
     @get:Input
+    val projectName = objects.property<String>().convention(project.name)
+
+    @get:Input
     val jobCorrelator = objects.property<String>().convention(
         providers.environmentVariable("GITHUB_WORKFLOW")
             .zip(providers.environmentVariable("GITHUB_JOB")) { workflow, job ->
                 "$workflow $job"
             }
-    )
+            .zip(projectName) { job, projectName ->
+                "$job $projectName"
+            })
 
     @get:Input
     val jobUrl = objects.property<String>().convention(
@@ -68,9 +73,6 @@ abstract class GitHubDependenciesUpload
 
     @get:Input
     val buildFileName: String = project.buildFile.name
-
-    @get:Input
-    val projectName = project.name
 
     @get:Input
     internal abstract val resolvedComponentResult: Property<ResolvedComponentResult>
