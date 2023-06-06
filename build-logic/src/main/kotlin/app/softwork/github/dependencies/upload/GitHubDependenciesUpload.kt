@@ -2,10 +2,10 @@ package app.softwork.github.dependencies.upload
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
@@ -30,22 +30,22 @@ abstract class GitHubDependenciesUpload
     @get:Input
     abstract val token: Property<String>
 
-    @Input
+    @get:Input
     val repository = objects.property<String>().convention(providers.environmentVariable("GITHUB_REPOSITORY"))
 
-    @Input
+    @get:Input
     val version = objects.property<Int>().convention(0)
 
-    @Input
+    @get:Input
     val sha = objects.property<String>().convention(providers.environmentVariable("GITHUB_SHA"))
 
-    @Input
+    @get:Input
     val ref = objects.property<String>().convention(providers.environmentVariable("GITHUB_REF"))
 
-    @Input
+    @get:Input
     val jobID = objects.property<String>().convention(providers.environmentVariable("GITHUB_RUN_ID"))
 
-    @Input
+    @get:Input
     val jobCorrelator = objects.property<String>().convention(
         providers.environmentVariable("GITHUB_WORKFLOW")
             .zip(providers.environmentVariable("GITHUB_JOB")) { workflow, job ->
@@ -53,7 +53,7 @@ abstract class GitHubDependenciesUpload
             }
     )
 
-    @Input
+    @get:Input
     val jobUrl = objects.property<String>().convention(
         providers.environmentVariable("GITHUB_SERVER_URL").zip(
             providers.environmentVariable("GITHUB_REPOSITORY"),
@@ -63,59 +63,54 @@ abstract class GitHubDependenciesUpload
         }
     )
 
-    @Input
+    @get:Input
     val buildFileLocation = project.buildFile.toRelativeString(project.rootProject.buildFile)
 
-    @Input
-    val buildFileName = project.buildFile.name
+    @get:Input
+    val buildFileName: String = project.buildFile.name
 
-    @Input
+    @get:Input
     val projectName = project.name
 
     @get:Input
-    internal abstract val resolvedComponentResult: ListProperty<ResolvedDependencyResult>
+    internal abstract val resolvedComponentResult: Property<ResolvedComponentResult>
 
     fun uploadConfiguration(configuration: Configuration) {
-        resolvedComponentResult.set(configuration.incoming.resolutionResult.rootComponent.map {
-            it.dependencies.mapNotNull {
-                it as? ResolvedDependencyResult
-            }
-        })
+        resolvedComponentResult.set(configuration.incoming.resolutionResult.rootComponent)
     }
 
     fun uploadConfiguration(configuration: Provider<Configuration>) {
-        resolvedComponentResult.set(configuration.flatMap { it.incoming.resolutionResult.rootComponent }.map {
-            it.dependencies.mapNotNull {
-                it as? ResolvedDependencyResult
-            }
-        })
+        resolvedComponentResult.set(configuration.flatMap { it.incoming.resolutionResult.rootComponent })
     }
 
     @get:Inject
     internal abstract val workerExecutor: WorkerExecutor
 
     @get:OutputDirectory
-    internal abstract val outputDirectory: DirectoryProperty
-
-    init {
-        outputDirectory.convention(
-            project.layout.buildDirectory.dir("github/dependencies/${name}")
-        )
-    }
+    internal val outputDirectory = objects.directoryProperty().convention(
+        project.layout.buildDirectory.dir("github/dependencies/${name}")
+    )
 
     @TaskAction
     fun submit() {
+        val dependencies = mutableMapOf<String, Resolved>()
+        val scope = scope.get()
+        for (dependency in resolvedComponentResult.get().dependencies) {
+            if (dependency is ResolvedDependencyResult) {
+                dependency.handle(RelationShip.Direct, scope, dependencies)
+            }
+        }
+
         workerExecutor.noIsolation().submit(UploadAction::class.java) {
             this.repository.set(this@GitHubDependenciesUpload.repository)
             this.token.set(this@GitHubDependenciesUpload.token)
-            this.scope.set(this@GitHubDependenciesUpload.scope)
             this.version.set(this@GitHubDependenciesUpload.version)
             this.sha.set(this@GitHubDependenciesUpload.sha)
             this.ref.set(this@GitHubDependenciesUpload.ref)
             this.jobID.set(this@GitHubDependenciesUpload.jobID)
             this.jobCorrelator.set(this@GitHubDependenciesUpload.jobCorrelator)
             this.jobUrl.set(this@GitHubDependenciesUpload.jobUrl)
-            this.dependencies.set(this@GitHubDependenciesUpload.resolvedComponentResult)
+            this.dependencies.set(dependencies)
             this.manifestFileName.set(this@GitHubDependenciesUpload.buildFileName)
             this.manifestFileLocation.set(this@GitHubDependenciesUpload.buildFileLocation)
             this.projectName.set(this@GitHubDependenciesUpload.projectName)
@@ -123,3 +118,28 @@ abstract class GitHubDependenciesUpload
         }
     }
 }
+
+private fun ResolvedDependencyResult.handle(
+    relationShip: RelationShip,
+    scope: Scope?,
+    dependencies: MutableMap<String, Resolved>
+) {
+    val id = selected.id
+    val module = id as? ModuleComponentIdentifier ?: return
+    val purl = PackageUrl(module)
+    val deps = selected.dependencies.mapNotNull {
+        if (it is ResolvedDependencyResult) {
+            val depPurl = PackageUrl(it.selected.id as ModuleComponentIdentifier)
+            if (depPurl !in dependencies.keys) {
+                dependencies[depPurl] = Resolved(depPurl, null, relationShip, scope, emptyList())
+                it.handle(RelationShip.Indirect, scope, dependencies)
+            }
+            depPurl
+        } else null
+    }
+    dependencies[purl] = Resolved(purl, null, relationShip, scope, deps)
+}
+
+// pkg:maven/org.apache.xmlgraphics/batik-anim@1.9.1
+private fun PackageUrl(moduleComponentIdentifier: ModuleComponentIdentifier) =
+    "pkg:maven/${moduleComponentIdentifier.group}/${moduleComponentIdentifier.module}@${moduleComponentIdentifier.version}"

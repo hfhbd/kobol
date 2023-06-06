@@ -8,68 +8,35 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
-import org.gradle.api.artifacts.component.ModuleComponentIdentifier
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 
 abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
+
+    companion object {
+        val client = HttpClient(CIO)
+    }
+
     interface UploadActionParameters : WorkParameters {
         val repository: Property<String>
         val token: Property<String>
-        val scope: Property<Scope>
         val version: Property<Int>
         val sha: Property<String>
         val ref: Property<String>
         val jobID: Property<String>
         val jobCorrelator: Property<String>
         val jobUrl: Property<String>
-        val dependencies: ListProperty<ResolvedDependencyResult>
+        val dependencies: MapProperty<String, Resolved>
         val manifestFileName: Property<String>
         val manifestFileLocation: Property<String>
         val projectName: Property<String>
         val outputDirectory: DirectoryProperty
     }
 
-    // pkg:maven/org.apache.xmlgraphics/batik-anim@1.9.1
-    private fun PackageUrl(moduleComponentIdentifier: ModuleComponentIdentifier) =
-        "pkg:maven/${moduleComponentIdentifier.group}/${moduleComponentIdentifier.module}@${moduleComponentIdentifier.version}"
-
-
-    private fun ResolvedDependencyResult.handle(
-        relationShip: RelationShip,
-        scope: Scope?,
-        dependencies: MutableMap<String, Resolved>
-    ) {
-        val id = selected.id
-        val module = id as? ModuleComponentIdentifier ?: return
-        val purl = PackageUrl(module)
-        val deps = selected.dependencies.mapNotNull {
-            if (it is ResolvedDependencyResult) {
-                val depPurl = PackageUrl(it.selected.id as ModuleComponentIdentifier)
-                if (depPurl !in dependencies.keys) {
-                    dependencies[depPurl] = Resolved(depPurl, null, relationShip, scope, emptyList())
-                    it.handle(RelationShip.Indirect, scope, dependencies)
-                }
-                depPurl
-            } else null
-        }
-        dependencies[purl] = Resolved(purl, null, relationShip, scope, deps)
-    }
-
     override fun execute() = runBlocking {
-        val client = HttpClient(CIO)
-        val resolved = parameters.dependencies.get()
-
-        val dependencies = mutableMapOf<String, Resolved>()
-        val scope = parameters.scope.get()
-        for (dependency in resolved) {
-            dependency.handle(RelationShip.Direct, scope, dependencies)
-        }
-
         val upload = Upload(
             version = parameters.version.get(),
             job = Job(
@@ -90,7 +57,7 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
                     name = parameters.manifestFileName.get(),
                     file = parameters.manifestFileLocation.orNull?.let { File(it) },
                     metadata = null,
-                    resolved = dependencies
+                    resolved = parameters.dependencies.get()
                 )
             ),
             scanned = Clock.System.now()
