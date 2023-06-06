@@ -8,6 +8,7 @@ data class Resolved(
     @SerialName("package_url")
     val packageURL: String?,
     val metadata: Map<String, String>? = null,
+    @SerialName("relationship")
     val relationShip: RelationShip?,
     val scope: Scope?,
     val dependencies: List<String>?
