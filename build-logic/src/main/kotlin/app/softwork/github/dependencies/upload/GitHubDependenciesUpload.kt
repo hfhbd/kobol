@@ -28,7 +28,7 @@ abstract class GitHubDependenciesUpload
     abstract val scope: Property<Scope>
 
     @get:Input
-    abstract val token: Property<String>
+    val token = objects.property<String>().convention(providers.environmentVariable("GITHUB_TOKEN"))
 
     @get:Input
     val repository = objects.property<String>().convention(providers.environmentVariable("GITHUB_REPOSITORY"))

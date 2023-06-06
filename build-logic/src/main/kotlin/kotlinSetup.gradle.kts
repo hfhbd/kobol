@@ -38,11 +38,9 @@ licensee {
 tasks.register<GitHubDependenciesUpload>("uploadRuntimeToGitHub") {
     scope.set(Scope.Runtime)
     uploadConfiguration(configurations.runtimeClasspath)
-    token.set(providers.environmentVariable("GITHUB_TOKEN"))
 }
 
 tasks.register<GitHubDependenciesUpload>("uploadCompileToGitHub") {
     scope.set(Scope.Development)
     uploadConfiguration(configurations.compileClasspath)
-    token.set(providers.environmentVariable("GITHUB_TOKEN"))
 }
