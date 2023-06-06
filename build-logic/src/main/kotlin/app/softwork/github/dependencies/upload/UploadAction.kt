@@ -49,7 +49,7 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
             detector = Detector(
                 name = "GradleDepsUpload",
                 version = "0.0.1",
-                url = ""
+                url = "https://github.com/hfhbd/kobol"
             ),
             metadata = null,
             manifests = mapOf(
