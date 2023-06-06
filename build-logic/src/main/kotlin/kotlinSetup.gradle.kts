@@ -1,3 +1,4 @@
+import app.softwork.github.dependencies.upload.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
@@ -32,4 +33,14 @@ pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
 
 licensee {
     allow("Apache-2.0")
+}
+
+tasks.register<GitHubDependenciesUpload>("uploadRuntimeToGitHub") {
+    scope.set(Scope.Runtime)
+    uploadConfiguration(configurations.runtimeClasspath)
+}
+
+tasks.register<GitHubDependenciesUpload>("uploadCompileToGitHub") {
+    scope.set(Scope.Development)
+    uploadConfiguration(configurations.compileClasspath)
 }
