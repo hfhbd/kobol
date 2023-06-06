@@ -11,6 +11,3 @@ internal const val GROUP_NAME = "grammarKit"
 
 internal val <T : FileSystemLocation> Provider<T>.path
     get() = map { it.asFile.canonicalPath }
-
-internal fun <L, C, R, V> Provider<L>.zip(center: Provider<C>, right: Provider<R>, combiner: (L, C, R) -> V) =
-    zip(center) { l, c -> l to c }.zip(right) { (l, c), r -> combiner(l, c, r) }
