@@ -11,4 +11,4 @@ data class Resolved(
     val relationShip: RelationShip?,
     val scope: Scope?,
     val dependencies: List<String>?
-)
+): java.io.Serializable
