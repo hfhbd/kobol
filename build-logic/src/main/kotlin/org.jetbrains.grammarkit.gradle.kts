@@ -8,7 +8,6 @@ import org.jetbrains.grammarkit.GROUP_NAME
 import org.jetbrains.grammarkit.GrammarKitPluginExtension
 import org.jetbrains.grammarkit.tasks.GenerateLexerTask
 import org.jetbrains.grammarkit.tasks.GenerateParserTask
-import org.jetbrains.grammarkit.zip
 import java.io.File
 
 plugins {
@@ -72,7 +71,8 @@ configurations.compileOnly {
 }
 
 grammarKitClassPath {
-    val platformDependencies = extension.intellijRelease.zip(
+    val platformDependencies = zip(
+        extension.intellijRelease,
         extension.grammarKitRelease,
         extension.jflexRelease,
     ) { intellijRelease, grammarKitRelease, jflexRelease ->

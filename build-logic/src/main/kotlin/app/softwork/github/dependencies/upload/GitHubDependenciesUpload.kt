@@ -15,7 +15,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import org.gradle.workers.WorkerExecutor
-import org.jetbrains.grammarkit.zip
+import zip
 import javax.inject.Inject
 
 @CacheableTask
@@ -25,42 +25,46 @@ abstract class GitHubDependenciesUpload
     objects: ObjectFactory
 ) : DefaultTask() {
     @get:Input
-    abstract val scope: Property<Scope>
+    val scope = objects.property<Scope>()
 
     @get:Input
-    val token = objects.property<String>().convention(providers.environmentVariable("GITHUB_TOKEN"))
+    val token: Property<String> = objects.property<String>().convention(providers.environmentVariable("GITHUB_TOKEN"))
 
     @get:Input
-    val repository = objects.property<String>().convention(providers.environmentVariable("GITHUB_REPOSITORY"))
+    val repository: Property<String> =
+        objects.property<String>().convention(providers.environmentVariable("GITHUB_REPOSITORY"))
 
     @get:Input
-    val version = objects.property<Int>().convention(0)
+    val version: Property<Int> = objects.property<Int>().convention(0)
 
     @get:Input
-    val sha = objects.property<String>().convention(providers.environmentVariable("GITHUB_SHA"))
+    val sha: Property<String> = objects.property<String>().convention(providers.environmentVariable("GITHUB_SHA"))
 
     @get:Input
-    val ref = objects.property<String>().convention(providers.environmentVariable("GITHUB_REF"))
+    val ref: Property<String> = objects.property<String>().convention(providers.environmentVariable("GITHUB_REF"))
 
     @get:Input
-    val jobID = objects.property<String>().convention(providers.environmentVariable("GITHUB_RUN_ID"))
+    val jobID: Property<String> = objects.property<String>().convention(providers.environmentVariable("GITHUB_RUN_ID"))
 
     @get:Input
-    val projectName = objects.property<String>().convention(project.name)
+    val projectName: Property<String> = objects.property<String>().convention(project.name)
 
     @get:Input
-    val jobCorrelator = objects.property<String>().convention(
-        providers.environmentVariable("GITHUB_WORKFLOW")
-            .zip(providers.environmentVariable("GITHUB_JOB")) { workflow, job ->
-                "$workflow $job"
-            }
-            .zip(projectName) { job, projectName ->
-                "$job $projectName"
-            })
+    val jobCorrelator: Property<String> = objects.property<String>().convention(
+        zip(
+            providers.environmentVariable("GITHUB_WORKFLOW"),
+            providers.environmentVariable("GITHUB_JOB"),
+            projectName,
+            scope
+        ) { workflow, job, projectName, scope ->
+            "$workflow $job $projectName $scope"
+        }
+    )
 
     @get:Input
-    val jobUrl = objects.property<String>().convention(
-        providers.environmentVariable("GITHUB_SERVER_URL").zip(
+    val jobUrl: Property<String> = objects.property<String>().convention(
+        zip(
+            providers.environmentVariable("GITHUB_SERVER_URL"),
             providers.environmentVariable("GITHUB_REPOSITORY"),
             providers.environmentVariable("GITHUB_RUN_ID")
         ) { serverUrl, repository, runId ->
@@ -128,10 +132,10 @@ private fun ResolvedDependencyResult.handle(
 ) {
     val id = selected.id
     val module = id as? ModuleComponentIdentifier ?: return
-    val purl = PackageUrl(module)
+    val purl = purl(module)
     val deps = selected.dependencies.mapNotNull {
         if (it is ResolvedDependencyResult) {
-            val depPurl = PackageUrl(it.selected.id as ModuleComponentIdentifier)
+            val depPurl = purl(it.selected.id as ModuleComponentIdentifier)
             if (depPurl !in dependencies.keys) {
                 dependencies[depPurl] = Resolved(depPurl, null, relationShip, scope, emptyList())
                 it.handle(RelationShip.Indirect, scope, dependencies)
@@ -143,5 +147,5 @@ private fun ResolvedDependencyResult.handle(
 }
 
 // pkg:maven/org.apache.xmlgraphics/batik-anim@1.9.1
-private fun PackageUrl(moduleComponentIdentifier: ModuleComponentIdentifier) =
+private fun purl(moduleComponentIdentifier: ModuleComponentIdentifier) =
     "pkg:maven/${moduleComponentIdentifier.group}/${moduleComponentIdentifier.module}@${moduleComponentIdentifier.version}"
