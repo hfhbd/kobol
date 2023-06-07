@@ -37,6 +37,8 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
     }
 
     override fun execute() = runBlocking {
+        val projectName = parameters.projectName.get()
+        
         val upload = Upload(
             version = parameters.version.get(),
             job = Job(
@@ -53,8 +55,8 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
             ),
             metadata = null,
             manifests = mapOf(
-                parameters.projectName.get() to Manifest(
-                    name = parameters.manifestFileName.get(),
+                projectName to Manifest(
+                    name = "projectName-${parameters.manifestFileName.get()}",
                     file = parameters.manifestFileLocation.orNull?.let { File(it) },
                     metadata = null,
                     resolved = parameters.dependencies.get()

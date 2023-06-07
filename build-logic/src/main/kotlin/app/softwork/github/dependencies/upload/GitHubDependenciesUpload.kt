@@ -73,7 +73,7 @@ abstract class GitHubDependenciesUpload
     )
 
     @get:Input
-    val buildFileLocation = project.buildFile.toRelativeString(project.rootProject.buildFile)
+    val buildFileLocation = project.buildFile.toRelativeString(project.rootProject.buildFile).drop(3)
 
     @get:Input
     val buildFileName: String = project.buildFile.name
