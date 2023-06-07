@@ -62,17 +62,20 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
             ),
             scanned = Clock.System.now()
         )
+        val body = Json.encodeToString(Upload.serializer(), upload)
         val response = client.post(
             "https://api.github.com/repos/${parameters.repository.get()}/dependency-graph/snapshots"
         ) {
             accept(ContentType("application", "vnd.github+json"))
             bearerAuth(parameters.token.get())
             header("X-GitHub-Api-Version", "2022-11-28")
-            setBody(Json.encodeToString(Upload.serializer(), upload))
+            setBody(body)
         }
+        val responseText = response.bodyAsText()
         require(response.status == HttpStatusCode.Created) {
-            response.bodyAsText()
+            response
         }
-        java.io.File(parameters.outputDirectory.asFile.get(), "response.txt").writeText(response.bodyAsText())
+        println("$body $responseText")
+        java.io.File(parameters.outputDirectory.asFile.get(), "response.txt").writeText(responseText)
     }
 }

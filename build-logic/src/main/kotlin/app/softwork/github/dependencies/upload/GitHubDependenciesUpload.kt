@@ -57,7 +57,7 @@ abstract class GitHubDependenciesUpload
             projectName,
             scope
         ) { workflow, job, projectName, scope ->
-            "$workflow $job $projectName $scope"
+            "$workflow $job $projectName ${scope.name}"
         }
     )
 
