@@ -56,7 +56,7 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
             metadata = null,
             manifests = mapOf(
                 projectName to Manifest(
-                    name = "projectName-${parameters.manifestFileName.get()}",
+                    name = "$projectName-${parameters.manifestFileName.get()}",
                     file = parameters.manifestFileLocation.orNull?.let { File(it) },
                     metadata = null,
                     resolved = parameters.dependencies.get()
