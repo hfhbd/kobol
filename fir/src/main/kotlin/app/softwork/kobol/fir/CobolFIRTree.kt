@@ -509,7 +509,7 @@ public data class CobolFIRTree(
 
             @Serializable
             public data class Close(
-                val file: DataTree.File,
+                val files: List<DataTree.File>,
                 override val comments: List<String> = emptyList()
             ) : Statement
         }

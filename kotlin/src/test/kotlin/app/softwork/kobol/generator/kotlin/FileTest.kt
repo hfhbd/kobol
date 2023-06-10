@@ -53,8 +53,7 @@ class FileTest {
         |123456     MOVE FILLER OF EB1-EIN TO FILLER OF EB1-AUS
         |123456     WRITE EB1-AUS
         |123456 END-READ
-        |123456 CLOSE EIN.
-        |123456 CLOSE AUS.
+        |123456 CLOSE EIN AUS.
         """.trimMargin().toIR(
             firPlugins = listOf(NullableToZero()),
             fileConverter = {
