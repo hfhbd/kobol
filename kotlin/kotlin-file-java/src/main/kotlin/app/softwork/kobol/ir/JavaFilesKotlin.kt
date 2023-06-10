@@ -1,9 +1,10 @@
 package app.softwork.kobol.ir
 
-import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
-import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Close
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Open
+import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.StringLiteral
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
-import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Type.Class
 import app.softwork.serviceloader.ServiceLoader
 
 @ServiceLoader(FileHandlingFactory::class)
@@ -87,10 +88,10 @@ public class JavaFilesKotlin : FileHandling, FileHandlingFactory {
         )
     }
 
-    override fun handleClose(close: Close): List<Use> = listOf(
+    override fun handleClose(close: Close): List<Use> = close.files.map {
         Use(
             target = Declaration.ObjectDeclaration(
-                name = close.file.name,
+                name = it.name,
                 type = Closeable,
                 value = null,
                 nullable = false,
@@ -102,5 +103,5 @@ public class JavaFilesKotlin : FileHandling, FileHandlingFactory {
                 parameters = emptyList(),
             )
         )
-    )
+    }
 }

@@ -75,7 +75,7 @@ public abstract class Rename(
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Close -> it.copy(
-                    file = it.file.rename()
+                    files = it.files.map { it.rename() }
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Continue -> it

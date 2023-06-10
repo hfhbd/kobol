@@ -596,7 +596,9 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
 
         proc.closing != null -> listOf(
             Close(
-                file = dataTree.findFile(proc.closing!!.fileDescriptionID.varName.text),
+                files = proc.closing!!.fileDescriptionIDList.map {
+                    dataTree.findFile(it.varName.text)
+                },
                 comments = proc.comments.asComments()
             )
         )
