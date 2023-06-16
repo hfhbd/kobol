@@ -29,7 +29,6 @@ abstract class GenerateParserTask : JavaExec() {
     }
 
     /**
-     * Required.
      * The source BNF file to generate the parser from.
      */
     @get:InputFile
@@ -37,7 +36,6 @@ abstract class GenerateParserTask : JavaExec() {
     abstract val sourceFile: RegularFileProperty
 
     /**
-     * Required.
      * The output root directory.
      */
     @get:OutputDirectory

@@ -2,8 +2,6 @@
 // https://github.com/JetBrains/gradle-grammar-kit-plugin
 // Changes by hfhbd: Refactor plugin code to precompiled plugin
 
-import gradle.kotlin.dsl.accessors._64de664e3f3ca753fb856e13fe0d41c2.compileClasspath
-import gradle.kotlin.dsl.accessors._64de664e3f3ca753fb856e13fe0d41c2.compileOnly
 import org.jetbrains.grammarkit.GROUP_NAME
 import org.jetbrains.grammarkit.GrammarKitPluginExtension
 import org.jetbrains.grammarkit.tasks.GenerateLexerTask
@@ -16,7 +14,39 @@ plugins {
 
 val extension = extensions.create<GrammarKitPluginExtension>(GROUP_NAME)
 
-val grammarKitClassPath by configurations.registering
+val grammarKitClassPath by configurations.registering {
+    val platformDependencies = zip(
+        extension.intellijRelease,
+        extension.grammarKitRelease,
+        extension.jflexRelease,
+    ) { intellijRelease, grammarKitRelease, jflexRelease ->
+        listOf(
+            "org.jetbrains:grammar-kit:$grammarKitRelease",
+            "org.jetbrains.intellij.deps.jflex:jflex:$jflexRelease",
+            "com.jetbrains.intellij.platform:indexing-impl:$intellijRelease",
+            "com.jetbrains.intellij.platform:analysis-impl:$intellijRelease",
+            "com.jetbrains.intellij.platform:core-impl:$intellijRelease",
+            "com.jetbrains.intellij.platform:lang-impl:$intellijRelease",
+            "org.jetbrains.intellij.deps:asm-all:7.0.1",
+        ).map(project.dependencies::create).map {
+            it as ModuleDependency
+            it.exclude(mapOf("group" to "com.jetbrains.rd"))
+            it.exclude(mapOf("group" to "org.jetbrains.marketplace"))
+            it.exclude(mapOf("group" to "org.roaringbitmap"))
+            it.exclude(mapOf("group" to "org.jetbrains.plugins"))
+            it.exclude(mapOf("module" to "idea"))
+            it.exclude(mapOf("module" to "ant"))
+        }
+    }
+    dependencies.addAllLater(
+        extension.intellijRelease.zip(platformDependencies) { intellijRelease, dependencies ->
+            when {
+                intellijRelease.isEmpty() -> emptyList()
+                else -> dependencies
+            }
+        }
+    )
+}
 
 tasks.register<GenerateLexerTask>("generateLexer")
 
@@ -66,39 +96,6 @@ configurations.compileOnly {
             when {
                 intellijRelease.isEmpty() -> dependencies
                 else -> emptyList()
-            }
-        })
-}
-
-grammarKitClassPath {
-    val platformDependencies = zip(
-        extension.intellijRelease,
-        extension.grammarKitRelease,
-        extension.jflexRelease,
-    ) { intellijRelease, grammarKitRelease, jflexRelease ->
-        listOf(
-            "org.jetbrains:grammar-kit:$grammarKitRelease",
-            "org.jetbrains.intellij.deps.jflex:jflex:$jflexRelease",
-            "com.jetbrains.intellij.platform:indexing-impl:$intellijRelease",
-            "com.jetbrains.intellij.platform:analysis-impl:$intellijRelease",
-            "com.jetbrains.intellij.platform:core-impl:$intellijRelease",
-            "com.jetbrains.intellij.platform:lang-impl:$intellijRelease",
-            "org.jetbrains.intellij.deps:asm-all:7.0.1",
-        ).map(project.dependencies::create).map {
-            it as ModuleDependency
-            it.exclude(mapOf("group" to "com.jetbrains.rd"))
-            it.exclude(mapOf("group" to "org.jetbrains.marketplace"))
-            it.exclude(mapOf("group" to "org.roaringbitmap"))
-            it.exclude(mapOf("group" to "org.jetbrains.plugins"))
-            it.exclude(mapOf("module" to "idea"))
-            it.exclude(mapOf("module" to "ant"))
-        }
-    }
-    dependencies.addAllLater(
-        extension.intellijRelease.zip(platformDependencies) { intellijRelease, dependencies ->
-            when {
-                intellijRelease.isEmpty() -> emptyList()
-                else -> dependencies
             }
         })
 }
