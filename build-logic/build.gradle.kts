@@ -4,18 +4,22 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlin.gradlePlugin)
-    implementation(libs.kotlin.serialization)
-    implementation(libs.publish.gradlePlugin)
-    implementation(libs.licensee.gradlePlugin)
-    implementation(libs.intellij.gradlePlugin)
-    implementation(libs.shadow.gradlePlugin)
-    implementation(libs.serviceloader.gradlePlugin)
-    implementation(libs.ksp.gradlePlugin)
-    
+    implementation(libs.plugins.kotlin.jvm.toDep())
+    implementation(libs.plugins.kotlin.serialization.toDep())
+    implementation(libs.plugins.publish.toDep())
+    implementation(libs.plugins.licensee.toDep())
+    implementation(libs.plugins.intellij.toDep())
+    implementation(libs.plugins.shadow.toDep())
+    implementation(libs.plugins.serviceloader.toDep())
+    implementation(libs.plugins.ksp.toDep())
+
     implementation(libs.serialization.json)
     implementation(libs.datetime)
     implementation(libs.ktor.cio)
+}
+
+fun Provider<PluginDependency>.toDep() = map {
+    "${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}"
 }
 
 kotlin.jvmToolchain(17)

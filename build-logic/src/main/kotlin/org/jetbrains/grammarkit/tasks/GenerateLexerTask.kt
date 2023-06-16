@@ -32,14 +32,12 @@ abstract class GenerateLexerTask : JavaExec() {
     }
 
     /**
-     * Required.
      * The output directory for the generated lexer.
      */
     @get:OutputDirectory
     abstract val targetOutputDir: DirectoryProperty
 
     /**
-     * Required.
      * The source Flex file to generate the lexer from.
      */
     @get:InputFile
