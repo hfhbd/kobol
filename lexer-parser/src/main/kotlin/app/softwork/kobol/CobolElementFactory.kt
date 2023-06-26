@@ -49,6 +49,9 @@ public object CobolElementFactory {
                 false
             } else true
         }
+        if (text == null && fileName == "SQLCA") {
+            text = sqlca
+        }
         val fileText = requireNotNull(text) { "File $fileName not found in $fileIndex" }
         val addLineNumber = fileText.lines().map { it.trim() }.mapNotNull {
             if (it.isEmpty()) {
