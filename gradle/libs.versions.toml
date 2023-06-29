@@ -18,7 +18,7 @@ idea-project-model-impl = { module = "com.jetbrains.intellij.platform:project-mo
 idea-analysis-impl = { module = "com.jetbrains.intellij.platform:analysis-impl", version.ref = "idea" }
 idea-indexing-impl = { module = "com.jetbrains.intellij.platform:indexing-impl", version.ref = "idea" }
 
-ktor-cio = { module = "io.ktor:ktor-client-cio", version = "2.3.1" }
+ktor-cio = { module = "io.ktor:ktor-client-cio", version = "2.3.2" }
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.4.0" }
 
 [bundles]
