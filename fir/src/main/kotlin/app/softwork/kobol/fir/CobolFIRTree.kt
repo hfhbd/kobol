@@ -82,10 +82,17 @@ public data class CobolFIRTree(
     @Serializable
     public data class DataTree(
         val fileSection: List<File> = emptyList(),
+        val sql: List<Sql> = emptyList(),
         val workingStorage: List<WorkingStorage> = emptyList(),
         val linkingSection: List<WorkingStorage> = emptyList(),
         val comments: List<String> = emptyList()
     ) {
+        @Serializable
+        public data class Sql(
+            val sql: String,
+            val comments: List<String> = emptyList()
+        )
+        
         @Serializable
         public data class File(
             val name: String,
@@ -117,12 +124,6 @@ public data class CobolFIRTree(
         @Serializable
         public sealed interface WorkingStorage {
             public val comments: List<String>
-
-            @Serializable
-            public data class Sql(
-                val sql: String,
-                override val comments: List<String> = emptyList()
-            ) : WorkingStorage
 
             @Serializable
             public data class Record(
