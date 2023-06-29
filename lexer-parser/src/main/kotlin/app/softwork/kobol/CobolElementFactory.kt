@@ -37,6 +37,8 @@ public object CobolElementFactory {
                     10 SQLWARN9 PIC X.
                     10 SQLWARNA PIC X.
                 05 SQLSTATE PIC X(5).
+            77 SQLSTATE PIC X(5).
+            77 SQLCODE  PIC S9(9) USAGE COMP.
         """
 
     public fun includeSQL(project: Project, fileName: String): List<CobolRecordDef> {
