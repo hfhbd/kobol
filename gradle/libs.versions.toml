@@ -18,7 +18,7 @@ idea-project-model-impl = { module = "com.jetbrains.intellij.platform:project-mo
 idea-analysis-impl = { module = "com.jetbrains.intellij.platform:analysis-impl", version.ref = "idea" }
 idea-indexing-impl = { module = "com.jetbrains.intellij.platform:indexing-impl", version.ref = "idea" }
 
-ktor-cio = { module = "io.ktor:ktor-client-cio", version = "2.3.1" }
+ktor-cio = { module = "io.ktor:ktor-client-cio", version = "2.3.2" }
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.4.0" }
 
 [bundles]
@@ -31,5 +31,5 @@ ksp = { id = "com.google.devtools.ksp", version = "1.8.22-1.0.11" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 serviceloader = { id = "app.softwork.serviceloader", version = "0.0.8" }
 licensee = { id = "app.cash.licensee", version = "1.7.0" }
-intellij = { id = "org.jetbrains.intellij", version = "1.14.1" }
+intellij = { id = "org.jetbrains.intellij", version = "1.14.2" }
 publish = { id = "io.github.gradle-nexus.publish-plugin", version = "1.3.0" }
