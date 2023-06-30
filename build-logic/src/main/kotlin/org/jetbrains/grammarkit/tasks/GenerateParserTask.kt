@@ -8,7 +8,6 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
-import org.gradle.process.CommandLineArgumentProvider
 import org.jetbrains.grammarkit.*
 
 /**
@@ -17,17 +16,6 @@ import org.jetbrains.grammarkit.*
  */
 @CacheableTask
 abstract class GenerateParserTask : JavaExec() {
-
-    init {
-        description = "Generates parsers for IntelliJ-based plugin"
-        group = GROUP_NAME
-
-        mainClass.set("org.intellij.grammar.Main")
-        argumentProviders.add {
-            listOf(targetRootOutputDir.path.get(), sourceFile.path.get())
-        }
-    }
-
     /**
      * The source BNF file to generate the parser from.
      */
@@ -40,4 +28,14 @@ abstract class GenerateParserTask : JavaExec() {
      */
     @get:OutputDirectory
     abstract val targetRootOutputDir: DirectoryProperty
+
+    init {
+        description = "Generates parsers for IntelliJ-based plugin"
+        group = GROUP_NAME
+
+        mainClass.set("org.intellij.grammar.Main")
+        argumentProviders.add {
+            listOf(targetRootOutputDir.path.get(), sourceFile.path.get())
+        }
+    }
 }
