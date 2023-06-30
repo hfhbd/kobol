@@ -16,6 +16,18 @@ import org.jetbrains.grammarkit.path
  */
 @CacheableTask
 abstract class GenerateLexerTask : JavaExec() {
+    /**
+     * The output directory for the generated lexer.
+     */
+    @get:OutputDirectory
+    abstract val targetOutputDir: DirectoryProperty
+
+    /**
+     * The source Flex file to generate the lexer from.
+     */
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val sourceFile: RegularFileProperty
 
     init {
         group = GROUP_NAME
@@ -30,17 +42,4 @@ abstract class GenerateLexerTask : JavaExec() {
             )
         }
     }
-
-    /**
-     * The output directory for the generated lexer.
-     */
-    @get:OutputDirectory
-    abstract val targetOutputDir: DirectoryProperty
-
-    /**
-     * The source Flex file to generate the lexer from.
-     */
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val sourceFile: RegularFileProperty
 }
