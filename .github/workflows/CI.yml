@@ -26,6 +26,4 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
       - run: ./gradlew uploadRuntimeToGitHub uploadCompileToGitHub
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: ./gradlew -Pversion=42.0.0 runPluginVerifier
