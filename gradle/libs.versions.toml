@@ -12,7 +12,7 @@ db2-dialect = { module = "app.softwork:sqldelight-db2-dialect", version = "0.0.3
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.14.2" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 
-sqldelight-writer = { module = "app.softwork:sqldelight-writer", version = "0.0.2" }
+sqldelight-writer = { module = "app.softwork:sqldelight-writer", version = "0.0.3" }
 idea-core-impl = { module = "com.jetbrains.intellij.platform:core-impl", version.ref = "idea" }
 idea-project-model-impl = { module = "com.jetbrains.intellij.platform:project-model-impl", version.ref = "idea" }
 idea-analysis-impl = { module = "com.jetbrains.intellij.platform:analysis-impl", version.ref = "idea" }
