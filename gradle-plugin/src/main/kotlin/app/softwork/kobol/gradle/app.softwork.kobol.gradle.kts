@@ -13,12 +13,14 @@ private val cobolFiles = layout.projectDirectory.asFileTree.matching {
     }
 }.elements.map { cobolFiles ->
     cobolFiles.map { cobolFile ->
+        val name = cobolFile.asFile.nameWithoutExtension
         val cobolSource = objects.newInstance(
             CobolSource::class.java,
-            cobolFile.asFile.nameWithoutExtension,
+            name,
             cobolFile
         )
-        val convert = tasks.register(cobolSource.taskName, KobolTask::class.java) {
+        val convert = tasks.register(cobolSource.taskName, KobolTask::class.java, name)
+        convert {
             classpath.from(configurations.named(cobolSource.plugins))
             sources.from(cobolFiles)
         }

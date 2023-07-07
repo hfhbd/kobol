@@ -6,10 +6,10 @@ import org.gradle.workers.*
 import java.io.*
 import java.util.*
 
-public abstract class FirKobolAction : WorkAction<FirKobolAction.Parameters> {
-    public interface Parameters : WorkParameters {
-        public val inputFiles: ConfigurableFileCollection
-        public val outputFolder: DirectoryProperty
+internal abstract class FirKobolAction : WorkAction<FirKobolAction.Parameters> {
+    internal interface Parameters : WorkParameters {
+        val inputFiles: ConfigurableFileCollection
+        val outputFolder: DirectoryProperty
     }
 
     override fun execute() {

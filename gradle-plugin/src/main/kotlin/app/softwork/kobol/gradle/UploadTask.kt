@@ -1,19 +1,15 @@
 package app.softwork.kobol.gradle
 
-import com.jcraft.jsch.agentproxy.*
-import net.schmizz.sshj.*
 import net.schmizz.sshj.xfer.*
 import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.logging.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitivity.*
 import org.gradle.work.*
 import org.gradle.workers.*
 import java.io.*
-import java.util.*
 import javax.inject.*
 
 @DisableCachingByDefault
@@ -53,7 +49,7 @@ public abstract class UploadTask : SshTask() {
     @get:PathSensitive(RELATIVE)
     @get:InputFiles
     public abstract val files: ConfigurableFileCollection
-    
+
     public fun files(vararg cobols: NamedDomainObjectProvider<CobolSource>) {
         files.from(cobols.map { it.file })
     }
