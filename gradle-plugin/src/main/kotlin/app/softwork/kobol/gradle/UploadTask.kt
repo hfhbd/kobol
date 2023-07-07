@@ -30,7 +30,7 @@ public abstract class SshTask : DefaultTask() {
 
     @get:Internal
     public val configuration: String = project.configurations.register("${name}Ssh") {
-        dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$KOBOL_VERSION"))
+        it.dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$KOBOL_VERSION"))
     }.name
 
     @get:InputFiles
@@ -97,7 +97,7 @@ public abstract class UploadTask : SshTask() {
     @TaskAction
     internal fun execute(inputChanges: InputChanges) {
         val queue = workerExecutor.classLoaderIsolation {
-            classpath.setFrom(sshClasspath)
+            it.classpath.setFrom(sshClasspath)
         }
 
         for (change in inputChanges.getFileChanges(files)) {
@@ -106,25 +106,25 @@ public abstract class UploadTask : SshTask() {
             when (change.changeType) {
                 ChangeType.ADDED, ChangeType.MODIFIED -> {
                     queue.submit(UploadAction::class.java) {
-                        user.set(this@UploadTask.user)
-                        host.set(this@UploadTask.host)
-                        this.folder.set(this@UploadTask.folder)
-                        this.file.set(change.file)
-                        this.encoding.set(this@UploadTask.encoding)
-                        this.mvsFolder.set(this@UploadTask.mvsFolder)
-                        this.keepUTF8.set(this@UploadTask.keepUTF8)
-                        this.mvsFiles.from(this@UploadTask.mvsFiles)
-                        this.uploaded.set(this@UploadTask.uploaded)
-                        this.notTagged.set(this@UploadTask.notTagged)
+                        it.user.set(user)
+                        it.host.set(host)
+                        it.folder.set(folder)
+                        it.file.set(change.file)
+                        it.encoding.set(encoding)
+                        it.mvsFolder.set(mvsFolder)
+                        it.keepUTF8.set(keepUTF8)
+                        it.mvsFiles.from(mvsFiles)
+                        it.uploaded.set(uploaded)
+                        it.notTagged.set(notTagged)
                     }
                 }
 
                 ChangeType.REMOVED -> {
                     queue.submit(DeleteAction::class.java) {
-                        user.set(this@UploadTask.user)
-                        host.set(this@UploadTask.host)
-                        this.folder.set(this@UploadTask.folder)
-                        this.file.set(change.file)
+                        it.user.set(user)
+                        it.host.set(host)
+                        it.folder.set(folder)
+                        it.file.set(change.file)
                     }
                 }
             }
