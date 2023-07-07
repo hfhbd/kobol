@@ -1,5 +1,5 @@
 plugins {
-    id("setup")
+    id("kotlinSetup")
     id("repos")
     id("org.jetbrains.intellij")
 }

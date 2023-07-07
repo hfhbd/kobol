@@ -1,7 +1,7 @@
 import app.cash.licensee.LicenseeTask
 
 plugins {
-    id("setup")
+    id("kotlinSetup")
     id("repos")
     id("com.github.johnrengelman.shadow")
 }
