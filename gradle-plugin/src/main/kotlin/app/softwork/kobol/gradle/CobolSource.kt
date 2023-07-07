@@ -7,7 +7,6 @@ import org.gradle.api.artifacts.dsl.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.*
 import javax.inject.*
 
 public abstract class CobolSource @Inject constructor(
@@ -21,19 +20,19 @@ public abstract class CobolSource @Inject constructor(
     override fun getName(): String = name
 
     public val plugins: String = project.configurations.register(name.pluginName()) {
-        dependencies.add(project.dependencies.create("app.softwork.kobol:ir:$KOBOL_VERSION"))
-        dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
-        isCanBeResolved = true
-        isCanBeConsumed = false
-        isVisible = false
+        it.dependencies.add(project.dependencies.create("app.softwork.kobol:ir:$KOBOL_VERSION"))
+        it.dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
+        it.isCanBeResolved = true
+        it.isCanBeConsumed = false
+        it.isVisible = false
     }.name
 
     public fun DependencyHandler.plugin(dependency: Any): Dependency? = add(plugins, dependency)
 
-    public val TaskContainer.convert: TaskProvider<out KobolTask> get() = named<KobolTask>(taskName)
+    public val TaskContainer.convert: TaskProvider<out KobolTask> get() = named(taskName, KobolTask::class.java)
     public fun TaskContainer.convert(configuration: Action<KobolTask>) {
-        named<KobolTask>(taskName) { 
-            configuration(this) 
+        named(taskName, KobolTask::class.java).configure {
+            configuration.execute(it)
         }
     }
 }
@@ -49,11 +48,11 @@ public fun DependencyHandler.kobolPlugin(source: NamedDomainObjectProvider<Cobol
     add(source.name.pluginName(), dependency)
 
 public fun TaskContainer.convert(source: NamedDomainObjectProvider<CobolSource>): TaskProvider<out KobolTask> {
-    return named<KobolTask>(source.name.taskName())
+    return named(source.name.taskName(), KobolTask::class.java)
 }
 
 public fun TaskContainer.convert(source: NamedDomainObjectProvider<CobolSource>, configuration: Action<KobolTask>) {
-    named<KobolTask>(source.name.taskName()).configure(configuration)
+    named(source.name.taskName(), KobolTask::class.java).configure(configuration)
 }
 
 public val NamedDomainObjectProvider<CobolSource>.file: Provider<FileSystemLocation> get() = map { it.file }

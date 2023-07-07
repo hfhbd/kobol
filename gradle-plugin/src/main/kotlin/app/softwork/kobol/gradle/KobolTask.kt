@@ -46,12 +46,12 @@ public abstract class KobolTask
     @TaskAction
     internal fun generate() {
         workerExecutor.classLoaderIsolation {
-            classpath.from(this@KobolTask.classpath)
+            it.classpath.from(classpath)
         }.submit(ExecuteKobol::class.java) {
-            inputFiles.setFrom(sources)
-            outputFolder.set(this@KobolTask.outputFolder)
-            sqlFolder.set(this@KobolTask.sqlFolder)
-            config.set(pluginConfiguration)
+            it.inputFiles.setFrom(sources)
+            it.outputFolder.set(outputFolder)
+            it.sqlFolder.set(sqlFolder)
+            it.config.set(pluginConfiguration)
         }
     }
 }

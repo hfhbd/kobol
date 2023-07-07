@@ -16,9 +16,9 @@ public abstract class KobolFirPluginTask : DefaultTask() {
 
     @get:Internal
     public val pluginConfiguration: String = project.configurations.register("${name}Plugin") {
-        isVisible = false
-        isCanBeConsumed = false
-        isCanBeResolved = true
+        it.isVisible = false
+        it.isCanBeConsumed = false
+        it.isCanBeResolved = true
     }.name
 
     @get:InputFiles
@@ -56,10 +56,10 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @TaskAction
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
-            classpath.from(pluginDependencies, plugins)
+            it.classpath.from(pluginDependencies, plugins)
         }.submit(FirKobolAction::class.java) {
-            inputFiles.setFrom(sources)
-            outputFolder.set(this@KobolFirPluginTask.outputFolder)
+            it.inputFiles.setFrom(sources)
+            it.outputFolder.set(outputFolder)
         }
     }
 }

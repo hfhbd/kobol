@@ -23,21 +23,21 @@ public abstract class KobolRunTask : SshTask() {
     @TaskAction
     internal fun execute() {
         workerExecutor.classLoaderIsolation {
-            classpath.setFrom(sshClasspath)
+            it.classpath.setFrom(sshClasspath)
         }.submit(SshCmdAction::class.java) {
-            host.set(this@KobolRunTask.host)
-            user.set(this@KobolRunTask.user)
-            folder.set(this@KobolRunTask.folder)
-            cmds.set(this@KobolRunTask.cmds)
-            export.set(this@KobolRunTask.export)
+            it.host.set(host)
+            it.user.set(user)
+            it.folder.set(folder)
+            it.cmds.set(cmds)
+            it.export.set(export)
         }
     }
 }
 
 internal abstract class SshCmdAction : WorkAction<SshCmdAction.Parameters> {
     internal interface Parameters : SshParameters {
-        public val cmds: ListProperty<String>
-        public val export: ListProperty<String>
+        val cmds: ListProperty<String>
+        val export: ListProperty<String>
     }
 
     private val logger = Logging.getLogger(SshCmdAction::class.java)
