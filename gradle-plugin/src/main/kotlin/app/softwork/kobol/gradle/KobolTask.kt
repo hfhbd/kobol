@@ -1,8 +1,6 @@
 package app.softwork.kobol.gradle
 
-import app.softwork.kobol.ir.*
 import org.gradle.api.*
-import org.gradle.api.artifacts.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
@@ -10,7 +8,10 @@ import org.gradle.workers.*
 import javax.inject.*
 
 @CacheableTask
-public abstract class KobolTask : DefaultTask() {
+public abstract class KobolTask
+@Inject constructor(
+    cobolName: String
+) : DefaultTask() {
     init {
         group = "Kobol"
     }
@@ -36,7 +37,7 @@ public abstract class KobolTask : DefaultTask() {
     public abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
 
     init {
-        outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol"))
+        outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol/$cobolName"))
     }
 
     @get:Inject

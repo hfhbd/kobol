@@ -1,13 +1,10 @@
 package app.softwork.kobol.gradle
 
 import org.gradle.api.*
-import org.gradle.api.artifacts.*
 import org.gradle.api.file.*
-import org.gradle.api.provider.*
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.*
-import org.gradle.work.*
 import org.gradle.workers.*
 import javax.inject.*
 
@@ -16,7 +13,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     init {
         group = "Kobol"
     }
-    
+
     @get:Internal
     public val pluginConfiguration: String = project.configurations.register("${name}Plugin") {
         isVisible = false
@@ -26,12 +23,13 @@ public abstract class KobolFirPluginTask : DefaultTask() {
 
     @get:InputFiles
     @get:Classpath
-    internal val pluginDependencies = project.objects.fileCollection().from(project.configurations.named(pluginConfiguration))
-    
+    internal val pluginDependencies =
+        project.objects.fileCollection().from(project.configurations.named(pluginConfiguration))
+
     public fun firPlugin(dependency: Any) {
         project.dependencies.add(pluginConfiguration, dependency)
     }
-    
+
     public fun add(cobolSource: Provider<CobolSource>) {
         sources.from(cobolSource.map { it.file })
         plugins.from(cobolSource.flatMap { project.configurations.named(it.plugins) })

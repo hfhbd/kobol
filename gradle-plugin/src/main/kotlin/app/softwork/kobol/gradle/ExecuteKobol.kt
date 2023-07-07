@@ -8,12 +8,12 @@ import org.gradle.workers.*
 import java.io.*
 import java.util.*
 
-public abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
-    public interface Parameters : WorkParameters {
-        public val inputFiles: ConfigurableFileCollection
-        public val outputFolder: DirectoryProperty
-        public val sqlFolder: DirectoryProperty
-        public val config: MapProperty<String, Map<String, String>>
+internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
+    internal interface Parameters : WorkParameters {
+        val inputFiles: ConfigurableFileCollection
+        val outputFolder: DirectoryProperty
+        val sqlFolder: DirectoryProperty
+        val config: MapProperty<String, Map<String, String>>
     }
 
     internal companion object {
