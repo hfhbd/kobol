@@ -1,6 +1,6 @@
 plugins {
     `kotlin-dsl`
-    id("kotlinSetup")
+    id("setup")
 }
 
 configurations.configureEach {
