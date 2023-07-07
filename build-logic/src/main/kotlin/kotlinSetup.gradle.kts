@@ -1,9 +1,9 @@
 import app.softwork.github.dependencies.upload.*
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
     id("app.cash.licensee")
     id("publish")
-    kotlin("jvm")
 }
 
 publishing {
@@ -14,16 +14,18 @@ publishing {
     }
 }
 
-kotlin {
-    jvmToolchain(11)
-    explicitApi()
-    target {
-        compilations.configureEach {
-            kotlinSourceSets.forAll {
-                it.languageSettings.progressiveMode = true
-            }
-            kotlinOptions {
-                // allWarningsAsErrors = true
+pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+    extensions.configure<KotlinJvmProjectExtension>("kotlin") {
+        jvmToolchain(11)
+        explicitApi()
+        target {
+            compilations.configureEach {
+                kotlinSourceSets.forAll {
+                    it.languageSettings.progressiveMode = true
+                }
+                kotlinOptions {
+                    // allWarningsAsErrors = true
+                }
             }
         }
     }
