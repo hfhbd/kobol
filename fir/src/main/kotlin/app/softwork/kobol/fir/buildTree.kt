@@ -15,14 +15,13 @@ import com.alecstrong.sql.psi.core.psi.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.psi.util.*
-import com.intellij.testFramework.*
 
 public fun CobolFile.toTree(): CobolFIRTree {
     val errors = this.childrenOfType<PsiErrorElement>()
-    if(errors.isNotEmpty()) {
-        error(errors.joinToString(separator = "\n") { 
+    require(errors.isEmpty()) {
+        errors.joinToString(separator = "\n") {
             it.errorDescription
-        })
+        }
     }
     val id = program.idDiv.toID()
     val env = program.envDiv?.toEnv()
@@ -451,7 +450,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
                         comments = proc.comments.asComments(),
                         until = performWhile.booleanExpr?.toFir(dataTree),
                         // https://www.ibm.com/docs/en/cobol-zos/6.3?topic=statement-perform-varying-phrase
-                        testing = performWhile.asDoWhile?.afterWhile?.let { 
+                        testing = performWhile.asDoWhile?.afterWhile?.let {
                             Perform.Testing.After
                         } ?: Perform.Testing.Before
                     )
@@ -623,8 +622,8 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
 }
 
 private fun checkSql(sql: String, project: Project): List<SqlStmt> {
-    val file = LightVirtualFile("inlineSql/sql.inlinesql", SqlInlineLanguage, sql)
-    val sqlFile = PsiManager.getInstance(project).findFile(file) as InlineSqlFile
+    val sqlFile = PsiFileFactory.getInstance(project)
+        .createFileFromText("inlineSql/sql.inlinesql", SqlInlineLanguage, sql) as InlineSqlFile
     val sqlErrors = buildList {
         val annotator = SqlAnnotationHolder { element, s -> add("$s at $element") }
 
