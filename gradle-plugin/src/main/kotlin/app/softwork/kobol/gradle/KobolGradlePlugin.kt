@@ -1,4 +1,5 @@
-import app.softwork.kobol.gradle.*
+package app.softwork.kobol.gradle
+
 import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.tasks.*
