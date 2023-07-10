@@ -21,11 +21,10 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 17
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/gradle-build-action@dependency-graph
+        with:
+          dependency-graph: generate-and-submit
       - run: ./gradlew assemble compileTestKotlin
       - name: Build with Gradle
         run: ./gradlew build
-      - run: ./gradlew uploadRuntimeToGitHub uploadCompileToGitHub
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: ./gradlew -Pversion=42.0.0 runPluginVerifier

@@ -12,10 +12,6 @@ dependencies {
     implementation(libs.plugins.shadow.toDep())
     implementation(libs.plugins.serviceloader.toDep())
     implementation(libs.plugins.ksp.toDep())
-
-    implementation(libs.serialization.json)
-    implementation(libs.datetime)
-    implementation(libs.ktor.cio)
 }
 
 fun Provider<PluginDependency>.toDep() = map {
