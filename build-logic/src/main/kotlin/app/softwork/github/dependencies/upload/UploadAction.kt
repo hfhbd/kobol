@@ -75,7 +75,7 @@ abstract class UploadAction : WorkAction<UploadAction.UploadActionParameters> {
         }
         val responseText = response.bodyAsText()
         require(response.status == HttpStatusCode.Created) {
-            response
+            responseText
         }
         println("$body $responseText")
         java.io.File(parameters.outputDirectory.asFile.get(), "response.txt").writeText(responseText)
