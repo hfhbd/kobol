@@ -41,7 +41,7 @@ kotlin.sourceSets.main {
 
 gradlePlugin.plugins.register("kobol") {
     id = "app.softwork.kobol"
-    implementationClass = "app.softwork.kobol.KobolGradlePlugin"
+    implementationClass = "app.softwork.kobol.gradle.KobolGradlePlugin"
     displayName = "Kobol Gradle Plugin"
     description = "Kobol Gradle Plugin"
 }
