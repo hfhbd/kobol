@@ -6,11 +6,11 @@ import com.intellij.psi.*
 
 internal class CobolDocumentationProvider : AbstractDocumentationProvider() {
     override fun generateDoc(element: PsiElement, originalElement: PsiElement?): String? {
-        val comments = if (element is CobolRecordDef) {
-            element.comments
-        } else if (element is CobolProcedureSection) {
-            element.comments
-        } else null
+        val comments = when (element) {
+            is CobolRecordDef -> element.comments
+            is CobolProcedureSection -> element.comments
+            else -> null
+        }
         return comments?.asComments()?.takeIf { it.isNotEmpty() }?.joinToString(separator = "<br>")
     }
 }
