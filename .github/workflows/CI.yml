@@ -21,7 +21,7 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 17
-      - uses: gradle/gradle-build-action@dependency-graph
+      - uses: gradle/gradle-build-action@v2
         with:
           dependency-graph: generate-and-submit
       - run: ./gradlew assemble compileTestKotlin
