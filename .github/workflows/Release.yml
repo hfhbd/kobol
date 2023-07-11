@@ -44,7 +44,7 @@ jobs:
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONARTYPE_APIKEY }}
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONARTYPE_APITOKEN }}
       - run: ./gradlew -Pversion=$version createPluginRepo
-      - uses: actions/upload-pages-artifact@v1
+      - uses: actions/upload-pages-artifact@v2
         with:
           path: intellij-plugin/build/customRepo
       - name: Deploy to GitHub Pages
