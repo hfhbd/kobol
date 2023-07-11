@@ -50,10 +50,6 @@ public abstract class UploadTask : SshTask() {
     @get:InputFiles
     public abstract val files: ConfigurableFileCollection
 
-    public fun files(vararg cobols: NamedDomainObjectProvider<CobolSource>) {
-        files.from(cobols.map { it.file })
-    }
-
     @get:Optional
     @get:Input
     public abstract val encoding: Property<String>
