@@ -88,18 +88,14 @@ class KobolGradlePluginTest {
         assertTrue("hello.puml" in tmp.list())
     }
 
-    @Ignore
     @Test
-    fun customFlowGraph() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
-            deleteOnExit()
-        }
+    fun applyingKobolWorks() {
+        val tmp = Files.createTempDirectory("cobolTesting").toFile()
+
         File(tmp, "build.gradle.kts").writeText(
             """
-            |import app.softwork.kobol.gradle.kobolPlugin
-            |
             |plugins {
-            |  kotlin("jvm") version "1.8.10"
+            |  kotlin("jvm") version "1.9.0"
             |  id("app.softwork.kobol")
             |}
             |
@@ -108,35 +104,23 @@ class KobolGradlePluginTest {
             |}
             |
             |dependencies {
-            |  kobolPlugin(cobol.foo, "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |  kobol("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
             |}
             |
-            |cobol.foo {
-            |  dependencies {
-            |    plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |sourceSets.main {
+            |  cobol {
             |  }
-            |}
-            |
-            |tasks {
-            |  register("flowGraph", app.softwork.kobol.gradle.KobolFirPluginTask::class) {
-            |    add(cobol.foo)
-            |  }
-            |  
-            |  uploadCobol {
-            |    files(cobol.foo)
-            |  }
-            |}
+            |}        
             |
             """.trimMargin()
         )
-        File(tmp, "foo.cbl").writeText(input)
 
         val result = GradleRunner.create()
             .withProjectDir(tmp)
             .withPluginClasspath()
-            .withArguments(":flowGraph", "--configuration-cache")
+            .withArguments(":help", "--configuration-cache")
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":flowGraph")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
     }
 }

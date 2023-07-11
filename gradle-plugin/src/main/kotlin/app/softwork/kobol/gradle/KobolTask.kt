@@ -8,12 +8,9 @@ import org.gradle.workers.*
 import javax.inject.*
 
 @CacheableTask
-public abstract class KobolTask
-@Inject constructor(
-    cobolName: String
-) : DefaultTask() {
+public abstract class KobolTask : DefaultTask() {
     init {
-        group = "Kobol"
+        group = "kobol"
     }
 
     @get:InputFiles
@@ -35,10 +32,6 @@ public abstract class KobolTask
 
     @get:Input
     public abstract val pluginConfiguration: MapProperty<String, Map<String, String>>
-
-    init {
-        outputFolder.convention(project.layout.buildDirectory.dir("generated/kobol/$cobolName"))
-    }
 
     @get:Inject
     internal abstract val workerExecutor: WorkerExecutor
