@@ -70,8 +70,11 @@ internal class PageantConnector {
     }
 
     internal class COPYDATASTRUCT64 : Structure() {
+        @JvmField
         var dwData = 0
+        @JvmField
         var cbData: Long = 0
+        @JvmField
         var lpData: Pointer? = null
         override fun getFieldOrder(): List<String> = listOf("dwData", "cbData", "lpData")
     }
