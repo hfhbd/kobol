@@ -1,0 +1,43 @@
+formatting:
+  NoWildcardImports:
+    active: false
+  Filename:
+    active: false
+  TrailingCommaOnDeclarationSite:
+    active: true
+  TrailingCommaOnCallSite:
+    active: true
+
+style:
+  WildcardImport:
+    active: false
+  UseOrEmpty:
+    active: false
+  CollapsibleIfStatements:
+    active: true
+  DataClassShouldBeImmutable:
+    active: true
+  UnusedPrivateClass:
+    active: false
+  ForbiddenComment:
+    active: false
+  MagicNumber:
+    active: false
+  ReturnCount:
+    max: 10
+  LoopWithTooManyJumpStatements:
+    maxJumpCount: 5
+
+naming:
+  InvalidPackageDeclaration:
+    active: false
+  MemberNameEqualsClassName:
+    active: false
+
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    active: false
+
+complexity:
+  active: false

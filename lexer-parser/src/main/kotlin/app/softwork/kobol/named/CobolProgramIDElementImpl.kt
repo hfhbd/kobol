@@ -8,7 +8,9 @@ import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.LeafElement
 
-internal abstract class CobolProgramIDElementImpl(node: ASTNode) : ASTWrapperPsiElement(node), CobolNamedElement,
+internal abstract class CobolProgramIDElementImpl(node: ASTNode) :
+    ASTWrapperPsiElement(node),
+    CobolNamedElement,
     CobolCallingNameProgramID {
     override fun getNameIdentifier(): PsiElement = this
     override fun getName(): String = text

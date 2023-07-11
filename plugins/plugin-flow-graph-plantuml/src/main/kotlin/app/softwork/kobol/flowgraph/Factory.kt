@@ -5,7 +5,7 @@ import app.softwork.serviceloader.ServiceLoader
 import java.io.*
 
 @ServiceLoader(FirCodeGeneratorFactory::class)
-public class Factory: FirCodeGeneratorFactory {
+public class Factory : FirCodeGeneratorFactory {
     override fun invoke(outputFolder: File): PlantumlFlowGraph {
         val plantumlFolder = File(outputFolder, "uml").apply {
             mkdirs()

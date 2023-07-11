@@ -34,9 +34,11 @@ internal fun String.toTree(vararg including: Pair<String, String>): CobolFIRTree
         File(tempFolder.toFile(), name).apply { writeText(content) }
     }
 
-    return (files + File(tempFolder.toFile(), "testing.cbl").apply {
-        writeText(this@toTree)
-    }).toCobolFile().single().toTree(tempFolder)
+    return (
+        files + File(tempFolder.toFile(), "testing.cbl").apply {
+            writeText(this@toTree)
+        }
+        ).toCobolFile().single().toTree(tempFolder)
 }
 
 internal fun String.toCobolFile() =

@@ -47,7 +47,7 @@ internal class AuthAgent(
     /** The AgentProxy instance that is used for signing  */
     private val agentProxy: AgentProxy,
     /** The identity from Agent  */
-    private val identity: Identity
+    private val identity: Identity,
 ) : AbstractAuthMethod("publickey") {
 
     /** The identity's key algorithm  */

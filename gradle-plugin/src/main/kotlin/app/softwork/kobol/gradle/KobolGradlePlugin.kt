@@ -18,22 +18,22 @@ public class KobolGradlePlugin : Plugin<Project> {
         val upload = registerHelperTasks(tasks)
 
         pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-            extensions.getByType(SourceSetContainer::class.java).named("main") {
-                val convert = project.createConvertTask(it, kobolClasspath, upload)
+            extensions.getByType(SourceSetContainer::class.java).named("main") { sourceSet ->
+                val convert = project.createConvertTask(sourceSet, kobolClasspath, upload)
 
-                val kotlin = it.extensions.getByName("kotlin") as SourceDirectorySet
+                val kotlin = sourceSet.extensions.getByName("kotlin") as SourceDirectorySet
                 kotlin.srcDir(convert.flatMap { it.outputFolder.dir("kotlin") })
             }
         }
 
         pluginManager.withPlugin("org.gradle.java") {
-            extensions.getByType(SourceSetContainer::class.java).named("main") {
+            extensions.getByType(SourceSetContainer::class.java).named("main") { sourceSet ->
                 val convert = project.createConvertTask(
-                    it,
+                    sourceSet,
                     kobolClasspath,
-                    upload
+                    upload,
                 )
-                it.java.srcDir(convert.flatMap { it.outputFolder.dir("java") })
+                sourceSet.java.srcDir(convert.flatMap { it.outputFolder.dir("java") })
             }
         }
     }
@@ -41,7 +41,7 @@ public class KobolGradlePlugin : Plugin<Project> {
     private fun Project.createConvertTask(
         sourceSet: SourceSet,
         classpath: Provider<out FileCollection>,
-        uploadTask: TaskProvider<out UploadTask>
+        uploadTask: TaskProvider<out UploadTask>,
     ): TaskProvider<out KobolTask> {
         val taskName = "convertCobol"
         if (taskName in tasks.names) return tasks.named(taskName, KobolTask::class.java)
@@ -62,10 +62,10 @@ public class KobolGradlePlugin : Plugin<Project> {
         cobolSrc.compiledBy(convert, KobolTask::outputFolder)
         sourceSet.extensions.add("cobol", cobolSrc)
 
-        uploadTask.configure { 
+        uploadTask.configure {
             it.files.from(cobolSrc)
         }
-        
+
         return convert
     }
 
@@ -78,8 +78,8 @@ public class KobolGradlePlugin : Plugin<Project> {
             it.dependsOn(buildCobol)
         }
 
-        tasks.register("cleanCobol", CleanCobol::class.java) {
-            it.uploaded.convention(upload.flatMap { it.uploaded })
+        tasks.register("cleanCobol", CleanCobol::class.java) { cleanCobol ->
+            cleanCobol.uploaded.convention(upload.flatMap { it.uploaded })
         }
         return upload
     }

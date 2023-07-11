@@ -28,7 +28,7 @@ public class CobolSectionReference(psiElement: CobolSectionID, range: TextRange)
                         LookupElementBuilder.create(sectionName)
                             .withIcon(CobolFileType.icon)
                             .withTypeText("TEST")
-                            .withTailText(sectionName, true)
+                            .withTailText(sectionName, true),
                     )
                 }
             }

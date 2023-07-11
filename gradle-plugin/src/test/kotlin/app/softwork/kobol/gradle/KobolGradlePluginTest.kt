@@ -25,7 +25,7 @@ class KobolGradlePluginTest {
             input = setOf(cobolFile),
             outputFolder = tempFile,
             irPlugins = listOf(NoSynthetics()),
-            codeGeneratorFactory = KotlinCodeGeneratorFactory()
+            codeGeneratorFactory = KotlinCodeGeneratorFactory(),
         )
         val packageFolder = File(tempFile, "kotlin/hello")
         assertTrue(packageFolder.exists())
@@ -44,7 +44,7 @@ class KobolGradlePluginTest {
             input = setOf(cobolFile),
             outputFolder = tempFile,
             irPlugins = listOf(Java8Plugin(), NoSynthetics()),
-            codeGeneratorFactory = JavaCodeGeneratorFactory()
+            codeGeneratorFactory = JavaCodeGeneratorFactory(),
         )
         val packageFolder = File(tempFile, "java/hello")
         assertTrue(packageFolder.exists())
@@ -71,7 +71,7 @@ class KobolGradlePluginTest {
             123456     DISPLAY "HELLO"WORLD
             123456     MOVE "42" TO WORLD
             123456     DISPLAY "ANSWER"WORLD.
-        """.trimIndent()
+    """.trimIndent()
 
     @Test
     fun testFlowGraph() {
@@ -111,7 +111,7 @@ class KobolGradlePluginTest {
             |  }
             |}        
             |
-            """.trimMargin()
+            """.trimMargin(),
         )
 
         val result = GradleRunner.create()

@@ -13,5 +13,5 @@ public class JavaNames : Rename(
     },
     classes = {
         toPascalCase()
-    }
+    },
 )

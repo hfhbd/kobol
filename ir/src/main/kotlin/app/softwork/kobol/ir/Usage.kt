@@ -5,7 +5,7 @@ import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 
 public data class Usage(
     val main: KobolIRTree.Types.Function?,
-    val types: List<KobolIRTree.Types>
+    val types: List<KobolIRTree.Types>,
 )
 
 public fun KobolIRTree.findWriteUsages(declaration: Declaration): Usage {
@@ -22,8 +22,9 @@ public fun KobolIRTree.findWriteUsages(declaration: Declaration): Usage {
                 }
             }
 
-            is KobolIRTree.Types.Type.GlobalVariable, 
-            is KobolIRTree.Types.Type.Natives -> emptyList()
+            is KobolIRTree.Types.Type.GlobalVariable,
+            is KobolIRTree.Types.Type.Natives,
+            -> emptyList()
         }
     }
     return Usage(main, types)
@@ -40,7 +41,9 @@ public fun KobolIRTree.findReadUsages(
         when (it) {
             is KobolIRTree.Types.Function -> if (declaration usedIn it.body) {
                 listOf(it)
-            } else emptyList()
+            } else {
+                emptyList()
+            }
 
             is KobolIRTree.Types.Type.Class -> it.functions.mapNotNull {
                 it.takeIf { declaration usedIn it.body }
@@ -121,7 +124,8 @@ private infix fun Declaration.usedIn(it: KobolIRTree.Types.Function.Statement): 
         is Exit -> this in it.returnVariable
         is Throw -> this in it.expr
         is For -> {
-            this == it.counter || this in it.from || this in it.step || this in it.condition || this usedIn it.statements
+            this == it.counter || this in it.from || this in it.step ||
+                this in it.condition || this usedIn it.statements
         }
 
         is ForEach -> {
@@ -149,7 +153,10 @@ private infix fun Declaration.usedIn(it: KobolIRTree.Types.Function.Statement): 
         is StringExpression.StringVariable.Use -> false
         is NumberExpression.IntExpression.IntVariable.Use -> false
         is NumberExpression.DoubleExpression.DoubleVariable.Use -> false
-        is TryCatch -> this usedIn it.tryStmts || it.catchBlocks.any { this usedIn it.stmts } || this usedIn it.finallyStmts
+        is TryCatch ->
+            this usedIn it.tryStmts ||
+                it.catchBlocks.any { this usedIn it.stmts } ||
+                this usedIn it.finallyStmts
     }
 
 private operator fun List<KobolIRTree.Expression>.contains(decl: Declaration): Boolean = any {

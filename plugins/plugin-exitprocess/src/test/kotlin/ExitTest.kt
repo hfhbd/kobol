@@ -20,9 +20,12 @@ class ExitTest {
             procedure {
                 topLevel {
                     +Move(ReturnCode(), 8.l)
-                    +If(1.l eq 1.l, build {
-                        +StopRun()
-                    })
+                    +If(
+                        1.l eq 1.l,
+                        build {
+                            +StopRun()
+                        },
+                    )
                 }
             }
         }
@@ -30,7 +33,7 @@ class ExitTest {
         val after = before.toIRTree(
             controlFlowHandling = {
                 ExitProcessControlFlowHandlingFactory
-            }
+            },
         )
 
         assertEquals(
@@ -43,13 +46,14 @@ class ExitTest {
                         Eq(IntLiteral(1), IntLiteral(1)),
                         statements = build {
                             +Statement.Exit(testingReturnCodeIr.variable() as IntVariable)
-                        }
+                        },
                     )
                 }.copy(isEntryPoint = true),
-                types = build { 
+                types = build {
                     +RC
-                }
-            ), after
+                },
+            ),
+            after,
         )
     }
 
@@ -58,9 +62,12 @@ class ExitTest {
         val before by cobolFir {
             procedure {
                 topLevel {
-                    +If(1.l eq 1.l, build {
-                        +StopRun()
-                    })
+                    +If(
+                        1.l eq 1.l,
+                        build {
+                            +StopRun()
+                        },
+                    )
                 }
             }
         }
@@ -70,7 +77,8 @@ class ExitTest {
                 controlFlowHandling = {
                     ExitProcessControlFlowHandlingFactory
                 },
-            ), emptyList()
+            ),
+            emptyList(),
         ).single()
 
         assertEquals(
@@ -82,23 +90,27 @@ class ExitTest {
                         Eq(IntLiteral(1), IntLiteral(1)),
                         statements = build {
                             +Statement.Exit(IntLiteral(0))
-                        }
+                        },
                     )
                 }.copy(isEntryPoint = true),
-                types = emptyList()
-            ), after
+                types = emptyList(),
+            ),
+            after,
         )
     }
-    
+
     @Test
     fun replaceExitTestWithVariableInlining() {
         val before by cobolFir {
             procedure {
                 topLevel {
                     +Move(ReturnCode(), 8.l)
-                    +If(1.l eq 1.l, build {
-                        +StopRun()
-                    })
+                    +If(
+                        1.l eq 1.l,
+                        build {
+                            +StopRun()
+                        },
+                    )
                 }
             }
         }
@@ -108,7 +120,8 @@ class ExitTest {
                 controlFlowHandling = {
                     ExitProcessControlFlowHandlingFactory
                 },
-            ), emptyList()
+            ),
+            emptyList(),
         ).single()
 
         assertEquals(
@@ -122,11 +135,12 @@ class ExitTest {
                         Eq(IntLiteral(1), IntLiteral(1)),
                         statements = build {
                             +Statement.Exit(testingReturnCodeIr.variable() as IntVariable)
-                        }
+                        },
                     )
                 }.copy(isEntryPoint = true),
-                types = emptyList()
-            ), after
+                types = emptyList(),
+            ),
+            after,
         )
     }
 }

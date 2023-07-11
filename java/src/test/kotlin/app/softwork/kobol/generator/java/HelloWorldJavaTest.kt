@@ -53,13 +53,15 @@ class HelloWorldJavaTest {
 internal fun String.toIR(controlFlowHandling: ((String) -> ControlFlowHandling)? = null) =
     File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR(
         irPlugins = listOf(NoSynthetics()),
-        controlFlowHandling = controlFlowHandling
+        controlFlowHandling = controlFlowHandling,
     )
 
 internal fun generate(cobol: KobolIRTree, java8: Boolean): List<JavaFile> = generateJava(
     cobol.let {
         if (java8) {
             Java8Plugin()(it, emptyList()).single()
-        } else it
-    }
+        } else {
+            it
+        }
+    },
 )

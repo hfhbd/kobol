@@ -18,9 +18,9 @@ internal abstract class FirKobolAction : WorkAction<FirKobolAction.Parameters> {
         val outputFolder = parameters.outputFolder.get().asFile
 
         val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
-            FirPluginAfterPhase::class.java
+            FirPluginAfterPhase::class.java,
         )
-        
+
         val firGenerators = ServiceLoader.load(FirCodeGeneratorFactory::class.java).toList()
 
         for (firGenerator in firGenerators) {

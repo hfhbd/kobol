@@ -17,7 +17,7 @@ public class Statistics(private val outputFolder: File, private val format: Stri
             val complexity = it.complexity()
 
             it.id.programID.lowercase() to Results(
-                complexity = complexity
+                complexity = complexity,
             )
         }
     }
@@ -58,7 +58,8 @@ private fun Statement.complexity(action: () -> Unit) {
         is Read,
         is Open,
         is Write, is Close,
-        is Display -> Unit
+        is Display,
+        -> Unit
 
         is While -> {
             action()
@@ -143,6 +144,7 @@ private fun Expression.complexity(action: () -> Unit) {
         is Expression.Literal,
         is Expression.Variable,
         is Expression.StringExpression.Concat,
-        is Expression.StringExpression.Interpolation -> Unit
+        is Expression.StringExpression.Interpolation,
+        -> Unit
     }
 }

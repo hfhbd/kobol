@@ -1,40 +1,67 @@
 package app.softwork.kobol.ir
 
-import app.softwork.kobol.*
-import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.*
-import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
-import app.softwork.kobol.ir.KobolIRTree.Types.*
+import app.softwork.kobol.Builder
+import app.softwork.kobol.build
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral
+import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.StringLiteral
+import app.softwork.kobol.ir.KobolIRTree.Types.Callable
 import app.softwork.kobol.ir.KobolIRTree.Types.Function
-import app.softwork.kobol.ir.KobolIRTree.Types.Function.*
-import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
-import kotlin.reflect.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Exit
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.FunctionCall
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Use
+import app.softwork.kobol.ir.KobolIRTree.Types.Type
+import kotlin.reflect.KProperty
 
 public fun function(
     name: String = "fake",
+    packageName: String? = null,
     parameters: List<Declaration> = emptyList(),
     isStatic: Boolean = true,
     private: Boolean = false,
+    topLevel: Boolean = false,
     returnType: Type = Type.Natives.Void,
-    block: Builder<Statement>.() -> Unit
-): Function = Function(name = name, body = block, parameters = parameters,
+    block: Builder<Statement>.() -> Unit,
+): Function = Function(
+    name = name,
+    packageName = packageName,
+    topLevel = topLevel,
+    body = block,
+    parameters = parameters,
     isStatic = isStatic,
     private = private,
-    returnType = returnType
+    returnType = returnType,
 )
 
 public operator fun Function.getValue(receiver: Any?, prop: KProperty<*>): Function = copy(name = prop.name)
 
+public fun klass(
+    name: String = "fake",
+    packageName: String,
+    functions: Builder<Function>.() -> Unit = {},
+    constructor: Builder<Declaration>.() -> Unit = {},
+): Type.Class = Type.Class(
+    name = name,
+    packageName = packageName,
+    functions = build(functions),
+    constructor = build(constructor),
+)
+
+public operator fun Type.Class.getValue(receiver: Any?, prop: KProperty<*>): Type.Class = copy(name = prop.name)
+
 public infix fun Statement.use(action: Statement): Use = Use(
     target = this,
     action = action,
-    comments = emptyList()
+    comments = emptyList(),
 )
 
 public infix fun Callable.call(parameters: List<KobolIRTree.Expression>): FunctionCall =
     FunctionCall(declaration(), parameters)
 
 public operator fun Callable.invoke(vararg parameters: KobolIRTree.Expression): FunctionCall = FunctionCall(
-    declaration(), parameters.toList()
+    declaration(),
+    parameters.toList(),
 )
 
 public val Int.l: IntLiteral get() = IntLiteral(this)
@@ -50,5 +77,13 @@ public val testingReturnCodeIr: Declaration.IntDeclaration = Declaration.IntDecl
     value = IntLiteral(0),
 )
 
-public fun Builder<Statement>.exit(): Exit = Exit(testingReturnCodeIr.variable() as KobolIRTree.Expression.NumberExpression.IntExpression, emptyList())
-public val Builder<KobolIRTree.Types>.RC: Type.GlobalVariable get() = Type.GlobalVariable(testingReturnCodeIr, emptyList())
+public fun Builder<Statement>.exit(): Exit = Exit(
+    testingReturnCodeIr.variable() as KobolIRTree.Expression.NumberExpression.IntExpression,
+    emptyList(),
+)
+
+public val Builder<KobolIRTree.Types>.RC: Type.GlobalVariable
+    get() = Type.GlobalVariable(
+        testingReturnCodeIr,
+        emptyList(),
+    )

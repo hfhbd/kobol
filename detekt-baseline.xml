@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>FunctionNaming:CobolLexerAdapter.kt$public fun CobolLexerAdapter(): FlexAdapter</ID>
+    <ID>FunctionNaming:PageantConnector.kt$PageantConnector.User32$fun SendMessage(hWnd: HWND, msg: Int, num1: WPARAM?, num2: ByteArray): Long</ID>
+    <ID>MaxLineLength:CobolParserTest.kt$CobolParserTest$"SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC"</ID>
+    <ID>MaximumLineLength:CobolParserTest.kt$CobolParserTest$ </ID>
+    <ID>VariableNaming:IRTest.kt$IRTest$val Exception = KobolIRTree.Types.Type.Class( "Exception", packageName = "kotlin", )</ID>
+    <ID>VariableNaming:IRTestJava.kt$IRTestJava$val Exception = KobolIRTree.Types.Type.Class( "Exception", packageName = "java.lang", )</ID>
+    <ID>VariableNaming:JavaFilesKotlin.kt$JavaFilesKotlin$private val BufferedReader by klass( packageName = "java.io", )</ID>
+    <ID>VariableNaming:JavaFilesKotlin.kt$JavaFilesKotlin$private val BufferedWriter by klass( packageName = "java.io", )</ID>
+    <ID>VariableNaming:JavaFilesKotlin.kt$JavaFilesKotlin$private val Closeable by klass( packageName = "java.io", )</ID>
+    <ID>VariableNaming:JavaFilesKotlin.kt$JavaFilesKotlin$private val File by klass( packageName = "java.io", functions = { +bufferedReader +bufferedWriter }, constructor = { +Declaration.StringDeclaration( name = "", value = null, nullable = false, mutable = false, private = false, const = false, length = -1, ) }, )</ID>
+    <ID>VariableNaming:KotlinxSerialization.kt$KotlinxSerialization$private val Format = Class( "FixedLengthFormat", "app.softwork.serialization.flf", isObject = true, isData = false, functions = listOf(decodeAsSequence), )</ID>
+    <ID>VariableNaming:SqlDelightPrecompiler.kt$SqlDelightPrecompiler$private val DB = Class( name = dbName, packageName = packageName, doc = emptyList(), functions = emptyList(), init = emptyList(), isObject = false, members = listOf( ObjectDeclaration( name = "Schema", type = schemaType, comments = emptyList(), mutable = false, private = false, value = null, ), ), constructor = emptyList(), )</ID>
+    <ID>VariableNaming:ToIrTest.kt$ToIrTest$val BAR by function { +Print(StringLiteral("BAR")) +exit() }</ID>
+    <ID>VariableNaming:ToIrTest.kt$ToIrTest$val C by function { +Print(StringLiteral("C")) }</ID>
+    <ID>VariableNaming:ToIrTest.kt$ToIrTest$val FOO by function( parameters = emptyList(), returnType = Natives.Void, private = false, ) { +Print(StringLiteral("FOO")) +BAR() +Print(StringLiteral("FOO2"), emptyList()) +exit() }</ID>
+    <ID>VariableNaming:toIRTree.kt$val `class` = types.single { when (it) { is Class -&gt; it.name == name else -&gt; false } } as Class</ID>
+  </CurrentIssues>
+</SmellBaseline>

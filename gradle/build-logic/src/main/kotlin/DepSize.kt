@@ -24,14 +24,15 @@ abstract class DepSize : DefaultTask() {
                 createNewFile()
             }
         }.writeText(
-            configurationToCheck.sortedByDescending { 
+            configurationToCheck.sortedByDescending {
                 it.length()
             }.joinToString(
                 prefix = "$sum kb\n",
                 postfix = "\n",
-                separator = "\n") { 
+                separator = "\n",
+            ) {
                 "${it.name.padEnd(65)} ${(it.length() / 1024).toString().padStart(10)} kb"
-            }
+            },
         )
     }
 }

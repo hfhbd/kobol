@@ -10,39 +10,40 @@ class IRTestJava {
     fun tryCatch() {
         val Exception = KobolIRTree.Types.Type.Class(
             "Exception",
-            packageName = "java.lang"
+            packageName = "java.lang",
         )
         val ir = KobolIRTree(
-            id = "foo", name = "foo",
+            id = "foo",
+            name = "foo",
             main = function("foo") {
                 +TryCatch(
                     tryStmts = build {
                         +Print("TRY I".l)
                         +Print("TRY II".l)
                     },
-                    catchBlocks = build { 
+                    catchBlocks = build {
                         +TryCatch.CatchBlock(
                             exceptionClass = Exception,
                             stmts = build {
                                 +Print("CATCH I".l)
                                 +Print("CATCH II".l)
-                            }
+                            },
                         )
                         +TryCatch.CatchBlock(
                             exceptionClass = Exception,
                             stmts = build {
                                 +Print("CATCH III".l)
                                 +Print("CATCH IV".l)
-                            }
+                            },
                         )
                     },
                     finallyStmts = build {
                         +Print("FINALLY I".l)
                         +Print("FINALLY II".l)
-                    }
+                    },
                 )
             },
-            types = emptyList()
+            types = emptyList(),
         )
         // language=Java
         val expected = """

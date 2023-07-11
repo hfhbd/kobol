@@ -11,14 +11,16 @@ internal fun generateJava(tree: KobolIRTree): List<JavaFile> {
     val external = tree.types.mapNotNull {
         if (it is KobolIRTree.Types.Type.Class && it.isObject) {
             it
-        } else null
+        } else {
+            null
+        }
     }
     val klass = TypeSpec.classBuilder(tree.name.replaceFirstChar { it.uppercaseChar() }).apply {
         addModifiers(PUBLIC)
     }
-    
+
     klass.addType(tree.main)
-    
+
     tree.types.forEach {
         if (it !in external) {
             klass.addType(it)
@@ -124,9 +126,9 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
                 code.nextControlFlow(
                     "catch (\$T \$L)",
                     catchBlock.exceptionClass.Type,
-                    catchBlock.exception.toCodeBlock()
+                    catchBlock.exception.toCodeBlock(),
                 )
-                for(stmt in catchBlock.stmts) {
+                for (stmt in catchBlock.stmts) {
                     code.add(stmt.toJava())
                 }
             }
@@ -280,7 +282,6 @@ private fun FunctionCall.call() = CodeBlock.builder().apply {
             add("new \$T(\$L);\n", ClassName.get(function.packageName, function.name), params)
         }
     }
-
 }.build()
 
 private fun KobolIRTree.Expression.toTemplate(): CodeBlock = when (this) {
@@ -314,22 +315,28 @@ private fun KobolIRTree.Expression.StringExpression.toTemplate(): CodeBlock = wh
     is KobolIRTree.Expression.StringExpression.StringVariable.Use -> CodeBlock.of(
         "\$L.\$L",
         target.toTemplate(),
-        variable.toTemplate()
+        variable.toTemplate(),
     )
 }
 
 private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = when (this) {
     is KobolIRTree.Expression.BooleanExpression.And -> CodeBlock.of(
-        "\$L && \$L", left.toTemplate(), right.toTemplate()
+        "\$L && \$L",
+        left.toTemplate(),
+        right.toTemplate(),
     )
 
     is KobolIRTree.Expression.BooleanExpression.Bigger -> if (equals) {
         CodeBlock.of(
-            "\$L >= \$L", left.toTemplate(), right.toTemplate()
+            "\$L >= \$L",
+            left.toTemplate(),
+            right.toTemplate(),
         )
     } else {
         CodeBlock.of(
-            "\$L > \$L", left.toTemplate(), right.toTemplate()
+            "\$L > \$L",
+            left.toTemplate(),
+            right.toTemplate(),
         )
     }
 
@@ -337,42 +344,57 @@ private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = w
     is KobolIRTree.Expression.BooleanExpression.Eq -> {
         if (left is KobolIRTree.Expression.StringExpression || right is KobolIRTree.Expression.StringExpression) {
             CodeBlock.of(
-                "\$L.equals(\$L)", left.toTemplate(), right.toTemplate()
+                "\$L.equals(\$L)",
+                left.toTemplate(),
+                right.toTemplate(),
             )
         } else {
             CodeBlock.of(
-                "\$L == \$L", left.toTemplate(), right.toTemplate()
+                "\$L == \$L",
+                left.toTemplate(),
+                right.toTemplate(),
             )
         }
     }
 
     is KobolIRTree.Expression.BooleanExpression.Not -> CodeBlock.of(
-        "!(\$L)", condition.toTemplate()
+        "!(\$L)",
+        condition.toTemplate(),
     )
 
     is KobolIRTree.Expression.BooleanExpression.NotEq -> {
         if (left is KobolIRTree.Expression.StringExpression || right is KobolIRTree.Expression.StringExpression) {
             CodeBlock.of(
-                "!\$L.equals(\$L)", left.toTemplate(), right.toTemplate()
+                "!\$L.equals(\$L)",
+                left.toTemplate(),
+                right.toTemplate(),
             )
         } else {
             CodeBlock.of(
-                "\$L != \$L", left.toTemplate(), right.toTemplate()
+                "\$L != \$L",
+                left.toTemplate(),
+                right.toTemplate(),
             )
         }
     }
 
     is KobolIRTree.Expression.BooleanExpression.Or -> CodeBlock.of(
-        "\$L || \$L", left.toTemplate(), right.toTemplate()
+        "\$L || \$L",
+        left.toTemplate(),
+        right.toTemplate(),
     )
 
     is KobolIRTree.Expression.BooleanExpression.Smaller -> if (equals) {
         CodeBlock.of(
-            "\$L <= \$L", left.toTemplate(), right.toTemplate()
+            "\$L <= \$L",
+            left.toTemplate(),
+            right.toTemplate(),
         )
     } else {
         CodeBlock.of(
-            "\$L < \$L", left.toTemplate(), right.toTemplate()
+            "\$L < \$L",
+            left.toTemplate(),
+            right.toTemplate(),
         )
     }
 }
@@ -384,13 +406,13 @@ private fun KobolIRTree.Expression.NumberExpression.toTemplate(): CodeBlock = wh
     is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable.Use -> CodeBlock.of(
         "\$L.\$L",
         target.toTemplate(),
-        variable.toTemplate()
+        variable.toTemplate(),
     )
 
     is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable.Use -> CodeBlock.of(
         "\$L.\$L",
         target.toTemplate(),
-        variable.toTemplate()
+        variable.toTemplate(),
     )
 }
 

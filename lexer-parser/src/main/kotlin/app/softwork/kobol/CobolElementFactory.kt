@@ -53,7 +53,9 @@ public object CobolElementFactory {
             if (file.nameWithoutExtension == fileName) {
                 text = String(file.contentsToByteArray())
                 false
-            } else true
+            } else {
+                true
+            }
         }
         if (text == null && fileName == "SQLCA") {
             text = sqlca
@@ -68,12 +70,23 @@ public object CobolElementFactory {
                 val first = it.firstOrNull() ?: return@mapNotNull null
                 if (first == '*' || first == '/') {
                     "123456$it"
-                } else "123456 $it"
+                } else {
+                    "123456 $it"
+                }
             }
         }.joinToString("\n", prefix = "\n", postfix = "\n123456")
 
+        // language=cobol
         val cobolText =
-            """123456 IDENTIFICATION DIVISION. PROGRAM-ID. INCLUDESQL. DATA DIVISION. WORKING-STORAGE SECTION. $addLineNumber PROCEDURE DIVISION. CONTINUE."""
+            """
+               |123456 IDENTIFICATION DIVISION. 
+               |123456 PROGRAM-ID. INCLUDESQL. 
+               |123456 DATA DIVISION. 
+               |123456 WORKING-STORAGE SECTION. 
+               |$addLineNumber
+               |123456 PROCEDURE DIVISION. 
+               |123456 CONTINUE.
+            """.trimMargin()
         val cobolFile =
             PsiFileFactory.getInstance(project).createFileFromText(name, CobolFileType.INSTANCE, cobolText) as CobolFile
         return cobolFile.program.dataDiv!!.workingStorageSection!!.stmList.map { it.recordDef!! }

@@ -18,7 +18,7 @@ abstract class CreatePluginRepo : DefaultTask() {
 
     @get:Input
     abstract val untilBuild: Property<String>
-    
+
     @get:Input
     abstract val fileName: Property<String>
 
@@ -38,7 +38,7 @@ abstract class CreatePluginRepo : DefaultTask() {
                 <idea-version since-build="${sinceBuild.get()}" until-build="${untilBuild.get()}"/>
                 </plugin>
                 </plugins>
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 }

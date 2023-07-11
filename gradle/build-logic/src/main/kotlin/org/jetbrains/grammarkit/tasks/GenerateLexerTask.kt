@@ -38,7 +38,7 @@ abstract class GenerateLexerTask : JavaExec() {
             listOf(
                 "-d",
                 targetOutputDir.path.get(),
-                sourceFile.path.get()
+                sourceFile.path.get(),
             )
         }
     }

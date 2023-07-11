@@ -10,14 +10,18 @@ public class CobolFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvide
     override fun getFileType(): CobolFileType = CobolFileType.INSTANCE
     override fun toString(): String = "Cobol File"
 
-    public val program: CobolProgram get() = programOrNull ?: error(childrenOfType<PsiErrorElement>().joinToString {
-        it.errorDescription
-    })
+    public val program: CobolProgram get() = programOrNull ?: error(
+        childrenOfType<PsiErrorElement>().joinToString {
+            it.errorDescription
+        },
+    )
 
-    public fun packageName(absoluteBasePath: Path): String? = absoluteBasePath.relativize(virtualFile.toNioPath().parent)
+    public fun packageName(absoluteBasePath: Path): String? = absoluteBasePath.relativize(
+        virtualFile.toNioPath().parent,
+    )
         .joinToString(".") {
-        it.name
-    }.takeUnless { it == "" }
+            it.name
+        }.takeUnless { it == "" }
 
     public val programOrNull: CobolProgram? get() = childrenOfType<CobolProgram>().singleOrNull()
 }
