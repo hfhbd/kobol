@@ -27,70 +27,60 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // https://github.com/ymnk/jsch-agent-proxy
+// Changes by hfhbd: Refactor to Kotlin
 
-package com.jcraft.jsch.agentproxy;
+package com.jcraft.jsch.agentproxy
 
-import com.jcraft.jsch.agentproxy.connector.PageantConnector;
+import com.jcraft.jsch.agentproxy.connector.PageantConnector
 
-public class AgentProxy {
-    private static final byte SSH_AGENT_FAILURE = 5;
+internal class AgentProxy(private val connector: PageantConnector) {
+    private val buf = ByteArray(1024)
+    private val buffer = Buffer(buf)
 
-    private static final byte SSH2_AGENTC_REQUEST_IDENTITIES = 11;
-    private static final byte SSH2_AGENTC_SIGN_REQUEST = 13;
+    @get:Synchronized
+    val identities: List<Identity>?
+        get() {
+            buffer.reset()
+            buffer.putByte(SSH2_AGENTC_REQUEST_IDENTITIES)
+            buffer.insertLength()
+            try {
+                connector.query(buffer)
+            } catch (e: AgentProxyException) {
+                buffer.rewind()
+                buffer.putByte(SSH_AGENT_FAILURE)
+                return null
+            }
+            buffer.byte
+            val count = buffer.int
+            val identities = List(count) {
+                Identity(buffer.string, buffer.string)
+            }
+            return identities
+        }
 
-    private final byte[] buf = new byte[1024];
-    private final Buffer buffer = new Buffer(buf);
-
-    private final PageantConnector connector;
-
-    public AgentProxy(PageantConnector connector) {
-        this.connector = connector;
+    @Synchronized
+    fun sign(blob: ByteArray, data: ByteArray): ByteArray {
+        val requiredSize = 1 + 4 * 4 + blob.size + data.size
+        buffer.reset()
+        buffer.checkFreeSize(requiredSize)
+        buffer.putByte(SSH2_AGENTC_SIGN_REQUEST)
+        buffer.putString(blob)
+        buffer.putString(data)
+        buffer.putInt(0)
+        buffer.insertLength()
+        try {
+            connector.query(buffer)
+        } catch (e: AgentProxyException) {
+            buffer.rewind()
+            buffer.putByte(SSH_AGENT_FAILURE)
+        }
+        buffer.byte
+        return buffer.string
     }
 
-    public synchronized Identity[] getIdentities() {
-        buffer.reset();
-        buffer.putByte(SSH2_AGENTC_REQUEST_IDENTITIES);
-        buffer.insertLength();
-
-        try {
-            connector.query(buffer);
-        } catch (AgentProxyException e) {
-            buffer.rewind();
-            buffer.putByte(SSH_AGENT_FAILURE);
-            return new Identity[0];
-        }
-
-        buffer.getByte();
-
-        int count = buffer.getInt();
-
-        Identity[] identities = new Identity[count];
-
-        for (int i = 0; i < identities.length; i++) {
-            identities[i] = new Identity(buffer.getString(), buffer.getString());
-        }
-
-        return identities;
-    }
-
-    public synchronized byte[] sign(byte[] blob, byte[] data) {
-        int required_size = 1 + 4 * 4 + blob.length + data.length;
-        buffer.reset();
-        buffer.checkFreeSize(required_size);
-        buffer.putByte(SSH2_AGENTC_SIGN_REQUEST);
-        buffer.putString(blob);
-        buffer.putString(data);
-        buffer.putInt(0);
-        buffer.insertLength();
-
-        try {
-            connector.query(buffer);
-        } catch (AgentProxyException e) {
-            buffer.rewind();
-            buffer.putByte(SSH_AGENT_FAILURE);
-        }
-        buffer.getByte();
-
-        return buffer.getString();
+    companion object {
+        private const val SSH_AGENT_FAILURE: Byte = 5
+        private const val SSH2_AGENTC_REQUEST_IDENTITIES: Byte = 11
+        private const val SSH2_AGENTC_SIGN_REQUEST: Byte = 13
     }
 }

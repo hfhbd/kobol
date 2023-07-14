@@ -8,10 +8,10 @@ public class PAgentProxy {
     public companion object {
         public fun authAgents(): List<AbstractAuthMethod> {
             val proxy = AgentProxy(PageantConnector())
-            val authAgents = proxy.identities.map {
+            val authAgents = proxy.identities?.map {
                 AuthAgent(proxy, it)
             }
-            return authAgents
+            return authAgents ?: emptyList()
         }
     }
 }

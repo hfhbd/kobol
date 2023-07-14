@@ -25,111 +25,103 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
 // https://github.com/ymnk/jsch-agent-proxy
+package com.jcraft.jsch.agentproxy
 
-package com.jcraft.jsch.agentproxy;
+internal class Buffer(
+    @JvmField
+    var buffer: ByteArray
+) {
+    private val tmp = ByteArray(4)
+    private var index = 0
+    private var s = 0
 
-public class Buffer {
-    final byte[] tmp = new byte[4];
-    public byte[] buffer;
-    int index = 0;
-    int s = 0;
-
-    public Buffer(byte[] buffer) {
-        this.buffer = buffer;
+    fun putByte(foo: Byte) {
+        buffer[index++] = foo
     }
 
-    public void putByte(byte foo) {
-        buffer[index++] = foo;
+    private fun putByte(foo: ByteArray, begin: Int, length: Int) {
+        System.arraycopy(foo, begin, buffer, index, length)
+        index += length
     }
 
-    public void putByte(byte[] foo, int begin, int length) {
-        System.arraycopy(foo, begin, buffer, index, length);
-        index += length;
+    @JvmOverloads
+    fun putString(foo: ByteArray, begin: Int = 0, length: Int = foo.size) {
+        putInt(length)
+        putByte(foo, begin, length)
     }
 
-    public void putString(byte[] foo) {
-        putString(foo, 0, foo.length);
+    fun putInt(`val`: Int) {
+        tmp[0] = (`val` ushr 24).toByte()
+        tmp[1] = (`val` ushr 16).toByte()
+        tmp[2] = (`val` ushr 8).toByte()
+        tmp[3] = `val`.toByte()
+        System.arraycopy(tmp, 0, buffer, index, 4)
+        index += 4
     }
 
-    public void putString(byte[] foo, int begin, int length) {
-        putInt(length);
-        putByte(foo, begin, length);
+    private fun skip(n: Int) {
+        index += n
     }
 
-    public void putInt(int val) {
-        tmp[0] = (byte) (val >>> 24);
-        tmp[1] = (byte) (val >>> 16);
-        tmp[2] = (byte) (val >>> 8);
-        tmp[3] = (byte) (val);
-        System.arraycopy(tmp, 0, buffer, index, 4);
-        index += 4;
-    }
-
-    void skip(int n) {
-        index += n;
-    }
-
-    public int getLength() {
-        return index - s;
-    }
-
-    public int getInt() {
-        int foo = getShort();
-        foo = ((foo << 16) & 0xffff0000) | (getShort() & 0xffff);
-        return foo;
-    }
-
-    int getShort() {
-        int foo = getByte();
-        foo = ((foo << 8) & 0xff00) | (getByte() & 0xff);
-        return foo;
-    }
-
-    public int getByte() {
-        return (buffer[s++] & 0xff);
-    }
-
-    void getByte(byte[] foo, int len) {
-        System.arraycopy(buffer, s, foo, 0, len);
-        s += len;
-    }
-
-    public byte[] getString() {
-        int i = getInt();  // uint32
-        if (i < 0 ||  // bigger than 0x7fffffff
-                i > 256 * 1024) {
-            // TODO: an exception should be thrown.
-            i = 256 * 1024; // the session will be broken, but working around OOME.
+    val length: Int
+        get() = index - s
+    val int: Int
+        get() {
+            var foo = short
+            foo = foo shl 16 and -0x10000 or (short and 0xffff)
+            return foo
         }
-        byte[] foo = new byte[i];
-        getByte(foo, i);
-        return foo;
+    private val short: Int
+        get() {
+            var foo = byte
+            foo = foo shl 8 and 0xff00 or (byte and 0xff)
+            return foo
+        }
+    val byte: Int
+        get() = buffer[s++].toInt() and 0xff
+
+    private fun getByte(foo: ByteArray, len: Int) {
+        System.arraycopy(buffer, s, foo, 0, len)
+        s += len
     }
 
-    public void reset() {
-        index = 0;
-        s = 0;
+    val string: ByteArray
+        get() {
+            var i = int // uint32
+            if (i < 0 ||  // bigger than 0x7fffffff
+                i > 256 * 1024
+            ) {
+                // TODO: an exception should be thrown.
+                i = 256 * 1024 // the session will be broken, but working around OOME.
+            }
+            val foo = ByteArray(i)
+            getByte(foo, i)
+            return foo
+        }
+
+    fun reset() {
+        index = 0
+        s = 0
     }
 
-    public void rewind() {
-        s = 0;
+    fun rewind() {
+        s = 0
     }
 
-    public void checkFreeSize(int n) {
-        if (buffer.length < index + n) {
-            byte[] tmp = new byte[(index + n) * 2];
-            System.arraycopy(buffer, 0, tmp, 0, index);
-            buffer = tmp;
+    fun checkFreeSize(n: Int) {
+        if (buffer.size < index + n) {
+            val tmp = ByteArray((index + n) * 2)
+            System.arraycopy(buffer, 0, tmp, 0, index)
+            buffer = tmp
         }
     }
 
-    void insertLength() {
-        int length = getLength();
-        System.arraycopy(buffer, 0, buffer, 4, length);
-        reset();
-        putInt(length);
-        skip(length);
+    fun insertLength() {
+        val length = length
+        System.arraycopy(buffer, 0, buffer, 4, length)
+        reset()
+        putInt(length)
+        skip(length)
     }
 }
