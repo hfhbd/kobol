@@ -25,13 +25,13 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 // https://github.com/ymnk/jsch-agent-proxy
+// Changes by hfhbd: Refactor to Kotlin
+
 package com.jcraft.jsch.agentproxy
 
-internal class Buffer(
-    @JvmField
-    var buffer: ByteArray
-) {
+internal class Buffer(var buffer: ByteArray) {
     private val tmp = ByteArray(4)
     private var index = 0
     private var s = 0
@@ -45,17 +45,16 @@ internal class Buffer(
         index += length
     }
 
-    @JvmOverloads
     fun putString(foo: ByteArray, begin: Int = 0, length: Int = foo.size) {
         putInt(length)
         putByte(foo, begin, length)
     }
 
-    fun putInt(`val`: Int) {
-        tmp[0] = (`val` ushr 24).toByte()
-        tmp[1] = (`val` ushr 16).toByte()
-        tmp[2] = (`val` ushr 8).toByte()
-        tmp[3] = `val`.toByte()
+    fun putInt(value: Int) {
+        tmp[0] = (value ushr 24).toByte()
+        tmp[1] = (value ushr 16).toByte()
+        tmp[2] = (value ushr 8).toByte()
+        tmp[3] = value.toByte()
         System.arraycopy(tmp, 0, buffer, index, 4)
         index += 4
     }
@@ -64,20 +63,21 @@ internal class Buffer(
         index += n
     }
 
-    val length: Int
-        get() = index - s
+    val length: Int get() = index - s
     val int: Int
         get() {
             var foo = short
             foo = foo shl 16 and -0x10000 or (short and 0xffff)
             return foo
         }
+
     private val short: Int
         get() {
             var foo = byte
             foo = foo shl 8 and 0xff00 or (byte and 0xff)
             return foo
         }
+
     val byte: Int
         get() = buffer[s++].toInt() and 0xff
 

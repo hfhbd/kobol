@@ -27,6 +27,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // https://github.com/ymnk/jsch-agent-proxy
+// Changes by hfhbd: Refactor to Kotlin
 
 package com.jcraft.jsch.agentproxy.connector
 
