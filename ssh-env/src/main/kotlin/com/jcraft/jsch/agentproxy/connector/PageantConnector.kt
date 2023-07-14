@@ -28,125 +28,103 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // https://github.com/ymnk/jsch-agent-proxy
 
-package com.jcraft.jsch.agentproxy.connector;
+package com.jcraft.jsch.agentproxy.connector
 
-import com.jcraft.jsch.agentproxy.AgentProxyException;
-import com.jcraft.jsch.agentproxy.Buffer;
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinBase;
-import com.sun.jna.platform.win32.WinDef.HWND;
-import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.WinNT.HANDLE;
-import com.sun.jna.win32.W32APIOptions;
+import com.jcraft.jsch.agentproxy.AgentProxyException
+import com.jcraft.jsch.agentproxy.Buffer
+import com.sun.jna.Memory
+import com.sun.jna.Native
+import com.sun.jna.Pointer
+import com.sun.jna.Structure
+import com.sun.jna.platform.win32.*
+import com.sun.jna.win32.W32APIOptions
 
-import java.util.List;
+internal class PageantConnector {
+    private val libU = User32.INSTANCE
+    private val libK = Kernel32.INSTANCE
 
-public class PageantConnector {
+    override fun toString(): String = "pageant"
 
-    private final User32 libU;
-    private final Kernel32 libK;
+    interface User32 : com.sun.jna.platform.win32.User32 {
+        fun SendMessage(hWnd: WinDef.HWND, msg: Int, num1: WinDef.WPARAM?, num2: ByteArray): Long
 
-    public PageantConnector() throws AgentProxyException {
+        companion object {
+            val INSTANCE = Native.loadLibrary(
+                "user32",
+                User32::class.java,
+                W32APIOptions.DEFAULT_OPTIONS
+            )
+        }
+    }
+
+    class COPYDATASTRUCT64 : Structure() {
+        @JvmField
+        var dwData = 0
+        @JvmField
+        var cbData: Long = 0
+        @JvmField
+        var lpData: Pointer? = null
+        override fun getFieldOrder(): List<String> {
+            return listOf("dwData", "cbData", "lpData")
+        }
+    }
+
+    fun query(buffer: Buffer) {
+        val hwnd = libU.FindWindow("Pageant", "Pageant")
+            ?: throw AgentProxyException("Pageant is not runnning.")
+        val mapname = String.format("PageantRequest%08x", libK.GetCurrentThreadId())
+        val sharedFile = libK.CreateFileMapping(
+            WinBase.INVALID_HANDLE_VALUE,
+            null,
+            WinNT.PAGE_READWRITE,
+            0,
+            8192,  // AGENT_MAX_MSGLEN
+            mapname
+        )
+        val sharedMemory = Kernel32.INSTANCE.MapViewOfFile(
+            sharedFile,
+            WinNT.SECTION_MAP_WRITE,
+            0, 0, 0
+        )
         try {
-            libU = User32.INSTANCE;
-            libK = Kernel32.INSTANCE;
-        } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            throw new AgentProxyException(e);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "pageant";
-    }
-
-    public interface User32 extends com.sun.jna.platform.win32.User32 {
-        User32 INSTANCE =
-                Native.loadLibrary("user32",
-                        User32.class,
-                        W32APIOptions.DEFAULT_OPTIONS);
-
-        long SendMessage(HWND hWnd, int msg, WPARAM num1, byte[] num2);
-    }
-
-    public static class COPYDATASTRUCT64 extends Structure {
-        public int dwData;
-        public long cbData;
-        public Pointer lpData;
-
-        protected List<String> getFieldOrder() {
-            return List.of("dwData", "cbData", "lpData");
-        }
-    }
-
-    public void query(Buffer buffer) throws AgentProxyException {
-        HWND hwnd = libU.FindWindow("Pageant", "Pageant");
-
-        if (hwnd == null) {
-            throw new AgentProxyException("Pageant is not runnning.");
-        }
-
-        String mapname = String.format("PageantRequest%08x", libK.GetCurrentThreadId());
-
-        HANDLE sharedFile = libK.CreateFileMapping(WinBase.INVALID_HANDLE_VALUE,
-                null,
-                WinNT.PAGE_READWRITE,
-                0,
-                8192,  // AGENT_MAX_MSGLEN
-                mapname);
-
-        Pointer sharedMemory = Kernel32.INSTANCE.MapViewOfFile(sharedFile,
-                WinNT.SECTION_MAP_WRITE,
-                0, 0, 0);
-
-        try {
-            sharedMemory.write(0, buffer.buffer, 0, buffer.getLength());
-
-            COPYDATASTRUCT64 cds64 = new COPYDATASTRUCT64();
-            byte[] data = install64(mapname, cds64);
-            long rcode = sendMessage(hwnd, data);
-
-            buffer.rewind();
-            if (rcode != 0) {
-                sharedMemory.read(0, buffer.buffer, 0, 4); // length
-                int i = buffer.getInt();
-                buffer.rewind();
-                buffer.checkFreeSize(i);
-                sharedMemory.read(4, buffer.buffer, 0, i);
+            sharedMemory.write(0, buffer.buffer, 0, buffer.length)
+            val cds64 = COPYDATASTRUCT64()
+            val data = install64(mapname, cds64)
+            val rcode = sendMessage(hwnd, data)
+            buffer.rewind()
+            if (rcode != 0L) {
+                sharedMemory.read(0, buffer.buffer, 0, 4) // length
+                val i = buffer.int
+                buffer.rewind()
+                buffer.checkFreeSize(i)
+                sharedMemory.read(4, buffer.buffer, 0, i)
             }
         } finally {
-            if (sharedMemory != null)
-                libK.UnmapViewOfFile(sharedMemory);
-            if (sharedFile != null)
-                libK.CloseHandle(sharedFile);
+            if (sharedMemory != null) libK.UnmapViewOfFile(sharedMemory)
+            if (sharedFile != null) libK.CloseHandle(sharedFile)
         }
     }
 
-    private byte[] install64(String mapname, COPYDATASTRUCT64 cds) {
-        cds.dwData = 0x804e50ba;  // AGENT_COPYDATA_ID
-        cds.cbData = mapname.length() + 1;
-        cds.lpData = new Memory(mapname.length() + 1);
-
-        byte[] foo = mapname.getBytes();
-        cds.lpData.write(0, foo, 0, foo.length);
-        cds.lpData.setByte(foo.length, (byte) 0);
-        cds.write();
-
-        byte[] data = new byte[24];
-        Pointer cdsp = cds.getPointer();
-        cdsp.read(0, data, 0, 24);
-        return data;
+    private fun install64(mapname: String, cds: COPYDATASTRUCT64): ByteArray {
+        cds.dwData = -0x7fb1af46 // AGENT_COPYDATA_ID
+        cds.cbData = (mapname.length + 1).toLong()
+        cds.lpData = Memory((mapname.length + 1).toLong())
+        val foo = mapname.toByteArray()
+        (cds.lpData as Memory).write(0, foo, 0, foo.size)
+        (cds.lpData as Memory).setByte(foo.size.toLong(), 0.toByte())
+        cds.write()
+        val data = ByteArray(24)
+        val cdsp = cds.pointer
+        cdsp.read(0, data, 0, 24)
+        return data
     }
 
-    long sendMessage(HWND hwnd, byte[] data) {
-        return libU.SendMessage(hwnd,
-                0x004A, //WM_COPYDATA
-                null,
-                data
-        );
+    fun sendMessage(hwnd: WinDef.HWND, data: ByteArray): Long {
+        return libU.SendMessage(
+            hwnd,
+            0x004A,  //WM_COPYDATA
+            null,
+            data
+        )
     }
 }
