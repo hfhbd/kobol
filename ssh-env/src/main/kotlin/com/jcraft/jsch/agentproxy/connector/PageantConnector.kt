@@ -38,6 +38,10 @@ import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.Structure
 import com.sun.jna.platform.win32.*
+import com.sun.jna.platform.win32.WinDef.HWND
+import com.sun.jna.platform.win32.WinDef.WPARAM
+import com.sun.jna.platform.win32.WinNT.PAGE_READWRITE
+import com.sun.jna.platform.win32.WinNT.SECTION_MAP_WRITE
 import com.sun.jna.win32.W32APIOptions
 
 internal class PageantConnector {
@@ -46,11 +50,11 @@ internal class PageantConnector {
 
     override fun toString(): String = "pageant"
 
-    interface User32 : com.sun.jna.platform.win32.User32 {
-        fun SendMessage(hWnd: WinDef.HWND, msg: Int, num1: WinDef.WPARAM?, num2: ByteArray): Long
+    internal interface User32 : com.sun.jna.platform.win32.User32 {
+        fun SendMessage(hWnd: HWND, msg: Int, num1: WPARAM?, num2: ByteArray): Long
 
         companion object {
-            val INSTANCE = Native.loadLibrary(
+            internal val INSTANCE = Native.loadLibrary(
                 "user32",
                 User32::class.java,
                 W32APIOptions.DEFAULT_OPTIONS
@@ -58,16 +62,14 @@ internal class PageantConnector {
         }
     }
 
-    class COPYDATASTRUCT64 : Structure() {
+    internal class COPYDATASTRUCT64 : Structure() {
         @JvmField
         var dwData = 0
         @JvmField
         var cbData: Long = 0
         @JvmField
         var lpData: Pointer? = null
-        override fun getFieldOrder(): List<String> {
-            return listOf("dwData", "cbData", "lpData")
-        }
+        override fun getFieldOrder(): List<String> = listOf("dwData", "cbData", "lpData")
     }
 
     fun query(buffer: Buffer) {
@@ -77,14 +79,14 @@ internal class PageantConnector {
         val sharedFile = libK.CreateFileMapping(
             WinBase.INVALID_HANDLE_VALUE,
             null,
-            WinNT.PAGE_READWRITE,
+            PAGE_READWRITE,
             0,
             8192,  // AGENT_MAX_MSGLEN
             mapname
         )
         val sharedMemory = Kernel32.INSTANCE.MapViewOfFile(
             sharedFile,
-            WinNT.SECTION_MAP_WRITE,
+            SECTION_MAP_WRITE,
             0, 0, 0
         )
         try {
@@ -101,8 +103,8 @@ internal class PageantConnector {
                 sharedMemory.read(4, buffer.buffer, 0, i)
             }
         } finally {
-            if (sharedMemory != null) libK.UnmapViewOfFile(sharedMemory)
-            if (sharedFile != null) libK.CloseHandle(sharedFile)
+            libK.UnmapViewOfFile(sharedMemory)
+            libK.CloseHandle(sharedFile)
         }
     }
 
@@ -120,12 +122,10 @@ internal class PageantConnector {
         return data
     }
 
-    fun sendMessage(hwnd: WinDef.HWND, data: ByteArray): Long {
-        return libU.SendMessage(
-            hwnd,
-            0x004A,  //WM_COPYDATA
-            null,
-            data
-        )
-    }
+    fun sendMessage(hwnd: HWND, data: ByteArray): Long = libU.SendMessage(
+        hwnd,
+        0x004A,  //WM_COPYDATA
+        null,
+        data
+    )
 }
