@@ -54,7 +54,7 @@ internal class PageantConnector {
         fun SendMessage(hWnd: HWND, msg: Int, num1: WPARAM?, num2: ByteArray): Long
 
         companion object {
-            internal val INSTANCE = Native.loadLibrary(
+            internal val INSTANCE: User32 = Native.loadLibrary(
                 "user32",
                 User32::class.java,
                 W32APIOptions.DEFAULT_OPTIONS
@@ -76,6 +76,7 @@ internal class PageantConnector {
         val hwnd = libU.FindWindow("Pageant", "Pageant")
             ?: throw AgentProxyException("Pageant is not runnning.", null)
         val mapname = String.format("PageantRequest%08x", libK.GetCurrentThreadId())
+
         val sharedFile = libK.CreateFileMapping(
             WinBase.INVALID_HANDLE_VALUE,
             null,
@@ -84,7 +85,7 @@ internal class PageantConnector {
             8192,  // AGENT_MAX_MSGLEN
             mapname
         )
-        val sharedMemory = Kernel32.INSTANCE.MapViewOfFile(
+        val sharedMemory: Pointer = Kernel32.INSTANCE.MapViewOfFile(
             sharedFile,
             SECTION_MAP_WRITE,
             0, 0, 0
