@@ -122,7 +122,7 @@ internal class PageantConnector {
         return data
     }
 
-    fun sendMessage(hwnd: HWND, data: ByteArray): Long = libU.SendMessage(
+    private fun sendMessage(hwnd: HWND, data: ByteArray): Long = libU.SendMessage(
         hwnd,
         0x004A,  //WM_COPYDATA
         null,
