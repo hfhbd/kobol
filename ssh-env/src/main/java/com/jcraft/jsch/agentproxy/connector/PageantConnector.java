@@ -32,7 +32,10 @@ package com.jcraft.jsch.agentproxy.connector;
 
 import com.jcraft.jsch.agentproxy.AgentProxyException;
 import com.jcraft.jsch.agentproxy.Buffer;
-import com.sun.jna.*;
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinDef.HWND;
@@ -70,16 +73,6 @@ public class PageantConnector {
         long SendMessage(HWND hWnd, int msg, WPARAM num1, byte[] num2);
     }
 
-    public static class COPYDATASTRUCT32 extends Structure {
-        public int dwData;
-        public int cbData;
-        public Pointer lpData;
-
-        protected List<String> getFieldOrder() {
-            return List.of("dwData", "cbData", "lpData");
-        }
-    }
-
     public static class COPYDATASTRUCT64 extends Structure {
         public int dwData;
         public long cbData;
@@ -91,9 +84,6 @@ public class PageantConnector {
     }
 
     public void query(Buffer buffer) throws AgentProxyException {
-        HANDLE sharedFile;
-        Pointer sharedMemory;
-
         HWND hwnd = libU.FindWindow("Pageant", "Pageant");
 
         if (hwnd == null) {
@@ -102,32 +92,23 @@ public class PageantConnector {
 
         String mapname = String.format("PageantRequest%08x", libK.GetCurrentThreadId());
 
-        sharedFile =
-                libK.CreateFileMapping(WinBase.INVALID_HANDLE_VALUE,
-                        null,
-                        WinNT.PAGE_READWRITE,
-                        0,
-                        8192,  // AGENT_MAX_MSGLEN
-                        mapname);
+        HANDLE sharedFile = libK.CreateFileMapping(WinBase.INVALID_HANDLE_VALUE,
+                null,
+                WinNT.PAGE_READWRITE,
+                0,
+                8192,  // AGENT_MAX_MSGLEN
+                mapname);
 
-        sharedMemory =
-                Kernel32.INSTANCE.MapViewOfFile(sharedFile,
-                        WinNT.SECTION_MAP_WRITE,
-                        0, 0, 0);
+        Pointer sharedMemory = Kernel32.INSTANCE.MapViewOfFile(sharedFile,
+                WinNT.SECTION_MAP_WRITE,
+                0, 0, 0);
 
-        byte[] data;
-        long rcode;
         try {
             sharedMemory.write(0, buffer.buffer, 0, buffer.getLength());
 
-            if (Platform.is64Bit()) {
-                COPYDATASTRUCT64 cds64 = new COPYDATASTRUCT64();
-                data = install64(mapname, cds64);
-            } else {
-                COPYDATASTRUCT32 cds32 = new COPYDATASTRUCT32();
-                data = install32(mapname, cds32);
-            }
-            rcode = sendMessage(hwnd, data);
+            COPYDATASTRUCT64 cds64 = new COPYDATASTRUCT64();
+            byte[] data = install64(mapname, cds64);
+            long rcode = sendMessage(hwnd, data);
 
             buffer.rewind();
             if (rcode != 0) {
@@ -145,32 +126,16 @@ public class PageantConnector {
         }
     }
 
-    private byte[] install32(String mapname, COPYDATASTRUCT32 cds) {
-        cds.dwData = 0x804e50ba;  // AGENT_COPYDATA_ID
-        cds.cbData = mapname.length() + 1;
-        cds.lpData = new Memory(mapname.length() + 1);
-        {
-            byte[] foo = mapname.getBytes();
-            cds.lpData.write(0, foo, 0, foo.length);
-            cds.lpData.setByte(foo.length, (byte) 0);
-            cds.write();
-        }
-        byte[] data = new byte[12];
-        Pointer cdsp = cds.getPointer();
-        cdsp.read(0, data, 0, 12);
-        return data;
-    }
-
     private byte[] install64(String mapname, COPYDATASTRUCT64 cds) {
         cds.dwData = 0x804e50ba;  // AGENT_COPYDATA_ID
         cds.cbData = mapname.length() + 1;
         cds.lpData = new Memory(mapname.length() + 1);
-        {
-            byte[] foo = mapname.getBytes();
-            cds.lpData.write(0, foo, 0, foo.length);
-            cds.lpData.setByte(foo.length, (byte) 0);
-            cds.write();
-        }
+
+        byte[] foo = mapname.getBytes();
+        cds.lpData.write(0, foo, 0, foo.length);
+        cds.lpData.setByte(foo.length, (byte) 0);
+        cds.write();
+
         byte[] data = new byte[24];
         Pointer cdsp = cds.getPointer();
         cdsp.read(0, data, 0, 24);
@@ -178,7 +143,6 @@ public class PageantConnector {
     }
 
     long sendMessage(HWND hwnd, byte[] data) {
-
         return libU.SendMessage(hwnd,
                 0x004A, //WM_COPYDATA
                 null,
