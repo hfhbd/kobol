@@ -25,6 +25,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 // https://github.com/ymnk/jsch-agent-proxy
 // Changes by hfhbd: Refactor to Kotlin
 
@@ -39,29 +40,21 @@ import com.sun.jna.Structure
 import com.sun.jna.platform.win32.*
 import com.sun.jna.platform.win32.WinDef.HWND
 import com.sun.jna.platform.win32.WinDef.WPARAM
-import com.sun.jna.platform.win32.WinNT.*
+import com.sun.jna.platform.win32.WinNT.PAGE_READWRITE
+import com.sun.jna.platform.win32.WinNT.SECTION_MAP_WRITE
 import com.sun.jna.win32.W32APIOptions
 
 internal class PageantConnector {
-    private val libU: User32
-    private val libK: Kernel32
+    private val libU = User32.INSTANCE
+    private val libK = Kernel32.INSTANCE
 
-    init {
-        try {
-            libU = User32.INSTANCE
-            libK = Kernel32.INSTANCE
-        } catch (e: UnsatisfiedLinkError) {
-            throw AgentProxyException(e.toString(), e)
-        } catch (e: NoClassDefFoundError) {
-            throw AgentProxyException(e.toString(), e)
-        }
-    }
+    override fun toString(): String = "pageant"
 
     internal interface User32 : com.sun.jna.platform.win32.User32 {
         fun SendMessage(hWnd: HWND, msg: Int, num1: WPARAM?, num2: ByteArray): Long
 
         companion object {
-            internal val INSTANCE: User32 = Native.load(
+            internal val INSTANCE: User32 = Native.loadLibrary(
                 "user32",
                 User32::class.java,
                 W32APIOptions.DEFAULT_OPTIONS
