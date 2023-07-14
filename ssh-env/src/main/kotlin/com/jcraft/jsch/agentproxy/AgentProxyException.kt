@@ -31,11 +31,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch.agentproxy
 
-internal class AgentProxyException
-@JvmOverloads
-constructor(
-    message: String?,
-    cause: Throwable? = null
-) : Exception(message, cause) {
-    constructor(cause: Throwable) : this(null, cause)
-}
+internal class AgentProxyException(
+    message: String, cause: Throwable?
+) : Exception(message, cause)

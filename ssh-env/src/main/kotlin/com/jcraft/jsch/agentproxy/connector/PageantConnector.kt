@@ -71,7 +71,7 @@ internal class PageantConnector {
 
     fun query(buffer: Buffer) {
         val hwnd = libU.FindWindow("Pageant", "Pageant")
-            ?: throw AgentProxyException("Pageant is not runnning.")
+            ?: throw AgentProxyException("Pageant is not runnning.", null)
         val mapname = String.format("PageantRequest%08x", libK.GetCurrentThreadId())
         val sharedFile = libK.CreateFileMapping(
             WinBase.INVALID_HANDLE_VALUE,
