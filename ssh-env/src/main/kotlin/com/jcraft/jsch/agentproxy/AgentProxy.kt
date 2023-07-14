@@ -34,18 +34,15 @@ package com.jcraft.jsch.agentproxy
 import com.jcraft.jsch.agentproxy.connector.PageantConnector
 
 internal class AgentProxy(private val connector: PageantConnector) {
-    private val buf = ByteArray(1024)
-    private val buffer = Buffer(buf)
-
-    @get:Synchronized
     val identities: List<Identity>?
         get() {
-            buffer.reset()
+            val buf = ByteArray(1024)
+            val buffer = Buffer(buf)
             buffer.putByte(SSH2_AGENTC_REQUEST_IDENTITIES)
             buffer.insertLength()
             try {
                 connector.query(buffer)
-            } catch (e: AgentProxyException) {
+            } catch (_: AgentProxyException) {
                 buffer.rewind()
                 buffer.putByte(SSH_AGENT_FAILURE)
                 return null
@@ -58,11 +55,10 @@ internal class AgentProxy(private val connector: PageantConnector) {
             return identities
         }
 
-    @Synchronized
     fun sign(blob: ByteArray, data: ByteArray): ByteArray {
         val requiredSize = 1 + 4 * 4 + blob.size + data.size
-        buffer.reset()
-        buffer.checkFreeSize(requiredSize)
+        val buf = ByteArray(requiredSize)
+        val buffer = Buffer(buf)
         buffer.putByte(SSH2_AGENTC_SIGN_REQUEST)
         buffer.putString(blob)
         buffer.putString(data)
@@ -70,7 +66,7 @@ internal class AgentProxy(private val connector: PageantConnector) {
         buffer.insertLength()
         try {
             connector.query(buffer)
-        } catch (e: AgentProxyException) {
+        } catch (_: AgentProxyException) {
             buffer.rewind()
             buffer.putByte(SSH_AGENT_FAILURE)
         }
