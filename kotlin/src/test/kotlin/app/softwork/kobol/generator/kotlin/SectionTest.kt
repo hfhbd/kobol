@@ -43,7 +43,7 @@ class SectionTest {
         
         public var HELLO: String = "HELLO"
         
-        public fun main() {
+        public fun hello() {
           println("${'$'}HELLO${'$'}WORLD")
           FOO()
         }
@@ -90,7 +90,7 @@ class SectionTest {
         
         public var HELLO: String = "HELLO"
         
-        public fun main() {
+        public fun hello() {
           FOO()
         }
         
@@ -148,7 +148,7 @@ class SectionTest {
           println("C")
         }
         
-        public fun main() {
+        public fun calling() {
           FOO()
           BAR()
           C()
@@ -182,7 +182,7 @@ class SectionTest {
         import kotlin.Int
         import kotlin.system.exitProcess
         
-        public fun main() {
+        public fun calling() {
           var `RETURN-CODE`: Int = 0
           println("FOO")
           `RETURN-CODE` = 42
@@ -221,7 +221,7 @@ class SectionTest {
         
         private var `RETURN-CODE`: Int = 0
         
-        public fun main() {
+        public fun calling() {
           println("FOO")
           `RETURN-CODE` = 42
           exitProcess(`RETURN-CODE`)

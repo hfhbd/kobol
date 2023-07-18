@@ -17,7 +17,7 @@ import com.intellij.psi.*
 import com.intellij.psi.util.*
 
 public fun CobolFile.toTree(): CobolFIRTree {
-    val errors = this.childrenOfType<PsiErrorElement>()
+    val errors = childrenOfType<PsiErrorElement>()
     require(errors.isEmpty()) {
         errors.joinToString(separator = "\n") {
             it.errorDescription
@@ -151,7 +151,7 @@ private fun List<CobolRecordDef>.toRecords() = buildList {
     if (currentRecord != null) {
         add(currentRecord)
     }
-} as List<Record>
+}
 
 private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
     val definitions: List<WorkingStorage> = workingStorageSection?.stmList?.let {
@@ -225,7 +225,7 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
                         recording = recording, blocks = blocks, records = records, comments = it.comments.asComments()
                     )
                 },
-                records = it.recordDefList.toRecords(),
+                records = it.recordDefList.toRecords() as List<Record>,
                 fileStatus = file.fileStatus,
                 filePath = file.path,
                 type = file.type

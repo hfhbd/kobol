@@ -27,7 +27,9 @@ class HelloWorldTest {
         123456     MOVE "42" TO WO-RLD
         123456     DISPLAY WO-RLD
         123456     DISPLAY "ANSWER"WO-RLD.
-        """.trimIndent().toIR()
+        """.trimIndent().toIR { _, _ ->
+            "main"
+        }
 
         val output = generate(input)
 
@@ -60,6 +62,7 @@ internal fun String.toIR(
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String, File) -> SqlPrecompiler)? = null,
     controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
+    procedureName: ProcedureName? = null,
 ): KobolIRTree {
     val temp = Files.createTempDirectory("testing").toFile()
     val files = including.map { (name, content) ->
@@ -75,6 +78,7 @@ internal fun String.toIR(
                 getSQL(it, temp)
             }
         },
-        controlFlowHandling = controlFlowHandling
+        controlFlowHandling = controlFlowHandling,
+        procedureName = procedureName
     ).single()
 }

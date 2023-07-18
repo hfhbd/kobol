@@ -100,7 +100,7 @@ class CommentTest {
          * PROCEDURE I
          * PROCEDURE II
          */
-        public fun main() {
+        public fun hello() {
           // DISPLAY I
           // DISPLAY II
           println("${'$'}HELLO${'$'}WORLD")

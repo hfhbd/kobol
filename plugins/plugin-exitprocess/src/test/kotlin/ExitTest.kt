@@ -37,7 +37,7 @@ class ExitTest {
             KobolIRTree(
                 name = "before",
                 id = "",
-                main = Types.Function(name = "main") {
+                main = Types.Function(name = "before") {
                     +Statement.Assignment(testingReturnCodeIr, IntLiteral(8))
                     +Statement.If(
                         Eq(IntLiteral(1), IntLiteral(1)),
@@ -77,7 +77,7 @@ class ExitTest {
             KobolIRTree(
                 name = "before",
                 id = "",
-                main = Types.Function(name = "main") {
+                main = Types.Function(name = "before") {
                     +Statement.If(
                         Eq(IntLiteral(1), IntLiteral(1)),
                         statements = build {
@@ -115,7 +115,7 @@ class ExitTest {
             KobolIRTree(
                 name = "before",
                 id = "",
-                main = Types.Function(name = "main") {
+                main = Types.Function(name = "before") {
                     +testingReturnCodeIr
                     +Statement.Assignment(testingReturnCodeIr, IntLiteral(8))
                     +Statement.If(
