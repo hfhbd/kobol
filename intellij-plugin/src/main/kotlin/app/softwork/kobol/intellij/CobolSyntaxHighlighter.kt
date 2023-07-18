@@ -52,6 +52,7 @@ internal object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         CobolTypes.EXEC, CobolTypes.END_EXEC, CobolTypes.SQL,
 
         CobolTypes.DATA,
+        CobolTypes.LINKAGE,
         CobolTypes.PROCEDURE -> keyword
 
         TokenType.BAD_CHARACTER -> badCharacter
