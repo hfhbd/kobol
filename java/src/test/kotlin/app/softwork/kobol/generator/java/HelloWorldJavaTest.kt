@@ -37,7 +37,7 @@ class HelloWorldJavaTest {
         public class Hello {
           public static String WORLD = "WORLD!";
         
-          public static void main(String[] args) {
+          public static void hello() {
             // Some Comment
             System.out.println("HELLO " + WORLD);
             WORLD = "42";

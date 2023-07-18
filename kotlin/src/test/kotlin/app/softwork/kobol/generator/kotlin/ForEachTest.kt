@@ -36,7 +36,7 @@ class ForEachTest {
         
         public var WORLD: String = "WORLD!"
         
-        public fun main() {
+        public fun hello() {
           // COMMENT I
           do {
             FOO()
@@ -81,7 +81,7 @@ class ForEachTest {
         
         public var WORLD: String = "WORLD!"
         
-        public fun main() {
+        public fun hello() {
           // COMMENT I
           while (!(WORLD == "FOO")) {
             FOO()
@@ -119,7 +119,7 @@ class ForEachTest {
         
         public var WORLD: String = "WORLD!"
         
-        public fun main() {
+        public fun hello() {
           // COMMENT I
           while (!(WORLD == "FOO")) {
             println("FOO")
@@ -158,7 +158,7 @@ class ForEachTest {
         
         public var WORLD: Int = 0
         
-        public fun main() {
+        public fun hello() {
           WORLD = 1
           while (!(WORLD == 42)) {
             println("FOO")

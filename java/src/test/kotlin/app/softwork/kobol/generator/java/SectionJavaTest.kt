@@ -36,7 +36,7 @@ class SectionJavaTest {
         
           public static String HELLO = "HELLO";
         
-          public static void main(String[] args) {
+          public static void hello() {
             System.out.println(HELLO + WORLD);
             FOO();
           }
@@ -83,7 +83,7 @@ class SectionJavaTest {
         
           public static String HELLO = "HELLO";
         
-          public static void main(String[] args) {
+          public static void hello() {
             FOO();
           }
         
@@ -130,7 +130,7 @@ class SectionJavaTest {
         package calling;
         
         public class Calling {
-          public static void main(String[] args) {
+          public static void calling() {
             FOO();
             BAR();
             C();

@@ -26,13 +26,15 @@ public fun File.toIR(
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
     controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
     irPlugins: List<IrPlugin> = emptyList(),
+    procedureName: ProcedureName? = null,
 ): KobolIRTree = setOf(this).toIR(
     firPlugins,
     fileConverter,
     serialization,
     sqlPrecompiler,
     controlFlowHandling,
-    irPlugins
+    irPlugins,
+    procedureName
 ).single()
 
 public fun Iterable<File>.toIR(
@@ -42,11 +44,12 @@ public fun Iterable<File>.toIR(
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
     controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
     irPlugins: Iterable<IrPlugin> = emptyList(),
+    procedureName: ProcedureName? = null
 ): Iterable<KobolIRTree> {
     val firTrees = toTree(firPlugins)
 
     var irTrees = firTrees.map {
-        it.toIRTree(fileConverter, serialization, sqlPrecompiler, controlFlowHandling)
+        it.toIRTree(fileConverter, serialization, sqlPrecompiler, controlFlowHandling, procedureName)
     }.associateBy { it.id }
 
     for (irPlugin in irPlugins) {
@@ -65,6 +68,7 @@ public fun CobolFIRTree.toIRTree(
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
     controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
+    procedureName: ProcedureName? = null,
 ): KobolIRTree {
     val name = id.programID.toKotlinName()
     val fileHandler = fileConverter?.invoke(name)
@@ -92,6 +96,16 @@ public fun CobolFIRTree.toIRTree(
         }
     }
 
+    val linkingTypes = data.linkingSection.map { link ->
+        val result = link.toIR(name, null) as IRResult.Typ
+        result.type
+    }
+    for (link in linkingTypes) {
+        if (link is Class) {
+            dataTypes.add(link)
+        }
+    }
+
     val external = procedure.topLevel.mapNotNull {
         when (it) {
             is Call -> it
@@ -108,7 +122,14 @@ public fun CobolFIRTree.toIRTree(
     val externalIR = external.toIR(dataTypes, name)
 
     val (main, functions) = procedure.functions(
-        dataTypes + externalIR, sqlInit, fileHandler, serialization, sqlCompiler, controlFlowHandling
+        mainName = procedureName?.name(fileName, id) ?: name,
+        linkingTypes = linkingTypes,
+        dataTypes + externalIR,
+        sqlInit,
+        fileHandler,
+        serialization,
+        sqlCompiler,
+        controlFlowHandling
     )
     sqlCompiler?.close()
     serialization?.close()
@@ -203,6 +224,8 @@ private fun Expression.inferDeclaration(): Declaration = when (this) {
 public fun String.toKotlinName(): String = lowercase().replace("-", "_")
 
 private fun CobolFIRTree.ProcedureTree.functions(
+    mainName: String,
+    linkingTypes: List<Types.Type>,
     types: List<Types.Type>,
     initSql: List<Types.Function.Statement>,
     fileHandler: FileHandling?,
@@ -233,8 +256,12 @@ private fun CobolFIRTree.ProcedureTree.functions(
             )
         }
 
+    val linkingParameters = linkingTypes.map {
+        (it as GlobalVariable).declaration
+    }
+
     val main = Types.Function(
-        name = "main", parameters = emptyList(), returnType = Void, body = topLevelStatements + sections.map {
+        name = mainName, parameters = linkingParameters, returnType = Void, body = topLevelStatements + sections.map {
             FunctionCall(
                 it, parameters = emptyList(), comments = emptyList()
             )
@@ -258,6 +285,10 @@ private fun CobolFIRTree.ProcedureTree.functions(
             private = false,
             doc = it.comments
         )
+    }
+    
+    require(mainName !in sectionsWithResolvedCalls.map { it.name }) {
+        "Duplicate function names found: Either rename main procedure $mainName using ProcedureName or rename a section and its caller."
     }
 
     return main to sectionsWithResolvedCalls

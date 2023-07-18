@@ -41,7 +41,7 @@ class CallJavaTest {
         package calling;
         
         public class Calling {
-          public static void main(String[] args) {
+          public static void calling() {
             // LONDON CALLING
             LONDON.invoke();
             System.out.println("FOO");
@@ -111,7 +111,7 @@ class CallJavaTest {
         package calling;
         
         public class Calling {
-          public static void main(String[] args) {
+          public static void calling() {
             // LONDON CALLING
             LONDON.invoke(FOO.BAR, FOO.C);
             System.out.println("FOO");

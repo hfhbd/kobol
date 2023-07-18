@@ -1,14 +1,11 @@
 package app.softwork.kobol.generator.java
 
-import app.softwork.kobol.*
-import app.softwork.kobol.ir.*
+import app.softwork.kobol.fir.notPossible
+import app.softwork.kobol.ir.KobolIRTree
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import com.squareup.javapoet.*
-import java.io.*
-import javax.lang.model.element.*
 import javax.lang.model.element.Modifier.*
-import kotlin.math.*
 
 internal fun generateJava(tree: KobolIRTree): List<JavaFile> {
     val external = tree.types.mapNotNull {
@@ -16,13 +13,18 @@ internal fun generateJava(tree: KobolIRTree): List<JavaFile> {
             it
         } else null
     }
-    val main = tree.main.main(tree.name)
+    val klass = TypeSpec.classBuilder(tree.name.replaceFirstChar { it.uppercaseChar() }).apply {
+        addModifiers(PUBLIC)
+    }
+    
+    klass.addType(tree.main)
+    
     tree.types.forEach {
         if (it !in external) {
-            main.addType(it)
+            klass.addType(it)
         }
     }
-    val fileSpec = JavaFile.builder(tree.name, main.build())
+    val fileSpec = JavaFile.builder(tree.name, klass.build())
     fileSpec.skipJavaLangImports(true)
 
     val externalTypes = external.map {
@@ -30,21 +32,6 @@ internal fun generateJava(tree: KobolIRTree): List<JavaFile> {
     }
 
     return (externalTypes + fileSpec).map { it.build() }
-}
-
-private fun KobolIRTree.Types.Function.main(className: String): TypeSpec.Builder {
-    return TypeSpec.classBuilder(className.replaceFirstChar { it.uppercaseChar() }).apply {
-        val main = MethodSpec.methodBuilder("main").apply {
-            addModifiers(PUBLIC, STATIC)
-            returns(TypeName.VOID)
-            addParameter(Array<String>::class.java, "args")
-            body.forEach {
-                addCode(it.toJava())
-            }
-        }
-        addMethod(main.build())
-        addModifiers(PUBLIC)
-    }
 }
 
 private fun KobolIRTree.Types.Function.toJava(): MethodSpec {
@@ -59,6 +46,7 @@ private fun KobolIRTree.Types.Function.toJava(): MethodSpec {
         this@toJava.parameters.forEach {
             addParameter(it.Type, it.name)
         }
+        returns(this@toJava.returnType.Type)
         if (external) {
             addModifiers(NATIVE)
         } else {
@@ -468,4 +456,12 @@ private val Declaration.Type: TypeName
         is DoubleDeclaration -> TypeName.DOUBLE
         is IntDeclaration -> TypeName.INT
         is ObjectDeclaration -> ClassName.get(type.packageName, type.name)
+    }
+
+private val KobolIRTree.Types.Type: TypeName
+    get() = when (this) {
+        is KobolIRTree.Types.Function -> notPossible()
+        is KobolIRTree.Types.Type.Class -> ClassName.get(packageName, name)
+        is KobolIRTree.Types.Type.GlobalVariable -> declaration.Type
+        KobolIRTree.Types.Type.Void -> TypeName.VOID
     }

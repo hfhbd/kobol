@@ -23,6 +23,10 @@ class RecordTest {
         123456* BAR II
         123456 01 BAR.
         123456 05 WORLD PIC x(6) VALUE "BAR".
+        123456 LINKAGE SECTION.
+        123456 77 AAAA PIC A(1).
+        123456*01 BBBB.
+        123456*  05 CCCC PIC A(1).
         123456 PROCEDURE                   DIVISION.
         123456  ADD 42 TO WO-RLD OF FOO
         123456  * Some Comment
@@ -57,7 +61,11 @@ class RecordTest {
           public var WORLD: String = "BAR"
         }
         
-        public fun main() {
+        /**
+         * 01 BBBB.
+         * 05 CCCC PIC A(1).
+         */
+        public fun hello(AAAA: String) {
           FOO.`WO-RLD` += 42
           // Some Comment
           println("HELLO ${'$'}{FOO.`WO-RLD`}")

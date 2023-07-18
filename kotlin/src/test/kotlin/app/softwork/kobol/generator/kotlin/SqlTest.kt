@@ -45,7 +45,7 @@ class SqlTest {
         
         public var BAZ: Int? = null
         
-        public fun main() {
+        public fun sql() {
           val db: DB = DB(driver)
           /**
            * Get AVG of 42
@@ -113,7 +113,7 @@ class SqlTest {
           public var ABB: Int? = null
         }
         
-        public fun main() {
+        public fun sql() {
           println(FOO.BAR)
         }
         
@@ -189,7 +189,7 @@ class SqlTest {
         
         public var BAR: Int? = null
         
-        public fun main() {
+        public fun sql() {
           val db: DB = DB(driver)
           DB.Schema.migrate(driver, 0, 1)
           // INSERT COMMENT

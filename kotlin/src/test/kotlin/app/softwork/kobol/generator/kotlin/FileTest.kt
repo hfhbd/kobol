@@ -120,7 +120,7 @@ class FileTest {
         
         public var FI: String = ""
         
-        public fun main() {
+        public fun test() {
           val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1140"))
           val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1140"))
           for (`EB1-EIN` in EIN.decode(`EB1-EIN`.serializer(), FixedLengthFormat(""))) {
@@ -240,7 +240,7 @@ class FileTest {
         
         public var FI: String = ""
         
-        public fun main() {
+        public fun test() {
           val EIN: BufferedReader = File("EIN").bufferedReader(charset("IBM-1140"))
           val AUS: BufferedWriter = File("AUS").bufferedWriter(charset("IBM-1140"))
           for (`EB1-EIN` in EIN.lineSequence().decode(`EB1-EIN`.serializer())) {
@@ -397,7 +397,7 @@ class FileTest {
         
         public var COUNT: Int = 0
         
-        public fun main() {
+        public fun files() {
           val TRANSACTIONS: BufferedReader = File("TRANSACTIONS").bufferedReader(charset("IBM-1140"))
           val BALANCES: BufferedWriter = File("BALANCES").bufferedWriter(charset("IBM-1140"))
           for (TRANSACTION in TRANSACTIONS.decode(TRANSACTION.serializer(), FixedLengthFormat(""))) {
@@ -567,7 +567,7 @@ public data class BALANCE(
   }
 }
 
-public fun main() {
+public fun files() {
   var COUNTER: Int = 0
   println("START")
   val TRANSACTS: BufferedReader = File("TRANSACTS").bufferedReader(charset("IBM-1140"))

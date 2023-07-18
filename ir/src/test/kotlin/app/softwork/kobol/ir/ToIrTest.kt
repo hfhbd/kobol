@@ -64,7 +64,7 @@ class ToIrTest {
             id = "testing.cbl",
             name = "calling",
             main = Function(
-                name = "main",
+                name = "calling",
                 parameters = emptyList(),
                 returnType = Void,
                 body = build {
@@ -117,7 +117,7 @@ class ToIrTest {
             id = "testing.cbl",
             name = "hello",
             main = Function(
-                name = "main",
+                name = "hello",
                 parameters = emptyList(),
                 returnType = Void,
                 body = build {

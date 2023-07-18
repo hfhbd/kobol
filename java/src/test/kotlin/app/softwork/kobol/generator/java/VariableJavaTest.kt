@@ -32,7 +32,7 @@ class VariableJavaTest {
         public class Hello {
           public static String WORLD = null;
         
-          public static void main(String[] args) {
+          public static void hello() {
             WORLD = "WORLD!";
             // Some Comment
             System.out.println("HELLO " + WORLD);

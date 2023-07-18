@@ -40,7 +40,7 @@ class InliningTest {
         
         import kotlin.String
         
-        public fun main() {
+        public fun hello() {
           val HELLO: String = "HELLO"
           var WORLD: String = "WORLD!"
           println("${'$'}HELLO${'$'}WORLD")
