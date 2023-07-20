@@ -29,7 +29,7 @@ public fun File.toIR(
     irPlugins: List<IrPlugin> = emptyList(),
     procedureName: ProcedureName? = null,
 ): KobolIRTree = setOf(this).toIR(
-    toPath(),
+    parentFile!!.toPath(),
     firPlugins,
     fileConverter,
     serialization,
