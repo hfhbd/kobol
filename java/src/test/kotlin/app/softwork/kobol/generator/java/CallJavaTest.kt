@@ -17,6 +17,7 @@ class CallJavaTest {
             FOO SECTION.
                 CALL "LONDON".
         """.trimIndent().toIR()
+        assertNull(input.packageName)
 
         val (londonJava, output) = generate(input, java8 = true).map { it.toString() }
 
