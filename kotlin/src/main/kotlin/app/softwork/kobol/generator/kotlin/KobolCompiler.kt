@@ -7,7 +7,9 @@ import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Math.Operation
 import com.squareup.kotlinpoet.*
 
 internal fun generate(tree: KobolIRTree): FileSpec {
-    val packageName = tree.name
+    val packageName = if (tree.packageName != null) {
+        "${tree.packageName}.${tree.name}"
+    } else tree.name
     val fileSpec = FileSpec.builder(packageName, packageName).apply {
         tree.types.forEach {
             addType(packageName, it)

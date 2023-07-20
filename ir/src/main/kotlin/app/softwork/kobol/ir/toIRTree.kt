@@ -18,6 +18,7 @@ import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
 import java.io.File
+import java.nio.file.Path
 
 public fun File.toIR(
     firPlugins: List<FirPlugin> = emptyList(),
@@ -28,6 +29,7 @@ public fun File.toIR(
     irPlugins: List<IrPlugin> = emptyList(),
     procedureName: ProcedureName? = null,
 ): KobolIRTree = setOf(this).toIR(
+    toPath(),
     firPlugins,
     fileConverter,
     serialization,
@@ -38,6 +40,7 @@ public fun File.toIR(
 ).single()
 
 public fun Iterable<File>.toIR(
+    absoluteBasePath: Path,
     firPlugins: Iterable<FirPlugin> = emptyList(),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
@@ -46,7 +49,7 @@ public fun Iterable<File>.toIR(
     irPlugins: Iterable<IrPlugin> = emptyList(),
     procedureName: ProcedureName? = null
 ): Iterable<KobolIRTree> {
-    val firTrees = toTree(firPlugins)
+    val firTrees = toTree(absoluteBasePath, firPlugins)
 
     var irTrees = firTrees.map {
         it.toIRTree(fileConverter, serialization, sqlPrecompiler, controlFlowHandling, procedureName)
@@ -138,6 +141,7 @@ public fun CobolFIRTree.toIRTree(
     return KobolIRTree(
         id = fileName,
         name = name,
+        packageName = packageName,
         main = main,
         types = functions + dataTypes + externalIR
     )

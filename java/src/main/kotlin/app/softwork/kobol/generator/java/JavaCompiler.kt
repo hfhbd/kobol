@@ -27,8 +27,11 @@ internal fun generateJava(tree: KobolIRTree): List<JavaFile> {
     val fileSpec = JavaFile.builder(tree.name, klass.build())
     fileSpec.skipJavaLangImports(true)
 
+    val packageName = if (tree.packageName != null) {
+        "${tree.packageName}.${tree.name}"
+    } else tree.name
     val externalTypes = external.map {
-        JavaFile.builder(tree.name, it.toJava()).skipJavaLangImports(true)
+        JavaFile.builder(packageName, it.toJava()).skipJavaLangImports(true)
     }
 
     return (externalTypes + fileSpec).map { it.build() }

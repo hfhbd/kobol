@@ -9,11 +9,18 @@ import com.intellij.psi.*
 import com.intellij.psi.stubs.*
 import com.intellij.psi.tree.*
 import java.io.*
+import java.nio.file.Path
 
-public fun File.toTree(firPlugins: List<FirPlugin> = emptyList()): CobolFIRTree =
-    setOf(this).toTree(firPlugins).single()
+public fun File.toTree(
+    absoluteBasePath: Path,
+    firPlugins: List<FirPlugin> = emptyList(),
+): CobolFIRTree =
+    setOf(this).toTree(absoluteBasePath, firPlugins).single()
 
-public fun Iterable<File>.toTree(firPlugins: Iterable<FirPlugin> = emptyList()): Iterable<CobolFIRTree> {
+public fun Iterable<File>.toTree(
+    absoluteBasePath: Path,
+    firPlugins: Iterable<FirPlugin> = emptyList(),
+): Iterable<CobolFIRTree> {
     val beforePhases = mutableListOf<FirPluginBeforePhase>()
     val afterPhases = mutableListOf<FirPluginAfterPhase>()
 
@@ -27,7 +34,7 @@ public fun Iterable<File>.toTree(firPlugins: Iterable<FirPlugin> = emptyList()):
     var cobolTrees = buildMap {
         for (file in toCobolFile()) {
             try {
-                var tree = file.toTree()
+                var tree = file.toTree(absoluteBasePath)
                 for (plugin in beforePhases) {
                     tree = plugin(tree)
                 }

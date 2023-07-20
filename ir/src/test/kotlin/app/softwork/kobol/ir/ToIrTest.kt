@@ -11,8 +11,8 @@ import app.softwork.kobol.ir.KobolIRTree.Types.Function
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
 import app.softwork.kobol.plugins.ir.ExitProcessControlFlowHandlingFactory.*
+import java.io.File
 import java.nio.file.Files
-import kotlin.io.path.writeText
 import kotlin.test.*
 
 class ToIrTest {
@@ -136,8 +136,8 @@ class ToIrTest {
 }
 
 private fun String.toIR(): KobolIRTree {
+    val temp = Files.createTempDirectory("testing")
     return listOf(
-        Files.createTempFile("kobol", ".cbl").apply { writeText(this@toIR) }
-            .toFile()
-    ).toIR().single().copy(id = "testing.cbl")
+        File(temp.toFile(), "kobol.cbl").apply { writeText(this@toIR) }
+    ).toIR(temp).single().copy(id = "testing.cbl")
 }

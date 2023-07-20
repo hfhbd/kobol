@@ -15,38 +15,38 @@ import kotlin.test.*
 class KobolGradlePluginTest {
     @Test
     fun testConvertingKotlin() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
-            deleteOnExit()
-        }
-        val cobolFile = File(tmp, "hello.cbl").apply {
+        val temp = Files.createTempDirectory("cobolTesting")
+        val tempFile = temp.toFile()
+        val cobolFile = File(tempFile, "hello.cbl").apply {
             writeText(input)
         }
         ExecuteKobol(
+            rootPath = temp,
             input = setOf(cobolFile),
-            outputFolder = tmp,
+            outputFolder = tempFile,
             irPlugins = listOf(NoSynthetics()),
             codeGeneratorFactory = KotlinCodeGeneratorFactory()
         )
-        val packageFolder = File(tmp, "kotlin/hello")
+        val packageFolder = File(tempFile, "kotlin/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
     }
 
     @Test
     fun testConvertingJava() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
-            deleteOnExit()
-        }
-        val cobolFile = File(tmp, "hello.cbl").apply {
+        val temp = Files.createTempDirectory("cobolTesting")
+        val tempFile = temp.toFile()
+        val cobolFile = File(tempFile, "hello.cbl").apply {
             writeText(input)
         }
         ExecuteKobol(
+            rootPath = temp,
             input = setOf(cobolFile),
-            outputFolder = tmp,
+            outputFolder = tempFile,
             irPlugins = listOf(Java8Plugin(), NoSynthetics()),
             codeGeneratorFactory = JavaCodeGeneratorFactory()
         )
-        val packageFolder = File(tmp, "java/hello")
+        val packageFolder = File(tempFile, "java/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("Hello.java"), packageFolder.list()?.toList())
     }
@@ -75,17 +75,16 @@ class KobolGradlePluginTest {
 
     @Test
     fun testFlowGraph() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
-            deleteOnExit()
-        }
-        val cobolFile = File(tmp, "hello.cbl").apply {
+        val temp = Files.createTempDirectory("cobolTesting")
+        val tempFile = temp.toFile()
+        val cobolFile = File(tempFile, "hello.cbl").apply {
             writeText(input)
         }
 
-        PlantumlFlowGraph(tmp).use {
-            it.generate(listOf(cobolFile.toTree()))
+        PlantumlFlowGraph(tempFile).use {
+            it.generate(listOf(cobolFile.toTree(temp)))
         }
-        assertTrue("hello.puml" in tmp.list())
+        assertTrue("hello.puml" in tempFile.list())
     }
 
     @Test

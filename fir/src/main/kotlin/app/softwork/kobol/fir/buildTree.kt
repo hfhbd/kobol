@@ -15,8 +15,9 @@ import com.alecstrong.sql.psi.core.psi.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.psi.util.*
+import java.nio.file.Path
 
-public fun CobolFile.toTree(): CobolFIRTree {
+public fun CobolFile.toTree(absoluteBasePath: Path): CobolFIRTree {
     val errors = childrenOfType<PsiErrorElement>()
     require(errors.isEmpty()) {
         errors.joinToString(separator = "\n") {
@@ -31,7 +32,8 @@ public fun CobolFile.toTree(): CobolFIRTree {
     val fileComments = program.comments.asComments()
 
     return CobolFIRTree(
-        fileName = name, id = id, env = env, data = data, procedure = procedure, fileComments = fileComments
+        fileName = name, id = id, env = env, data = data, procedure = procedure, fileComments = fileComments,
+        packageName = packageName(absoluteBasePath)
     )
 }
 
