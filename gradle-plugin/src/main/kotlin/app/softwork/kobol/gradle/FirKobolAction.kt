@@ -14,6 +14,7 @@ internal abstract class FirKobolAction : WorkAction<FirKobolAction.Parameters> {
 
     override fun execute() {
         val inputs: Set<File> = parameters.inputFiles.files
+        val rootPath = parameters.inputFiles.singleFile.toPath()
         val outputFolder = parameters.outputFolder.get().asFile
 
         val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
@@ -24,7 +25,7 @@ internal abstract class FirKobolAction : WorkAction<FirKobolAction.Parameters> {
 
         for (firGenerator in firGenerators) {
             firGenerator(outputFolder).use { generator ->
-                generator.generate(inputs.toTree(firPlugins))
+                generator.generate(inputs.toTree(absoluteBasePath = rootPath, firPlugins = firPlugins))
             }
         }
         for (firPlugin in firPlugins) {

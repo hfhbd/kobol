@@ -10,6 +10,7 @@ import kotlinx.serialization.*
 public data class KobolIRTree(
     val id: String,
     val name: String,
+    val packageName: String? = null,
     val main: Types.Function,
     val types: List<Types>
 ) {

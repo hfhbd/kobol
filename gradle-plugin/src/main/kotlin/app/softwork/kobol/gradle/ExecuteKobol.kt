@@ -6,6 +6,7 @@ import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.workers.*
 import java.io.*
+import java.nio.file.Path
 import java.util.*
 
 internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
@@ -18,6 +19,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
 
     internal companion object {
         operator fun invoke(
+            rootPath: Path,
             input: Set<File>,
             outputFolder: File,
             sqlFolder: File? = null,
@@ -64,7 +66,8 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                         controlFlowHandling()
                     }
                 },
-                irPlugins = irPlugins
+                irPlugins = irPlugins,
+                absoluteBasePath = rootPath
             )
 
             codeGenerator.generate(irs)
@@ -88,6 +91,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
         for (codeGenerator in codeGenerators) {
             invoke(
                 input = parameters.inputFiles.files,
+                rootPath = parameters.inputFiles.singleFile.toPath(),
                 outputFolder = parameters.outputFolder.get().asFile,
                 sqlFolder = parameters.sqlFolder.asFile.orNull,
                 config = parameters.config.get(),

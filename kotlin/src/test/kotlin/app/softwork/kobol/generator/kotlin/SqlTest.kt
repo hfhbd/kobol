@@ -88,12 +88,12 @@ class SqlTest {
         123456 PROCEDURE DIVISION.
         123456 DISPLAY BAR OF FOO.
         """.trimIndent().toIR(
-            "INCLUDETESTING" to """
+            Triple(null, "INCLUDETESTING", """
             |01 FOO.
             |123456 02 BAR PIC 9(2).
             |       02 ABB PIC 9(2).
             |
-            """.trimMargin(),
+            """.trimMargin()),
             sqlPrecompiler = { packageName, folder ->
                 SqlDelightPrecompiler("DB", folder, packageName, packageName)
             }

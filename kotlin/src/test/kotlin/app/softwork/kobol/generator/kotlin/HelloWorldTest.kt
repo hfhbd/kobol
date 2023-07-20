@@ -27,7 +27,7 @@ class HelloWorldTest {
         123456     MOVE "42" TO WO-RLD
         123456     DISPLAY WO-RLD
         123456     DISPLAY "ANSWER"WO-RLD.
-        """.trimIndent().toIR { _, _ ->
+        """.trimIndent().toIR(packageName = "foo") { _, _ ->
             "main"
         }
 
@@ -35,7 +35,7 @@ class HelloWorldTest {
 
         //language=kotlin
         val expected = """
-        package hello
+        package foo.hello
         
         import kotlin.String
         
@@ -55,20 +55,31 @@ class HelloWorldTest {
 }
 
 internal fun String.toIR(
-    vararg including: Pair<String, String>,
+    vararg including: Triple<String?, String, String>,
     firPlugins: List<FirPlugin> = emptyList(),
     irPlugins: List<IrPlugin> = listOf(NoSynthetics()),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String, File) -> SqlPrecompiler)? = null,
     controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
+    packageName: String? = null,
     procedureName: ProcedureName? = null,
 ): KobolIRTree {
-    val temp = Files.createTempDirectory("testing").toFile()
-    val files = including.map { (name, content) ->
-        File(temp, name).apply { writeText(content) }
+    val tempPath = Files.createTempDirectory("testing")
+    val temp = tempPath.toFile()
+    val files = including.map { (packageName, name, content) ->
+        val packageFile = if (packageName != null) {
+            val fileName = temp.absolutePath + "/" + packageName
+            File(fileName).apply { mkdirs() }
+        } else temp
+
+        File(packageFile, name).apply { writeText(content) }
     }
-    return (files + File(temp, "testing.cbl").apply { writeText(this@toIR) }).toIR(
+    val packageFile = if (packageName != null) {
+        val fileName = temp.absolutePath + "/" + packageName
+        File(fileName).apply { mkdirs() }
+    } else temp
+    return (files + File(packageFile, "testing.cbl").apply { writeText(this@toIR) }).toIR(
         firPlugins = firPlugins,
         irPlugins = irPlugins,
         fileConverter = fileConverter,
@@ -79,6 +90,7 @@ internal fun String.toIR(
             }
         },
         controlFlowHandling = controlFlowHandling,
-        procedureName = procedureName
+        procedureName = procedureName,
+        absoluteBasePath = tempPath
     ).single()
 }
