@@ -38,7 +38,9 @@ public data class KobolIRTree(
             val external: Boolean = false,
             val topLevel: Boolean = false,
             val packageName: String? = null,
-            val inlineWith: Statement.FunctionCall? = null
+            val inlineWith: Statement.FunctionCall? = null,
+            val isStatic: Boolean = true,
+            val isEntryPoint: Boolean = false,
         ) : Types, Callable {
 
             public override fun declaration(): Function = copy(body = mutableListOf(), doc = emptyList())
@@ -52,6 +54,7 @@ public data class KobolIRTree(
                 external: Boolean = false,
                 topLevel: Boolean = false,
                 packageName: String? = null,
+                isStatic: Boolean = true,
                 body: Builder<Statement>.() -> Unit
             ) : this(
                 name = name,
@@ -63,6 +66,7 @@ public data class KobolIRTree(
                 external = external,
                 topLevel = topLevel,
                 packageName = packageName,
+                isStatic = isStatic
             )
 
             @Serializable

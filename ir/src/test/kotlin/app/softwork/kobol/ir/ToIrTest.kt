@@ -73,6 +73,7 @@ class ToIrTest {
                 },
                 private = false,
                 doc = emptyList(),
+                isEntryPoint = true,
             ),
             types = build {
                 +FOO
@@ -124,6 +125,7 @@ class ToIrTest {
                 },
                 private = false,
                 doc = emptyList(),
+                isEntryPoint = true,
             ),
             types = build {
                 +GlobalVariable(counter, emptyList())

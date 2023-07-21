@@ -12,10 +12,12 @@ import kotlin.reflect.*
 public fun function(
     name: String = "fake",
     parameters: List<Declaration> = emptyList(),
+    isStatic: Boolean = true,
     private: Boolean = false,
     returnType: Type = Type.Natives.Void,
     block: Builder<Statement>.() -> Unit
 ): Function = Function(name = name, body = block, parameters = parameters,
+    isStatic = isStatic,
     private = private,
     returnType = returnType
 )

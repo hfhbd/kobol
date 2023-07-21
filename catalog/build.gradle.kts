@@ -43,6 +43,7 @@ catalog {
         plugin("flow-graph-plantuml")
         plugin("ifassignments")
         plugin("inlining")
+        plugin("main-util")
         plugin("nullabletozero")
         plugin("objects")
         plugin("optimize")

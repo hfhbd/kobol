@@ -45,7 +45,7 @@ class ExitTest {
                             +Statement.Exit(testingReturnCodeIr.variable() as IntVariable)
                         }
                     )
-                },
+                }.copy(isEntryPoint = true),
                 types = build { 
                     +RC
                 }
@@ -84,7 +84,7 @@ class ExitTest {
                             +Statement.Exit(IntLiteral(0))
                         }
                     )
-                },
+                }.copy(isEntryPoint = true),
                 types = emptyList()
             ), after
         )
@@ -124,7 +124,7 @@ class ExitTest {
                             +Statement.Exit(testingReturnCodeIr.variable() as IntVariable)
                         }
                     )
-                },
+                }.copy(isEntryPoint = true),
                 types = emptyList()
             ), after
         )

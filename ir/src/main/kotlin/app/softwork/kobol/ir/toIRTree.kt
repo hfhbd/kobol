@@ -280,11 +280,14 @@ private fun CobolFIRTree.ProcedureTree.functions(
     }
 
     val main = Types.Function(
-        name = mainName, parameters = linkingParameters, returnType = Natives.Void, body = (topLevelStatements + sections.map {
+        name = mainName, parameters = linkingParameters, returnType = Natives.Void,
+        body = (topLevelStatements + sections.map {
             FunctionCall(
                 it, parameters = emptyList(), comments = emptyList()
             )
-        }).toMutableList(), private = false, doc = comments,
+        }).toMutableList(),
+        private = false, doc = comments,
+        isEntryPoint = true,
     )
 
     val sectionsWithResolvedCalls = this@functions.sections.map {
