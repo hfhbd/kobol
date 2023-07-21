@@ -434,6 +434,7 @@ private fun Declaration.createProperty(): FieldSpec {
         }
 
         is ObjectDeclaration -> Type to value?.toTemplate()
+        is Declaration.Array -> Type to value
     }
     return FieldSpec.builder(type, name).apply {
         if (!mutable) {
@@ -459,6 +460,7 @@ private val Declaration.Type: TypeName
         is DoubleDeclaration -> TypeName.DOUBLE
         is IntDeclaration -> TypeName.INT
         is ObjectDeclaration -> ClassName.get(type.packageName, type.name)
+        is Declaration.Array -> ArrayTypeName.of(type.Type)
     }
 
 private val KobolIRTree.Types.Type: TypeName

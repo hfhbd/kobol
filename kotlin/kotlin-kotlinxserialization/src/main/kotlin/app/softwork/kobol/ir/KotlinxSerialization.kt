@@ -38,6 +38,7 @@ public class KotlinxSerialization(
             val members = ir.members.map {
                 when (it) {
                     is ObjectDeclaration -> it
+                    is Declaration.Array -> notPossible()
                     is BooleanDeclaration -> it.copy(
                         annotations = mapOf(
                             "app.softwork.serialization.flf.FixedLength" to listOf(it.length.l)

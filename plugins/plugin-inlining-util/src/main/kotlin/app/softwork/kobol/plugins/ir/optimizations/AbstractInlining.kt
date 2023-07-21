@@ -92,6 +92,7 @@ private fun inline(
                 is Declaration.IntDeclaration.Normal -> dec.copy(mutable = false)
                 is Declaration.IntDeclaration.ReturnCode -> dec.copy(mutable = false)
                 is Declaration.StringDeclaration -> dec.copy(mutable = false)
+                is Declaration.Array -> dec.copy(mutable = false)
             }
             singleRead.body.add(0, nonMutableDec)
             nonMutableDec.variable()
@@ -134,6 +135,8 @@ private fun synthetic(
 
 private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variable: Expression): Expression =
     when (this) {
+        is GlobalVariable -> if (this == globalVariable) variable else this
+        is ObjectVariable -> this
         is Literal -> this
         is Variable -> if (target == globalVariable.target) variable else this
         is BooleanExpression.And -> copy(
@@ -231,9 +234,6 @@ private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variabl
                 )
             }
         )
-
-        is GlobalVariable -> if (this == globalVariable) variable else this
-        is ObjectVariable -> this
     }
 
 @JvmName("useInlineVariableExpressionList")
@@ -260,6 +260,7 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
     )
 
     is Declaration.ObjectDeclaration -> copy(value = value?.useInlineVariable(globalVariable, variable))
+    is Declaration.Array -> this
     is Declaration.BooleanDeclaration -> copy(
         value = value?.useInlineVariable(
             globalVariable,

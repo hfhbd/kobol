@@ -427,6 +427,7 @@ private fun List<Types.Type>.declaration(target: CobolFIRTree.DataTree.WorkingSt
                 is ObjectDeclaration -> TODO()
                 is BooleanDeclaration -> TODO()
                 is DoubleDeclaration -> TODO()
+                is Declaration.Array -> TODO()
                 is IntDeclaration -> IntVariable.Use(
                     type.variable(), member.variable() as IntVariable, emptyList()
                 )

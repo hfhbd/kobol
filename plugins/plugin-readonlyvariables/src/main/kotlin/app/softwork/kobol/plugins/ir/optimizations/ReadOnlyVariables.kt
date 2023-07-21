@@ -1,6 +1,7 @@
 package app.softwork.kobol.plugins.ir.optimizations
 
 import app.softwork.kobol.ir.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.serviceloader.ServiceLoader
 
@@ -24,6 +25,9 @@ public class ReadOnlyVariables : IrPlugin {
             if (it is KobolIRTree.Types.Type.GlobalVariable && it in readOnly) {
                 when (val declaration = it.declaration) {
                     is StringDeclaration -> it.copy(
+                        declaration = declaration.copy(mutable = false)
+                    )
+                    is Declaration.Array -> it.copy(
                         declaration = declaration.copy(mutable = false)
                     )
 

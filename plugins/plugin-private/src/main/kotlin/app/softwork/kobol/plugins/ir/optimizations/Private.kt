@@ -1,6 +1,7 @@
 package app.softwork.kobol.plugins.ir.optimizations
 
 import app.softwork.kobol.ir.*
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration
 import app.softwork.serviceloader.ServiceLoader
 
 @ServiceLoader(IrPlugin::class)
@@ -18,12 +19,12 @@ public class Private : IrPlugin {
                         when (it) {
                             is KobolIRTree.Types.Function.Statement.Assignment -> {
                                 val dec = it.declaration
-                                if (dec is KobolIRTree.Types.Function.Statement.Declaration) {
+                                if (dec is Declaration) {
                                     it.copy(declaration = dec.private())
                                 } else it
                             }
 
-                            is KobolIRTree.Types.Function.Statement.For -> it.copy(counter = it.counter.private() as KobolIRTree.Types.Function.Statement.Declaration.NumberDeclaration)
+                            is KobolIRTree.Types.Function.Statement.For -> it.copy(counter = it.counter.private() as Declaration.NumberDeclaration)
                             else -> it
                         }
                     }.toMutableList()
@@ -35,25 +36,28 @@ public class Private : IrPlugin {
     }
 }
 
-private fun KobolIRTree.Types.Function.Statement.Declaration.private() = when (this) {
-    is KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration -> copy(
+private fun Declaration.private() = when (this) {
+    is Declaration.StringDeclaration -> copy(
         private = true
     )
 
-    is KobolIRTree.Types.Function.Statement.Declaration.BooleanDeclaration -> copy(
+    is Declaration.BooleanDeclaration -> copy(
         private = true
     )
 
-    is KobolIRTree.Types.Function.Statement.Declaration.DoubleDeclaration -> copy(
+    is Declaration.DoubleDeclaration -> copy(
         private = true
     )
 
-    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration.Normal -> copy(
+    is Declaration.IntDeclaration.Normal -> copy(
         private = true
     )
-    is KobolIRTree.Types.Function.Statement.Declaration.IntDeclaration.ReturnCode -> this
+    is Declaration.IntDeclaration.ReturnCode -> this
 
-    is KobolIRTree.Types.Function.Statement.Declaration.ObjectDeclaration -> copy(
+    is Declaration.ObjectDeclaration -> copy(
+        private = true
+    )
+    is Declaration.Array -> copy(
         private = true
     )
 }
