@@ -21,15 +21,12 @@ public class CobolVariableReference(psiElement: CobolVariable, range: TextRange)
     }.toTypedArray()
 
     private fun <T> find(incompleteCode: Boolean = false, action: (CobolRecordDef) -> T): List<T> {
-        val file = myElement.containingFile as CobolFile
-        val stm: List<CobolStm> =
-            file.programOrNull?.dataDiv?.workingStorageSection?.stmList ?: return emptyList()
+        val records = records(myElement) ?: return emptyList()
         val myName = myElement.varName.text.noIdea
         val ofName = myElement.ofClause?.recordID?.varName?.text?.noIdea
         return buildList {
             var currentRecord: CobolRecordDef? = null
-            for (stmt in stm) {
-                val recordDef = stmt.recordDef ?: continue
+            for (recordDef in records) {
                 val recordName = recordDef.recordID?.varName?.text ?: continue
                 if (recordDef.number.text.toInt() == 1) {
                     currentRecord = recordDef
