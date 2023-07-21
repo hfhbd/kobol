@@ -279,8 +279,7 @@ private fun CobolFIRTree.ProcedureTree.functions(
             FunctionCall(
                 it, parameters = emptyList(), comments = emptyList()
             )
-        }).toMutableList(), private = false, doc = comments,
-        isEntryPoint = true,
+        }, private = false, doc = comments
     )
     val sectionsWithResolvedCalls = this@functions.sections.map {
         Types.Function(
