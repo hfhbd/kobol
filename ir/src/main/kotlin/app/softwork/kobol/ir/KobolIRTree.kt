@@ -38,7 +38,7 @@ public data class KobolIRTree(
             public constructor(
                 name: String,
                 parameters: List<Statement.Declaration> = emptyList(),
-                returnType: Type = Type.Void,
+                returnType: Type = Type.Natives.Void,
                 private: Boolean = false,
                 doc: List<String> = emptyList(),
                 external: Boolean = false,
@@ -60,7 +60,7 @@ public data class KobolIRTree(
             public constructor(
                 name: String,
                 parameters: List<Statement.Declaration> = emptyList(),
-                returnType: Type = Type.Void,
+                returnType: Type = Type.Natives.Void,
                 private: Boolean = false,
                 doc: List<String> = emptyList(),
                 external: Boolean = false,
@@ -417,7 +417,16 @@ public data class KobolIRTree(
             }
 
             @Serializable
-            public object Void : Type
+            public sealed interface Natives: Type {
+                @Serializable
+                public data object Void : Natives
+
+                @Serializable
+                public data object Int : Natives
+
+                @Serializable
+                public data object String : Natives
+            }
         }
     }
 

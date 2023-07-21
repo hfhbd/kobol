@@ -32,7 +32,7 @@ private fun KobolIRTree.Types.booleanExpressions(): KobolIRTree.Types {
         )
 
         is KobolIRTree.Types.Type.GlobalVariable -> copy(declaration = declaration.booleanExpressions())
-        KobolIRTree.Types.Type.Void -> this
+        is KobolIRTree.Types.Type.Natives -> this
     }
 }
 

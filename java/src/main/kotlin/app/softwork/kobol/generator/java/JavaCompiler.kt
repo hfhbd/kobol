@@ -382,7 +382,7 @@ private fun TypeSpec.Builder.addType(data: KobolIRTree.Types) {
             addGlobalVariable(data)
         }
 
-        KobolIRTree.Types.Type.Void -> Unit
+        is KobolIRTree.Types.Type.Natives -> Unit
     }
 }
 
@@ -466,5 +466,7 @@ private val KobolIRTree.Types.Type: TypeName
         is KobolIRTree.Types.Function -> notPossible()
         is KobolIRTree.Types.Type.Class -> ClassName.get(packageName, name)
         is KobolIRTree.Types.Type.GlobalVariable -> declaration.Type
-        KobolIRTree.Types.Type.Void -> TypeName.VOID
+        KobolIRTree.Types.Type.Natives.Void -> TypeName.VOID
+        KobolIRTree.Types.Type.Natives.String -> ClassName.get("java.lang", "String")
+        KobolIRTree.Types.Type.Natives.Int -> TypeName.INT
     }
