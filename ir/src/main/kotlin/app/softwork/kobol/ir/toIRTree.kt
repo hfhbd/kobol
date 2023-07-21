@@ -279,7 +279,8 @@ private fun CobolFIRTree.ProcedureTree.functions(
             FunctionCall(
                 it, parameters = emptyList(), comments = emptyList()
             )
-        }, private = false, doc = comments
+        }).toMutableList(), private = false, doc = comments,
+        isEntryPoint = true,
     )
     val sectionsWithResolvedCalls = this@functions.sections.map {
         Types.Function(
@@ -427,6 +428,7 @@ private fun List<Types.Type>.declaration(target: CobolFIRTree.DataTree.WorkingSt
                 is ObjectDeclaration -> TODO()
                 is BooleanDeclaration -> TODO()
                 is DoubleDeclaration -> TODO()
+                is Declaration.Array -> TODO()
                 is IntDeclaration -> IntVariable.Use(
                     type.variable(), member.variable() as IntVariable, emptyList()
                 )

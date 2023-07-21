@@ -216,7 +216,7 @@ public class SqlDelightPrecompiler(
                 name = queryName.replaceFirstChar { if (it.isLowerCase()) it.titlecaseChar() else it },
                 members = sql.hostVariables.map {
                     when (val result = variableToIR(it).target) {
-                        is BooleanDeclaration, is ObjectDeclaration -> error("Not yet supported")
+                        is BooleanDeclaration, is ObjectDeclaration, is Declaration.Array -> error("Not yet supported")
                         is DoubleDeclaration, is IntDeclaration, is StringDeclaration -> result
                     }
                 },

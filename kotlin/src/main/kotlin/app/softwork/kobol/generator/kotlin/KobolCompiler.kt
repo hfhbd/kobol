@@ -5,6 +5,7 @@ import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Math.Operation.*
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 internal fun generate(tree: KobolIRTree): FileSpec {
     val packageName = if (tree.packageName != null) {
@@ -516,6 +517,7 @@ private fun Declaration.createProperty(packageName: String, topLevel: Boolean): 
         is DoubleDeclaration -> value?.toTemplate(packageName)
         is IntDeclaration -> value?.toTemplate(packageName)
         is ObjectDeclaration -> value?.toTemplate(packageName)
+        is Declaration.Array -> value
     }
     return PropertySpec.builder(
         name = name, type = KType.copy(nullable = nullable)
@@ -545,4 +547,5 @@ private val Declaration.KType: TypeName
         is DoubleDeclaration -> DOUBLE
         is IntDeclaration -> INT
         is ObjectDeclaration -> ClassName(type.packageName, type.name)
+        is Declaration.Array -> ARRAY.parameterizedBy(type.KType())
     }
