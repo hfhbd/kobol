@@ -260,8 +260,18 @@ private fun CobolFIRTree.ProcedureTree.functions(
             )
         }
 
-    val linkingParameters = linkingTypes.map {
-        (it as GlobalVariable).declaration
+    val linkingParameters = linkingTypes.mapNotNull {
+        when (it) {
+            is Class -> ObjectDeclaration(
+                name = it.name,
+                type = it,
+                value = null,
+                nullable = false,
+            )
+
+            is GlobalVariable -> it.declaration
+            Void -> null
+        }
     }
 
     val main = Types.Function(
@@ -290,7 +300,7 @@ private fun CobolFIRTree.ProcedureTree.functions(
             doc = it.comments
         )
     }
-    
+
     require(mainName !in sectionsWithResolvedCalls.map { it.name }) {
         "Duplicate function names found: Either rename main procedure $mainName using ProcedureName or rename a section and its caller."
     }
@@ -428,7 +438,7 @@ private fun List<Types.Type>.declaration(target: CobolFIRTree.DataTree.WorkingSt
 
         } else null
 
-        else -> null
+        Void -> null
     }
 }.singleOrNull() ?: error("${target.name} of ${target.recordName} not found}")
 
