@@ -22,7 +22,8 @@ public fun KobolIRTree.findWriteUsages(declaration: Declaration): Usage {
                 }
             }
 
-            is KobolIRTree.Types.Type.GlobalVariable, KobolIRTree.Types.Type.Void -> emptyList()
+            is KobolIRTree.Types.Type.GlobalVariable, 
+            is KobolIRTree.Types.Type.Natives -> emptyList()
         }
     }
     return Usage(main, types)
@@ -45,7 +46,7 @@ public fun KobolIRTree.findReadUsages(
                 it.takeIf { declaration usedIn it.body }
             }
 
-            is KobolIRTree.Types.Type.GlobalVariable, KobolIRTree.Types.Type.Void -> emptyList()
+            is KobolIRTree.Types.Type.GlobalVariable, is KobolIRTree.Types.Type.Natives -> emptyList()
         }
     }
     return Usage(main, types)

@@ -190,7 +190,7 @@ public class KotlinxSerialization(
         action = FunctionCall(
             function = KobolIRTree.Types.Function(
                 name = "serializer",
-                returnType = Void,
+                returnType = Natives.Void,
             ) {},
             parameters = emptyList()
         ),

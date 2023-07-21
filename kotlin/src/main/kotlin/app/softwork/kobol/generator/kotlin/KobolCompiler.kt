@@ -66,7 +66,9 @@ private fun KobolIRTree.Types.Function.toKotlin(packageName: String, isMain: Boo
 private fun KobolIRTree.Types.Type.KType() = when (this) {
     is KobolIRTree.Types.Type.Class -> ClassName(packageName, name)
     is KobolIRTree.Types.Type.GlobalVariable -> error("Not possible")
-    KobolIRTree.Types.Type.Void -> UNIT
+    KobolIRTree.Types.Type.Natives.Void -> UNIT
+    KobolIRTree.Types.Type.Natives.String -> STRING
+    KobolIRTree.Types.Type.Natives.Int -> INT
 }
 
 private fun CodeBlock.Builder.addComment(format: String, vararg args: Any): CodeBlock.Builder = apply {
@@ -425,7 +427,7 @@ private fun FileSpec.Builder.addType(packageName: String, data: KobolIRTree.Type
             addGlobalVariable(packageName, data)
         }
 
-        KobolIRTree.Types.Type.Void -> Unit
+        is KobolIRTree.Types.Type.Natives -> Unit
     }
 }
 

@@ -51,7 +51,7 @@ class ToIrTest {
         val foo = Function(
             name = "FOO",
             parameters = emptyList(),
-            returnType = Void,
+            returnType = Natives.Void,
             private = false,
         ) {
             +Print(StringLiteral("FOO"), emptyList())
@@ -66,7 +66,7 @@ class ToIrTest {
             main = Function(
                 name = "calling",
                 parameters = emptyList(),
-                returnType = Void,
+                returnType = Natives.Void,
                 body = build {
                     +FunctionCall(foo.declaration(), emptyList(), emptyList())
                     +FunctionCall(bar.declaration(), emptyList(), emptyList())
@@ -119,7 +119,7 @@ class ToIrTest {
             main = Function(
                 name = "hello",
                 parameters = emptyList(),
-                returnType = Void,
+                returnType = Natives.Void,
                 body = build {
                     +Assignment(testingReturnCodeIr, 42.irL)
                 },

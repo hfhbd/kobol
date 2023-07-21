@@ -173,7 +173,7 @@ private fun Call.toIrFunctionDeclaration(types: List<Types.Type>): Types.Functio
     return Types.Function(
         name = name, parameters = parameters.map {
             it.toIR(types = types).inferDeclaration()
-        }, returnType = Void, private = false, external = true, doc = listOf(), body = emptyList()
+        }, returnType = Natives.Void, private = false, external = true, doc = listOf(), body = emptyList()
     )
 }
 
@@ -241,7 +241,7 @@ private fun CobolFIRTree.ProcedureTree.functions(
         Types.Function(
             name = it.name,
             parameters = emptyList(),
-            returnType = Void,
+            returnType = Natives.Void,
             body = emptyList(),
             private = false,
             doc = it.comments
@@ -270,12 +270,12 @@ private fun CobolFIRTree.ProcedureTree.functions(
             )
 
             is GlobalVariable -> it.declaration
-            Void -> null
+            is Natives -> null
         }
     }
 
     val main = Types.Function(
-        name = mainName, parameters = linkingParameters, returnType = Void, body = topLevelStatements + sections.map {
+        name = mainName, parameters = linkingParameters, returnType = Natives.Void, body = topLevelStatements + sections.map {
             FunctionCall(
                 it, parameters = emptyList(), comments = emptyList()
             )
@@ -285,7 +285,7 @@ private fun CobolFIRTree.ProcedureTree.functions(
         Types.Function(
             name = it.name,
             parameters = emptyList(),
-            returnType = Void,
+            returnType = Natives.Void,
             body = it.statements.flatMap {
                 it.toIR(
                     types,
@@ -438,7 +438,7 @@ private fun List<Types.Type>.declaration(target: CobolFIRTree.DataTree.WorkingSt
 
         } else null
 
-        Void -> null
+        is Natives -> null
     }
 }.singleOrNull() ?: error("${target.name} of ${target.recordName} not found}")
 
