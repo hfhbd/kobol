@@ -19,12 +19,10 @@ internal val stringArgs = listOf(stringArg)
 
 public fun KobolIRTree.addMainEntrypoint(callMain: Builder<Function.Statement>.(Function, Array) -> Unit): KobolIRTree {
     for (type in types) {
-        if (type is Function) {
-            if (type.name == "main") {
-                val singleParam = type.parameters.singleOrNull()
-                if (singleParam != null && singleParam is Array && singleParam.type is Natives.String) {
-                    error("$this already contains a main function with String array paramenters.")
-                }
+        if (type is Function && type.name == "main") {
+            val singleParam = type.parameters.singleOrNull()
+            if (singleParam != null && singleParam is Array && singleParam.type is Natives.String) {
+                error("$this already contains a main function with String array parameters.")
             }
         }
     }

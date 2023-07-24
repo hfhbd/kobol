@@ -35,7 +35,7 @@ class AddMainEntrypointTest {
             }
         )
 
-        assertEquals(expected, before.addMainEntrypoint { main ->
+        assertEquals(expected, before.addMainEntrypoint { main, _ ->
             +main()
         })
     }
@@ -56,7 +56,7 @@ class AddMainEntrypointTest {
         )
 
         assertFailsWith<IllegalStateException> {
-            expected.addMainEntrypoint { main ->
+            expected.addMainEntrypoint { main, _ ->
                 +main()
             }
         }
@@ -99,7 +99,7 @@ class AddMainEntrypointTest {
             }
         )
 
-        assertEquals(expected, before.addMainEntrypoint { main ->
+        assertEquals(expected, before.addMainEntrypoint { main, _ ->
             +main()
         })
     }
