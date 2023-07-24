@@ -21,4 +21,5 @@ dependencies {
     testImplementation(projects.plugins.pluginInlining)
     testImplementation(projects.plugins.pluginNosynthetic)
     testImplementation(projects.plugins.pluginExitprocess)
+    testImplementation(projects.plugins.pluginMainUtil)
 }
