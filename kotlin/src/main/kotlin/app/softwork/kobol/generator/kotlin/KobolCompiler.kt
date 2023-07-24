@@ -225,6 +225,28 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
             code.unindent()
             code.add("}")
         }
+
+        is TryCatch -> {
+            code.beginControlFlow("try")
+            for (stmt in tryStmts) {
+                code.add("%L\n", stmt.toKotlin(packageName))
+            }
+
+            for (catch in catchStmts) {
+                code.nextControlFlow("catch(e: %T", catch.exceptionClass.KType())
+                for (stmt in catch.stmts) {
+                    code.add("%L\n", stmt.toKotlin(packageName))
+                }
+            }
+            
+            if (finallyStmts.isNotEmpty()) {
+                code.nextControlFlow("finally")
+                for (finally in finallyStmts) {
+                    code.add("%L\n", finally.toKotlin(packageName))
+                }
+            }
+            code.endControlFlow()
+        }
     }
     code.build()
 }

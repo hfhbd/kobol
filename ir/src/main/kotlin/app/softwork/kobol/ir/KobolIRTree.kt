@@ -8,6 +8,7 @@ import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpressi
 import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration
 import kotlinx.serialization.Serializable
+import java.lang.IllegalStateException
 
 /**
  * Never change the [id]
@@ -265,6 +266,21 @@ public data class KobolIRTree(
                     val expr: Expression,
                     override val comments: List<String> = emptyList()
                 ) : Statement
+                
+                @Serializable
+                public data class TryCatch(
+                    val tryStmts: List<Statement>,
+                    val catchStmts: List<CatchStmt>,
+                    val finallyStmts: List<Statement>,
+                    override val comments: List<String> = emptyList()
+                ) : Statement {
+                    @Serializable
+                    public data class CatchStmt(
+                        val exceptionClass: Type.Class,
+                        val stmts: List<Statement>,
+                        val comments: List<String> = emptyList(),
+                    )
+                }
 
                 @Serializable
                 public data class LoadExternal(val libName: String) : Statement {
