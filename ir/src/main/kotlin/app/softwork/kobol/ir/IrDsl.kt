@@ -12,8 +12,13 @@ import kotlin.reflect.*
 public fun function(
     name: String = "fake",
     parameters: List<Declaration> = emptyList(),
+    private: Boolean = false,
+    returnType: Type = Type.Natives.Void,
     block: Builder<Statement>.() -> Unit
-): Function = Function(name = name, body = block, parameters = parameters)
+): Function = Function(name = name, body = block, parameters = parameters,
+    private = private,
+    returnType = returnType
+)
 
 public operator fun Function.getValue(receiver: Any?, prop: KProperty<*>): Function = copy(name = prop.name)
 
@@ -24,10 +29,10 @@ public infix fun Statement.use(action: Statement): Use = Use(
 )
 
 public infix fun Callable.call(parameters: List<KobolIRTree.Expression>): FunctionCall =
-    FunctionCall(this, parameters)
+    FunctionCall(declaration(), parameters)
 
 public operator fun Callable.invoke(vararg parameters: KobolIRTree.Expression): FunctionCall = FunctionCall(
-    this, parameters.toList()
+    declaration(), parameters.toList()
 )
 
 public val Int.l: IntLiteral get() = IntLiteral(this)
