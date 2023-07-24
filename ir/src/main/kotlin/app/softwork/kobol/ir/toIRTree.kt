@@ -103,9 +103,14 @@ public fun CobolFIRTree.toIRTree(
         val result = link.toIR(name, null) as IRResult.Typ
         result.type
     }
+
+    val linkingElementars = mutableListOf<GlobalVariable>()
+    
     for (link in linkingTypes) {
-        if (link is Class) {
-            dataTypes.add(link)
+        when (link) {
+            is Class -> dataTypes.add(link)
+            is GlobalVariable -> linkingElementars.add(link)
+            is Natives -> Unit
         }
     }
 
@@ -127,7 +132,7 @@ public fun CobolFIRTree.toIRTree(
     val (main, functions) = procedure.functions(
         mainName = procedureName?.name(fileName, id) ?: name,
         linkingTypes = linkingTypes,
-        dataTypes + externalIR,
+        types = dataTypes + externalIR + linkingElementars,
         sqlInit,
         fileHandler,
         serialization,
@@ -442,7 +447,7 @@ private fun List<Types.Type>.declaration(target: CobolFIRTree.DataTree.WorkingSt
 
         is Natives -> null
     }
-}.singleOrNull() ?: error("${target.name} of ${target.recordName} not found}")
+}.singleOrNull() ?: error("${target.name} of ${target.recordName} not found in $this")
 
 private fun CobolFIRTree.ProcedureTree.Statement.toIR(
     types: List<Types.Type>,
