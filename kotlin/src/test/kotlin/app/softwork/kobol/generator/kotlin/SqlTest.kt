@@ -130,6 +130,7 @@ class SqlTest {
         123456 PROGRAM-ID. SQL.
         123456 DATA DIVISION.
         123456 WORKING-STORAGE SECTION.
+        123456 EXEC SQL INCLUDE SQLCA END-EXEC.
         123456* TABLE COMMENT
         123456* TABLE COMMENT II
         123456 EXEC SQL
@@ -184,6 +185,47 @@ class SqlTest {
         package sql
         
         import kotlin.Int
+        import kotlin.String
+        
+        public object SQLCA {
+          public var SQLCAID: String = "SQLCA   "
+        
+          public var SQLCABC: Int = 136
+        
+          public var SQLCODE: Int? = null
+        
+          public var SQLERRML: Int? = null
+        
+          public var SQLERRMC: String? = null
+        
+          public var SQLERRP: String? = null
+        
+          public var SQLERRD: Int? = null
+        
+          public var SQLWARN0: String? = null
+        
+          public var SQLWARN1: String? = null
+        
+          public var SQLWARN2: String? = null
+        
+          public var SQLWARN3: String? = null
+        
+          public var SQLWARN4: String? = null
+        
+          public var SQLWARN5: String? = null
+        
+          public var SQLWARN6: String? = null
+        
+          public var SQLWARN7: String? = null
+        
+          public var SQLWARN8: String? = null
+        
+          public var SQLWARN9: String? = null
+        
+          public var SQLWARNA: String? = null
+        
+          public var SQLSTATE: String? = null
+        }
         
         public var FOO: Int? = null
         

@@ -112,7 +112,7 @@ public class SqlDelightPrecompiler(
         value = null
     )
 
-    override fun convert(sqlInit: WorkingStorage.Sql): List<Function.Statement> {
+    override fun convert(sqlInit: Sql): List<Function.Statement> {
         val firstCall = files == null
         files = writeSq(packageName, existingFiles = files) {
             migrationFile(0) {

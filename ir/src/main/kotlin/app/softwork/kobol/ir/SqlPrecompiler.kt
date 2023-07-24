@@ -4,7 +4,7 @@ import app.softwork.kobol.fir.*
 import java.io.*
 
 public interface SqlPrecompiler : AutoCloseable {
-    public fun convert(sqlInit: CobolFIRTree.DataTree.WorkingStorage.Sql): List<KobolIRTree.Types.Function.Statement>
+    public fun convert(sqlInit: CobolFIRTree.DataTree.Sql): List<KobolIRTree.Types.Function.Statement>
 
     public fun convert(
         sql: CobolFIRTree.ProcedureTree.Statement.Sql,

@@ -90,22 +90,23 @@ public fun CobolFIRTree.toIRTree(
         }
     }
 
-    val sqlInit = mutableListOf<Types.Function.Statement>()
-    val workingStorage = data.workingStorage
-    for (data in workingStorage) {
-        when (val ir = data.toIR(name, sqlCompiler)) {
-            is IRResult.Typ -> dataTypes.add(ir.type)
-            is IRResult.SqlInit -> sqlInit.addAll(ir.sqlInit)
-        }
+    val sqlInit = data.sql.flatMap {
+        requireNotNull(sqlCompiler)
+        sqlCompiler.convert(it)
+    }
+
+    for (data in data.workingStorage) {
+        val ir = data.toIR(name)
+        dataTypes.add(ir)
     }
 
     val linkingTypes = data.linkingSection.map { link ->
-        val result = link.toIR(name, null) as IRResult.Typ
-        result.type
+        val result = link.toIR(name)
+        result
     }
 
     val linkingElementars = mutableListOf<GlobalVariable>()
-    
+
     for (link in linkingTypes) {
         when (link) {
             is Class -> dataTypes.add(link)
@@ -727,14 +728,10 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
     is EmptyElementar -> TODO()
 }
 
-private sealed interface IRResult {
-    data class Typ(val type: Types.Type) : IRResult
-    data class SqlInit(val sqlInit: List<Types.Function.Statement>) : IRResult
-}
 
-private fun CobolFIRTree.DataTree.WorkingStorage.toIR(packageName: String, sqlPrecompiler: SqlPrecompiler?): IRResult =
+private fun CobolFIRTree.DataTree.WorkingStorage.toIR(packageName: String): Types.Type =
     when (this) {
-        is CobolFIRTree.DataTree.WorkingStorage.Elementar -> IRResult.Typ(
+        is CobolFIRTree.DataTree.WorkingStorage.Elementar ->
             when (this) {
                 is NumberElementar.ReturnCode -> GlobalVariable(
                     declaration =
@@ -755,14 +752,8 @@ private fun CobolFIRTree.DataTree.WorkingStorage.toIR(packageName: String, sqlPr
                 is Pointer -> TODO()
                 is EmptyElementar -> TODO()
             }
-        )
 
-        is CobolFIRTree.DataTree.WorkingStorage.Sql -> {
-            requireNotNull(sqlPrecompiler)
-            IRResult.SqlInit(sqlPrecompiler.convert(this))
-        }
-
-        is CobolFIRTree.DataTree.WorkingStorage.Record -> IRResult.Typ(toIR(packageName))
+        is CobolFIRTree.DataTree.WorkingStorage.Record -> toIR(packageName)
     }
 
 public fun CobolFIRTree.DataTree.WorkingStorage.Record.toIR(packageName: String): Class = Class(

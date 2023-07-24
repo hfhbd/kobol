@@ -156,6 +156,7 @@ private fun List<CobolRecordDef>.toRecords() = buildList {
 }
 
 private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
+    val sqls = mutableListOf<DataTree.Sql>()
     val definitions: List<WorkingStorage> = workingStorageSection?.stmList?.let {
         buildList {
             var currentRecord: Record? = null
@@ -182,8 +183,8 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
                         for (sqlStmt in checkSql(sqlString, project)) {
                             val tableComments = comments
                             comments = emptyList()
-                            add(
-                                WorkingStorage.Sql(
+                            sqls.add(
+                                DataTree.Sql(
                                     sql = sqlStmt.text, comments = tableComments
                                 )
                             )
@@ -238,6 +239,7 @@ private fun CobolDataDiv.toData(envTree: EnvTree?): DataTree {
     return DataTree(
         fileSection = fileSection ?: emptyList(),
         workingStorage = definitions,
+        sql = sqls,
         linkingSection = linkage ?: emptyList(),
         comments = comments.asComments()
     )
@@ -738,7 +740,6 @@ private fun CobolExpr.toExpr(dataTree: DataTree): List<Expression> {
             when (val found = dataTree.find(variable)) {
                 is Record -> found.elements.map { it.toVariable() }
                 is Elementar -> listOf(found.toVariable())
-                is WorkingStorage.Sql -> notPossible()
             }
         }
 
@@ -764,7 +765,6 @@ private fun PsiElement.singleAsString(dataTree: DataTree): Expression.StringExpr
                 )
 
                 is Record -> notPossible()
-                is WorkingStorage.Sql -> notPossible()
                 is Pointer -> TODO()
             }
         }
@@ -824,8 +824,6 @@ private fun List<WorkingStorage>.find(
                     }
                 }
             }
-
-            is WorkingStorage.Sql -> Unit
 
             is Elementar -> {
                 if (of == null && record.name == name) {

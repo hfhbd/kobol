@@ -493,7 +493,8 @@ class CobolParserTest {
                             compressed = COMP5,
                             formatter = Simple(9)
                         )
-                        +EmptyElementar("SQLERRM", recordName = "SQLCA")
+                        +NumberElementar.Normal("SQLERRML", "SQLCA", Simple(4), compressed = COMP5, signed = true)
+                        +StringElementar("SQLERRMC", recordName = "SQLCA", Simple(70))
                         +StringElementar("SQLERRP", recordName = "SQLCA", Simple(8))
                         +NumberElementar.Normal(
                             "SQLERRD",
@@ -503,7 +504,6 @@ class CobolParserTest {
                             compressed = COMP5,
                             occurs = Occurs(6)
                         )
-                        +EmptyElementar("SQLWARN", recordName = "SQLCA")
                         repeat(10) {
                             +StringElementar("SQLWARN$it", recordName = "SQLCA", Simple(1))
                         }

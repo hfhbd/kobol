@@ -60,7 +60,7 @@ public abstract class Rename(
         )
     }
 
-    private fun CobolFIRTree.DataTree.File.rename() = copy(
+    private fun File.rename() = copy(
         records = records.rename() as List<WorkingStorage.Record>,
         fileStatus = fileStatus?.variables()
     )
@@ -247,7 +247,5 @@ public abstract class Rename(
         is WorkingStorage.Record -> copy(
             name = name.classes(),
         )
-
-        is WorkingStorage.Sql -> this
     }
 }
