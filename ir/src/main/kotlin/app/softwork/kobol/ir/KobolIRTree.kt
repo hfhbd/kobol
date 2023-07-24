@@ -23,7 +23,9 @@ public data class KobolIRTree(
     @Serializable
     public sealed interface Types {
         @Serializable
-        public sealed interface Callable
+        public sealed interface Callable {
+            public fun declaration(): Callable
+        }
 
         @Serializable
         public data class Function(
@@ -39,33 +41,11 @@ public data class KobolIRTree(
             val inlineWith: Statement.FunctionCall? = null
         ) : Types, Callable {
 
-            public fun declaration(): Function = copy(body = mutableListOf(), doc = emptyList())
+            public override fun declaration(): Function = copy(body = mutableListOf(), doc = emptyList())
 
             public constructor(
                 name: String,
-                parameters: List<Statement.Declaration> = emptyList(),
-                returnType: Type = Type.Natives.Void,
-                private: Boolean = false,
-                doc: List<String> = emptyList(),
-                external: Boolean = false,
-                topLevel: Boolean = false,
-                packageName: String? = null,
-                body: List<Statement>
-            ) : this(
-                name,
-                parameters,
-                returnType,
-                build(body),
-                private,
-                doc,
-                external,
-                topLevel,
-                packageName
-            )
-
-            public constructor(
-                name: String,
-                parameters: List<Statement.Declaration> = emptyList(),
+                parameters: List<Declaration> = emptyList(),
                 returnType: Type = Type.Natives.Void,
                 private: Boolean = false,
                 doc: List<String> = emptyList(),
@@ -74,15 +54,15 @@ public data class KobolIRTree(
                 packageName: String? = null,
                 body: Builder<Statement>.() -> Unit
             ) : this(
-                name,
-                parameters,
-                returnType,
-                build(body),
-                private,
-                doc,
-                external,
-                topLevel,
-                packageName
+                name = name,
+                parameters = parameters,
+                returnType = returnType,
+                body = build(body),
+                private = private,
+                doc = doc,
+                external = external,
+                topLevel = topLevel,
+                packageName = packageName,
             )
 
             @Serializable
@@ -420,6 +400,14 @@ public data class KobolIRTree(
                 val inner: List<Class> = emptyList(),
                 val annotations: Map<String, List<String>> = emptyMap()
             ) : Type, Callable {
+
+                public override fun declaration(): Class = copy(
+                    members = emptyList(),
+                    functions = emptyList(),
+                    init = emptyList(),
+                    inner = emptyList(),
+                    doc = emptyList()
+                )
 
                 public fun variable(): Expression.ObjectVariable {
                     return Expression.ObjectVariable(

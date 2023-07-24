@@ -40,22 +40,21 @@ class ToIrTest {
             )
         )
 
-        val c = Function("C") {
-            +Print(StringLiteral("C"), emptyList())
+        val C by function {
+            +Print(StringLiteral("C"))
         }
-        val bar = Function("BAR") {
-            +Print(StringLiteral("BAR"), emptyList())
+        val BAR by function {
+            +Print(StringLiteral("BAR"))
             +exit()
         }
 
-        val foo = Function(
-            name = "FOO",
+        val FOO by function(
             parameters = emptyList(),
             returnType = Natives.Void,
             private = false,
         ) {
-            +Print(StringLiteral("FOO"), emptyList())
-            +FunctionCall(bar.declaration(), emptyList(), emptyList())
+            +Print(StringLiteral("FOO"))
+            +BAR()
             +Print(StringLiteral("FOO2"), emptyList())
             +exit()
         }
@@ -68,17 +67,17 @@ class ToIrTest {
                 parameters = emptyList(),
                 returnType = Natives.Void,
                 body = build {
-                    +FunctionCall(foo.declaration(), emptyList(), emptyList())
-                    +FunctionCall(bar.declaration(), emptyList(), emptyList())
-                    +FunctionCall(c.declaration(), emptyList(), emptyList())
+                    +FOO()
+                    +BAR()
+                    +C()
                 },
                 private = false,
-                doc = emptyList()
+                doc = emptyList(),
             ),
             types = build {
-                +foo
-                +bar
-                +c
+                +FOO
+                +BAR
+                +C
                 +RC
             }
         )
@@ -124,7 +123,7 @@ class ToIrTest {
                     +Assignment(testingReturnCodeIr, 42.irL)
                 },
                 private = false,
-                doc = emptyList()
+                doc = emptyList(),
             ),
             types = build {
                 +GlobalVariable(counter, emptyList())

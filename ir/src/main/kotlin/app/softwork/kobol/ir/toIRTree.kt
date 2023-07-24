@@ -173,7 +173,7 @@ private fun Call.toIrFunctionDeclaration(types: List<Types.Type>): Types.Functio
     return Types.Function(
         name = name, parameters = parameters.map {
             it.toIR(types = types).inferDeclaration()
-        }, returnType = Natives.Void, private = false, external = true, doc = listOf(), body = emptyList()
+        }, returnType = Natives.Void, private = false, external = true, doc = listOf(), body = mutableListOf()
     )
 }
 
@@ -242,7 +242,7 @@ private fun CobolFIRTree.ProcedureTree.functions(
             name = it.name,
             parameters = emptyList(),
             returnType = Natives.Void,
-            body = emptyList(),
+            body = mutableListOf(),
             private = false,
             doc = it.comments
         )
@@ -275,12 +275,13 @@ private fun CobolFIRTree.ProcedureTree.functions(
     }
 
     val main = Types.Function(
-        name = mainName, parameters = linkingParameters, returnType = Natives.Void, body = topLevelStatements + sections.map {
+        name = mainName, parameters = linkingParameters, returnType = Natives.Void, body = (topLevelStatements + sections.map {
             FunctionCall(
                 it, parameters = emptyList(), comments = emptyList()
             )
-        }, private = false, doc = comments
+        }).toMutableList(), private = false, doc = comments,
     )
+
     val sectionsWithResolvedCalls = this@functions.sections.map {
         Types.Function(
             name = it.name,
@@ -295,9 +296,9 @@ private fun CobolFIRTree.ProcedureTree.functions(
                     sqlPrecompiler,
                     controlFlowHandling
                 )
-            },
+            }.toMutableList(),
             private = false,
-            doc = it.comments
+            doc = it.comments,
         )
     }
 
