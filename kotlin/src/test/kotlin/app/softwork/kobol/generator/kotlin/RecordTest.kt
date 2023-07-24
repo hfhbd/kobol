@@ -32,7 +32,8 @@ class RecordTest {
         123456  * Some Comment
         123456  DISPLAY "HELLO " WO-RLD OF FOO
         123456  DISPLAY "HELLO " WORLD OF BAR.
-        123456  DISPLAY "HELLO " CCCC.
+        123456  DISPLAY "HELLO " CCCC
+        123456  DISPLAY "HELLO " AAAA.
         """.trimIndent().toIR(
             firPlugins = listOf(NullableToZero())
         )
@@ -72,6 +73,7 @@ class RecordTest {
           println("HELLO ${'$'}{FOO.`WO-RLD`}")
           println("HELLO ${'$'}{BAR.WORLD}")
           println("HELLO ${'$'}{BBBB.CCCC}")
+          println("HELLO ${'$'}AAAA")
         }
         
         """.trimIndent()
