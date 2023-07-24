@@ -20,3 +20,7 @@ kotlin {
         }
     }
 }
+
+tasks.assemble {
+    dependsOn(tasks.compileTestKotlin)
+}
