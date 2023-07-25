@@ -64,6 +64,13 @@ private fun Statement.booleanExpressions(): Statement =
         is Statement.FunctionCall -> booleanExpressions()
 
         is Statement.LoadExternal -> this
+        is Statement.TryCatch -> copy(
+            tryStmts = tryStmts.booleanExpressions(),
+            catchBlocks = catchBlocks.map { 
+                it.copy(stmts = it.stmts.booleanExpressions())
+            },
+            finallyStmts = finallyStmts.booleanExpressions()
+        )
         is Statement.Print -> this
         is Statement.While -> booleanExpressions()
         is Statement.If -> booleanExpressions()
@@ -87,6 +94,8 @@ private fun Statement.booleanExpressions(): Statement =
         )
     }
 
+private fun List<Statement>.booleanExpressions() = map { it.booleanExpressions() }
+
 private fun Statement.When.booleanExpressions(): Statement.When =
     when (this) {
         is Statement.When.Single -> copy(
@@ -94,12 +103,12 @@ private fun Statement.When.booleanExpressions(): Statement.When =
             cases = cases.map {
                 it.copy(
                     condition = it.condition.booleanExpressions(),
-                    action = it.action.map { it.booleanExpressions() }
+                    action = it.action.booleanExpressions()
                 )
             },
             elseCase = elseCase?.let {
                 it.copy(
-                    action = it.action.map { it.booleanExpressions() }
+                    action = it.action.booleanExpressions()
                 )
             }
         )
@@ -108,12 +117,12 @@ private fun Statement.When.booleanExpressions(): Statement.When =
             cases = cases.map {
                 it.copy(
                     condition = it.condition.booleanExpressions() as BooleanExpression,
-                    action = it.action.map { it.booleanExpressions() }
+                    action = it.action.booleanExpressions()
                 )
             },
             elseCase = elseCase?.let {
                 it.copy(
-                    action = it.action.map { it.booleanExpressions() }
+                    action = it.action.booleanExpressions()
                 )
             }
         )
@@ -148,7 +157,7 @@ private fun Expression.booleanExpressions(): Expression = when (this) {
 
 private fun Statement.DoWhile.booleanExpressions() = copy(
     condition = condition.optimize(),
-    statements = statements.map { it.booleanExpressions() }
+    statements = statements.booleanExpressions()
 )
 
 private fun Statement.For.booleanExpressions() = copy(
@@ -177,13 +186,13 @@ private fun Statement.FunctionCall.booleanExpressions() = copy(
 
 private fun Statement.While.booleanExpressions() = copy(
     condition = condition.optimize(),
-    statements = statements.map { it.booleanExpressions() }
+    statements = statements.booleanExpressions()
 )
 
 private fun Statement.If.booleanExpressions() = copy(
     condition = condition.optimize(),
-    statements = statements.map { it.booleanExpressions() },
-    elseStatements = elseStatements.map { it.booleanExpressions() }
+    statements = statements.booleanExpressions(),
+    elseStatements = elseStatements.booleanExpressions()
 )
 
 internal fun BooleanExpression.optimize(): BooleanExpression = when (this) {

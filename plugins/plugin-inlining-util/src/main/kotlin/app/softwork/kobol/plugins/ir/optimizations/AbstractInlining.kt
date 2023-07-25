@@ -308,6 +308,14 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
         expr.useInlineVariable(globalVariable, variable)
     )
 
+    is TryCatch -> copy(
+        tryStmts = tryStmts.useInlineVariable(globalVariable, variable),
+        catchBlocks = catchBlocks.map { 
+            it.copy(stmts = it.stmts.useInlineVariable(globalVariable, variable))
+        },
+        finallyStmts = finallyStmts.useInlineVariable(globalVariable, variable)
+    )
+    
     is For -> copy(
         counter = counter.useInlineVariable(globalVariable, variable) as Declaration.NumberDeclaration,
         from = from.useInlineVariable(globalVariable, variable) as NumberExpression,
