@@ -232,8 +232,12 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(packageName: String) :
                 code.add("%L\n", stmt.toKotlin(packageName))
             }
 
-            for (catch in catchStmts) {
-                code.nextControlFlow("catch(e: %T", catch.exceptionClass.KType())
+            for (catch in catchBlocks) {
+                code.nextControlFlow(
+                    "catch(%L: %T)", 
+                    catch.exception.toCodeBlock(packageName, false), 
+                    catch.exceptionClass.KType()
+                )
                 for (stmt in catch.stmts) {
                     code.add("%L\n", stmt.toKotlin(packageName))
                 }

@@ -115,6 +115,29 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
         is Throw -> code.add("throw \$L;\n", expr.toTemplate())
         is Return -> code.add("return \$L;\n", expr.toTemplate())
         is LoadExternal -> code.add("System.loadLibrary(\"$libName\");\n")
+        is TryCatch -> {
+            code.beginControlFlow("try")
+            for (stmt in tryStmts) {
+                code.add(stmt.toJava())
+            }
+            for (catchBlock in catchBlocks) {
+                code.nextControlFlow(
+                    "catch (\$T \$L)",
+                    catchBlock.exceptionClass.Type,
+                    catchBlock.exception.toCodeBlock()
+                )
+                for(stmt in catchBlock.stmts) {
+                    code.add(stmt.toJava())
+                }
+            }
+            if (finallyStmts.isNotEmpty()) {
+                code.nextControlFlow("finally")
+                for (finallyStmt in finallyStmts) {
+                    code.add(finallyStmt.toJava())
+                }
+            }
+            code.endControlFlow()
+        }
         is DoWhile -> {
             code.beginControlFlow("do")
             for (statement in statements) {
@@ -274,10 +297,7 @@ private fun KobolIRTree.Expression.toTemplate(): CodeBlock = when (this) {
 
 private fun Declaration.member(): CodeBlock = CodeBlock.of(name)
 
-private fun KobolIRTree.Expression.Variable.toCodeBlock(): CodeBlock {
-    val memberName = target.member()
-    return CodeBlock.of("\$L", memberName)
-}
+private fun KobolIRTree.Expression.Variable.toCodeBlock(): CodeBlock = target.member()
 
 private fun KobolIRTree.Expression.StringExpression.toTemplate(): CodeBlock = when (this) {
     is KobolIRTree.Expression.StringExpression.StringLiteral -> {

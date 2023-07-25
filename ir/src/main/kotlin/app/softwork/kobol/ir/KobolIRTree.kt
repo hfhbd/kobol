@@ -72,6 +72,7 @@ public data class KobolIRTree(
 
             @Serializable
             public sealed interface Statement {
+
                 public val comments: List<String>
 
                 @Serializable
@@ -266,20 +267,30 @@ public data class KobolIRTree(
                     val expr: Expression,
                     override val comments: List<String> = emptyList()
                 ) : Statement
-                
+
                 @Serializable
                 public data class TryCatch(
                     val tryStmts: List<Statement>,
-                    val catchStmts: List<CatchStmt>,
+                    val catchBlocks: List<CatchBlock>,
                     val finallyStmts: List<Statement>,
                     override val comments: List<String> = emptyList()
                 ) : Statement {
                     @Serializable
-                    public data class CatchStmt(
+                    public data class CatchBlock(
                         val exceptionClass: Type.Class,
                         val stmts: List<Statement>,
                         val comments: List<String> = emptyList(),
-                    )
+                    ) {
+                        public val exception: Expression.ObjectVariable = Expression.ObjectVariable(
+                            Declaration.ObjectDeclaration(
+                                name = "exception",
+                                type = exceptionClass,
+                                static = false,
+                                value = null,
+                                nullable = false,
+                            )
+                        )
+                    }
                 }
 
                 @Serializable
@@ -444,7 +455,7 @@ public data class KobolIRTree(
             }
 
             @Serializable
-            public sealed interface Natives: Type {
+            public sealed interface Natives : Type {
                 @Serializable
                 public data object Void : Natives
 

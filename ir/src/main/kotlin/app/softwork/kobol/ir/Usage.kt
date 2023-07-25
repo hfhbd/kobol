@@ -97,6 +97,9 @@ private infix fun KobolIRTree.Types.Function.Statement.assigns(declaration: Decl
     } || (elseCase?.action?.assigns(declaration) ?: false)
 
     is While -> statements assigns declaration
+    is TryCatch -> tryStmts assigns declaration || catchBlocks.any {
+        it.stmts assigns declaration
+    } || finallyStmts assigns declaration
 }
 
 private infix fun Declaration.usedIn(statements: List<KobolIRTree.Types.Function.Statement>?): Boolean {
@@ -146,6 +149,7 @@ private infix fun Declaration.usedIn(it: KobolIRTree.Types.Function.Statement): 
         is StringExpression.StringVariable.Use -> false
         is NumberExpression.IntExpression.IntVariable.Use -> false
         is NumberExpression.DoubleExpression.DoubleVariable.Use -> false
+        is TryCatch -> this usedIn it.tryStmts || it.catchBlocks.any { this usedIn it.stmts } || this usedIn it.finallyStmts
     }
 
 private operator fun List<KobolIRTree.Expression>.contains(decl: Declaration): Boolean = any {
