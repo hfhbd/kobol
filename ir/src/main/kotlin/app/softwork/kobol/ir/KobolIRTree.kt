@@ -8,7 +8,6 @@ import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpressi
 import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration
 import kotlinx.serialization.Serializable
-import java.lang.IllegalStateException
 
 /**
  * Never change the [id]
