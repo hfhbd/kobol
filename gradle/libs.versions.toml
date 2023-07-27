@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.9.0"
-idea = "221.6008.13"
+idea = "232.8660.197"
 serialization = "1.5.1"
 
 [libraries]
