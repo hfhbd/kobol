@@ -18,7 +18,7 @@ internal class InlineSqlFile(viewProvider: FileViewProvider) : SqlFileBase(viewP
             return base
         }
         val factory = PsiFileFactory.getInstance(project)
-        return base + Db2Dialect.predefinedTables.map {
+        return base + Db2Dialect.predefinedSystemSchema.map {
             val file = factory.createFileFromText(SqlInlineLanguage, it) as SqlFileBase
             file.putUserData(isPredefined, Unit)
             file
