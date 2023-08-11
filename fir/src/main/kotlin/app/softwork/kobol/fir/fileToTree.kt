@@ -95,18 +95,6 @@ public fun Iterable<File>.toCobolFile(): Collection<CobolFile> {
     val intelliJ = object : SqlCoreEnvironment(
         sourceFolders = toList(),
         dependencies = emptyList(),
-        predefinedTables = listOf(
-            PredefinedTable(
-                "db.predefined",
-                "dummy",
-                """
-            |CREATE TABLE SYSIBM.SYSDUMMY1(
-            |  IBMREQD CHAR(1) NOT NULL
-            |);
-            """.trimMargin()
-            )
-        ),
-        language = SqlInlineLanguage,
     ) {
         init {
             initializeApplication {

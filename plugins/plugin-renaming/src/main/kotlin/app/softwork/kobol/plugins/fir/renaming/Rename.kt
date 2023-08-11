@@ -143,7 +143,7 @@ public abstract class Rename(
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Sql -> it.copy(
-                    hostVariables = it.hostVariables.rename() as List<CobolFIRTree.ProcedureTree.Expression.Variable>,
+                    updatingHostVariables = it.updatingHostVariables.rename() as List<CobolFIRTree.ProcedureTree.Expression.Variable>,
                     parameter = it.parameter.rename() as List<CobolFIRTree.ProcedureTree.Expression.Variable>
                 )
 

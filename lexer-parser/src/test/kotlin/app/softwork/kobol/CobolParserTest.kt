@@ -516,31 +516,31 @@ class CobolParserTest {
                 procedure = ProcedureTree(topLevel = build {
                     +ProcedureTree.Statement.Sql(
                         "SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1",
-                        hostVariables = listOf(NumberVariable(foo)),
+                        updatingHostVariables = listOf(NumberVariable(foo)),
                         parameter = emptyList(),
                         type = Select
                     )
                     +ProcedureTree.Statement.Sql(
                         "SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1",
-                        hostVariables = listOf(NumberVariable(foo)),
+                        updatingHostVariables = listOf(NumberVariable(foo)),
                         parameter = emptyList(),
                         type = Select
                     )
                     +ProcedureTree.Statement.Sql(
                         "SET :FOO = 42",
-                        hostVariables = listOf(NumberVariable(foo)),
+                        updatingHostVariables = listOf(NumberVariable(foo)),
                         parameter = emptyList(),
                         type = Select
                     )
                     +ProcedureTree.Statement.Sql(
                         "SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC",
-                        hostVariables = listOf(NumberVariable(foo)),
+                        updatingHostVariables = listOf(NumberVariable(foo)),
                         parameter = listOf(),
                         type = Select
                     )
                     +ProcedureTree.Statement.Sql(
                         "SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC",
-                        hostVariables = listOf(NumberVariable(foo), NumberVariable(barResult)),
+                        updatingHostVariables = listOf(NumberVariable(foo), NumberVariable(barResult)),
                         parameter = listOf(NumberVariable(bar), NumberVariable(foo)),
                         type = Select
                     )
