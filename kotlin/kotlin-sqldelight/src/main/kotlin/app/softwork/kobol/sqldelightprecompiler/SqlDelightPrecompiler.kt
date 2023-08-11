@@ -209,12 +209,12 @@ public class SqlDelightPrecompiler(
             Delete, Execute, Insert -> query.copy(comments = sql.comments)
         }
 
-        return if (sql.hostVariables.isEmpty()) {
+        return if (sql.updatingHostVariables.isEmpty()) {
             if (first) listOf(db, call) else listOf(call)
         } else {
             val result = Class(
                 name = queryName.replaceFirstChar { if (it.isLowerCase()) it.titlecaseChar() else it },
-                members = sql.hostVariables.map {
+                members = sql.updatingHostVariables.map {
                     when (val result = variableToIR(it).target) {
                         is BooleanDeclaration, is ObjectDeclaration, is Declaration.Array -> error("Not yet supported")
                         is DoubleDeclaration, is IntDeclaration, is StringDeclaration -> result
@@ -232,7 +232,7 @@ public class SqlDelightPrecompiler(
                 private = false,
                 value = call.copy(comments = emptyList())
             )
-            (if (first) listOf(db, callResult) else listOf(callResult)) + sql.hostVariables.map { hostVariable ->
+            (if (first) listOf(db, callResult) else listOf(callResult)) + sql.updatingHostVariables.map { hostVariable ->
                 val obj = callResult.variable() as KobolIRTree.Expression.ObjectVariable
                 val variable = callResult.type.members.single { it.name == hostVariable.target.name }.variable()
                 val use = when (hostVariable) {

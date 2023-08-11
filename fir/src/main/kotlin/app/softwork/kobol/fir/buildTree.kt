@@ -515,9 +515,12 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
 
             val sqlStmts = checkSql(sql, proc.project)
             sqlStmts.map {
-                val hostVariables = it.asSequence().filter {
-                    it is Db2HostVariableId
-                }.map { it.text }.toList()
+                val updatingHostVariables = it.asSequence().filter {
+                    if (it is Db2HostVariable) {
+                        val parent = it.parent
+                        parent is Db2SelectIntoClause || parent is Db2SetStmt
+                    } else false
+                }.map { it.text.drop(1) }.toList()
 
                 val bindParameter = it.asSequence().filter {
                     it is SqlBindParameter
@@ -529,7 +532,7 @@ private fun List<CobolProcedures>.asStatements(dataTree: DataTree): List<Stateme
                     it.deleteStmtLimited != null -> Statement.Sql.SqlType.Delete
                     else -> Statement.Sql.SqlType.Execute
                 }
-                Statement.Sql(sql = it.text, comments = proc.comments.asComments(), hostVariables = hostVariables.map {
+                Statement.Sql(sql = it.text, comments = proc.comments.asComments(), updatingHostVariables = updatingHostVariables.map {
                     (dataTree.workingStorage.find(it, null) as Elementar).toVariable()
                 }, parameter = bindParameter.map {
                     (dataTree.workingStorage.find(it, null) as Elementar).toVariable()
