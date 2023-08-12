@@ -38,7 +38,6 @@ public abstract class SshTask : DefaultTask() {
     internal val sshClasspath: FileCollection =
         project.objects.fileCollection().from(project.configurations.named(configuration))
 
-
     @get:Inject
     internal abstract val workerExecutor: WorkerExecutor
 }

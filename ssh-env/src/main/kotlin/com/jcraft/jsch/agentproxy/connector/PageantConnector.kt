@@ -7,8 +7,8 @@ modification, are permitted provided that the following conditions are met:
   1. Redistributions of source code must retain the above copyright notice,
      this list of conditions and the following disclaimer.
 
-  2. Redistributions in binary form must reproduce the above copyright 
-     notice, this list of conditions and the following disclaimer in 
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
      the documentation and/or other materials provided with the distribution.
 
   3. The names of the authors may not be used to endorse or promote products
@@ -57,7 +57,7 @@ internal class PageantConnector {
             internal val INSTANCE: User32 = Native.loadLibrary(
                 "user32",
                 User32::class.java,
-                W32APIOptions.DEFAULT_OPTIONS
+                W32APIOptions.DEFAULT_OPTIONS,
             )
         }
     }
@@ -65,30 +65,42 @@ internal class PageantConnector {
     internal class COPYDATASTRUCT64 : Structure() {
         @JvmField
         var dwData = 0
+
         @JvmField
         var cbData: Long = 0
+
         @JvmField
         var lpData: Pointer? = null
         override fun getFieldOrder(): List<String> = listOf("dwData", "cbData", "lpData")
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
+    private val hexFormat = HexFormat {
+        bytes {
+            bytePrefix = "0x"
+        }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
     fun query(buffer: Buffer) {
         val hwnd = libU.FindWindow("Pageant", "Pageant")
             ?: throw AgentProxyException("Pageant is not runnning.", null)
-        val mapname = String.format("PageantRequest%08x", libK.GetCurrentThreadId())
+        val mapname = "PageantRequest" + libK.GetCurrentThreadId().toHexString(hexFormat)
 
         val sharedFile = libK.CreateFileMapping(
             WinBase.INVALID_HANDLE_VALUE,
             null,
             PAGE_READWRITE,
             0,
-            8192,  // AGENT_MAX_MSGLEN
-            mapname
+            8192, // AGENT_MAX_MSGLEN
+            mapname,
         )
         val sharedMemory: Pointer = Kernel32.INSTANCE.MapViewOfFile(
             sharedFile,
             SECTION_MAP_WRITE,
-            0, 0, 0
+            0,
+            0,
+            0,
         )
         try {
             sharedMemory.write(0, buffer.buffer, 0, buffer.length)
@@ -125,8 +137,8 @@ internal class PageantConnector {
 
     private fun sendMessage(hwnd: HWND, data: ByteArray): Long = libU.SendMessage(
         hwnd,
-        0x004A,  //WM_COPYDATA
+        0x004A, // WM_COPYDATA
         null,
-        data
+        data,
     )
 }

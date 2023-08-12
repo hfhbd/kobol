@@ -207,8 +207,9 @@ class SectionTest {
         """.trimIndent().toIR(
             irPlugins = emptyList(),
             controlFlowHandling = {
-            ExitProcessControlFlowHandling
-        })
+                ExitProcessControlFlowHandling
+            },
+        )
 
         val output = generate(input)
 

@@ -7,7 +7,9 @@ import com.intellij.lang.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 
-internal abstract class CobolSectionElementImpl(node: ASTNode) : ASTWrapperPsiElement(node), CobolNamedElement, CobolSectionID {
+internal abstract class CobolSectionElementImpl(
+    node: ASTNode,
+) : ASTWrapperPsiElement(node), CobolNamedElement, CobolSectionID {
     override fun getNameIdentifier(): PsiElement = varName
     override fun getName(): String = varName.text
 
@@ -17,6 +19,9 @@ internal abstract class CobolSectionElementImpl(node: ASTNode) : ASTWrapperPsiEl
         return this
     }
 
-    override fun getReference(): CobolSectionReference? = if (parent is CobolProcedureSection) null else
+    override fun getReference(): CobolSectionReference? = if (parent is CobolProcedureSection) {
+        null
+    } else {
         CobolSectionReference(this, TextRange.from(0, textLength))
+    }
 }

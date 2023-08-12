@@ -26,7 +26,7 @@ class StatisticTest {
 
         assertEquals(mapOf("main" to 2), cobol.complexity())
     }
-    
+
     @Test
     fun ifAnd() {
         @Language("Cobol")
@@ -46,7 +46,7 @@ class StatisticTest {
 
         assertEquals(mapOf("main" to 3), cobol.complexity())
     }
-    
+
     @Test
     fun complex() {
         @Language("Cobol")
@@ -71,7 +71,7 @@ class StatisticTest {
 
         assertEquals(mapOf("main" to 4), cobol.complexity())
     }
-    
+
     @Test
     fun alsoEvaluate() {
         @Language("Cobol")
@@ -92,7 +92,7 @@ class StatisticTest {
 
         assertEquals(mapOf("main" to 5), cobol.complexity())
     }
-    
+
     @Test
     fun subroutines() {
         @Language("Cobol")

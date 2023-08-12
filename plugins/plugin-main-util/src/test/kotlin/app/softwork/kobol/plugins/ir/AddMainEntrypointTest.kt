@@ -20,24 +20,29 @@ class AddMainEntrypointTest {
         }
 
         val before = KobolIRTree(
-            "test", "test",
+            "test",
+            "test",
             main = normalMain,
-            types = emptyList()
+            types = emptyList(),
         )
 
-
         val expected = KobolIRTree(
-            "test", "test",
-            main = normalMain, types = build {
+            "test",
+            "test",
+            main = normalMain,
+            types = build {
                 +function("main") {
                     +normalMain()
                 }.copy(parameters = stringArgs)
-            }
+            },
         )
 
-        assertEquals(expected, before.addMainEntrypoint { main, _ ->
-            +main()
-        })
+        assertEquals(
+            expected,
+            before.addMainEntrypoint { main, _ ->
+                +main()
+            },
+        )
     }
 
     @Test
@@ -47,12 +52,14 @@ class AddMainEntrypointTest {
         }
 
         val expected = KobolIRTree(
-            "test", "test",
-            main = normalMain, types = build {
+            "test",
+            "test",
+            main = normalMain,
+            types = build {
                 +function("main") {
                     +normalMain()
                 }.copy(parameters = stringArgs)
-            }
+            },
         )
 
         assertFailsWith<IllegalStateException> {
@@ -69,7 +76,6 @@ class AddMainEntrypointTest {
         }
 
         val similarMain = function("main") {
-
         }.copy(
             parameters = listOf(
                 Declaration.Array(
@@ -78,29 +84,34 @@ class AddMainEntrypointTest {
                     nullable = false,
                     mutable = false,
                     private = false,
-                )
-            )
+                ),
+            ),
         )
 
         val before = KobolIRTree(
-            "test", "test",
+            "test",
+            "test",
             main = normalMain,
-            types = listOf(similarMain)
+            types = listOf(similarMain),
         )
 
-
         val expected = KobolIRTree(
-            "test", "test",
-            main = normalMain, types = build {
+            "test",
+            "test",
+            main = normalMain,
+            types = build {
                 +similarMain
                 +function("main") {
                     +normalMain()
                 }.copy(parameters = stringArgs)
-            }
+            },
         )
 
-        assertEquals(expected, before.addMainEntrypoint { main, _ ->
-            +main()
-        })
+        assertEquals(
+            expected,
+            before.addMainEntrypoint { main, _ ->
+                +main()
+            },
+        )
     }
 }

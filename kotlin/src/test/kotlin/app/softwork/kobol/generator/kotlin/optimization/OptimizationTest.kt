@@ -195,7 +195,7 @@ class OptimizationTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
-    
+
     @Test
     fun keepNames() {
         //language=COBOL

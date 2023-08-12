@@ -17,7 +17,7 @@ internal object IntRangeSerializer : KSerializer<IntRange> {
     override fun serialize(encoder: Encoder, value: IntRange) {
         encoder.encodeSerializableValue(
             IntRangeData.serializer(),
-            IntRangeData(start = value.first, endInclusive = value.last)
+            IntRangeData(start = value.first, endInclusive = value.last),
         )
     }
 }

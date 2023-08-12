@@ -1,17 +1,12 @@
 package app.softwork.kobol.ir
 
-import app.softwork.kobol.fir.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Close
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Open
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement
 
-public interface FileHandling: AutoCloseable {
-    public fun handleOpen(open: CobolFIRTree.ProcedureTree.Statement.Open): List<KobolIRTree.Types.Function.Statement>
-    public fun handleClose(close: CobolFIRTree.ProcedureTree.Statement.Close): List<KobolIRTree.Types.Function.Statement>
+public interface FileHandling : AutoCloseable {
+    public fun handleOpen(open: Open): List<Statement>
+    public fun handleClose(close: Close): List<Statement>
 
     override fun close() { }
-}
-
-public fun interface FileHandlingFactory {
-    public operator fun invoke(
-        packageName: String,
-        args: Map<String, String>
-    ): FileHandling
 }

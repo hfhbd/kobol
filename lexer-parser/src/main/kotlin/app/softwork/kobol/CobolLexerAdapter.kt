@@ -12,7 +12,9 @@ public fun CobolLexerAdapter(): FlexAdapter {
             return if (type == null) {
                 lexer.yycolumn = 0
                 null
-            } else type
+            } else {
+                type
+            }
         }
 
         override fun reset(buf: CharSequence?, start: Int, end: Int, initialState: Int) {

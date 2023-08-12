@@ -42,8 +42,7 @@ public class CobolVariableReference(psiElement: CobolVariable, range: TextRange)
 
                 if (incompleteCode) {
                     add(action(recordDef))
-                }
-                else if (currentRecord != null && ofName != null) {
+                } else if (currentRecord != null && ofName != null) {
                     if (currentRecord.recordID?.varName?.text == ofName) {
                         action()
                     }

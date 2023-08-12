@@ -19,7 +19,7 @@ public class BooleanExpressions : IrPlugin {
     override fun invoke(tree: KobolIRTree, others: Iterable<KobolIRTree>): Iterable<KobolIRTree> {
         return others + tree.copy(
             main = tree.main.booleanExpressions(),
-            types = tree.types.map { it.booleanExpressions() }
+            types = tree.types.map { it.booleanExpressions() },
         )
     }
 }
@@ -36,7 +36,7 @@ private fun Types.booleanExpressions(): Types {
             },
             members = members.map {
                 it.booleanExpressions()
-            }
+            },
         )
 
         is Type.GlobalVariable -> copy(declaration = declaration.booleanExpressions())
@@ -47,7 +47,7 @@ private fun Types.booleanExpressions(): Types {
 private fun Types.Function.booleanExpressions() = copy(
     body = body.map {
         it.booleanExpressions()
-    }.toMutableList()
+    }.toMutableList(),
 )
 
 private fun Statement.booleanExpressions(): Statement =
@@ -66,10 +66,10 @@ private fun Statement.booleanExpressions(): Statement =
         is Statement.LoadExternal -> this
         is Statement.TryCatch -> copy(
             tryStmts = tryStmts.booleanExpressions(),
-            catchBlocks = catchBlocks.map { 
+            catchBlocks = catchBlocks.map {
                 it.copy(stmts = it.stmts.booleanExpressions())
             },
-            finallyStmts = finallyStmts.booleanExpressions()
+            finallyStmts = finallyStmts.booleanExpressions(),
         )
         is Statement.Print -> this
         is Statement.While -> booleanExpressions()
@@ -78,19 +78,19 @@ private fun Statement.booleanExpressions(): Statement =
         is Statement.Static -> this
         is Statement.Use -> copy(
             target = target.booleanExpressions(),
-            action = action.booleanExpressions()
+            action = action.booleanExpressions(),
         )
 
         is StringVariable.Use -> copy(
-            variable = variable.booleanExpressions() as StringVariable
+            variable = variable.booleanExpressions() as StringVariable,
         )
 
         is IntExpression.IntVariable.Use -> copy(
-            variable = variable.booleanExpressions() as IntExpression.IntVariable
+            variable = variable.booleanExpressions() as IntExpression.IntVariable,
         )
 
         is DoubleExpression.DoubleVariable.Use -> copy(
-            variable = variable.booleanExpressions() as DoubleExpression.DoubleVariable
+            variable = variable.booleanExpressions() as DoubleExpression.DoubleVariable,
         )
     }
 
@@ -103,34 +103,34 @@ private fun Statement.When.booleanExpressions(): Statement.When =
             cases = cases.map {
                 it.copy(
                     condition = it.condition.booleanExpressions(),
-                    action = it.action.booleanExpressions()
+                    action = it.action.booleanExpressions(),
                 )
             },
             elseCase = elseCase?.let {
                 it.copy(
-                    action = it.action.booleanExpressions()
+                    action = it.action.booleanExpressions(),
                 )
-            }
+            },
         )
 
         is Statement.When.Multiple -> copy(
             cases = cases.map {
                 it.copy(
                     condition = it.condition.booleanExpressions() as BooleanExpression,
-                    action = it.action.booleanExpressions()
+                    action = it.action.booleanExpressions(),
                 )
             },
             elseCase = elseCase?.let {
                 it.copy(
-                    action = it.action.booleanExpressions()
+                    action = it.action.booleanExpressions(),
                 )
-            }
+            },
         )
     }
 
 private fun Declaration.booleanExpressions() = when (this) {
     is Declaration.BooleanDeclaration -> copy(
-        value = value?.optimize()
+        value = value?.optimize(),
     )
 
     is Declaration.DoubleDeclaration -> this
@@ -151,13 +151,13 @@ private fun Expression.booleanExpressions(): Expression = when (this) {
     is ObjectVariable -> this
     is Statement.Use -> copy(
         target = target.booleanExpressions(),
-        action = action.booleanExpressions()
+        action = action.booleanExpressions(),
     )
 }
 
 private fun Statement.DoWhile.booleanExpressions() = copy(
     condition = condition.optimize(),
-    statements = statements.booleanExpressions()
+    statements = statements.booleanExpressions(),
 )
 
 private fun Statement.For.booleanExpressions() = copy(
@@ -167,7 +167,7 @@ private fun Statement.For.booleanExpressions() = copy(
     condition = condition.optimize(),
     statements = statements.map {
         it.booleanExpressions()
-    }
+    },
 )
 
 private fun Statement.ForEach.booleanExpressions() = copy(
@@ -175,24 +175,24 @@ private fun Statement.ForEach.booleanExpressions() = copy(
     provider = provider.booleanExpressions(),
     statements = statements.map {
         it.booleanExpressions()
-    }
+    },
 )
 
 private fun Statement.FunctionCall.booleanExpressions() = copy(
     parameters = parameters.map {
         it.booleanExpressions()
-    }
+    },
 )
 
 private fun Statement.While.booleanExpressions() = copy(
     condition = condition.optimize(),
-    statements = statements.booleanExpressions()
+    statements = statements.booleanExpressions(),
 )
 
 private fun Statement.If.booleanExpressions() = copy(
     condition = condition.optimize(),
     statements = statements.booleanExpressions(),
-    elseStatements = elseStatements.booleanExpressions()
+    elseStatements = elseStatements.booleanExpressions(),
 )
 
 internal fun BooleanExpression.optimize(): BooleanExpression = when (this) {
@@ -210,7 +210,9 @@ internal fun BooleanExpression.optimize(): BooleanExpression = when (this) {
             if (left is BooleanLiteral && right is BooleanLiteral) {
                 val result = left.value != right.value
                 BooleanLiteral(result)
-            } else NotEq(left, right)
+            } else {
+                NotEq(left, right)
+            }
         }
 
         is NotEq -> {
@@ -219,7 +221,9 @@ internal fun BooleanExpression.optimize(): BooleanExpression = when (this) {
             if (left is BooleanLiteral && right is BooleanLiteral) {
                 val result = left.value == right.value
                 BooleanLiteral(result)
-            } else Eq(left, right)
+            } else {
+                Eq(left, right)
+            }
         }
 
         is And -> {
@@ -246,7 +250,9 @@ internal fun BooleanExpression.optimize(): BooleanExpression = when (this) {
         if (left is BooleanLiteral && right is BooleanLiteral) {
             val result = left.value && right.value
             BooleanLiteral(result)
-        } else And(left, right)
+        } else {
+            And(left, right)
+        }
     }
 
     is Or -> {
@@ -255,7 +261,9 @@ internal fun BooleanExpression.optimize(): BooleanExpression = when (this) {
         if (left is BooleanLiteral && right is BooleanLiteral) {
             val result = left.value || right.value
             BooleanLiteral(result)
-        } else Or(left, right)
+        } else {
+            Or(left, right)
+        }
     }
 
     is Bigger -> this

@@ -14,9 +14,9 @@ class ConstTest {
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
                 comments = emptyList(),
                 const = false,
-                length = 1
+                length = 1,
             ),
-            doc = emptyList()
+            doc = emptyList(),
         )
         val expected = KobolIRTree.Types.Type.GlobalVariable(
             declaration = KobolIRTree.Types.Function.Statement.Declaration.StringDeclaration(
@@ -26,9 +26,9 @@ class ConstTest {
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
                 comments = emptyList(),
                 const = true,
-                length = 1
+                length = 1,
             ),
-            doc = emptyList()
+            doc = emptyList(),
         )
         assertEquals(expected, readonly.constVariable())
     }
@@ -43,9 +43,9 @@ class ConstTest {
                 value = KobolIRTree.Expression.StringExpression.StringLiteral(""),
                 comments = emptyList(),
                 const = false,
-                length = 1
+                length = 1,
             ),
-            doc = emptyList()
+            doc = emptyList(),
         )
         assertEquals(mutable, mutable.constVariable())
     }

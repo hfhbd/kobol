@@ -32,16 +32,16 @@ internal fun CobolFIRTree.createFlowGraph(): String = buildString {
 
     +"@startuml"
     +"start"
-    procedure.topLevel.forEach {
-        toUml(it)
+    for (stmt in procedure.topLevel) {
+        toUml(stmt)
     }
     +"end"
 
-    procedure.sections.forEach {
-        +"package ${it.name}"
+    for (section in procedure.sections) {
+        +"package ${section.name}"
         +"start"
-        it.statements.forEach {
-            toUml(it)
+        for (stmt in section.statements) {
+            toUml(stmt)
         }
         +"stop"
     }
@@ -61,8 +61,8 @@ private fun StringBuilder.toUml(statement: CobolFIRTree.ProcedureTree.Statement)
             is StopRun -> TODO()
             is If -> {
                 +"if (${condition.toUml()}) then"
-                for (statement in statements) {
-                    toUml(statement)
+                for (stmt in statements) {
+                    toUml(stmt)
                 }
                 if (elseStatements.isNotEmpty()) {
                     +"else"
@@ -123,5 +123,7 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.toUml(): String {
     val recordName: String? = recordName
     return if (recordName != null) {
         "$name OF $recordName"
-    } else name
+    } else {
+        name
+    }
 }

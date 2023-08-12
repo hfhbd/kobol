@@ -58,9 +58,11 @@ class FileTest {
             firPlugins = listOf(NullableToZero()),
             fileConverter = {
                 JavaFilesKotlin()
-            }, serialization = {
+            },
+            serialization = {
                 KotlinxSerialization(it)
-            })
+            },
+        )
 
         val output = generate(input)
 
@@ -136,7 +138,7 @@ class FileTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
-    
+
     @Test
     fun lineSequential() {
         //language=cobol
@@ -187,9 +189,11 @@ class FileTest {
             firPlugins = listOf(NullableToZero()),
             fileConverter = {
                 JavaFilesKotlin()
-            }, serialization = {
+            },
+            serialization = {
                 KotlinxSerialization(it)
-            })
+            },
+        )
 
         val output = generate(input)
 
@@ -319,7 +323,7 @@ class FileTest {
             },
             serialization = {
                 KotlinxSerialization(it)
-            }
+            },
         )
 
         val output = generate(input)
@@ -484,7 +488,7 @@ class FileTest {
             ),
             irPlugins = listOf(
                 Inlining(),
-                BooleanExpressions()
+                BooleanExpressions(),
             ),
             fileConverter = {
                 JavaFilesKotlin()
@@ -494,7 +498,7 @@ class FileTest {
             },
             controlFlowHandling = {
                 ExitProcessControlFlowHandlingFactory.ExitProcessControlFlowHandling
-            }
+            },
         )
 
         val output = generate(input)

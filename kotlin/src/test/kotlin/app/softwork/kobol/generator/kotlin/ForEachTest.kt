@@ -47,7 +47,7 @@ class ForEachTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
-    
+
     @Test
     fun performWhile() {
         //language=cobol

@@ -2,7 +2,6 @@ package app.softwork.kobol.gradle
 
 import org.gradle.api.*
 import org.gradle.api.file.*
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.*
 import org.gradle.workers.*
@@ -19,7 +18,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
         it.isVisible = false
         it.isCanBeConsumed = false
         it.isCanBeResolved = true
-        
+
         it.dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
     }.name
 

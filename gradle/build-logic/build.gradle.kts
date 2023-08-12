@@ -1,6 +1,5 @@
 plugins {
     `kotlin-dsl`
-    kotlin("plugin.serialization") version embeddedKotlinVersion
 }
 
 dependencies {
@@ -12,6 +11,7 @@ dependencies {
     implementation(libs.plugins.shadow.toDep())
     implementation(libs.plugins.serviceloader.toDep())
     implementation(libs.plugins.ksp.toDep())
+    implementation(libs.plugins.detekt.toDep())
 }
 
 fun Provider<PluginDependency>.toDep() = map {

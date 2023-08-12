@@ -2,7 +2,7 @@ package app.softwork.kobol.ir
 
 import app.softwork.kobol.fir.*
 
-public interface SerializationPlugin: AutoCloseable {
+public interface SerializationPlugin : AutoCloseable {
     /**
      * Converts the records of the file section into classes
      */
@@ -13,11 +13,11 @@ public interface SerializationPlugin: AutoCloseable {
      */
     public fun readSequence(
         read: CobolFIRTree.ProcedureTree.Statement.Read,
-        toIR: List<CobolFIRTree.ProcedureTree.Statement>.() -> List<KobolIRTree.Types.Function.Statement>
+        toIR: List<CobolFIRTree.ProcedureTree.Statement>.() -> List<KobolIRTree.Types.Function.Statement>,
     ): List<KobolIRTree.Types.Function.Statement>
 
     public fun write(
-        write: CobolFIRTree.ProcedureTree.Statement.Write
+        write: CobolFIRTree.ProcedureTree.Statement.Write,
     ): List<KobolIRTree.Types.Function.Statement>
 
     override fun close() { }
@@ -26,6 +26,6 @@ public interface SerializationPlugin: AutoCloseable {
 public fun interface SerializationPluginFactory {
     public operator fun invoke(
         packageName: String,
-        args: Map<String, String>
+        args: Map<String, String>,
     ): SerializationPlugin
 }

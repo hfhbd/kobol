@@ -2,7 +2,9 @@ import org.gradle.api.provider.Provider
 
 internal fun <L, C, R, V> zip(
     left: Provider<L>,
-    center: Provider<C>, right: Provider<R>, combiner: (L, C, R) -> V
+    center: Provider<C>,
+    right: Provider<R>,
+    combiner: (L, C, R) -> V,
 ) = left.zip(center) { l, c -> l to c }.zip(right) { (l, c), r -> combiner(l, c, r) }
 
 internal fun <L, C, D, R, V> zip(
@@ -10,7 +12,7 @@ internal fun <L, C, D, R, V> zip(
     center: Provider<C>,
     center2: Provider<D>,
     right: Provider<R>,
-    combiner: (L, C, D, R) -> V
+    combiner: (L, C, D, R) -> V,
 ) = left.zip(center) { l, c -> l to c }
     .zip(center2) { lc, d ->
         lc to d
@@ -25,7 +27,7 @@ internal fun <L, C, D, E, R, V> zip(
     center2: Provider<D>,
     center3: Provider<E>,
     right: Provider<R>,
-    combiner: (L, C, D, E, R) -> V
+    combiner: (L, C, D, E, R) -> V,
 ) = left.zip(center) { l, c -> l to c }
     .zip(center2) { lc, d ->
         lc to d

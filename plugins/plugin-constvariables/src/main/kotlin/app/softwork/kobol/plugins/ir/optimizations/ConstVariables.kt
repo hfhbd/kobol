@@ -11,7 +11,7 @@ public class ConstVariables : IrPlugin {
         return others + tree.copy(
             types = tree.types.map {
                 it.constVariable()
-            }
+            },
         )
     }
 }
@@ -26,9 +26,11 @@ internal fun KobolIRTree.Types.constVariable() = when (this) {
                     is IntDeclaration.Normal -> declaration.copy(const = true)
                     is IntDeclaration.ReturnCode -> declaration.copy(const = true)
                     is StringDeclaration -> declaration.copy(const = true)
-                }
+                },
             )
-        } else this
+        } else {
+            this
+        }
     }
 
     else -> this

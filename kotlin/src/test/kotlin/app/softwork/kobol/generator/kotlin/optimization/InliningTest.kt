@@ -114,10 +114,10 @@ class InliningTest {
         |123456     CLOSE TRANSACTIONS.
         |
         """.trimMargin().toIR(
-            firPlugins = listOf(NullableToZero()), 
+            firPlugins = listOf(NullableToZero()),
             irPlugins = listOf(Inlining()),
             fileConverter = { JavaFilesKotlin() },
-            serialization = { KotlinxSerialization(it) }
+            serialization = { KotlinxSerialization(it) },
         )
 
         val output = generate(input)

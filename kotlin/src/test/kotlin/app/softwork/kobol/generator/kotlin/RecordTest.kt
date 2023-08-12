@@ -35,7 +35,7 @@ class RecordTest {
         123456  DISPLAY "HELLO " CCCC
         123456  DISPLAY "HELLO " AAAA.
         """.trimIndent().toIR(
-            firPlugins = listOf(NullableToZero())
+            firPlugins = listOf(NullableToZero()),
         )
 
         val output = generate(input)

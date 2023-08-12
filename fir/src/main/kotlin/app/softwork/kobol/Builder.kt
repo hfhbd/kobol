@@ -8,5 +8,6 @@ public value class Builder<T> (private val list: MutableList<T> = mutableListOf(
     public inline operator fun List<T>.unaryPlus(): Boolean = addAll(this)
 }
 
-public inline fun <T> build(builder: Builder<T>.() -> Unit): MutableList<T> = Builder<T>().apply(builder).toMutableList()
+public inline fun <T> build(builder: Builder<T>.() -> Unit): MutableList<T> =
+    Builder<T>().apply(builder).toMutableList()
 public inline fun <T> build(builder: List<T>): MutableList<T> = builder.toMutableList()

@@ -13,7 +13,7 @@ public class KeepNames : Rename(
     },
     classes = {
         keepName()
-    }
+    },
 )
 
 private fun String.keepName() = replace("-", "_")

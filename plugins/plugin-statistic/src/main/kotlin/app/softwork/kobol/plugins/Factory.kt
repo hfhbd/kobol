@@ -11,6 +11,6 @@ public class Factory : FirCodeGeneratorFactory {
         outputFolder = File(outputFolder, "statistics").apply { mkdirs() },
         format = Json {
             prettyPrint = true
-        }
+        },
     )
 }

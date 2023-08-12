@@ -39,9 +39,9 @@ public fun Iterable<File>.toTree(
                     tree = plugin(tree)
                 }
                 this[tree.fileName] = tree
-            } catch (e: Exception) {
-                throw IllegalStateException(file.virtualFile.name, e).apply {
-                    stackTrace = e.stackTrace
+            } catch (ignored: Exception) {
+                throw IllegalStateException(file.virtualFile.name, ignored).apply {
+                    stackTrace = ignored.stackTrace
                 }
             }
         }
@@ -85,7 +85,6 @@ private class Db2ParserDefinition : SqlParserDefinition() {
         val FILE = ILightStubFileElementType<PsiFileStub<InlineSqlFile>>(SqlInlineLanguage)
     }
 }
-
 
 public fun File.toCobolFile(): CobolFile = setOf(this).toCobolFile().single()
 

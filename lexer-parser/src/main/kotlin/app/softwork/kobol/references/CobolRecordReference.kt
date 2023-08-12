@@ -30,7 +30,7 @@ public class CobolRecordReference(psiElement: CobolRecordID, range: TextRange) :
                 if (recordNumber == 1 && recordName.startsWith(myName)) {
                     add(
                         LookupElementBuilder.create(recordName).withIcon(CobolFileType.icon)
-                            .withTypeText("VARIANT TEST")
+                            .withTypeText("VARIANT TEST"),
                     )
                 }
             }

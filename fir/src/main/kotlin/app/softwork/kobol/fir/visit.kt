@@ -17,35 +17,36 @@ public fun List<Statement>.visit(action: Statement.() -> Statement?): List<State
         is Statement.Write,
         is Statement.Perform,
         is Statement.Sub,
-        is Statement.Call -> visitInnerStatements
+        is Statement.Call,
+        -> visitInnerStatements
 
         is Statement.Read -> visitInnerStatements.copy(
             action = visitInnerStatements.action.visit(action),
-            atEnd = visitInnerStatements.atEnd.visit(action)
+            atEnd = visitInnerStatements.atEnd.visit(action),
         )
 
         is Statement.Eval -> visitInnerStatements.copy(
-            conditions = visitInnerStatements.conditions.map {
-                it.copy(
-                    action = it.action.visit(action)
+            conditions = visitInnerStatements.conditions.map { cond ->
+                cond.copy(
+                    action = cond.action.visit(action),
                 )
             },
             other = visitInnerStatements.other?.copy(
-                action = visitInnerStatements.other.action.visit(action)
-            )
+                action = visitInnerStatements.other.action.visit(action),
+            ),
         )
 
         is Statement.ForEach -> visitInnerStatements.copy(
-            statements = visitInnerStatements.statements.visit(action)
+            statements = visitInnerStatements.statements.visit(action),
         )
 
         is Statement.If -> visitInnerStatements.copy(
             statements = visitInnerStatements.statements.visit(action),
-            elseStatements = visitInnerStatements.elseStatements.visit(action)
+            elseStatements = visitInnerStatements.elseStatements.visit(action),
         )
 
         is Statement.While -> visitInnerStatements.copy(
-            statements = visitInnerStatements.statements.visit(action)
+            statements = visitInnerStatements.statements.visit(action),
         )
     }
 }

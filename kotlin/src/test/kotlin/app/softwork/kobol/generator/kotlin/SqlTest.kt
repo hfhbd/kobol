@@ -72,7 +72,8 @@ class SqlTest {
             | INTO :FOO, :BAZ
             |FROM SYSIBM.SYSDUMMY1;
             |
-        """.trimMargin(), sqlPrecompiler.files!!.queries.single().toString()
+            """.trimMargin(),
+            sqlPrecompiler.files!!.queries.single().toString(),
         )
     }
 
@@ -88,15 +89,19 @@ class SqlTest {
         123456 PROCEDURE DIVISION.
         123456 DISPLAY BAR OF FOO.
         """.trimIndent().toIR(
-            Triple(null, "INCLUDETESTING", """
+            Triple(
+                null,
+                "INCLUDETESTING",
+                """
             |01 FOO.
             |123456 02 BAR PIC 9(2).
             |       02 ABB PIC 9(2).
             |
-            """.trimMargin()),
+                """.trimMargin(),
+            ),
             sqlPrecompiler = { packageName, folder ->
                 SqlDelightPrecompiler("DB", folder, packageName, packageName)
-            }
+            },
         )
 
         val output = generate(input)
@@ -283,7 +288,8 @@ class SqlTest {
             | a INTEGER
             |);
             |
-        """.trimMargin(), sqlPrecompiler.files!!.migrations.single().toString()
+            """.trimMargin(),
+            sqlPrecompiler.files!!.migrations.single().toString(),
         )
 
         assertEquals(
@@ -312,7 +318,8 @@ class SqlTest {
             |insertIntoFooValuesfoobar:
             |INSERT INTO foo VALUES (:FOO, :BAR);
             |
-        """.trimMargin(), sqlPrecompiler.files!!.queries.single().toString()
+            """.trimMargin(),
+            sqlPrecompiler.files!!.queries.single().toString(),
         )
     }
 }

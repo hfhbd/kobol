@@ -26,7 +26,8 @@ class PlantumlFlowGraphTest {
             123456     END-IF.
         """.trimIndent().toTree()
         //language=puml
-        assertEquals("""
+        assertEquals(
+            """
             @startuml
             start
             :DISPLAY "HELLO" WORLD;
@@ -38,9 +39,11 @@ class PlantumlFlowGraphTest {
             end
             @enduml
             
-        """.trimIndent(), cobol.createFlowGraph())
+            """.trimIndent(),
+            cobol.createFlowGraph(),
+        )
     }
-    
+
     @Test
     fun loadFactory() {
         assertTrue(ServiceLoader.load(FirCodeGeneratorFactory::class.java).single() is Factory)

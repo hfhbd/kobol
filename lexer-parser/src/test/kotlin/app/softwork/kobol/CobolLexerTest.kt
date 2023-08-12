@@ -18,16 +18,15 @@ class CobolLexerTest {
             123456 AUTHOR. A.
             123456 PROCEDURE DIVISION.
             123456 GOBACK.
-            """.trimIndent()
+            """.trimIndent(),
         ) {
             line(IDENTIFICATION, sp, DIVISION, DOT, sp)
             line(PROGRAM_ID, DOT, sp, VARNAME, DOT, sp)
             line(AUTHOR, ANY, sp, ANY, ANY, sp)
-            line(PROCEDURE, sp, DIVISION,DOT, sp)
+            line(PROCEDURE, sp, DIVISION, DOT, sp)
             line(GOBACK, DOT)
         }
     }
-
 
     @Test
     fun id() {
@@ -39,7 +38,7 @@ class CobolLexerTest {
             123456 AUTHOR. WEDEMANN / Softwork.app
             123456 INSTALLATION. Softwork.app
             123456 DATE-WRITTEN TODAY.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(IDENTIFICATION, sp, DIVISION, DOT, sp)
             line(COMMENT, sp)
@@ -61,7 +60,7 @@ class CobolLexerTest {
             123456 TO WORLD
             123456 MOVE '42' TO WORLD OF FOO
             123456 DISPLAY 'WORLD'.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(PROCEDURE, sp, DIVISION, DOT, sp)
             line(DISPLAY, sp, STRING, sp)
@@ -80,7 +79,7 @@ class CobolLexerTest {
             123456 PROCEDURE DIVISION.
             123456 DISPLAY "HELLO" WORLD IN FOO
             123456 DISPLAY "HELLO"WORLD.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(PROCEDURE, sp, DIVISION, DOT, sp)
             line(DISPLAY, sp, STRING, sp, VARNAME, sp, IN, sp, VARNAME, sp)
@@ -94,7 +93,7 @@ class CobolLexerTest {
             """
             123456 PROCEDURE DIVISION.
             123456 MOVE 123456 TO HELLO.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(PROCEDURE, sp, DIVISION, DOT, sp)
             line(MOVE, sp, NUMBER, sp, TO, sp, VARNAME, DOT)
@@ -118,7 +117,7 @@ class CobolLexerTest {
             123456 01 RPICA.
             123456    05 FOOPIC PIC 9(3).
             123456 77 FOO PIC 9(3).
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(DATA, sp, DIVISION, DOT, sp)
             line(WORKING_STORAGE, sp, SECTION, DOT, sp)
@@ -159,7 +158,7 @@ class CobolLexerTest {
             123456 01 RPICA.
             123456    05 PIC 9(3).
             123456 77 FOO PIC 9(3).
-            """.trimIndent()
+            """.trimIndent(),
         ) {
             line(DATA, sp, DIVISION, DOT, sp)
             line(FILE, sp, SECTION, DOT, sp)
@@ -193,7 +192,7 @@ class CobolLexerTest {
             """
             123456 DATA DIVISION.
             123456 PROCEDURE DIVISION.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(DATA, sp, DIVISION, DOT, sp)
             line(PROCEDURE, sp, DIVISION, DOT)
@@ -210,7 +209,7 @@ class CobolLexerTest {
             123456
             123456* Some Comment
             123456 DISPLAY
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(COMMENT, sp)
             line(PROCEDURE, sp, DIVISION, DOT, sp)
@@ -241,7 +240,7 @@ class CobolLexerTest {
             123456     DISPLAY "HELLO"WORLD
             123456     MOVE "42" TO WORLD
             123456     DISPLAY "ANSWER"WORLD.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(IDENTIFICATION, sp, DIVISION, DOT, sp)
             line(COMMENT, sp)
@@ -272,7 +271,7 @@ class CobolLexerTest {
             123445     PERFORM BAR.
             123456 BAR SECTION.
             123456     DISPLAY "HELLO"WORLD.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(PROCEDURE, sp, DIVISION, DOT, sp)
             line(VARNAME, sp, SECTION, DOT, sp)
@@ -292,7 +291,7 @@ class CobolLexerTest {
             123456 CONFIGURATION SECTION.
             123456 SPECIAL-NAMES.
             123456     DECIMAL-POINT           IS COMMA.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(ENVIRONMENT, sp, DIVISION, DOT, sp)
             line(CONFIGURATION, sp, SECTION, DOT, sp)
@@ -310,7 +309,7 @@ class CobolLexerTest {
             123456 01 FOO.
             123456 05 BAR PIC X.
             123456 PROCEDURE DIVISION USING FOO.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(DATA, sp, DIVISION, DOT, sp)
             line(LINKAGE, sp, SECTION, DOT, sp)
@@ -332,7 +331,7 @@ class CobolLexerTest {
             123456 FILE SECTION.
             123456 FD FOO
             123456 RECORDING V
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(ENVIRONMENT, sp, DIVISION, DOT, sp)
             line(INPUT_OUTPUT, sp, SECTION, DOT, sp)
@@ -364,7 +363,7 @@ class CobolLexerTest {
             123456     RECORD                  1
             123456     LABEL RECORD            STANDARD
             123456     DATA RECORD             BAR.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(DATA, sp, DIVISION, DOT, sp)
             line(FILE, sp, SECTION, DOT, sp)
@@ -394,7 +393,7 @@ class CobolLexerTest {
             123456 BAR BAR
             123456  BAR BAR
             123456 END-EXEC.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(DATA, sp, DIVISION, DOT, sp)
             line(WORKING_STORAGE, sp, SECTION, DOT, sp)
@@ -429,7 +428,7 @@ class CobolLexerTest {
             123456 IF FOO LESS THAN B
             123456 END-IF
             123456 GOBACK.
-        """.trimIndent()
+            """.trimIndent(),
         ) {
             line(PROCEDURE, sp, DIVISION, DOT, sp)
             line(IF, sp, VARNAME, LP, NUMBER, COLON, VARNAME, RP, sp, NOT, sp, EQUAL, sp, VARNAME, sp)

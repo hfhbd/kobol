@@ -30,7 +30,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
             files: FileHandlingFactory? = null,
             serialization: SerializationPluginFactory? = null,
             controlFlowHandling: ControlFlowHandlingFactory? = null,
-            codeGeneratorFactory: CodeGeneratorFactory
+            codeGeneratorFactory: CodeGeneratorFactory,
         ) {
             val codeGeneratorConfig = config[CodeGenerator::class.qualifiedName!!] ?: emptyMap()
             val codeGenerator = codeGeneratorFactory(outputFolder, codeGeneratorConfig)
@@ -44,7 +44,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                             packageName = it,
                             fileName = it,
                             outputFolder = sqlFolder,
-                            args = config[SqlPrecompiler::class.qualifiedName!!] ?: emptyMap()
+                            args = config[SqlPrecompiler::class.qualifiedName!!] ?: emptyMap(),
                         ).also { closeables.add(it) }
                     }
                 },
@@ -57,7 +57,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                     {
                         serialization(
                             it,
-                            config[SerializationPlugin::class.qualifiedName!!] ?: emptyMap()
+                            config[SerializationPlugin::class.qualifiedName!!] ?: emptyMap(),
                         ).also { closeables.add(it) }
                     }
                 },
@@ -67,7 +67,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                     }
                 },
                 irPlugins = irPlugins,
-                absoluteBasePath = rootPath
+                absoluteBasePath = rootPath,
             )
 
             codeGenerator.generate(irs)
@@ -80,7 +80,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
     override fun execute() {
         val codeGenerators = ServiceLoader.load(CodeGeneratorFactory::class.java).toList()
         val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
-            FirPluginAfterPhase::class.java
+            FirPluginAfterPhase::class.java,
         )
         val irPlugins = ServiceLoader.load(IrPlugin::class.java).toList()
         val sql = ServiceLoader.load(SqlPrecompilerFactory::class.java).singleOrNull()
@@ -101,7 +101,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                 files = files,
                 serialization = serialization,
                 codeGeneratorFactory = codeGenerator,
-                controlFlowHandling = controlFlowHandlingFactory
+                controlFlowHandling = controlFlowHandlingFactory,
             )
         }
         firPlugins.forEach(AutoCloseable::close)

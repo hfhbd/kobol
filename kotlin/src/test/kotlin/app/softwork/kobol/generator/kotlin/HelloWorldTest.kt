@@ -53,7 +53,7 @@ class HelloWorldTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
-    
+
     @Test
     fun mainTest() {
         //language=cobol
@@ -73,15 +73,18 @@ class HelloWorldTest {
         123456     MOVE "42" TO WO-RLD
         123456     DISPLAY WO-RLD
         123456     DISPLAY "ANSWER"WO-RLD.
-        """.trimIndent().toIR(packageName = "foo", irPlugins = listOf(
-            NoSynthetics(),
-            IrPlugin { tree, others -> 
-                others + tree.addMainEntrypoint { main, args ->
-                    val singleFun = function("single") {}
-                    +main(args.use(singleFun()))
-                } 
-            }
-        ))
+        """.trimIndent().toIR(
+            packageName = "foo",
+            irPlugins = listOf(
+                NoSynthetics(),
+                IrPlugin { tree, others ->
+                    others + tree.addMainEntrypoint { main, args ->
+                        val singleFun = function("single") {}
+                        +main(args.use(singleFun()))
+                    }
+                },
+            ),
+        )
 
         val output = generate(input)
 
@@ -126,14 +129,18 @@ internal fun String.toIR(
         val packageFile = if (packageName != null) {
             val fileName = temp.absolutePath + "/" + packageName
             File(fileName).apply { mkdirs() }
-        } else temp
+        } else {
+            temp
+        }
 
         File(packageFile, name).apply { writeText(content) }
     }
     val packageFile = if (packageName != null) {
         val fileName = temp.absolutePath + "/" + packageName
         File(fileName).apply { mkdirs() }
-    } else temp
+    } else {
+        temp
+    }
     return (files + File(packageFile, "testing.cbl").apply { writeText(this@toIR) }).toIR(
         firPlugins = firPlugins,
         irPlugins = irPlugins,
@@ -146,6 +153,6 @@ internal fun String.toIR(
         },
         controlFlowHandling = controlFlowHandling,
         procedureName = procedureName,
-        absoluteBasePath = tempPath
+        absoluteBasePath = tempPath,
     ).single()
 }
