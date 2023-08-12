@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      security-events: write
 
     env:
       GRADLE_OPTS: -Dorg.gradle.caching=true
