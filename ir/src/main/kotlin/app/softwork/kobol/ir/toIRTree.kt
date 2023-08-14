@@ -804,7 +804,7 @@ private fun CobolFIRTree.DataTree.WorkingStorage.toIR(packageName: String): Type
                     declaration =
                     IntDeclaration.ReturnCode(
                         name = name,
-                        value = IntLiteral(value.toInt()),
+                        value = IntLiteral(value),
                         mutable = true,
                         const = false,
                         length = formatter.length(),

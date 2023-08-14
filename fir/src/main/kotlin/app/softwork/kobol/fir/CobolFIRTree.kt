@@ -281,7 +281,7 @@ public data class CobolFIRTree(
 
                 @Serializable
                 public sealed interface NumberElementar : Elementar {
-                    override val value: Double?
+                    override val value: Number?
                     override val formatter: Formatter
                     public val occurs: Occurs?
                     public val signed: Boolean
@@ -308,7 +308,7 @@ public data class CobolFIRTree(
                     public data class ReturnCode(
                         override val name: String = "RETURN-CODE",
                     ) : NumberElementar {
-                        override val value: Double = 0.0
+                        override val value: Int = 0
                         override val occurs: Occurs? = null
                         override val signed: Boolean = true
                         override val compressed: Compressed? = null
