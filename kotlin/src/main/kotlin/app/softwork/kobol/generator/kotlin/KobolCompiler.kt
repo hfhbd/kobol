@@ -10,7 +10,9 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 internal fun generate(tree: KobolIRTree): FileSpec {
     val packageName = if (tree.packageName != null) {
         "${tree.packageName}.${tree.name}"
-    } else tree.name
+    } else {
+        tree.name
+    }
     val fileSpec = FileSpec.builder(packageName, packageName).apply {
         for (type in tree.types) {
             addType(packageName, type)
@@ -89,11 +91,15 @@ private fun KobolIRTree.Types.Function.Statement.toKotlin(
             val target = target
             val betterTarget = if (target is Declaration) {
                 CodeBlock.of("%M", target.member(packageName))
-            } else target.toKotlin(packageName)
+            } else {
+                target.toKotlin(packageName)
+            }
             val action = action
             val betterAction = if (action is Declaration) {
                 CodeBlock.of("%M", action.member(packageName))
-            } else action.toKotlin(packageName)
+            } else {
+                action.toKotlin(packageName)
+            }
             code.add(
                 "%L.%L",
                 betterTarget,
@@ -490,7 +496,9 @@ private fun KobolIRTree.Types.Type.Class.toKotlin(packageName: String): TypeSpec
     val classBuilder = if (isObject) {
         if (name == "companion") {
             TypeSpec.companionObjectBuilder()
-        } else TypeSpec.objectBuilder(name)
+        } else {
+            TypeSpec.objectBuilder(name)
+        }
     } else {
         TypeSpec.classBuilder(name)
     }
