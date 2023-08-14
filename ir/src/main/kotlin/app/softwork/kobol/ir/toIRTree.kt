@@ -780,7 +780,7 @@ private fun CobolFIRTree.DataTree.WorkingStorage.Elementar.declaration() = when 
 
             Formatter.NumberType.Double -> DoubleDeclaration(
                 name = name,
-                value = value?.let { DoubleExpression.DoubleLiteral(it) },
+                value = value?.let { DoubleExpression.DoubleLiteral(it.toDouble()) },
                 mutable = true,
                 private = false,
                 comments = comments,
