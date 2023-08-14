@@ -31,7 +31,9 @@ internal fun generateJava(tree: KobolIRTree): List<JavaFile> {
 
     val packageName = if (tree.packageName != null) {
         "${tree.packageName}.${tree.name}"
-    } else tree.name
+    } else {
+        tree.name
+    }
     val externalTypes = external.map {
         JavaFile.builder(packageName, it.toJava()).skipJavaLangImports(true)
     }
@@ -71,7 +73,9 @@ private fun KobolIRTree.Types.Function.Statement.dec(): CodeBlock {
     val declaration = this
     return if (declaration is Declaration) {
         declaration.member()
-    } else declaration.toJava()
+    } else {
+        declaration.toJava()
+    }
 }
 
 private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock.builder().let { code ->
@@ -155,7 +159,9 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
             val step = step
             val stepBlock = if (step != null) {
                 CodeBlock.of("\$L += \$L", counter.name, step.toTemplate())
-            } else CodeBlock.of("\$L++", counter.name)
+            } else {
+                CodeBlock.of("\$L++", counter.name)
+            }
 
             code.beginControlFlow("for (\$L; \$L; \$L)", init, condition, stepBlock)
             for (stmt in statements) {

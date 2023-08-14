@@ -20,7 +20,7 @@ private fun KobolIRTree.Types.Function.Statement.whenToIf() = when (this) {
     is KobolIRTree.Types.Function.Statement.When.Multiple -> {
         val elseIfs = if (cases.size == 1) {
             emptyList()
-        } else
+        } else {
             cases.drop(1).map {
                 KobolIRTree.Types.Function.Statement.If.ElseIf(
                     condition = it.condition,
@@ -28,6 +28,7 @@ private fun KobolIRTree.Types.Function.Statement.whenToIf() = when (this) {
                     comments = it.comments,
                 )
             }
+        }
 
         KobolIRTree.Types.Function.Statement.If(
             condition = cases.first().condition,
@@ -41,7 +42,7 @@ private fun KobolIRTree.Types.Function.Statement.whenToIf() = when (this) {
     is KobolIRTree.Types.Function.Statement.When.Single -> {
         val elseIfs = if (cases.size == 1) {
             emptyList()
-        } else
+        } else {
             cases.drop(1).map {
                 KobolIRTree.Types.Function.Statement.If.ElseIf(
                     condition = Eq(expr, it.condition),
@@ -49,6 +50,7 @@ private fun KobolIRTree.Types.Function.Statement.whenToIf() = when (this) {
                     comments = it.comments,
                 )
             }
+        }
 
         KobolIRTree.Types.Function.Statement.If(
             condition = Eq(expr, cases.first().condition),

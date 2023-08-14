@@ -146,11 +146,15 @@ private fun CobolEnvDiv.toEnv(): EnvTree = EnvTree(
                         val path: String = it.fileConfigAssign.fileAssignID.let {
                             if (it.varName != null) {
                                 it.varName!!.text
-                            } else it.string!!.text.drop(1).dropLast(1)
+                            } else {
+                                it.string!!.text.drop(1).dropLast(1)
+                            }
                         }
                         val type = if (it.fileLineSequential != null) {
                             File.FileType.LineSequential
-                        } else File.FileType.Sequential
+                        } else {
+                            File.FileType.Sequential
+                        }
                         FileControl.File(
                             file = it.fileConfigSelect.fileID.varName.text,
                             path = path,
@@ -424,7 +428,9 @@ private fun single(
             value = value?.let {
                 if (it.startsWith("ZERO")) {
                     0.0
-                } else it.toDouble()
+                } else {
+                    it.toDouble()
+                }
             },
             comments = comments.asComments(),
             occurs = occurs.toFir(previous),
@@ -441,7 +447,9 @@ private fun single(
         value = value?.let {
             if (it.startsWith("ZERO")) {
                 0.0
-            } else it.toDouble()
+            } else {
+                it.toDouble()
+            }
         },
         signed = true,
         comments = comments.asComments(),
@@ -458,7 +466,9 @@ private fun single(
         value = value?.let {
             if (it.startsWith("ZERO")) {
                 0.0
-            } else it.toDouble()
+            } else {
+                it.toDouble()
+            }
         },
         signed = false,
         comments = comments.asComments(),
@@ -890,10 +900,12 @@ private fun CobolStringConcat.toExpr(dataTree: DataTree): StringExpression {
     val s = allChildren.foldSecond(first) { acc, psi ->
         if (psi.elementType == TokenType.WHITE_SPACE) {
             null
-        } else StringExpression.Concat(
-            left = acc,
-            right = psi.singleAsString(dataTree),
-        )
+        } else {
+            StringExpression.Concat(
+                left = acc,
+                right = psi.singleAsString(dataTree),
+            )
+        }
     }
     return s
 }
