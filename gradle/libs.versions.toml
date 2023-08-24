@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.9.0"
+kotlin = "1.9.10"
 idea = "221.6008.13"
 serialization = "1.6.0"
 
