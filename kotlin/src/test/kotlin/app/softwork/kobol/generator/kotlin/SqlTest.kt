@@ -45,7 +45,7 @@ class SqlTest {
         
         public var BAZ: Int? = null
         
-        public fun main() {
+        public fun sql() {
           val db: DB = DB(driver)
           /**
            * Get AVG of 42
@@ -72,7 +72,8 @@ class SqlTest {
             | INTO :FOO, :BAZ
             |FROM SYSIBM.SYSDUMMY1;
             |
-        """.trimMargin(), sqlPrecompiler.files!!.queries.single().toString()
+            """.trimMargin(),
+            sqlPrecompiler.files!!.queries.single().toString(),
         )
     }
 
@@ -88,15 +89,19 @@ class SqlTest {
         123456 PROCEDURE DIVISION.
         123456 DISPLAY BAR OF FOO.
         """.trimIndent().toIR(
-            "INCLUDETESTING" to """
+            Triple(
+                null,
+                "INCLUDETESTING",
+                """
             |01 FOO.
             |123456 02 BAR PIC 9(2).
             |       02 ABB PIC 9(2).
             |
-            """.trimMargin(),
+                """.trimMargin(),
+            ),
             sqlPrecompiler = { packageName, folder ->
                 SqlDelightPrecompiler("DB", folder, packageName, packageName)
-            }
+            },
         )
 
         val output = generate(input)
@@ -113,7 +118,7 @@ class SqlTest {
           public var ABB: Int? = null
         }
         
-        public fun main() {
+        public fun sql() {
           println(FOO.BAR)
         }
         
@@ -130,6 +135,7 @@ class SqlTest {
         123456 PROGRAM-ID. SQL.
         123456 DATA DIVISION.
         123456 WORKING-STORAGE SECTION.
+        123456 EXEC SQL INCLUDE SQLCA END-EXEC.
         123456* TABLE COMMENT
         123456* TABLE COMMENT II
         123456 EXEC SQL
@@ -184,12 +190,53 @@ class SqlTest {
         package sql
         
         import kotlin.Int
+        import kotlin.String
+        
+        public object SQLCA {
+          public var SQLCAID: String = "SQLCA   "
+        
+          public var SQLCABC: Int = 136
+        
+          public var SQLCODE: Int? = null
+        
+          public var SQLERRML: Int? = null
+        
+          public var SQLERRMC: String? = null
+        
+          public var SQLERRP: String? = null
+        
+          public var SQLERRD: Int? = null
+        
+          public var SQLWARN0: String? = null
+        
+          public var SQLWARN1: String? = null
+        
+          public var SQLWARN2: String? = null
+        
+          public var SQLWARN3: String? = null
+        
+          public var SQLWARN4: String? = null
+        
+          public var SQLWARN5: String? = null
+        
+          public var SQLWARN6: String? = null
+        
+          public var SQLWARN7: String? = null
+        
+          public var SQLWARN8: String? = null
+        
+          public var SQLWARN9: String? = null
+        
+          public var SQLWARNA: String? = null
+        
+          public var SQLSTATE: String? = null
+        }
         
         public var FOO: Int? = null
         
         public var BAR: Int? = null
         
-        public fun main() {
+        public fun sql() {
           val db: DB = DB(driver)
           DB.Schema.migrate(driver, 0, 1)
           // INSERT COMMENT
@@ -241,7 +288,8 @@ class SqlTest {
             | a INTEGER
             |);
             |
-        """.trimMargin(), sqlPrecompiler.files!!.migrations.single().toString()
+            """.trimMargin(),
+            sqlPrecompiler.files!!.migrations.single().toString(),
         )
 
         assertEquals(
@@ -270,7 +318,8 @@ class SqlTest {
             |insertIntoFooValuesfoobar:
             |INSERT INTO foo VALUES (:FOO, :BAR);
             |
-        """.trimMargin(), sqlPrecompiler.files!!.queries.single().toString()
+            """.trimMargin(),
+            sqlPrecompiler.files!!.queries.single().toString(),
         )
     }
 }

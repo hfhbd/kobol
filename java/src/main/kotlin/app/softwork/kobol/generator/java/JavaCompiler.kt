@@ -1,50 +1,44 @@
 package app.softwork.kobol.generator.java
 
-import app.softwork.kobol.*
-import app.softwork.kobol.ir.*
+import app.softwork.kobol.fir.notPossible
+import app.softwork.kobol.ir.KobolIRTree
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import com.squareup.javapoet.*
-import java.io.*
-import javax.lang.model.element.*
 import javax.lang.model.element.Modifier.*
-import kotlin.math.*
 
 internal fun generateJava(tree: KobolIRTree): List<JavaFile> {
     val external = tree.types.mapNotNull {
         if (it is KobolIRTree.Types.Type.Class && it.isObject) {
             it
-        } else null
-    }
-    val main = tree.main.main(tree.name)
-    tree.types.forEach {
-        if (it !in external) {
-            main.addType(it)
+        } else {
+            null
         }
     }
-    val fileSpec = JavaFile.builder(tree.name, main.build())
+    val klass = TypeSpec.classBuilder(tree.name.replaceFirstChar { it.uppercaseChar() }).apply {
+        addModifiers(PUBLIC)
+    }
+
+    klass.addType(tree.main)
+
+    tree.types.forEach {
+        if (it !in external) {
+            klass.addType(it)
+        }
+    }
+    val fileSpec = JavaFile.builder(tree.name, klass.build())
     fileSpec.skipJavaLangImports(true)
 
+    val packageName = if (tree.packageName != null) {
+        "${tree.packageName}.${tree.name}"
+    } else {
+        tree.name
+    }
     val externalTypes = external.map {
-        JavaFile.builder(tree.name, it.toJava()).skipJavaLangImports(true)
+        JavaFile.builder(packageName, it.toJava()).skipJavaLangImports(true)
     }
 
     return (externalTypes + fileSpec).map { it.build() }
-}
-
-private fun KobolIRTree.Types.Function.main(className: String): TypeSpec.Builder {
-    return TypeSpec.classBuilder(className.replaceFirstChar { it.uppercaseChar() }).apply {
-        val main = MethodSpec.methodBuilder("main").apply {
-            addModifiers(PUBLIC, STATIC)
-            returns(TypeName.VOID)
-            addParameter(Array<String>::class.java, "args")
-            body.forEach {
-                addCode(it.toJava())
-            }
-        }
-        addMethod(main.build())
-        addModifiers(PUBLIC)
-    }
 }
 
 private fun KobolIRTree.Types.Function.toJava(): MethodSpec {
@@ -59,6 +53,7 @@ private fun KobolIRTree.Types.Function.toJava(): MethodSpec {
         this@toJava.parameters.forEach {
             addParameter(it.Type, it.name)
         }
+        returns(this@toJava.returnType.Type)
         if (external) {
             addModifiers(NATIVE)
         } else {
@@ -78,7 +73,9 @@ private fun KobolIRTree.Types.Function.Statement.dec(): CodeBlock {
     val declaration = this
     return if (declaration is Declaration) {
         declaration.member()
-    } else declaration.toJava()
+    } else {
+        declaration.toJava()
+    }
 }
 
 private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock.builder().let { code ->
@@ -124,6 +121,29 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
         is Throw -> code.add("throw \$L;\n", expr.toTemplate())
         is Return -> code.add("return \$L;\n", expr.toTemplate())
         is LoadExternal -> code.add("System.loadLibrary(\"$libName\");\n")
+        is TryCatch -> {
+            code.beginControlFlow("try")
+            for (stmt in tryStmts) {
+                code.add(stmt.toJava())
+            }
+            for (catchBlock in catchBlocks) {
+                code.nextControlFlow(
+                    "catch (\$T \$L)",
+                    catchBlock.exceptionClass.Type,
+                    catchBlock.exception.toCodeBlock(),
+                )
+                for (stmt in catchBlock.stmts) {
+                    code.add(stmt.toJava())
+                }
+            }
+            if (finallyStmts.isNotEmpty()) {
+                code.nextControlFlow("finally")
+                for (finallyStmt in finallyStmts) {
+                    code.add(finallyStmt.toJava())
+                }
+            }
+            code.endControlFlow()
+        }
         is DoWhile -> {
             code.beginControlFlow("do")
             for (statement in statements) {
@@ -139,7 +159,9 @@ private fun KobolIRTree.Types.Function.Statement.toJava(): CodeBlock = CodeBlock
             val step = step
             val stepBlock = if (step != null) {
                 CodeBlock.of("\$L += \$L", counter.name, step.toTemplate())
-            } else CodeBlock.of("\$L++", counter.name)
+            } else {
+                CodeBlock.of("\$L++", counter.name)
+            }
 
             code.beginControlFlow("for (\$L; \$L; \$L)", init, condition, stepBlock)
             for (stmt in statements) {
@@ -266,7 +288,6 @@ private fun FunctionCall.call() = CodeBlock.builder().apply {
             add("new \$T(\$L);\n", ClassName.get(function.packageName, function.name), params)
         }
     }
-
 }.build()
 
 private fun KobolIRTree.Expression.toTemplate(): CodeBlock = when (this) {
@@ -283,10 +304,7 @@ private fun KobolIRTree.Expression.toTemplate(): CodeBlock = when (this) {
 
 private fun Declaration.member(): CodeBlock = CodeBlock.of(name)
 
-private fun KobolIRTree.Expression.Variable.toCodeBlock(): CodeBlock {
-    val memberName = target.member()
-    return CodeBlock.of("\$L", memberName)
-}
+private fun KobolIRTree.Expression.Variable.toCodeBlock(): CodeBlock = target.member()
 
 private fun KobolIRTree.Expression.StringExpression.toTemplate(): CodeBlock = when (this) {
     is KobolIRTree.Expression.StringExpression.StringLiteral -> {
@@ -303,22 +321,28 @@ private fun KobolIRTree.Expression.StringExpression.toTemplate(): CodeBlock = wh
     is KobolIRTree.Expression.StringExpression.StringVariable.Use -> CodeBlock.of(
         "\$L.\$L",
         target.toTemplate(),
-        variable.toTemplate()
+        variable.toTemplate(),
     )
 }
 
 private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = when (this) {
     is KobolIRTree.Expression.BooleanExpression.And -> CodeBlock.of(
-        "\$L && \$L", left.toTemplate(), right.toTemplate()
+        "\$L && \$L",
+        left.toTemplate(),
+        right.toTemplate(),
     )
 
     is KobolIRTree.Expression.BooleanExpression.Bigger -> if (equals) {
         CodeBlock.of(
-            "\$L >= \$L", left.toTemplate(), right.toTemplate()
+            "\$L >= \$L",
+            left.toTemplate(),
+            right.toTemplate(),
         )
     } else {
         CodeBlock.of(
-            "\$L > \$L", left.toTemplate(), right.toTemplate()
+            "\$L > \$L",
+            left.toTemplate(),
+            right.toTemplate(),
         )
     }
 
@@ -326,42 +350,57 @@ private fun KobolIRTree.Expression.BooleanExpression.toTemplate(): CodeBlock = w
     is KobolIRTree.Expression.BooleanExpression.Eq -> {
         if (left is KobolIRTree.Expression.StringExpression || right is KobolIRTree.Expression.StringExpression) {
             CodeBlock.of(
-                "\$L.equals(\$L)", left.toTemplate(), right.toTemplate()
+                "\$L.equals(\$L)",
+                left.toTemplate(),
+                right.toTemplate(),
             )
         } else {
             CodeBlock.of(
-                "\$L == \$L", left.toTemplate(), right.toTemplate()
+                "\$L == \$L",
+                left.toTemplate(),
+                right.toTemplate(),
             )
         }
     }
 
     is KobolIRTree.Expression.BooleanExpression.Not -> CodeBlock.of(
-        "!(\$L)", condition.toTemplate()
+        "!(\$L)",
+        condition.toTemplate(),
     )
 
     is KobolIRTree.Expression.BooleanExpression.NotEq -> {
         if (left is KobolIRTree.Expression.StringExpression || right is KobolIRTree.Expression.StringExpression) {
             CodeBlock.of(
-                "!\$L.equals(\$L)", left.toTemplate(), right.toTemplate()
+                "!\$L.equals(\$L)",
+                left.toTemplate(),
+                right.toTemplate(),
             )
         } else {
             CodeBlock.of(
-                "\$L != \$L", left.toTemplate(), right.toTemplate()
+                "\$L != \$L",
+                left.toTemplate(),
+                right.toTemplate(),
             )
         }
     }
 
     is KobolIRTree.Expression.BooleanExpression.Or -> CodeBlock.of(
-        "\$L || \$L", left.toTemplate(), right.toTemplate()
+        "\$L || \$L",
+        left.toTemplate(),
+        right.toTemplate(),
     )
 
     is KobolIRTree.Expression.BooleanExpression.Smaller -> if (equals) {
         CodeBlock.of(
-            "\$L <= \$L", left.toTemplate(), right.toTemplate()
+            "\$L <= \$L",
+            left.toTemplate(),
+            right.toTemplate(),
         )
     } else {
         CodeBlock.of(
-            "\$L < \$L", left.toTemplate(), right.toTemplate()
+            "\$L < \$L",
+            left.toTemplate(),
+            right.toTemplate(),
         )
     }
 }
@@ -373,13 +412,13 @@ private fun KobolIRTree.Expression.NumberExpression.toTemplate(): CodeBlock = wh
     is KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable.Use -> CodeBlock.of(
         "\$L.\$L",
         target.toTemplate(),
-        variable.toTemplate()
+        variable.toTemplate(),
     )
 
     is KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable.Use -> CodeBlock.of(
         "\$L.\$L",
         target.toTemplate(),
-        variable.toTemplate()
+        variable.toTemplate(),
     )
 }
 
@@ -391,7 +430,7 @@ private fun TypeSpec.Builder.addType(data: KobolIRTree.Types) {
             addGlobalVariable(data)
         }
 
-        KobolIRTree.Types.Type.Void -> Unit
+        is KobolIRTree.Types.Type.Natives -> Unit
     }
 }
 
@@ -443,6 +482,7 @@ private fun Declaration.createProperty(): FieldSpec {
         }
 
         is ObjectDeclaration -> Type to value?.toTemplate()
+        is Declaration.Array -> Type to value
     }
     return FieldSpec.builder(type, name).apply {
         if (!mutable) {
@@ -468,4 +508,15 @@ private val Declaration.Type: TypeName
         is DoubleDeclaration -> TypeName.DOUBLE
         is IntDeclaration -> TypeName.INT
         is ObjectDeclaration -> ClassName.get(type.packageName, type.name)
+        is Declaration.Array -> ArrayTypeName.of(type.Type)
+    }
+
+private val KobolIRTree.Types.Type: TypeName
+    get() = when (this) {
+        is KobolIRTree.Types.Function -> notPossible()
+        is KobolIRTree.Types.Type.Class -> ClassName.get(packageName, name)
+        is KobolIRTree.Types.Type.GlobalVariable -> declaration.Type
+        KobolIRTree.Types.Type.Natives.Void -> TypeName.VOID
+        KobolIRTree.Types.Type.Natives.String -> ClassName.get("java.lang", "String")
+        KobolIRTree.Types.Type.Natives.Int -> TypeName.INT
     }

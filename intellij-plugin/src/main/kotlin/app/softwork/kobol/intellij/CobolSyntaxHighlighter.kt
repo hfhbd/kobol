@@ -29,15 +29,21 @@ internal object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getTokenHighlights(tokenType: IElementType?) = when (tokenType) {
         CobolTypes.COMMENT -> comment
         CobolTypes.VARNAME -> vars
-        CobolTypes.DISPLAY, CobolTypes.MOVE, CobolTypes.PERFORM, CobolTypes.CALL, CobolTypes.ADD, CobolTypes.WRITE, CobolTypes.READ -> function
+
+        CobolTypes.DISPLAY, CobolTypes.MOVE, CobolTypes.PERFORM, CobolTypes.CALL, CobolTypes.ADD, CobolTypes.WRITE,
+        CobolTypes.READ,
+        -> function
+
         CobolTypes.STRING -> string
         CobolTypes.NUMBER, CobolTypes.ZERO, CobolTypes.SPACE, CobolTypes.LOW_VALUE, CobolTypes.HIGH_VALUE -> number
 
         CobolTypes.DIVISION, CobolTypes.SECTION,
-        CobolTypes.IDENTIFICATION, CobolTypes.PROGRAM_ID, CobolTypes.AUTHOR, CobolTypes.DATE_WRITTEN, CobolTypes.INSTALLATION,
+        CobolTypes.IDENTIFICATION, CobolTypes.PROGRAM_ID, CobolTypes.AUTHOR, CobolTypes.DATE_WRITTEN,
+        CobolTypes.INSTALLATION,
         CobolTypes.ENVIRONMENT,
         CobolTypes.CONFIGURATION, CobolTypes.SPECIAL_NAMES, CobolTypes.IS,
-        CobolTypes.INPUT_OUTPUT, CobolTypes.FILE_CONTROL, CobolTypes.SELECT, CobolTypes.ASSIGN, CobolTypes.FILE, CobolTypes.STATUS,
+        CobolTypes.INPUT_OUTPUT, CobolTypes.FILE_CONTROL, CobolTypes.SELECT, CobolTypes.ASSIGN, CobolTypes.FILE,
+        CobolTypes.STATUS,
         CobolTypes.TO, CobolTypes.ON, CobolTypes.DEPENDING, CobolTypes.OCCURS,
 
         CobolTypes.IF, CobolTypes.THEN, CobolTypes.ELSE, CobolTypes.END_IF,
@@ -52,7 +58,9 @@ internal object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         CobolTypes.EXEC, CobolTypes.END_EXEC, CobolTypes.SQL,
 
         CobolTypes.DATA,
-        CobolTypes.PROCEDURE -> keyword
+        CobolTypes.LINKAGE,
+        CobolTypes.PROCEDURE,
+        -> keyword
 
         TokenType.BAD_CHARACTER -> badCharacter
         CobolTypes.DOT -> dot

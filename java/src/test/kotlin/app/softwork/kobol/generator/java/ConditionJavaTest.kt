@@ -34,7 +34,7 @@ class ConditionJavaTest {
         public class Helloif {
           public static String WORLD = "WORLD!";
         
-          public static void main(String[] args) {
+          public static void helloif() {
             if (WORLD.equals("WORLD!")) {
               // Some Comment
               System.out.println("HELLO " + WORLD);
@@ -87,7 +87,7 @@ class ConditionJavaTest {
         
           public static int WORLD = 1;
         
-          public static void main(String[] args) {
+          public static void eval() {
             if (FOO.equals("") && WORLD == 1 && BAR.equals("")) {
               System.out.println("right");
               System.out.println("two");
@@ -137,7 +137,7 @@ class ConditionJavaTest {
         
           public static int WORLD = 1;
         
-          public static void main(String[] args) {
+          public static void eval() {
             if (FOO.equals("")) {
               System.out.println("right");
               System.out.println("right2");

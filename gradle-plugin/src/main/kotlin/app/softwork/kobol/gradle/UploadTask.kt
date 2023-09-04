@@ -38,7 +38,6 @@ public abstract class SshTask : DefaultTask() {
     internal val sshClasspath: FileCollection =
         project.objects.fileCollection().from(project.configurations.named(configuration))
 
-
     @get:Inject
     internal abstract val workerExecutor: WorkerExecutor
 }
@@ -49,10 +48,6 @@ public abstract class UploadTask : SshTask() {
     @get:PathSensitive(RELATIVE)
     @get:InputFiles
     public abstract val files: ConfigurableFileCollection
-
-    public fun files(vararg cobols: NamedDomainObjectProvider<CobolSource>) {
-        files.from(cobols.map { it.file })
-    }
 
     @get:Optional
     @get:Input

@@ -11,13 +11,13 @@ public class Factory : SqlPrecompilerFactory {
         packageName: String,
         fileName: String,
         outputFolder: File?,
-        args: Map<String, String>
+        args: Map<String, String>,
     ): SqlDelightPrecompiler {
         return SqlDelightPrecompiler(
             dbName = args[DB_NAME]!!,
             sqFolder = outputFolder!!,
             packageName = packageName,
-            fileName = fileName
+            fileName = fileName,
         )
     }
 }

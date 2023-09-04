@@ -2,7 +2,6 @@ package app.softwork.kobol.gradle
 
 import org.gradle.api.*
 import org.gradle.api.file.*
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.*
 import org.gradle.workers.*
@@ -11,28 +10,20 @@ import javax.inject.*
 @CacheableTask
 public abstract class KobolFirPluginTask : DefaultTask() {
     init {
-        group = "Kobol"
+        group = "kobol"
     }
 
     @get:Internal
-    public val pluginConfiguration: String = project.configurations.register("${name}Plugin") {
+    internal val pluginConfiguration = project.configurations.register("${name}Plugin") {
         it.isVisible = false
         it.isCanBeConsumed = false
         it.isCanBeResolved = true
+
+        it.dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
     }.name
 
-    @get:InputFiles
-    @get:Classpath
-    internal val pluginDependencies =
-        project.objects.fileCollection().from(project.configurations.named(pluginConfiguration))
-
-    public fun firPlugin(dependency: Any) {
+    public fun plugin(dependency: Any) {
         project.dependencies.add(pluginConfiguration, dependency)
-    }
-
-    public fun add(cobolSource: Provider<CobolSource>) {
-        sources.from(cobolSource.map { it.file })
-        plugins.from(cobolSource.flatMap { project.configurations.named(it.plugins) })
     }
 
     @get:InputFiles
@@ -41,7 +32,8 @@ public abstract class KobolFirPluginTask : DefaultTask() {
 
     @get:InputFiles
     @get:Classpath
-    public abstract val plugins: ConfigurableFileCollection
+    internal val pluginDependencies =
+        project.objects.fileCollection().from(project.configurations.named(pluginConfiguration))
 
     @get:OutputDirectory
     public abstract val outputFolder: DirectoryProperty
@@ -56,7 +48,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @TaskAction
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
-            it.classpath.from(pluginDependencies, plugins)
+            it.classpath.from(pluginDependencies)
         }.submit(FirKobolAction::class.java) {
             it.inputFiles.setFrom(sources)
             it.outputFolder.set(outputFolder)

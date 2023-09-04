@@ -10,10 +10,12 @@ import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.For
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.Compressed.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.ReturnCode
 import app.softwork.kobol.fir.CobolFIRTree.EnvTree.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.BooleanExpression.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.NumberExpression.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.StringExpression.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Sql
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Sql.SqlType.*
 import org.intellij.lang.annotations.*
 import kotlin.test.*
@@ -21,7 +23,7 @@ import kotlin.test.*
 class CobolParserTest {
     @Test
     fun data() {
-        //language=COBOL
+        //language=cobol
         val input = """
                 123456 IDENTIFICATION DIVISION.
                 123456 PROGRAM-ID. HELLO.
@@ -46,78 +48,102 @@ class CobolParserTest {
                 123456 01 RPICA.
                 123456    05 FOO PIC A(3).
                 123456 77 BAR PIC A(3).
+                123456 LINKAGE SECTION.
+                123455 77 BBBBB PIC A(3).
+                123455 01 CCCCC.
+                123455   05 DDDDD PIC A(3).
                 123456 PROCEDURE DIVISION.
                 123456 DISPLAY WORLD
                 123456 DISPLAY FOO
                 123456 DISPLAY FOO OF RPICA.
-            """.trimIndent()
+        """.trimIndent()
         val world = StringElementar(name = "WORLD", recordName = "RPI", value = "WORLD!", formatter = Simple(6))
         val foo = StringElementar(name = "FOO", recordName = null, value = "123456", formatter = Simple(6))
         val fooRPICA = StringElementar(name = "FOO", recordName = "RPICA", formatter = Simple(3))
 
-        assertEquals(CobolFIRTree(
-            fileName = "testing.cbl",
-            id = ID(
-                programID = "HELLO"
-            ), env = EnvTree(
-                inputOutput = InputOutput(
-                    fileControl = InputOutput.FileControl(
-                        files = listOf(
-                            InputOutput.FileControl.File(
-                                file = "FOO",
-                                path = "A",
-                                fileStatus = "EIN",
-                                type = File.FileType.Sequential,
-                            )
-                        )
-                    )
-                )
-            ),
-            data = DataTree(
-                fileSection = build {
-                    +File(
-                        name = "FOO",
-                        description = File.FileDescription(
-                            recording = "V"
+        assertEquals(
+            CobolFIRTree(
+                fileName = "testing.cbl",
+                id = ID(
+                    programID = "HELLO",
+                ),
+                env = EnvTree(
+                    inputOutput = InputOutput(
+                        fileControl = InputOutput.FileControl(
+                            files = listOf(
+                                InputOutput.FileControl.File(
+                                    file = "FOO",
+                                    path = "A",
+                                    fileStatus = "EIN",
+                                    type = File.FileType.Sequential,
+                                ),
+                            ),
                         ),
-                        filePath = "A",
-                        fileStatus = "EIN",
-                        type = File.FileType.Sequential,
-                        records = build {
-                            +Record("BAR-1") {
-                                +StringElementar(
-                                    name = "FOO",
-                                    recordName = "BAR-1",
-                                    value = null,
-                                    formatter = Simple(3)
-                                )
-                                +StringElementar(
-                                    name = "BAR",
-                                    recordName = "BAR-1",
-                                    value = null,
-                                    formatter = Simple(3)
-                                )
-                            }
+                    ),
+                ),
+                data = DataTree(
+                    fileSection = build {
+                        +File(
+                            name = "FOO",
+                            description = File.FileDescription(
+                                recording = "V",
+                            ),
+                            filePath = "A",
+                            fileStatus = "EIN",
+                            type = File.FileType.Sequential,
+                            records = build {
+                                +Record("BAR-1") {
+                                    +StringElementar(
+                                        name = "FOO",
+                                        recordName = "BAR-1",
+                                        value = null,
+                                        formatter = Simple(3),
+                                    )
+                                    +StringElementar(
+                                        name = "BAR",
+                                        recordName = "BAR-1",
+                                        value = null,
+                                        formatter = Simple(3),
+                                    )
+                                }
+                            },
+                        )
+                    },
+                    workingStorage = build {
+                        +Record(name = "RPI") {
+                            +world
+                            +StringElementar(name = "ANSWER", recordName = "RPI", formatter = Simple(6))
                         }
-                    )
-                },
-                workingStorage = build {
-                    +Record(name = "RPI") {
-                        +world
-                        +StringElementar(name = "ANSWER", recordName = "RPI", formatter = Simple(6))
-                    }
-                    +foo
-                    +Record(name = "RPICA") {
-                        +fooRPICA
-                    }
-                    +StringElementar(name = "BAR", recordName = null, formatter = Simple(3))
-                    +ReturnCode()
-                }), procedure = ProcedureTree(topLevel = build {
-                +Display(StringVariable(target = world))
-                +Display(StringVariable(target = foo))
-                +Display(StringVariable(target = fooRPICA))
-            })
-        ), input.toTree()
+                        +foo
+                        +Record(name = "RPICA") {
+                            +fooRPICA
+                        }
+                        +StringElementar(name = "BAR", recordName = null, formatter = Simple(3))
+                        +ReturnCode()
+                    },
+                    linkingSection = build {
+                        +StringElementar(name = "BBBBB", recordName = null, formatter = Simple(length = 3))
+                        +Record(
+                            name = "CCCCC",
+                            elements = build {
+                                +StringElementar(
+                                    name = "DDDDD",
+                                    recordName = "CCCCC",
+                                    formatter = Simple(length = 3),
+                                )
+                            },
+                        )
+                    },
+                ),
+                procedure = ProcedureTree(
+                    topLevel = build {
+                        +Display(StringVariable(target = world))
+                        +Display(StringVariable(target = foo))
+                        +Display(StringVariable(target = fooRPICA))
+                    },
+                ),
+            ),
+            input.toTree(),
         )
     }
 
@@ -130,14 +156,17 @@ class CobolParserTest {
         123456     MOVE "42" TO RETURN-CODE.
         """.trimIndent()
 
-        assertNotNull(input.toTree().data.workingStorage.singleOrNull {
-            it is Elementar && it.name == "RETURN-CODE"
-        })
+        assertNotNull(
+            input.toTree().data.workingStorage.singleOrNull {
+                it is Elementar && it.name == "RETURN-CODE"
+            },
+        )
     }
 
     @Test
     fun testInput() {
-        @Language("Cobol") val input = """
+        @Language("Cobol")
+        val input = """
             123456 IDENTIFICATION              DIVISION.
             123456 PROGRAM-ID.                 HELLO.
             123456 DATA                        DIVISION.
@@ -155,30 +184,38 @@ class CobolParserTest {
             CobolFIRTree(
                 fileName = "testing.cbl",
                 id = ID(
-                    programID = "HELLO"
+                    programID = "HELLO",
                 ),
-                data = DataTree(workingStorage = build { 
-                    +world
-                    +ReturnCode()
-                }),
-                procedure = ProcedureTree(topLevel = build {
-                    +Display(
-                        Concat(
-                            StringLiteral("HELLO"), StringVariable(target = world)
-                        ), comments = listOf("Some Comment")
-                    )
-                    +Move(value = StringLiteral("42"), target = world)
-                    +Display(
-                        StringLiteral("ANSWER") + StringVariable(target = world)
-                    )
-                })
-            ), input.toTree()
+                data = DataTree(
+                    workingStorage = build {
+                        +world
+                        +ReturnCode()
+                    },
+                ),
+                procedure = ProcedureTree(
+                    topLevel = build {
+                        +Display(
+                            Concat(
+                                StringLiteral("HELLO"),
+                                StringVariable(target = world),
+                            ),
+                            comments = listOf("Some Comment"),
+                        )
+                        +Move(value = StringLiteral("42"), target = world)
+                        +Display(
+                            StringLiteral("ANSWER") + StringVariable(target = world),
+                        )
+                    },
+                ),
+            ),
+            input.toTree(),
         )
     }
 
     @Test
     fun specialNames() {
-        @Language("Cobol") val input = """
+        @Language("Cobol")
+        val input = """
             123456 IDENTIFICATION              DIVISION.
             123456 PROGRAM-ID.                 HELLO.
             123456 ENVIRONMENT DIVISION.
@@ -194,26 +231,32 @@ class CobolParserTest {
             CobolFIRTree(
                 fileName = "testing.cbl",
                 id = ID(
-                    programID = "HELLO"
-                ), env = EnvTree(
+                    programID = "HELLO",
+                ),
+                env = EnvTree(
                     configuration = Configuration(
                         specialNames = Configuration.SpecialNames(
                             specialNames = listOf(
-                                Configuration.SpecialNames.SpecialName("DECIMAL-POINT", "COMMA")
-                            )
-                        )
-                    )
-                ), procedure = ProcedureTree(topLevel = build {
-                    +Display(StringLiteral("HELLO"))
-                    +GoBack()
-                })
-            ), input.toTree()
+                                Configuration.SpecialNames.SpecialName("DECIMAL-POINT", "COMMA"),
+                            ),
+                        ),
+                    ),
+                ),
+                procedure = ProcedureTree(
+                    topLevel = build {
+                        +Display(StringLiteral("HELLO"))
+                        +GoBack()
+                    },
+                ),
+            ),
+            input.toTree(),
         )
     }
 
     @Test
     fun fileConfig() {
-        @Language("Cobol") val input = """
+        @Language("Cobol")
+        val input = """
             123456 IDENTIFICATION              DIVISION.
             123456 PROGRAM-ID.                 HELLO.
             123456 ENVIRONMENT DIVISION.
@@ -242,8 +285,9 @@ class CobolParserTest {
             CobolFIRTree(
                 fileName = "testing.cbl",
                 id = ID(
-                    programID = "HELLO"
-                ), env = EnvTree(
+                    programID = "HELLO",
+                ),
+                env = EnvTree(
                     inputOutput = InputOutput(
                         fileControl = InputOutput.FileControl(
                             files = listOf(
@@ -252,17 +296,19 @@ class CobolParserTest {
                                     path = "FOO",
                                     fileStatus = "FOO-STATUS",
                                     type = File.FileType.Sequential,
-                                    comments = listOf("FOO I", "FOO II")
+                                    comments = listOf("FOO I", "FOO II"),
                                 ),
                                 InputOutput.FileControl.File(
                                     file = "FOO-FILE2",
                                     path = "FOO",
                                     type = File.FileType.Sequential,
-                                    fileStatus = "FOO-STATUS"
-                                )
-                            ), comments = listOf("FILE I", "FILE II")
-                        ), comments = listOf("INPUT I", "INPUT II")
-                    )
+                                    fileStatus = "FOO-STATUS",
+                                ),
+                            ),
+                            comments = listOf("FILE I", "FILE II"),
+                        ),
+                        comments = listOf("INPUT I", "INPUT II"),
+                    ),
                 ),
                 data = DataTree(
                     fileSection = listOf(
@@ -272,24 +318,26 @@ class CobolParserTest {
                                 recording = "F",
                                 blocks = null,
                                 records = null,
-                                comments = emptyList()
+                                comments = emptyList(),
                             ),
                             filePath = "FOO",
                             fileStatus = "FOO-STATUS",
                             type = File.FileType.Sequential,
-                            records = listOf(Record(name = "F", elements = emptyList()))
-                        )
+                            records = listOf(Record(name = "F", elements = emptyList())),
+                        ),
                     ),
                     workingStorage = build {
                         +ReturnCode()
-                    }, linkingSection = emptyList()
+                    },
+                    linkingSection = emptyList(),
                 ),
                 procedure = ProcedureTree(
                     topLevel = listOf(
-                        Display(StringLiteral("HELLO"))
-                    )
-                )
-            ), input.toTree()
+                        Display(StringLiteral("HELLO")),
+                    ),
+                ),
+            ),
+            input.toTree(),
         )
     }
 
@@ -325,41 +373,60 @@ class CobolParserTest {
             CobolFIRTree(
                 fileName = "testing.cbl",
                 id = ID(
-                    programID = "HELLO", author = "WEDEMANN / Softwork.app"
+                    programID = "HELLO",
+                    author = "WEDEMANN / Softwork.app",
                 ),
-                data = DataTree(workingStorage = build {
-                    +Record("RPI") {
-                        +EmptyElementar("FOO1", "RPI")
-                        val world2 = NumberElementar.Normal("WORLD2", recordName = "RPI", formatter = Simple(1), value = 9.0)
-                        +world2
-                        +Pointer("WORLD3", recordName = "RPI")
-                        +world4
-                        +NumberElementar.Normal(
-                            "FOO5",
-                            recordName = "RPI",
-                            formatter = Simple(9),
-                            value = 123456.0,
-                            occurs = Occurs(9, 9, dependingOn = world2)
-                        )
-                    }
+                data = DataTree(
+                    workingStorage = build {
+                        +Record("RPI") {
+                            +EmptyElementar("FOO1", "RPI")
+                            val world2 = NumberElementar.Normal(
+                                "WORLD2",
+                                recordName = "RPI",
+                                formatter = Simple(1),
+                                value = 9.0,
+                            )
+                            +world2
+                            +Pointer("WORLD3", recordName = "RPI")
+                            +world4
+                            +NumberElementar.Normal(
+                                "FOO5",
+                                recordName = "RPI",
+                                formatter = Simple(9),
+                                value = 123456.0,
+                                occurs = Occurs(9, 9, dependingOn = world2),
+                            )
+                        }
 
-                    +StringElementar("WORLD6", recordName = null, formatter = Simple(1))
-                    +NumberElementar.Normal(
-                        "FOO7", recordName = null, formatter = Custom(Signed(6), Decimal(1)), value = .9, signed = true
-                    )
-                    +NumberElementar.Normal("FOO8", recordName = null, formatter = Simple(1), value = .9, signed = false)
-                    +Record("RPICA") {
-                        +NumberElementar.Normal("FOOPIC", recordName = "RPICA", formatter = Simple(3))
-                    }
-                    +NumberElementar.Normal("FOO9", recordName = null, formatter = Simple(3))
-                    +ReturnCode()
-                }),
+                        +StringElementar("WORLD6", recordName = null, formatter = Simple(1))
+                        +NumberElementar.Normal(
+                            "FOO7",
+                            recordName = null,
+                            formatter = Custom(Signed(6), Decimal(1)),
+                            value = .9,
+                            signed = true,
+                        )
+                        +NumberElementar.Normal(
+                            "FOO8",
+                            recordName = null,
+                            formatter = Simple(1),
+                            value = .9,
+                            signed = false,
+                        )
+                        +Record("RPICA") {
+                            +NumberElementar.Normal("FOOPIC", recordName = "RPICA", formatter = Simple(3))
+                        }
+                        +NumberElementar.Normal("FOO9", recordName = null, formatter = Simple(3))
+                        +ReturnCode()
+                    },
+                ),
                 procedure = ProcedureTree(
                     topLevel = build {
                         +Display(StringLiteral("HELLO") + StringVariable(world4))
-                    }
-                )
-            ), input.toTree()
+                    },
+                ),
+            ),
+            input.toTree(),
         )
     }
 
@@ -390,26 +457,39 @@ class CobolParserTest {
             CobolFIRTree(
                 fileName = "testing.cbl",
                 id = ID(programID = "HELLO"),
-                data = DataTree(workingStorage = build {
-                    +world2
-                    +ReturnCode()
-                }),
-                procedure = ProcedureTree(topLevel = build {
-                    +Perform("FOO", until = Equals(NumberVariable(world2), 2.l))
-                    +While(build {
-                        +Perform("FOO")
-                    }, until = NumberVariable(world2) eq 2.l)
-                    +ForEach(variable = world2,
-                        from = 1.l,
-                        by = 3.l,
-                        until = NumberVariable(world2) eq 4.l,
-                        statements = build {
-                            +Perform("FOO")
-                        })
-                }, sections = listOf(ProcedureTree.Section("FOO") {
-                    +Display("FOO".l)
-                }))
-            ), input.toTree()
+                data = DataTree(
+                    workingStorage = build {
+                        +world2
+                        +ReturnCode()
+                    },
+                ),
+                procedure = ProcedureTree(
+                    topLevel = build {
+                        +Perform("FOO", until = Equals(NumberVariable(world2), 2.l))
+                        +While(
+                            build {
+                                +Perform("FOO")
+                            },
+                            until = NumberVariable(world2) eq 2.l,
+                        )
+                        +ForEach(
+                            variable = world2,
+                            from = 1.l,
+                            by = 3.l,
+                            until = NumberVariable(world2) eq 4.l,
+                            statements = build {
+                                +Perform("FOO")
+                            },
+                        )
+                    },
+                    sections = listOf(
+                        ProcedureTree.Section("FOO") {
+                            +Display("FOO".l)
+                        },
+                    ),
+                ),
+            ),
+            input.toTree(),
         )
     }
 
@@ -457,84 +537,89 @@ class CobolParserTest {
             CobolFIRTree(
                 fileName = "testing.cbl",
                 id = ID(programID = "HELLO"),
-                data = DataTree(workingStorage = build {
-                    +bar
-                    +barResult
-                    +Record("SQLCA") {
-                        +StringElementar("SQLCAID", recordName = "SQLCA", value = "SQLCA   ", formatter = Simple(8))
-                        +NumberElementar.Normal(
-                            "SQLCABC",
-                            recordName = "SQLCA",
-                            value = 136.0,
-                            signed = true,
-                            compressed = COMP5,
-                            formatter = Simple(9)
-                        )
-                        +NumberElementar.Normal(
-                            "SQLCODE",
-                            recordName = "SQLCA",
-                            signed = true,
-                            compressed = COMP5,
-                            formatter = Simple(9)
-                        )
-                        +EmptyElementar("SQLERRM", recordName = "SQLCA")
-                        +StringElementar("SQLERRP", recordName = "SQLCA", Simple(8))
-                        +NumberElementar.Normal(
-                            "SQLERRD",
-                            recordName = "SQLCA",
-                            Simple(9),
-                            signed = true,
-                            compressed = COMP5,
-                            occurs = Occurs(6)
-                        )
-                        +EmptyElementar("SQLWARN", recordName = "SQLCA")
-                        repeat(10) {
-                            +StringElementar("SQLWARN$it", recordName = "SQLCA", Simple(1))
+                data = DataTree(
+                    workingStorage = build {
+                        +bar
+                        +barResult
+                        +Record("SQLCA") {
+                            +StringElementar("SQLCAID", recordName = "SQLCA", value = "SQLCA   ", formatter = Simple(8))
+                            +NumberElementar.Normal(
+                                "SQLCABC",
+                                recordName = "SQLCA",
+                                value = 136.0,
+                                signed = true,
+                                compressed = COMP5,
+                                formatter = Simple(9),
+                            )
+                            +NumberElementar.Normal(
+                                "SQLCODE",
+                                recordName = "SQLCA",
+                                signed = true,
+                                compressed = COMP5,
+                                formatter = Simple(9),
+                            )
+                            +NumberElementar.Normal("SQLERRML", "SQLCA", Simple(4), compressed = COMP5, signed = true)
+                            +StringElementar("SQLERRMC", recordName = "SQLCA", Simple(70))
+                            +StringElementar("SQLERRP", recordName = "SQLCA", Simple(8))
+                            +NumberElementar.Normal(
+                                "SQLERRD",
+                                recordName = "SQLCA",
+                                Simple(9),
+                                signed = true,
+                                compressed = COMP5,
+                                occurs = Occurs(6),
+                            )
+                            repeat(10) {
+                                +StringElementar("SQLWARN$it", recordName = "SQLCA", Simple(1))
+                            }
+                            +StringElementar("SQLWARNA", recordName = "SQLCA", Simple(1))
+                            +sqlState
                         }
-                        +StringElementar("SQLWARNA", recordName = "SQLCA", Simple(1))
-                        +sqlState
-                    }
-                    +foo
-                    +ReturnCode()
-                }),
-                procedure = ProcedureTree(topLevel = build {
-                    +ProcedureTree.Statement.Sql(
-                        "SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1",
-                        hostVariables = listOf(NumberVariable(foo)),
-                        parameter = emptyList(),
-                        type = Select
-                    )
-                    +ProcedureTree.Statement.Sql(
-                        "SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1",
-                        hostVariables = listOf(NumberVariable(foo)),
-                        parameter = emptyList(),
-                        type = Select
-                    )
-                    +ProcedureTree.Statement.Sql(
-                        "SET :FOO = 42",
-                        hostVariables = listOf(NumberVariable(foo)),
-                        parameter = emptyList(),
-                        type = Select
-                    )
-                    +ProcedureTree.Statement.Sql(
-                        "SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC",
-                        hostVariables = listOf(NumberVariable(foo)),
-                        parameter = listOf(),
-                        type = Select
-                    )
-                    +ProcedureTree.Statement.Sql(
-                        "SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC",
-                        hostVariables = listOf(NumberVariable(foo), NumberVariable(barResult)),
-                        parameter = listOf(NumberVariable(bar), NumberVariable(foo)),
-                        type = Select
-                    )
-                    +Display(Interpolation(NumberVariable(foo)))
-                    +Display(StringVariable(sqlState))
-                })
-            ), input.toTree("LINES" to lines)
+                        +foo
+                        +ReturnCode()
+                    },
+                ),
+                procedure = ProcedureTree(
+                    topLevel = build {
+                        +Sql(
+                            "SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1",
+                            updatingHostVariables = listOf(NumberVariable(foo)),
+                            parameter = emptyList(),
+                            type = Select,
+                        )
+                        +Sql(
+                            "SET :FOO = SELECT 42 FROM SYSIBM.SYSDUMMY1",
+                            updatingHostVariables = listOf(NumberVariable(foo)),
+                            parameter = emptyList(),
+                            type = Select,
+                        )
+                        +Sql(
+                            "SET :FOO = 42",
+                            updatingHostVariables = listOf(NumberVariable(foo)),
+                            parameter = emptyList(),
+                            type = Select,
+                        )
+                        +Sql(
+                            "SELECT 42 AS f INTO :FOO FROM SYSIBM.SYSDUMMY1 WHERE f = 42 ORDER BY f DESC",
+                            updatingHostVariables = listOf(NumberVariable(foo)),
+                            parameter = listOf(),
+                            type = Select,
+                        )
+                        +Sql(
+                            "SELECT 42 AS f, :BAR INTO :FOO, :BARRESULT FROM SYSIBM.SYSDUMMY1 WHERE f = 42 AND :FOO IS 1 ORDER BY f DESC",
+                            updatingHostVariables = listOf(NumberVariable(foo), NumberVariable(barResult)),
+                            parameter = listOf(NumberVariable(bar), NumberVariable(foo)),
+                            type = Select,
+                        )
+                        +Display(Interpolation(NumberVariable(foo)))
+                        +Display(StringVariable(sqlState))
+                    },
+                ),
+            ),
+            input.toTree("LINES" to lines),
         )
     }
 
-    private infix fun ProcedureTree.Expression.eq(right: ProcedureTree.Expression) =
+    private infix fun Expression.eq(right: Expression) =
         Equals(this, right)
 }

@@ -3,6 +3,7 @@ package app.softwork.kobol.flowgraph
 import app.softwork.kobol.fir.*
 import org.intellij.lang.annotations.Language
 import java.io.*
+import java.nio.file.Files
 import java.util.ServiceLoader
 import kotlin.test.*
 
@@ -25,7 +26,8 @@ class PlantumlFlowGraphTest {
             123456     END-IF.
         """.trimIndent().toTree()
         //language=puml
-        assertEquals("""
+        assertEquals(
+            """
             @startuml
             start
             :DISPLAY "HELLO" WORLD;
@@ -37,14 +39,18 @@ class PlantumlFlowGraphTest {
             end
             @enduml
             
-        """.trimIndent(), cobol.createFlowGraph())
+            """.trimIndent(),
+            cobol.createFlowGraph(),
+        )
     }
-    
+
     @Test
     fun loadFactory() {
         assertTrue(ServiceLoader.load(FirCodeGeneratorFactory::class.java).single() is Factory)
     }
 }
 
-internal fun String.toTree() =
-    File.createTempFile("testing", ".cbl").apply { writeText(this@toTree) }.toTree()
+internal fun String.toTree(): CobolFIRTree {
+    val temp = Files.createTempDirectory("testing")
+    return File(temp.toFile(), "testing.cbl").apply { writeText(this@toTree) }.toTree(temp)
+}

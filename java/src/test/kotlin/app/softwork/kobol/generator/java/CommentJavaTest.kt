@@ -82,7 +82,11 @@ class CommentJavaTest {
            */
           public static String WORLD = "WORLD!";
         
-          public static void main(String[] args) {
+          /**
+           * PROCEDURE I
+           * PROCEDURE II
+           */
+          public static void hello() {
             // DISPLAY I
             // DISPLAY II
             System.out.println(HELLO + WORLD);

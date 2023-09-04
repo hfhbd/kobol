@@ -19,7 +19,9 @@ public abstract class AbstractInlining(private val syntheticOnly: Boolean) : IrP
 internal fun KobolIRTree.inlineGlobalVariables(syntheticOnly: Boolean): KobolIRTree {
     val globalVariables = types.mapNotNull {
         when {
-            it is GlobalVariable && ((syntheticOnly && (it.target as? Declaration.Primitive)?.synthetic == true) || !syntheticOnly) -> it
+            it is GlobalVariable &&
+                ((syntheticOnly && (it.target as? Declaration.Primitive)?.synthetic == true) || !syntheticOnly)
+            -> it
 
             else -> null
         }
@@ -30,8 +32,9 @@ internal fun KobolIRTree.inlineGlobalVariables(syntheticOnly: Boolean): KobolIRT
         val singleWrite = when {
             writes.main == null && writes.types.isEmpty() -> null // never written
             writes.main != null && writes.types.isEmpty() -> writes.main!!
-            writes.main == null && writes.types.size == 1 -> (writes.types.single() as? Class)?.functions?.singleOrNull()
-                ?: return@mapNotNull null
+
+            writes.main == null && writes.types.size == 1
+            -> (writes.types.single() as? Class)?.functions?.singleOrNull() ?: return@mapNotNull null
 
             else -> return@mapNotNull null
         }
@@ -52,7 +55,7 @@ internal fun KobolIRTree.inlineGlobalVariables(syntheticOnly: Boolean): KobolIRT
                     noWrites = singleWrite == null,
                     writesAndReadsInSameFunction = singleWrite == singleRead,
                     singleRead = singleRead,
-                    isSynthetic = isSynthetic
+                    isSynthetic = isSynthetic,
                 )
             }
 
@@ -66,7 +69,7 @@ internal fun KobolIRTree.inlineGlobalVariables(syntheticOnly: Boolean): KobolIRT
     return copy(
         types = types.filter {
             it !in removed
-        }
+        },
     )
 }
 
@@ -75,7 +78,7 @@ private fun inline(
     noWrites: Boolean,
     writesAndReadsInSameFunction: Boolean,
     singleRead: Types.Function,
-    isSynthetic: Boolean
+    isSynthetic: Boolean,
 ): GlobalVariable {
     val dec = globalVariable.declaration
     val expr = when {
@@ -92,6 +95,7 @@ private fun inline(
                 is Declaration.IntDeclaration.Normal -> dec.copy(mutable = false)
                 is Declaration.IntDeclaration.ReturnCode -> dec.copy(mutable = false)
                 is Declaration.StringDeclaration -> dec.copy(mutable = false)
+                is Declaration.Array -> dec.copy(mutable = false)
             }
             singleRead.body.add(0, nonMutableDec)
             nonMutableDec.variable()
@@ -112,7 +116,7 @@ private fun inline(
 
 private fun synthetic(
     globalVariable: GlobalVariable,
-    reads: Usage
+    reads: Usage,
 ): GlobalVariable {
     val expr = (globalVariable.target as Declaration.Primitive).value!!
     reads.main?.body?.replaceAll {
@@ -134,21 +138,23 @@ private fun synthetic(
 
 private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variable: Expression): Expression =
     when (this) {
+        is GlobalVariable -> if (this == globalVariable) variable else this
+        is ObjectVariable -> this
         is Literal -> this
         is Variable -> if (target == globalVariable.target) variable else this
         is BooleanExpression.And -> copy(
             left = left.useInlineVariable(globalVariable, variable) as BooleanExpression,
-            right = right.useInlineVariable(globalVariable, variable) as BooleanExpression
+            right = right.useInlineVariable(globalVariable, variable) as BooleanExpression,
         )
 
         is BooleanExpression.Bigger -> copy(
             left = left.useInlineVariable(globalVariable, variable) as NumberExpression,
-            right = right.useInlineVariable(globalVariable, variable) as NumberExpression
+            right = right.useInlineVariable(globalVariable, variable) as NumberExpression,
         )
 
         is BooleanExpression.Eq -> copy(
             left = left.useInlineVariable(globalVariable, variable),
-            right = right.useInlineVariable(globalVariable, variable)
+            right = right.useInlineVariable(globalVariable, variable),
         )
 
         is BooleanExpression.Not -> copy(
@@ -157,28 +163,28 @@ private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variabl
 
         is BooleanExpression.NotEq -> copy(
             left = left.useInlineVariable(globalVariable, variable),
-            right = right.useInlineVariable(globalVariable, variable)
+            right = right.useInlineVariable(globalVariable, variable),
         )
 
         is BooleanExpression.Or -> copy(
             left = left.useInlineVariable(globalVariable, variable) as BooleanExpression,
-            right = right.useInlineVariable(globalVariable, variable) as BooleanExpression
+            right = right.useInlineVariable(globalVariable, variable) as BooleanExpression,
         )
 
         is BooleanExpression.Smaller -> copy(
             left = left.useInlineVariable(globalVariable, variable) as NumberExpression,
-            right = right.useInlineVariable(globalVariable, variable) as NumberExpression
+            right = right.useInlineVariable(globalVariable, variable) as NumberExpression,
         )
 
         is FunctionCall -> copy(
-            parameters = parameters.useInlineVariable(globalVariable, variable)
+            parameters = parameters.useInlineVariable(globalVariable, variable),
         )
 
         is NumberExpression.DoubleExpression.DoubleVariable.Use -> this
         is NumberExpression.IntExpression.IntVariable.Use -> this
         is StringExpression.Concat -> copy(
             left = left.useInlineVariable(globalVariable, variable),
-            right = right.useInlineVariable(globalVariable, variable)
+            right = right.useInlineVariable(globalVariable, variable),
         )
 
         is StringExpression.Interpolation -> copy(
@@ -193,28 +199,28 @@ private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variabl
             elseIfs = elseIfs.map {
                 it.copy(
                     condition = it.condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
-                    statements = it.statements.useInlineVariable(globalVariable, variable)
+                    statements = it.statements.useInlineVariable(globalVariable, variable),
                 )
-            }
+            },
         )
 
         is Use -> copy(
             target = target.useInlineVariable(globalVariable, variable),
-            action = action.useInlineVariable(globalVariable, variable)
+            action = action.useInlineVariable(globalVariable, variable),
         )
 
         is When.Multiple -> copy(
             cases = cases.map {
                 it.copy(
                     condition = it.condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
-                    action = it.action.useInlineVariable(globalVariable, variable)
+                    action = it.action.useInlineVariable(globalVariable, variable),
                 )
             },
             elseCase = elseCase?.let {
                 it.copy(
                     action = it.action.useInlineVariable(globalVariable, variable),
                 )
-            }
+            },
         )
 
         is When.Single -> copy(
@@ -222,18 +228,15 @@ private fun Expression.useInlineVariable(globalVariable: GlobalVariable, variabl
             cases = cases.map {
                 it.copy(
                     condition = it.condition.useInlineVariable(globalVariable, variable),
-                    action = it.action.useInlineVariable(globalVariable, variable)
+                    action = it.action.useInlineVariable(globalVariable, variable),
                 )
             },
             elseCase = elseCase?.let {
                 it.copy(
                     action = it.action.useInlineVariable(globalVariable, variable),
                 )
-            }
+            },
         )
-
-        is GlobalVariable -> if (this == globalVariable) variable else this
-        is ObjectVariable -> this
     }
 
 @JvmName("useInlineVariableExpressionList")
@@ -251,60 +254,69 @@ private fun List<Statement>.useInlineVariable(globalVariable: GlobalVariable, va
 private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable: Expression): Statement = when (this) {
     is Assignment -> copy(
         declaration = if (declaration == globalVariable.declaration) (variable as Variable).target else declaration,
-        newValue = newValue.useInlineVariable(globalVariable, variable)
+        newValue = newValue.useInlineVariable(globalVariable, variable),
     )
 
     is Math -> copy(
         declaration = if (declaration == globalVariable.declaration) (variable as Variable).target else declaration,
-        value = value.useInlineVariable(globalVariable, variable)
+        value = value.useInlineVariable(globalVariable, variable),
     )
 
     is Declaration.ObjectDeclaration -> copy(value = value?.useInlineVariable(globalVariable, variable))
+    is Declaration.Array -> this
     is Declaration.BooleanDeclaration -> copy(
         value = value?.useInlineVariable(
             globalVariable,
-            variable
-        ) as BooleanExpression?
+            variable,
+        ) as BooleanExpression?,
     )
 
     is Declaration.DoubleDeclaration -> copy(
         value = value?.useInlineVariable(
             globalVariable,
-            variable
-        ) as NumberExpression.DoubleExpression?
+            variable,
+        ) as NumberExpression.DoubleExpression?,
     )
 
     is Declaration.IntDeclaration.Normal -> copy(
         value = value?.useInlineVariable(
             globalVariable,
-            variable
-        ) as NumberExpression.IntExpression?
+            variable,
+        ) as NumberExpression.IntExpression?,
     )
     is Declaration.IntDeclaration.ReturnCode -> copy(
         value = value.useInlineVariable(
             globalVariable,
-            variable
-        ) as NumberExpression.IntExpression
+            variable,
+        ) as NumberExpression.IntExpression,
     )
 
     is Declaration.StringDeclaration -> copy(
         value = value?.useInlineVariable(
             globalVariable,
-            variable
-        ) as StringExpression?
+            variable,
+        ) as StringExpression?,
     )
 
     is DoWhile -> copy(
         condition = condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
-        statements = statements.useInlineVariable(globalVariable, variable)
+        statements = statements.useInlineVariable(globalVariable, variable),
     )
 
     is Exit -> copy(
-        returnVariable = returnVariable.useInlineVariable(globalVariable, variable) as NumberExpression.IntExpression
+        returnVariable = returnVariable.useInlineVariable(globalVariable, variable) as NumberExpression.IntExpression,
     )
 
     is Throw -> copy(
-        expr.useInlineVariable(globalVariable, variable)
+        expr.useInlineVariable(globalVariable, variable),
+    )
+
+    is TryCatch -> copy(
+        tryStmts = tryStmts.useInlineVariable(globalVariable, variable),
+        catchBlocks = catchBlocks.map {
+            it.copy(stmts = it.stmts.useInlineVariable(globalVariable, variable))
+        },
+        finallyStmts = finallyStmts.useInlineVariable(globalVariable, variable),
     )
 
     is For -> copy(
@@ -312,17 +324,17 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
         from = from.useInlineVariable(globalVariable, variable) as NumberExpression,
         step = step?.useInlineVariable(globalVariable, variable) as NumberExpression?,
         condition = condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
-        statements = statements.useInlineVariable(globalVariable, variable)
+        statements = statements.useInlineVariable(globalVariable, variable),
     )
 
     is ForEach -> copy(
         variable = this.variable.useInlineVariable(globalVariable, variable) as Declaration,
         provider = provider.useInlineVariable(globalVariable, variable),
-        statements = statements.useInlineVariable(globalVariable, variable)
+        statements = statements.useInlineVariable(globalVariable, variable),
     )
 
     is FunctionCall -> copy(
-        parameters = parameters.useInlineVariable(globalVariable, variable)
+        parameters = parameters.useInlineVariable(globalVariable, variable),
     )
 
     is If -> copy(
@@ -332,9 +344,9 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
         elseIfs = elseIfs.map {
             it.copy(
                 condition = it.condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
-                statements = it.statements.useInlineVariable(globalVariable, variable)
+                statements = it.statements.useInlineVariable(globalVariable, variable),
             )
-        }
+        },
     )
 
     is LoadExternal -> this
@@ -343,7 +355,7 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
     is Static -> this
     is Use -> copy(
         target = target.useInlineVariable(globalVariable, variable),
-        action = action.useInlineVariable(globalVariable, variable)
+        action = action.useInlineVariable(globalVariable, variable),
     )
 
     is StringExpression.StringVariable.Use -> this
@@ -353,14 +365,14 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
         cases = cases.map {
             it.copy(
                 condition = it.condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
-                action = it.action.useInlineVariable(globalVariable, variable)
+                action = it.action.useInlineVariable(globalVariable, variable),
             )
         },
         elseCase = elseCase?.let {
             it.copy(
                 action = it.action.useInlineVariable(globalVariable, variable),
             )
-        }
+        },
     )
 
     is When.Single -> copy(
@@ -368,18 +380,18 @@ private fun Statement.useInlineVariable(globalVariable: GlobalVariable, variable
         cases = cases.map {
             it.copy(
                 condition = it.condition.useInlineVariable(globalVariable, variable),
-                action = it.action.useInlineVariable(globalVariable, variable)
+                action = it.action.useInlineVariable(globalVariable, variable),
             )
         },
         elseCase = elseCase?.let {
             it.copy(
                 action = it.action.useInlineVariable(globalVariable, variable),
             )
-        }
+        },
     )
 
     is While -> copy(
         condition = condition.useInlineVariable(globalVariable, variable) as BooleanExpression,
-        statements = statements.useInlineVariable(globalVariable, variable)
+        statements = statements.useInlineVariable(globalVariable, variable),
     )
 }

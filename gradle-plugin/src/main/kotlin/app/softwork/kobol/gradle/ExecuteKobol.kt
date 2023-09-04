@@ -6,6 +6,7 @@ import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.workers.*
 import java.io.*
+import java.nio.file.Path
 import java.util.*
 
 internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
@@ -18,6 +19,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
 
     internal companion object {
         operator fun invoke(
+            rootPath: Path,
             input: Set<File>,
             outputFolder: File,
             sqlFolder: File? = null,
@@ -28,7 +30,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
             files: FileHandlingFactory? = null,
             serialization: SerializationPluginFactory? = null,
             controlFlowHandling: ControlFlowHandlingFactory? = null,
-            codeGeneratorFactory: CodeGeneratorFactory
+            codeGeneratorFactory: CodeGeneratorFactory,
         ) {
             val codeGeneratorConfig = config[CodeGenerator::class.qualifiedName!!] ?: emptyMap()
             val codeGenerator = codeGeneratorFactory(outputFolder, codeGeneratorConfig)
@@ -42,7 +44,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                             packageName = it,
                             fileName = it,
                             outputFolder = sqlFolder,
-                            args = config[SqlPrecompiler::class.qualifiedName!!] ?: emptyMap()
+                            args = config[SqlPrecompiler::class.qualifiedName!!] ?: emptyMap(),
                         ).also { closeables.add(it) }
                     }
                 },
@@ -55,7 +57,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                     {
                         serialization(
                             it,
-                            config[SerializationPlugin::class.qualifiedName!!] ?: emptyMap()
+                            config[SerializationPlugin::class.qualifiedName!!] ?: emptyMap(),
                         ).also { closeables.add(it) }
                     }
                 },
@@ -64,7 +66,8 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                         controlFlowHandling()
                     }
                 },
-                irPlugins = irPlugins
+                irPlugins = irPlugins,
+                absoluteBasePath = rootPath,
             )
 
             codeGenerator.generate(irs)
@@ -77,7 +80,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
     override fun execute() {
         val codeGenerators = ServiceLoader.load(CodeGeneratorFactory::class.java).toList()
         val firPlugins = ServiceLoader.load(FirPluginBeforePhase::class.java) + ServiceLoader.load(
-            FirPluginAfterPhase::class.java
+            FirPluginAfterPhase::class.java,
         )
         val irPlugins = ServiceLoader.load(IrPlugin::class.java).toList()
         val sql = ServiceLoader.load(SqlPrecompilerFactory::class.java).singleOrNull()
@@ -88,6 +91,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
         for (codeGenerator in codeGenerators) {
             invoke(
                 input = parameters.inputFiles.files,
+                rootPath = parameters.inputFiles.singleFile.toPath(),
                 outputFolder = parameters.outputFolder.get().asFile,
                 sqlFolder = parameters.sqlFolder.asFile.orNull,
                 config = parameters.config.get(),
@@ -97,7 +101,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                 files = files,
                 serialization = serialization,
                 codeGeneratorFactory = codeGenerator,
-                controlFlowHandling = controlFlowHandlingFactory
+                controlFlowHandling = controlFlowHandlingFactory,
             )
         }
         firPlugins.forEach(AutoCloseable::close)

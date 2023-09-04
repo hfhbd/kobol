@@ -34,7 +34,7 @@ class VariableTest {
         
         public var WORLD: String? = null
         
-        public fun main() {
+        public fun hello() {
           WORLD = "WORLD!"
           // Some Comment
           println("HELLO ${'$'}WORLD")
@@ -76,7 +76,7 @@ class VariableTest {
         
         public var WORLD: Int = 0
         
-        public fun main() {
+        public fun hello() {
           WORLD += 42
           // Some Comment
           println("HELLO ${'$'}WORLD")

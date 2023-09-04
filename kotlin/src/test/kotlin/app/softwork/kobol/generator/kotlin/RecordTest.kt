@@ -23,13 +23,19 @@ class RecordTest {
         123456* BAR II
         123456 01 BAR.
         123456 05 WORLD PIC x(6) VALUE "BAR".
+        123456 LINKAGE SECTION.
+        123456 77 AAAA PIC A(1).
+        123456 01 BBBB.
+        123456   05 CCCC PIC A(1).
         123456 PROCEDURE                   DIVISION.
         123456  ADD 42 TO WO-RLD OF FOO
         123456  * Some Comment
         123456  DISPLAY "HELLO " WO-RLD OF FOO
         123456  DISPLAY "HELLO " WORLD OF BAR.
+        123456  DISPLAY "HELLO " CCCC
+        123456  DISPLAY "HELLO " AAAA.
         """.trimIndent().toIR(
-            firPlugins = listOf(NullableToZero())
+            firPlugins = listOf(NullableToZero()),
         )
 
         val output = generate(input)
@@ -57,11 +63,17 @@ class RecordTest {
           public var WORLD: String = "BAR"
         }
         
-        public fun main() {
+        public object BBBB {
+          public var CCCC: String = ""
+        }
+        
+        public fun hello(AAAA: String, BBBB: BBBB) {
           FOO.`WO-RLD` += 42
           // Some Comment
           println("HELLO ${'$'}{FOO.`WO-RLD`}")
           println("HELLO ${'$'}{BAR.WORLD}")
+          println("HELLO ${'$'}{BBBB.CCCC}")
+          println("HELLO ${'$'}AAAA")
         }
         
         """.trimIndent()

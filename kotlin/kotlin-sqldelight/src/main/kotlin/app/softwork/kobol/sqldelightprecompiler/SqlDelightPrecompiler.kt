@@ -2,9 +2,19 @@ package app.softwork.kobol.sqldelightprecompiler
 
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.NumberType
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberVariable
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Sql.SqlType.*
 import app.softwork.kobol.ir.*
+import app.softwork.kobol.ir.KobolIRTree.Expression
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral
+import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable
+import app.softwork.kobol.ir.KobolIRTree.Expression.ObjectVariable
+import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression
 import app.softwork.kobol.ir.KobolIRTree.Types.Function
+import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
@@ -15,7 +25,7 @@ public class SqlDelightPrecompiler(
     dbName: String,
     private val sqFolder: File,
     private val packageName: String,
-    private val fileName: String
+    private val fileName: String,
 ) : SqlPrecompiler {
 
     public companion object {
@@ -33,7 +43,7 @@ public class SqlDelightPrecompiler(
         functions = emptyList(),
         doc = emptyList(),
         init = emptyList(),
-        isObject = false
+        isObject = false,
     )
 
     private val driver = GlobalVariable(
@@ -44,7 +54,8 @@ public class SqlDelightPrecompiler(
             comments = emptyList(),
             mutable = false,
             private = false,
-        ), doc = emptyList()
+        ),
+        doc = emptyList(),
     )
 
     private val schemaType = Class(
@@ -53,7 +64,8 @@ public class SqlDelightPrecompiler(
         constructor = emptyList(),
         functions = listOf(
             Function(
-                "migrate", parameters = listOf(
+                "migrate",
+                parameters = listOf(
                     driver.declaration,
                     IntDeclaration.Normal(
                         name = "oldVersion",
@@ -63,7 +75,7 @@ public class SqlDelightPrecompiler(
                         comments = emptyList(),
                         const = false,
                         length = -1,
-                        isSigned = false
+                        isSigned = false,
                     ),
                     IntDeclaration.Normal(
                         name = "newVersion",
@@ -73,15 +85,15 @@ public class SqlDelightPrecompiler(
                         comments = emptyList(),
                         const = false,
                         length = -1,
-                        isSigned = false
-                    )
-                )
-            ) {}
+                        isSigned = false,
+                    ),
+                ),
+            ) {},
         ),
         members = emptyList(),
         doc = emptyList(),
         init = emptyList(),
-        isObject = false
+        isObject = false,
     )
 
     private val DB = Class(
@@ -98,10 +110,10 @@ public class SqlDelightPrecompiler(
                 comments = emptyList(),
                 mutable = false,
                 private = false,
-                value = null
-            )
+                value = null,
+            ),
         ),
-        constructor = emptyList()
+        constructor = emptyList(),
     )
 
     private val dbDeclaration = ObjectDeclaration(
@@ -109,10 +121,10 @@ public class SqlDelightPrecompiler(
         DB,
         mutable = false,
         private = false,
-        value = null
+        value = null,
     )
 
-    override fun convert(sqlInit: WorkingStorage.Sql): List<Function.Statement> {
+    override fun convert(sqlInit: Sql): List<Statement> {
         val firstCall = files == null
         files = writeSq(packageName, existingFiles = files) {
             migrationFile(0) {
@@ -120,9 +132,11 @@ public class SqlDelightPrecompiler(
                     sqlInit.comments.joinToString(
                         prefix = "/**\n",
                         postfix = " */\n",
-                        separator = ""
+                        separator = "",
                     ) { " * $it\n" }
-                } else ""
+                } else {
+                    ""
+                }
                 val sqlWithJavaDoc = javaDoc + sqlInit.sql
                 +sqlWithJavaDoc
             }
@@ -132,32 +146,38 @@ public class SqlDelightPrecompiler(
                 (DB.members.single() as ObjectDeclaration).type.functions.single(),
                 parameters = listOf(
                     driver,
-                    KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral(0),
-                    KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral(1)
+                    IntLiteral(0),
+                    IntLiteral(1),
                 ),
-                comments = emptyList()
+                comments = emptyList(),
             )
             listOf(
-                db,
-                Use(dbDeclaration, Use(DB.members.single(), migration, emptyList()), emptyList())
+                getDB,
+                Use(dbDeclaration, Use(DB.members.single(), migration, emptyList()), emptyList()),
             )
         } else {
             emptyList()
         }
     }
 
-    private val db = ObjectDeclaration(
+    private val getDB = ObjectDeclaration(
         name = "db",
         value = FunctionCall(
             Function(
-                name = dbName, parameters = listOf(driver.declaration), returnType = DB
-            ) {}, parameters = listOf(driver), comments = emptyList()
+                name = dbName,
+                parameters = listOf(driver.declaration),
+                returnType = DB,
+            ) {},
+            parameters = listOf(driver),
+            comments = emptyList(),
         ),
         private = false,
         mutable = false,
         comments = emptyList(),
-        type = DB
+        type = DB,
     )
+
+    private val executeAsOne by function { }
 
     private val convertRegex = """\s(.)""".toRegex()
     private val String.convert
@@ -169,9 +189,9 @@ public class SqlDelightPrecompiler(
 
     override fun convert(
         sql: CobolFIRTree.ProcedureTree.Statement.Sql,
-        variableToIR: (CobolFIRTree.ProcedureTree.Expression.Variable) -> KobolIRTree.Expression.Variable,
-        getDeclaration: (WorkingStorage.Elementar) -> Declaration
-    ): List<Function.Statement> {
+        variableToIR: (CobolFIRTree.ProcedureTree.Expression.Variable) -> Expression.Variable,
+        getDeclaration: (WorkingStorage.Elementar) -> Declaration,
+    ): List<Statement> {
         val first = files == null
         var queryName = sql.sql.convert
         files = writeSq(packageName, existingFiles = files) {
@@ -188,40 +208,36 @@ public class SqlDelightPrecompiler(
         val params = sql.parameter.map {
             getDeclaration(it.target)
         }
-        val function = Function(
+        val getQuery = Function(
             name = "${fileName}Queries.$queryName",
             parameters = params,
         ) {}
 
-        val query = Use(
-            db, FunctionCall(function, params.map { it.variable() }, emptyList()), emptyList()
-        )
-        val call = when (sql.type) {
-            Select ->
-                Use(
-                    query, FunctionCall(
-                        function = Function(name = "executeAsOne", parameters = emptyList()) {},
-                        parameters = emptyList(),
-                        comments = emptyList()
-                    ), comments = sql.comments
-                )
+        val query = getDB use (getQuery call params.map { it.variable() })
 
-            Delete, Execute, Insert -> query.copy(comments = sql.comments)
-        }
+        val executeQuery = when (sql.type) {
+            Select -> query use executeAsOne()
 
-        return if (sql.hostVariables.isEmpty()) {
-            if (first) listOf(db, call) else listOf(call)
+            Delete, Execute, Insert -> query
+        }.copy(comments = sql.comments)
+
+        if (sql.updatingHostVariables.isEmpty()) {
+            return if (first) {
+                listOf(getDB, executeQuery)
+            } else {
+                listOf(executeQuery)
+            }
         } else {
             val result = Class(
                 name = queryName.replaceFirstChar { if (it.isLowerCase()) it.titlecaseChar() else it },
-                members = sql.hostVariables.map {
+                members = sql.updatingHostVariables.map {
                     when (val result = variableToIR(it).target) {
-                        is BooleanDeclaration, is ObjectDeclaration -> error("Not yet supported")
+                        is BooleanDeclaration, is ObjectDeclaration, is Declaration.Array -> error("Not yet supported")
                         is DoubleDeclaration, is IntDeclaration, is StringDeclaration -> result
                     }
                 },
                 isObject = false,
-                packageName = fileName
+                packageName = fileName,
             )
 
             val callResult = ObjectDeclaration(
@@ -230,40 +246,48 @@ public class SqlDelightPrecompiler(
                 name = queryName,
                 mutable = false,
                 private = false,
-                value = call.copy(comments = emptyList())
+                value = executeQuery.copy(comments = emptyList()),
             )
-            (if (first) listOf(db, callResult) else listOf(callResult)) + sql.hostVariables.map { hostVariable ->
-                val obj = callResult.variable() as KobolIRTree.Expression.ObjectVariable
-                val variable = callResult.type.members.single { it.name == hostVariable.target.name }.variable()
-                val use = when (hostVariable) {
-                    is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberVariable -> {
+
+            val getResultClass = if (first) listOf(getDB, callResult) else listOf(callResult)
+
+            val updatingHostVariables = sql.updatingHostVariables.map { hostVariable ->
+                val obj = callResult.variable() as ObjectVariable
+                val variable = callResult.type.members.single {
+                    it.name == hostVariable.target.name
+                }.variable()
+
+                val use: Expression = when (hostVariable) {
+                    is NumberVariable -> {
                         when (hostVariable.target.formatter.numberType) {
-                            WorkingStorage.Elementar.Formatter.NumberType.Int -> KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable.Use(
+                            NumberType.Int -> IntVariable.Use(
                                 obj,
-                                variable as KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable,
-                                emptyList()
+                                variable as IntVariable,
+                                emptyList(),
                             )
 
-                            WorkingStorage.Elementar.Formatter.NumberType.Double -> KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable.Use(
+                            NumberType.Double -> DoubleVariable.Use(
                                 obj,
-                                variable as KobolIRTree.Expression.NumberExpression.DoubleExpression.DoubleVariable,
-                                emptyList()
+                                variable as DoubleVariable,
+                                emptyList(),
                             )
                         }
                     }
 
-                    is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> {
-                        KobolIRTree.Expression.StringExpression.StringVariable.Use(
+                    is StringVariable -> {
+                        StringExpression.StringVariable.Use(
                             obj,
-                            variable as KobolIRTree.Expression.StringExpression.StringVariable,
+                            variable as StringExpression.StringVariable,
                         )
                     }
                 }
                 Assignment(
                     newValue = use,
-                    declaration = getDeclaration(hostVariable.target)
+                    declaration = getDeclaration(hostVariable.target),
                 )
             }
+
+            return getResultClass + updatingHostVariables
         }
     }
 

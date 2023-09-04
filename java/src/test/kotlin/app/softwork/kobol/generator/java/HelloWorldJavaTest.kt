@@ -37,7 +37,7 @@ class HelloWorldJavaTest {
         public class Hello {
           public static String WORLD = "WORLD!";
         
-          public static void main(String[] args) {
+          public static void hello() {
             // Some Comment
             System.out.println("HELLO " + WORLD);
             WORLD = "42";
@@ -53,13 +53,15 @@ class HelloWorldJavaTest {
 internal fun String.toIR(controlFlowHandling: ((String) -> ControlFlowHandling)? = null) =
     File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR(
         irPlugins = listOf(NoSynthetics()),
-        controlFlowHandling = controlFlowHandling
+        controlFlowHandling = controlFlowHandling,
     )
 
 internal fun generate(cobol: KobolIRTree, java8: Boolean): List<JavaFile> = generateJava(
     cobol.let {
         if (java8) {
             Java8Plugin()(it, emptyList()).single()
-        } else it
-    }
+        } else {
+            it
+        }
+    },
 )

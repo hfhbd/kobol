@@ -5,15 +5,15 @@ import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
-import app.softwork.kobol.ir.l as irL
 import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
 import app.softwork.kobol.plugins.ir.ExitProcessControlFlowHandlingFactory.*
+import java.io.File
 import java.nio.file.Files
-import kotlin.io.path.writeText
 import kotlin.test.*
+import app.softwork.kobol.ir.l as irL
 
 class ToIrTest {
     @Test
@@ -36,26 +36,25 @@ class ToIrTest {
                     +Section("C") {
                         +Display("C".l)
                     }
-                }
-            )
+                },
+            ),
         )
 
-        val c = Function("C") {
-            +Print(StringLiteral("C"), emptyList())
+        val C by function {
+            +Print(StringLiteral("C"))
         }
-        val bar = Function("BAR") {
-            +Print(StringLiteral("BAR"), emptyList())
+        val BAR by function {
+            +Print(StringLiteral("BAR"))
             +exit()
         }
 
-        val foo = Function(
-            name = "FOO",
+        val FOO by function(
             parameters = emptyList(),
-            returnType = Void,
+            returnType = Natives.Void,
             private = false,
         ) {
-            +Print(StringLiteral("FOO"), emptyList())
-            +FunctionCall(bar.declaration(), emptyList(), emptyList())
+            +Print(StringLiteral("FOO"))
+            +BAR()
             +Print(StringLiteral("FOO2"), emptyList())
             +exit()
         }
@@ -64,29 +63,33 @@ class ToIrTest {
             id = "testing.cbl",
             name = "calling",
             main = Function(
-                name = "main",
+                name = "calling",
                 parameters = emptyList(),
-                returnType = Void,
+                returnType = Natives.Void,
                 body = build {
-                    +FunctionCall(foo.declaration(), emptyList(), emptyList())
-                    +FunctionCall(bar.declaration(), emptyList(), emptyList())
-                    +FunctionCall(c.declaration(), emptyList(), emptyList())
+                    +FOO()
+                    +BAR()
+                    +C()
                 },
                 private = false,
-                doc = emptyList()
+                doc = emptyList(),
+                isEntryPoint = true,
             ),
             types = build {
-                +foo
-                +bar
-                +c
+                +FOO
+                +BAR
+                +C
                 +RC
-            }
+            },
         )
-        assertEquals(expected = ir, actual = fir.toIRTree(
-            controlFlowHandling = {
-                ExitProcessControlFlowHandling
-            }
-        ))
+        assertEquals(
+            expected = ir,
+            actual = fir.toIRTree(
+                controlFlowHandling = {
+                    ExitProcessControlFlowHandling
+                },
+            ),
+        )
     }
 
     @Test
@@ -103,7 +106,7 @@ class ToIrTest {
         """.trimIndent()
 
         val actual = input.toIR()
-        
+
         val counter = Declaration.IntDeclaration.Normal(
             name = "COUNTER",
             length = 4,
@@ -111,33 +114,34 @@ class ToIrTest {
             const = false,
             mutable = true,
             private = false,
-            isSigned = false
+            isSigned = false,
         )
         val expected = KobolIRTree(
             id = "testing.cbl",
             name = "hello",
             main = Function(
-                name = "main",
+                name = "hello",
                 parameters = emptyList(),
-                returnType = Void,
+                returnType = Natives.Void,
                 body = build {
                     +Assignment(testingReturnCodeIr, 42.irL)
                 },
                 private = false,
-                doc = emptyList()
+                doc = emptyList(),
+                isEntryPoint = true,
             ),
             types = build {
                 +GlobalVariable(counter, emptyList())
                 +RC
-            }
+            },
         )
         assertEquals(expected, actual)
     }
 }
 
 private fun String.toIR(): KobolIRTree {
+    val temp = Files.createTempDirectory("testing")
     return listOf(
-        Files.createTempFile("kobol", ".cbl").apply { writeText(this@toIR) }
-            .toFile()
-    ).toIR().single().copy(id = "testing.cbl")
+        File(temp.toFile(), "kobol.cbl").apply { writeText(this@toIR) },
+    ).toIR(temp).single().copy(id = "testing.cbl")
 }

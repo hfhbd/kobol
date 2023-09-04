@@ -44,7 +44,7 @@ class OptimizationTest {
         
         public val HELLO: String = "HELLO"
         
-        public fun main() {
+        public fun hello() {
           println("${'$'}HELLO${'$'}WORLD")
           // Some Comment
           WORLD = "42"
@@ -90,7 +90,7 @@ class OptimizationTest {
         
         public const val HELLO: String = "HELLO"
         
-        public fun main() {
+        public fun hello() {
           println("${'$'}HELLO${'$'}WORLD")
           // Some Comment
           WORLD = "42"
@@ -135,7 +135,7 @@ class OptimizationTest {
         
         private var HELLO: String = "HELLO"
         
-        public fun main() {
+        public fun hello() {
           println("${'$'}HELLO${'$'}WORLD")
           // Some Comment
           WORLD = "42"
@@ -187,7 +187,7 @@ class OptimizationTest {
         
         public var hello: String = "HELLO"
         
-        public fun main() {
+        public fun hello() {
           println("${'$'}hello${'$'}world")
           fooBar()
         }
@@ -195,7 +195,7 @@ class OptimizationTest {
         """.trimIndent()
         assertEquals(expected, output.toString())
     }
-    
+
     @Test
     fun keepNames() {
         //language=COBOL
@@ -237,7 +237,7 @@ class OptimizationTest {
         
         public var HELLO: String = "HELLO"
         
-        public fun main() {
+        public fun hello() {
           println("${'$'}HELLO${'$'}WORLD")
           FOO_BAR()
         }
@@ -300,7 +300,7 @@ class OptimizationTest {
         
         private const val hello: String = "HELLO"
         
-        public fun main() {
+        public fun hello() {
           println("${'$'}hello${'$'}world")
           foo()
         }

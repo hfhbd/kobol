@@ -7,8 +7,8 @@ modification, are permitted provided that the following conditions are met:
   1. Redistributions of source code must retain the above copyright notice,
      this list of conditions and the following disclaimer.
 
-  2. Redistributions in binary form must reproduce the above copyright 
-     notice, this list of conditions and the following disclaimer in 
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
      the documentation and/or other materials provided with the distribution.
 
   3. The names of the authors may not be used to endorse or promote products
@@ -25,6 +25,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 // https://github.com/ymnk/jsch-agent-proxy
 // Changes by hfhbd: Refactor to Kotlin
 
@@ -88,10 +89,9 @@ internal class Buffer(var buffer: ByteArray) {
     val string: ByteArray
         get() {
             var i = int // uint32
-            if (i < 0 ||  // bigger than 0x7fffffff
+            if (i < 0 || // bigger than 0x7fffffff
                 i > 256 * 1024
             ) {
-                // TODO: an exception should be thrown.
                 i = 256 * 1024 // the session will be broken, but working around OOME.
             }
             val foo = ByteArray(i)

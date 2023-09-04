@@ -14,16 +14,18 @@ public val Int.l: NumberLiteral get() = NumberLiteral(toDouble())
 public infix fun Expression.eq(right: Expression): Equals = Equals(this, right)
 
 public operator fun CobolFIRTree.getValue(receiver: Any?, prop: KProperty<*>): CobolFIRTree = copy(
-    id = id.copy(programID = prop.name)
+    id = id.copy(programID = prop.name),
 )
 
 @DslMarker
 public annotation class CobolFIRTreeMarker
 
-public fun cobolFir(programID: String = "", build: CobolFIRTreeBuilder.() -> Unit): CobolFIRTree = CobolFIRTreeBuilder(programID).apply(build).build()
+public fun cobolFir(programID: String = "", build: CobolFIRTreeBuilder.() -> Unit): CobolFIRTree = CobolFIRTreeBuilder(
+    programID,
+).apply(build).build()
 
 @CobolFIRTreeMarker
-public class CobolFIRTreeBuilder internal constructor(private val programID: String){
+public class CobolFIRTreeBuilder internal constructor(private val programID: String) {
     private lateinit var procedure: CobolFIRTree.ProcedureTree
 
     @CobolFIRTreeMarker
@@ -52,6 +54,6 @@ public class CobolFIRTreeBuilder internal constructor(private val programID: Str
     internal fun build(): CobolFIRTree = CobolFIRTree(
         fileName = "",
         id = CobolFIRTree.ID(programID),
-        procedure = procedure
+        procedure = procedure,
     )
-} 
+}

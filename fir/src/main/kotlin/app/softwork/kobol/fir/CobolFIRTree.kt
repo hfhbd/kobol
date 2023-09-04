@@ -3,6 +3,8 @@
 package app.softwork.kobol.fir
 
 import app.softwork.kobol.*
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar
+import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar
 import app.softwork.kobol.fir.serializer.*
 import kotlinx.serialization.*
 
@@ -12,11 +14,12 @@ import kotlinx.serialization.*
 @Serializable
 public data class CobolFIRTree(
     val fileName: String,
+    val packageName: String? = null,
     val fileComments: List<String> = emptyList(),
     val id: ID,
     val env: EnvTree? = null,
     val data: DataTree = returnCode,
-    val procedure: ProcedureTree
+    val procedure: ProcedureTree,
 ) {
     @Serializable
     public data class ID(
@@ -27,30 +30,30 @@ public data class CobolFIRTree(
         val installation: String? = null,
         val installationComments: List<String> = emptyList(),
         val date: String? = null,
-        val dateComments: List<String> = emptyList()
+        val dateComments: List<String> = emptyList(),
     )
 
     @Serializable
     public data class EnvTree(
         val configuration: Configuration? = null,
         val inputOutput: InputOutput? = null,
-        val comments: List<String> = emptyList()
+        val comments: List<String> = emptyList(),
     ) {
         @Serializable
         public data class Configuration(
             val specialNames: SpecialNames? = null,
-            val comments: List<String> = emptyList()
+            val comments: List<String> = emptyList(),
         ) {
             @Serializable
             public data class SpecialNames(
                 val specialNames: List<SpecialName>,
-                val comments: List<String> = emptyList()
+                val comments: List<String> = emptyList(),
             ) {
                 @Serializable
                 public data class SpecialName(
                     val env: String,
                     val value: String,
-                    val comments: List<String> = emptyList()
+                    val comments: List<String> = emptyList(),
                 )
             }
         }
@@ -58,12 +61,12 @@ public data class CobolFIRTree(
         @Serializable
         public data class InputOutput(
             val fileControl: FileControl? = null,
-            val comments: List<String> = emptyList()
+            val comments: List<String> = emptyList(),
         ) {
             @Serializable
             public data class FileControl(
                 val files: List<File> = emptyList(),
-                val comments: List<String> = emptyList()
+                val comments: List<String> = emptyList(),
             ) {
                 // TODO: Use only one file class
                 @Serializable
@@ -72,7 +75,7 @@ public data class CobolFIRTree(
                     val path: String,
                     val fileStatus: String?,
                     val type: DataTree.File.FileType,
-                    val comments: List<String> = emptyList()
+                    val comments: List<String> = emptyList(),
                 )
             }
         }
@@ -81,10 +84,17 @@ public data class CobolFIRTree(
     @Serializable
     public data class DataTree(
         val fileSection: List<File> = emptyList(),
+        val sql: List<Sql> = emptyList(),
         val workingStorage: List<WorkingStorage> = emptyList(),
         val linkingSection: List<WorkingStorage> = emptyList(),
-        val comments: List<String> = emptyList()
+        val comments: List<String> = emptyList(),
     ) {
+        @Serializable
+        public data class Sql(
+            val sql: String,
+            val comments: List<String> = emptyList(),
+        )
+
         @Serializable
         public data class File(
             val name: String,
@@ -109,7 +119,7 @@ public data class CobolFIRTree(
                 val recording: String? = null,
                 val blocks: Int? = null,
                 @Serializable(with = IntRangeSerializer::class) val records: IntRange? = null,
-                val comments: List<String> = emptyList()
+                val comments: List<String> = emptyList(),
             )
         }
 
@@ -118,21 +128,15 @@ public data class CobolFIRTree(
             public val comments: List<String>
 
             @Serializable
-            public data class Sql(
-                val sql: String,
-                override val comments: List<String> = emptyList()
-            ) : WorkingStorage
-
-            @Serializable
             public data class Record(
                 val name: String,
                 val elements: List<Elementar> = emptyList(),
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : WorkingStorage {
                 public constructor(
                     name: String,
                     comments: List<String> = emptyList(),
-                    elements: Builder<Elementar>.() -> Unit
+                    elements: Builder<Elementar>.() -> Unit,
                 ) : this(name, build(elements), comments)
             }
 
@@ -147,7 +151,7 @@ public data class CobolFIRTree(
                 public data class Pointer(
                     override val name: String,
                     override val recordName: String?,
-                    override val comments: List<String> = emptyList()
+                    override val comments: List<String> = emptyList(),
                 ) : Elementar {
                     override val formatter: Nothing? = null
                     override val value: Nothing? = null
@@ -161,7 +165,7 @@ public data class CobolFIRTree(
                     override val value: String? = null,
                     val occurs: Occurs? = null,
                     val synthetic: Boolean = false,
-                    override val comments: List<String> = emptyList()
+                    override val comments: List<String> = emptyList(),
                 ) : Elementar {
                     init {
                         if (value != null) {
@@ -175,7 +179,7 @@ public data class CobolFIRTree(
                 public data class Occurs(
                     val from: Int,
                     val to: Int? = null,
-                    val dependingOn: NumberElementar? = null
+                    val dependingOn: NumberElementar? = null,
                 )
 
                 @Serializable
@@ -213,11 +217,13 @@ public data class CobolFIRTree(
                                             is Custom.Part.Decimal -> return NumberType.Double
                                             is Custom.Part.Number,
                                             is Custom.Part.Plus,
-                                            is Custom.Part.Signed -> continue
+                                            is Custom.Part.Signed,
+                                            -> continue
 
                                             is Custom.Part.Space,
                                             is Custom.Part.String,
-                                            is Custom.Part.Zero -> error("Not supported")
+                                            is Custom.Part.Zero,
+                                            -> error("Not supported")
                                         }
                                     }
                                     NumberType.Int
@@ -275,7 +281,7 @@ public data class CobolFIRTree(
 
                 @Serializable
                 public sealed interface NumberElementar : Elementar {
-                    override val value: Double?
+                    override val value: Number?
                     override val formatter: Formatter
                     public val occurs: Occurs?
                     public val signed: Boolean
@@ -302,7 +308,7 @@ public data class CobolFIRTree(
                     public data class ReturnCode(
                         override val name: String = "RETURN-CODE",
                     ) : NumberElementar {
-                        override val value: Double = 0.0
+                        override val value: Int = 0
                         override val occurs: Occurs? = null
                         override val signed: Boolean = true
                         override val compressed: Compressed? = null
@@ -324,7 +330,7 @@ public data class CobolFIRTree(
                 public data class EmptyElementar(
                     override val name: String,
                     override val recordName: String?,
-                    override val comments: List<String> = emptyList()
+                    override val comments: List<String> = emptyList(),
                 ) : Elementar {
                     override val formatter: Nothing? = null
                     override val value: Nothing? = null
@@ -337,19 +343,19 @@ public data class CobolFIRTree(
     public data class ProcedureTree(
         val topLevel: List<Statement> = emptyList(),
         val sections: List<Section> = emptyList(),
-        val comments: List<String> = emptyList()
+        val comments: List<String> = emptyList(),
     ) {
 
         @Serializable
         public data class Section(
             val name: String,
             val statements: List<Statement> = emptyList(),
-            val comments: List<String> = emptyList()
+            val comments: List<String> = emptyList(),
         ) {
             public constructor(
                 name: String,
                 comments: List<String> = emptyList(),
-                builder: Builder<Statement>.() -> Unit
+                builder: Builder<Statement>.() -> Unit,
             ) : this(name, build(builder), comments)
         }
 
@@ -361,27 +367,27 @@ public data class CobolFIRTree(
             public data class Move(
                 val target: DataTree.WorkingStorage.Elementar,
                 val value: Expression,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class Add(
                 val target: DataTree.WorkingStorage.Elementar,
                 val value: Expression,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class Sub(
                 val target: DataTree.WorkingStorage.Elementar,
                 val value: Expression,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class Display(
                 val expr: Expression.StringExpression,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
@@ -389,7 +395,7 @@ public data class CobolFIRTree(
                 val sectionName: String,
                 override val comments: List<String> = emptyList(),
                 val until: Expression.BooleanExpression? = null,
-                val testing: Testing = Testing.Before
+                val testing: Testing = Testing.Before,
             ) : Statement {
                 @Serializable
                 public enum class Testing {
@@ -402,17 +408,17 @@ public data class CobolFIRTree(
             public data class While(
                 val statements: List<Statement>,
                 override val comments: List<String> = emptyList(),
-                val until: Expression.BooleanExpression
+                val until: Expression.BooleanExpression,
             ) : Statement
 
             @Serializable
             public data class ForEach(
-                val variable: DataTree.WorkingStorage.Elementar.NumberElementar,
+                val variable: NumberElementar,
                 val from: Expression.NumberExpression,
                 val by: Expression.NumberExpression? = null,
                 val until: Expression.BooleanExpression,
                 val statements: List<Statement>,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
@@ -420,7 +426,7 @@ public data class CobolFIRTree(
                 val condition: Expression.BooleanExpression,
                 val statements: List<Statement>,
                 val elseStatements: List<Statement> = emptyList(),
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
@@ -428,51 +434,51 @@ public data class CobolFIRTree(
                 val values: List<Expression>,
                 val conditions: List<Condition>,
                 val other: Other?,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement {
                 @Serializable
                 public data class Condition(
                     val conditions: List<Expression>,
                     val action: List<Statement>,
-                    val comments: List<String> = emptyList()
+                    val comments: List<String> = emptyList(),
                 )
 
                 @Serializable
                 public data class Other(
                     val action: List<Statement>,
-                    val comments: List<String> = emptyList()
+                    val comments: List<String> = emptyList(),
                 )
             }
 
             @Serializable
             public data class GoBack(
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class StopRun(
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class Continue(
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class Call(
                 val name: String,
                 val parameters: List<Expression> = emptyList(),
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class Sql(
                 val sql: String,
-                val hostVariables: List<Expression.Variable>,
+                val updatingHostVariables: List<Expression.Variable>,
                 val parameter: List<Expression.Variable>,
                 override val comments: List<String> = emptyList(),
-                val type: SqlType
+                val type: SqlType,
             ) : Statement {
                 @Serializable
                 public enum class SqlType {
@@ -485,21 +491,21 @@ public data class CobolFIRTree(
                 val file: DataTree.File,
                 val action: List<Statement>,
                 val atEnd: List<Statement>,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class Write(
                 val file: DataTree.File,
                 val from: DataTree.WorkingStorage?,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
 
             @Serializable
             public data class Open(
                 val file: DataTree.File,
                 val type: Type,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement {
                 @Serializable
                 public enum class Type {
@@ -510,7 +516,7 @@ public data class CobolFIRTree(
             @Serializable
             public data class Close(
                 val files: List<DataTree.File>,
-                override val comments: List<String> = emptyList()
+                override val comments: List<String> = emptyList(),
             ) : Statement
         }
 
@@ -537,14 +543,14 @@ public data class CobolFIRTree(
                 public data class Greater(
                     val left: NumberExpression,
                     val right: NumberExpression,
-                    val equals: Boolean = false
+                    val equals: Boolean = false,
                 ) : BooleanExpression
 
                 @Serializable
                 public data class Smaller(
                     val left: NumberExpression,
                     val right: NumberExpression,
-                    val equals: Boolean = false
+                    val equals: Boolean = false,
                 ) : BooleanExpression
             }
 
@@ -563,7 +569,8 @@ public data class CobolFIRTree(
                 public operator fun plus(right: Expression): Concat = Concat(this, right)
 
                 @Serializable
-                public data class StringLiteral(override val value: String) : StringExpression,
+                public data class StringLiteral(override val value: String) :
+                    StringExpression,
                     Literal {
                     init {
                         require(!value.startsWith("\""))
@@ -572,8 +579,9 @@ public data class CobolFIRTree(
                 }
 
                 @Serializable
-                public data class StringVariable(override val target: DataTree.WorkingStorage.Elementar.StringElementar) :
-                    StringExpression, Variable
+                public data class StringVariable(
+                    override val target: StringElementar,
+                ) : StringExpression, Variable
 
                 @Serializable
                 public data class Concat(val left: Expression, val right: Expression) :
@@ -586,12 +594,14 @@ public data class CobolFIRTree(
             @Serializable
             public sealed interface NumberExpression : Expression {
                 @Serializable
-                public data class NumberLiteral(override val value: Double) : NumberExpression,
-                    Literal
+                public data class NumberLiteral(
+                    override val value: Double,
+                ) : NumberExpression, Literal
 
                 @Serializable
-                public data class NumberVariable(override val target: DataTree.WorkingStorage.Elementar.NumberElementar) :
-                    Variable, NumberExpression
+                public data class NumberVariable(
+                    override val target: NumberElementar,
+                ) : Variable, NumberExpression
             }
         }
     }

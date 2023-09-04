@@ -7,7 +7,9 @@ import com.intellij.lang.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 
-internal abstract class RecordIDElementImpl(node: ASTNode) : ASTWrapperPsiElement(node), CobolNamedElement, CobolRecordID {
+internal abstract class RecordIDElementImpl(
+    node: ASTNode,
+) : ASTWrapperPsiElement(node), CobolNamedElement, CobolRecordID {
     override fun getNameIdentifier(): PsiElement = varName
     override fun getName(): String = varName.text
 

@@ -6,8 +6,8 @@ import java.io.*
 public class JavaCodeGenerator(private val output: File) : CodeGenerator {
     override fun generate(ir: Iterable<KobolIRTree>) {
         for (tree in ir) {
-            generateJava(tree).forEach {
-                it.writeTo(output)
+            for (javaFile in generateJava(tree)) {
+                javaFile.writeTo(output)
             }
         }
     }

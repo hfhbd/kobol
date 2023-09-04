@@ -2,11 +2,14 @@ package app.softwork.kobol.plugins.fir.renaming
 
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.*
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.BooleanExpression
+import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.Variable
 
 public abstract class Rename(
     private val functions: String.() -> String,
     private val variables: String.() -> String,
-    private val classes: String.() -> String
+    private val classes: String.() -> String,
 ) : FirPluginBeforePhase {
     public companion object {
         public val next: Regex = "-(.)".toRegex()
@@ -30,13 +33,13 @@ public abstract class Rename(
                                 it.copy(
                                     files = it.files.map {
                                         it.copy(
-                                            fileStatus = it.fileStatus?.variables()
+                                            fileStatus = it.fileStatus?.variables(),
                                         )
-                                    }
+                                    },
                                 )
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             },
             data = tree.data.let {
@@ -45,7 +48,7 @@ public abstract class Rename(
                         it.rename()
                     },
                     workingStorage = it.workingStorage.rename(),
-                    linkingSection = it.linkingSection.rename()
+                    linkingSection = it.linkingSection.rename(),
                 )
             },
             procedure = tree.procedure.copy(
@@ -53,16 +56,16 @@ public abstract class Rename(
                 sections = tree.procedure.sections.map {
                     it.copy(
                         name = it.name.functions(),
-                        statements = it.statements.rename()
+                        statements = it.statements.rename(),
                     )
-                }
-            )
+                },
+            ),
         )
     }
 
-    private fun CobolFIRTree.DataTree.File.rename() = copy(
+    private fun File.rename() = copy(
         records = records.rename() as List<WorkingStorage.Record>,
-        fileStatus = fileStatus?.variables()
+        fileStatus = fileStatus?.variables(),
     )
 
     @JvmName("renameStatements")
@@ -71,16 +74,16 @@ public abstract class Rename(
             when (it) {
                 is CobolFIRTree.ProcedureTree.Statement.Call -> it.copy(
                     name = it.name.functions(),
-                    parameters = it.parameters.rename()
+                    parameters = it.parameters.rename(),
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Close -> it.copy(
-                    files = it.files.map { it.rename() }
+                    files = it.files.map { it.rename() },
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Continue -> it
                 is CobolFIRTree.ProcedureTree.Statement.Display -> it.copy(
-                    expr = it.expr.rename() as CobolFIRTree.ProcedureTree.Expression.StringExpression
+                    expr = it.expr.rename() as Expression.StringExpression,
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Eval -> it.copy(
@@ -88,132 +91,132 @@ public abstract class Rename(
                     conditions = it.conditions.map {
                         it.copy(
                             conditions = it.conditions.rename(),
-                            action = it.action.rename()
+                            action = it.action.rename(),
                         )
                     },
                     other = it.other?.let {
                         it.copy(
-                            action = it.action.rename()
+                            action = it.action.rename(),
                         )
-                    }
+                    },
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.ForEach -> it.copy(
                     variable = it.variable.rename() as WorkingStorage.Elementar.NumberElementar,
-                    from = it.from.rename() as CobolFIRTree.ProcedureTree.Expression.NumberExpression,
-                    by = it.by?.rename() as CobolFIRTree.ProcedureTree.Expression.NumberExpression?,
-                    until = it.until.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression,
-                    statements = it.statements.rename()
+                    from = it.from.rename() as Expression.NumberExpression,
+                    by = it.by?.rename() as Expression.NumberExpression?,
+                    until = it.until.rename() as BooleanExpression,
+                    statements = it.statements.rename(),
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.GoBack -> it
                 is CobolFIRTree.ProcedureTree.Statement.StopRun -> it
                 is CobolFIRTree.ProcedureTree.Statement.If -> it.copy(
-                    condition = it.condition.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression,
+                    condition = it.condition.rename() as BooleanExpression,
                     statements = it.statements.rename(),
-                    elseStatements = it.elseStatements.rename()
+                    elseStatements = it.elseStatements.rename(),
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Move -> it.copy(
                     target = it.target.rename() as WorkingStorage.Elementar,
-                    value = it.value.rename()
+                    value = it.value.rename(),
                 )
                 is CobolFIRTree.ProcedureTree.Statement.Add -> it.copy(
                     target = it.target.rename() as WorkingStorage.Elementar,
-                    value = it.value.rename()
+                    value = it.value.rename(),
                 )
                 is CobolFIRTree.ProcedureTree.Statement.Sub -> it.copy(
                     target = it.target.rename() as WorkingStorage.Elementar,
-                    value = it.value.rename()
+                    value = it.value.rename(),
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Open -> it.copy(
-                    file = it.file.rename()
+                    file = it.file.rename(),
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Perform -> it.copy(
                     sectionName = it.sectionName.functions(),
-                    until = it.until?.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression?
+                    until = it.until?.rename() as BooleanExpression?,
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Read -> it.copy(
                     file = it.file.rename(),
                     action = it.action.rename(),
-                    atEnd = it.atEnd.rename()
+                    atEnd = it.atEnd.rename(),
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Sql -> it.copy(
-                    hostVariables = it.hostVariables.rename() as List<CobolFIRTree.ProcedureTree.Expression.Variable>,
-                    parameter = it.parameter.rename() as List<CobolFIRTree.ProcedureTree.Expression.Variable>
+                    updatingHostVariables = it.updatingHostVariables.rename() as List<Variable>,
+                    parameter = it.parameter.rename() as List<Variable>,
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.While -> it.copy(
                     statements = it.statements.rename(),
-                    until = it.until.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression
+                    until = it.until.rename() as BooleanExpression,
                 )
 
                 is CobolFIRTree.ProcedureTree.Statement.Write -> it.copy(
                     file = it.file.rename(),
-                    from = it.from?.rename()
+                    from = it.from?.rename(),
                 )
             }
         }
     }
 
     @JvmName("renameExpression")
-    private fun List<CobolFIRTree.ProcedureTree.Expression>.rename(): List<CobolFIRTree.ProcedureTree.Expression> {
+    private fun List<Expression>.rename(): List<Expression> {
         return map { it.rename() }
     }
 
-    private fun CobolFIRTree.ProcedureTree.Expression.rename(): CobolFIRTree.ProcedureTree.Expression {
+    private fun Expression.rename(): Expression {
         return when (this) {
-            is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.And ->
+            is BooleanExpression.And ->
                 copy(
-                    left = left.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression,
-                    right = right.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression
+                    left = left.rename() as BooleanExpression,
+                    right = right.rename() as BooleanExpression,
                 )
 
-            is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Equals -> copy(
+            is BooleanExpression.Equals -> copy(
                 left = left.rename(),
-                right = right.rename()
+                right = right.rename(),
             )
 
-            is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Greater -> copy(
-                left = left.rename() as CobolFIRTree.ProcedureTree.Expression.NumberExpression,
-                right = right.rename() as CobolFIRTree.ProcedureTree.Expression.NumberExpression
+            is BooleanExpression.Greater -> copy(
+                left = left.rename() as Expression.NumberExpression,
+                right = right.rename() as Expression.NumberExpression,
             )
 
-            is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Not -> copy(
-                target = target.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression,
+            is BooleanExpression.Not -> copy(
+                target = target.rename() as BooleanExpression,
             )
 
-            is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Or -> copy(
-                left = left.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression,
-                right = right.rename() as CobolFIRTree.ProcedureTree.Expression.BooleanExpression
+            is BooleanExpression.Or -> copy(
+                left = left.rename() as BooleanExpression,
+                right = right.rename() as BooleanExpression,
             )
 
-            is CobolFIRTree.ProcedureTree.Expression.BooleanExpression.Smaller -> copy(
-                left = left.rename() as CobolFIRTree.ProcedureTree.Expression.NumberExpression,
-                right = right.rename() as CobolFIRTree.ProcedureTree.Expression.NumberExpression
+            is BooleanExpression.Smaller -> copy(
+                left = left.rename() as Expression.NumberExpression,
+                right = right.rename() as Expression.NumberExpression,
             )
 
-            is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberLiteral -> this
-            is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral -> this
-            is CobolFIRTree.ProcedureTree.Expression.NumberExpression.NumberVariable -> copy(
-                target = target.rename() as WorkingStorage.Elementar.NumberElementar
+            is Expression.NumberExpression.NumberLiteral -> this
+            is Expression.StringExpression.StringLiteral -> this
+            is Expression.NumberExpression.NumberVariable -> copy(
+                target = target.rename() as WorkingStorage.Elementar.NumberElementar,
             )
 
-            is CobolFIRTree.ProcedureTree.Expression.StringExpression.Concat -> copy(
+            is Expression.StringExpression.Concat -> copy(
                 left = left.rename(),
-                right = right.rename()
+                right = right.rename(),
             )
 
-            is CobolFIRTree.ProcedureTree.Expression.StringExpression.Interpolation -> copy(
-                value = value.rename()
+            is Expression.StringExpression.Interpolation -> copy(
+                value = value.rename(),
             )
 
-            is CobolFIRTree.ProcedureTree.Expression.StringExpression.StringVariable -> copy(
-                target = target.rename() as WorkingStorage.Elementar.StringElementar
+            is Expression.StringExpression.StringVariable -> copy(
+                target = target.rename() as WorkingStorage.Elementar.StringElementar,
             )
         }
     }
@@ -223,12 +226,12 @@ public abstract class Rename(
     private fun WorkingStorage.rename(): WorkingStorage = when (this) {
         is WorkingStorage.Elementar.EmptyElementar -> copy(
             name = name.variables(),
-            recordName = recordName?.classes()
+            recordName = recordName?.classes(),
         )
 
         is WorkingStorage.Elementar.NumberElementar.Normal -> copy(
             name = name.variables(),
-            recordName = recordName?.classes()
+            recordName = recordName?.classes(),
         )
         is WorkingStorage.Elementar.NumberElementar.ReturnCode -> copy(
             name = name.variables(),
@@ -236,18 +239,16 @@ public abstract class Rename(
 
         is WorkingStorage.Elementar.Pointer -> copy(
             name = name.variables(),
-            recordName = recordName?.classes()
+            recordName = recordName?.classes(),
         )
 
         is WorkingStorage.Elementar.StringElementar -> copy(
             name = name.variables(),
-            recordName = recordName?.classes()
+            recordName = recordName?.classes(),
         )
 
         is WorkingStorage.Record -> copy(
             name = name.classes(),
         )
-
-        is WorkingStorage.Sql -> this
     }
 }

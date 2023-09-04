@@ -63,8 +63,8 @@ internal fun sshClient(host: String, user: String, action: SSHClient.() -> Unit)
 }
 
 internal fun SSHClient.exec(cmd: String, logger: Logger) {
-    val (output, result) = startSession().use {
-        val result = it.exec(cmd)
+    val (output, result) = startSession().use { session ->
+        val result = session.exec(cmd)
         result.inputStream.reader().use { it.readText() } to result
     }
     val exitCode: Int? = result.exitStatus

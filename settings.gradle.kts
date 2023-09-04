@@ -1,15 +1,15 @@
 pluginManagement {
-    includeBuild("build-logic")
+    includeBuild("gradle/build-logic")
     repositories {
         mavenCentral()
-        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         gradlePluginPortal()
     }
 }
 
 plugins {
     id("MyRepos")
-    id("com.gradle.enterprise") version "3.13.4"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.7.0"
+    id("com.gradle.enterprise") version "3.14.1"
 }
 
 gradleEnterprise {
@@ -53,6 +53,7 @@ include(":plugins:plugin-flow-graph-plantuml")
 include(":plugins:plugin-ifassignments")
 include(":plugins:plugin-inlining")
 include(":plugins:plugin-inlining-util")
+include(":plugins:plugin-main-util")
 include(":plugins:plugin-nosynthetic")
 include(":plugins:plugin-nullabletozero")
 include(":plugins:plugin-objects")

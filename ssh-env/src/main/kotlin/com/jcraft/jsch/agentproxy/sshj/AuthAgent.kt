@@ -25,13 +25,14 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 // https://github.com/ymnk/jsch-agent-proxy
 // Changes by hfhbd: Refactor to Kotlin
 
 package com.jcraft.jsch.agentproxy.sshj
 
+import com.jcraft.jsch.agentproxy.AgentProxy
 import com.jcraft.jsch.agentproxy.Identity
-import com.jcraft.jsch.agentproxy.PAgentProxy
 import net.schmizz.sshj.common.Buffer.PlainBuffer
 import net.schmizz.sshj.common.Message
 import net.schmizz.sshj.common.SSHPacket
@@ -44,9 +45,9 @@ import net.schmizz.sshj.userauth.method.AbstractAuthMethod
  */
 internal class AuthAgent(
     /** The AgentProxy instance that is used for signing  */
-    private val agentProxy: PAgentProxy,
+    private val agentProxy: AgentProxy,
     /** The identity from Agent  */
-    private val identity: Identity
+    private val identity: Identity,
 ) : AbstractAuthMethod("publickey") {
 
     /** The identity's key algorithm  */

@@ -7,8 +7,8 @@ modification, are permitted provided that the following conditions are met:
   1. Redistributions of source code must retain the above copyright notice,
      this list of conditions and the following disclaimer.
 
-  2. Redistributions in binary form must reproduce the above copyright 
-     notice, this list of conditions and the following disclaimer in 
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
      the documentation and/or other materials provided with the distribution.
 
   3. The names of the authors may not be used to endorse or promote products
@@ -25,6 +25,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 // https://github.com/ymnk/jsch-agent-proxy
 // Changes by hfhbd: Refactor to Kotlin
 
@@ -39,60 +40,67 @@ import com.sun.jna.Structure
 import com.sun.jna.platform.win32.*
 import com.sun.jna.platform.win32.WinDef.HWND
 import com.sun.jna.platform.win32.WinDef.WPARAM
-import com.sun.jna.platform.win32.WinNT.*
+import com.sun.jna.platform.win32.WinNT.PAGE_READWRITE
+import com.sun.jna.platform.win32.WinNT.SECTION_MAP_WRITE
 import com.sun.jna.win32.W32APIOptions
 
 internal class PageantConnector {
-    private val libU: User32
-    private val libK: Kernel32
+    private val libU = User32.INSTANCE
+    private val libK = Kernel32.INSTANCE
 
-    init {
-        try {
-            libU = User32.INSTANCE
-            libK = Kernel32.INSTANCE
-        } catch (e: UnsatisfiedLinkError) {
-            throw AgentProxyException(e.toString(), e)
-        } catch (e: NoClassDefFoundError) {
-            throw AgentProxyException(e.toString(), e)
-        }
-    }
+    override fun toString(): String = "pageant"
 
     internal interface User32 : com.sun.jna.platform.win32.User32 {
         fun SendMessage(hWnd: HWND, msg: Int, num1: WPARAM?, num2: ByteArray): Long
 
         companion object {
-            internal val INSTANCE: User32 = Native.load(
+            internal val INSTANCE: User32 = Native.loadLibrary(
                 "user32",
                 User32::class.java,
-                W32APIOptions.DEFAULT_OPTIONS
+                W32APIOptions.DEFAULT_OPTIONS,
             )
         }
     }
 
     internal class COPYDATASTRUCT64 : Structure() {
+        @JvmField
         var dwData = 0
+
+        @JvmField
         var cbData: Long = 0
+
+        @JvmField
         var lpData: Pointer? = null
         override fun getFieldOrder(): List<String> = listOf("dwData", "cbData", "lpData")
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
+    private val hexFormat = HexFormat {
+        bytes {
+            bytePrefix = "0x"
+        }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
     fun query(buffer: Buffer) {
         val hwnd = libU.FindWindow("Pageant", "Pageant")
             ?: throw AgentProxyException("Pageant is not runnning.", null)
-        val mapname = String.format("PageantRequest%08x", libK.GetCurrentThreadId())
+        val mapname = "PageantRequest" + libK.GetCurrentThreadId().toHexString(hexFormat)
 
         val sharedFile = libK.CreateFileMapping(
             WinBase.INVALID_HANDLE_VALUE,
             null,
             PAGE_READWRITE,
             0,
-            8192,  // AGENT_MAX_MSGLEN
-            mapname
+            8192, // AGENT_MAX_MSGLEN
+            mapname,
         )
         val sharedMemory: Pointer = Kernel32.INSTANCE.MapViewOfFile(
             sharedFile,
             SECTION_MAP_WRITE,
-            0, 0, 0
+            0,
+            0,
+            0,
         )
         try {
             sharedMemory.write(0, buffer.buffer, 0, buffer.length)
@@ -129,8 +137,8 @@ internal class PageantConnector {
 
     private fun sendMessage(hwnd: HWND, data: ByteArray): Long = libU.SendMessage(
         hwnd,
-        0x004A,  //WM_COPYDATA
+        0x004A, // WM_COPYDATA
         null,
-        data
+        data,
     )
 }

@@ -36,7 +36,7 @@ class CallTest {
           public external operator fun invoke()
         }
         
-        public fun main() {
+        public fun calling() {
           // LONDON CALLING
           LONDON()
           println("FOO")
@@ -93,7 +93,7 @@ class CallTest {
         |  public external operator fun invoke(BAR: Int, C: String)
         |}
         |
-        |public fun main() {
+        |public fun calling() {
         |  // LONDON CALLING
         |  LONDON(FOO.BAR, FOO.C)
         |  println("FOO")

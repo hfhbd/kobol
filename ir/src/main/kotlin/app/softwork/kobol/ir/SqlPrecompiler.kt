@@ -4,12 +4,13 @@ import app.softwork.kobol.fir.*
 import java.io.*
 
 public interface SqlPrecompiler : AutoCloseable {
-    public fun convert(sqlInit: CobolFIRTree.DataTree.WorkingStorage.Sql): List<KobolIRTree.Types.Function.Statement>
+    public fun convert(sqlInit: CobolFIRTree.DataTree.Sql): List<KobolIRTree.Types.Function.Statement>
 
     public fun convert(
         sql: CobolFIRTree.ProcedureTree.Statement.Sql,
         variableToIR: (CobolFIRTree.ProcedureTree.Expression.Variable) -> KobolIRTree.Expression.Variable,
-        getDeclaration: (CobolFIRTree.DataTree.WorkingStorage.Elementar) -> KobolIRTree.Types.Function.Statement.Declaration
+        getDeclaration:
+        (CobolFIRTree.DataTree.WorkingStorage.Elementar) -> KobolIRTree.Types.Function.Statement.Declaration,
     ): List<KobolIRTree.Types.Function.Statement>
 }
 
@@ -18,6 +19,6 @@ public fun interface SqlPrecompilerFactory {
         packageName: String,
         fileName: String,
         outputFolder: File?,
-        args: Map<String, String>
+        args: Map<String, String>,
     ): SqlPrecompiler
 }

@@ -31,7 +31,7 @@ class ForEachJavaTest {
         public class Hello {
           public static String WORLD = "WORLD!";
         
-          public static void main(String[] args) {
+          public static void hello() {
             // COMMENT I
             do {
               FOO();
@@ -73,7 +73,7 @@ class ForEachJavaTest {
         public class Hello {
           public static String WORLD = "WORLD!";
         
-          public static void main(String[] args) {
+          public static void hello() {
             // COMMENT I
             while (!(WORLD.equals("FOO"))) {
               System.out.println("FOO");
@@ -112,7 +112,7 @@ class ForEachJavaTest {
         public class Hello {
           public static int WORLD = 1;
         
-          public static void main(String[] args) {
+          public static void hello() {
             for (WORLD = 1; !(WORLD == 42); WORLD += 3) {
               System.out.println("FOO");
             }

@@ -31,7 +31,7 @@ class RecordJavaTest {
 
         val (foo, bar, output) = generate(input, java8 = true)
 
-        assertEquals(//language=java
+        assertEquals( //language=java
             """
         package hello;
         
@@ -43,12 +43,12 @@ class RecordJavaTest {
           public static Integer WORLD = null;
         }
         
-        """.trimIndent(), foo.toString()
+            """.trimIndent(),
+            foo.toString(),
         )
 
-
-        assertEquals(//language=java
-        """
+        assertEquals( //language=java
+            """
         package hello;
         
         /**
@@ -59,16 +59,16 @@ class RecordJavaTest {
           public static String WORLD = "BAR";
         }
         
-        """.trimIndent(), bar.toString()
+            """.trimIndent(),
+            bar.toString(),
         )
 
-
-        assertEquals(//language=java
-        """
+        assertEquals( //language=java
+            """
         package hello;
         
         public class Hello {
-          public static void main(String[] args) {
+          public static void hello() {
             FOO.WORLD = 42;
             // Some Comment
             System.out.println("HELLO " + FOO.WORLD);
@@ -76,6 +76,8 @@ class RecordJavaTest {
           }
         }
         
-        """.trimIndent(), output.toString())
+            """.trimIndent(),
+            output.toString(),
+        )
     }
 }

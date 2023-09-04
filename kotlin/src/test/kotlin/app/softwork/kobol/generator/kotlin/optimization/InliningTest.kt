@@ -40,7 +40,7 @@ class InliningTest {
         
         import kotlin.String
         
-        public fun main() {
+        public fun hello() {
           val HELLO: String = "HELLO"
           var WORLD: String = "WORLD!"
           println("${'$'}HELLO${'$'}WORLD")
@@ -114,10 +114,10 @@ class InliningTest {
         |123456     CLOSE TRANSACTIONS.
         |
         """.trimMargin().toIR(
-            firPlugins = listOf(NullableToZero()), 
+            firPlugins = listOf(NullableToZero()),
             irPlugins = listOf(Inlining()),
             fileConverter = { JavaFilesKotlin() },
-            serialization = { KotlinxSerialization(it) }
+            serialization = { KotlinxSerialization(it) },
         )
 
         val output = generate(input)

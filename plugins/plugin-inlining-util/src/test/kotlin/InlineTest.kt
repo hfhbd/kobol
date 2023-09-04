@@ -19,7 +19,7 @@ class InlineTest {
             value = null,
             mutable = true,
             private = false,
-            length = 1
+            length = 1,
         )
         val globalVariable = GlobalVariable(string, doc = emptyList())
 
@@ -31,7 +31,7 @@ class InlineTest {
             },
             types = build {
                 +globalVariable
-            }
+            },
         )
 
         val after = before.inlineGlobalVariables(false)
@@ -44,8 +44,9 @@ class InlineTest {
                     +string.copy(mutable = false)
                     +Print(StringVariable(string.copy(mutable = false)))
                 },
-                types = emptyList()
-            ), after
+                types = emptyList(),
+            ),
+            after,
         )
     }
 
@@ -56,7 +57,7 @@ class InlineTest {
             value = null,
             mutable = true,
             private = false,
-            length = 1
+            length = 1,
         )
         val globalVariable = GlobalVariable(string, doc = emptyList())
 
@@ -71,7 +72,7 @@ class InlineTest {
                 +function("foo") {
                     +Print(StringVariable(string))
                 }
-            }
+            },
         )
 
         val after = before.inlineGlobalVariables(false)
@@ -86,7 +87,7 @@ class InlineTest {
             value = null,
             mutable = true,
             private = false,
-            length = 1
+            length = 1,
         )
         val globalVariable = GlobalVariable(string, doc = emptyList())
 
@@ -101,7 +102,7 @@ class InlineTest {
             types = build {
                 +globalVariable
                 +baz
-            }
+            },
         )
 
         val after = before.inlineGlobalVariables(false)
@@ -116,8 +117,9 @@ class InlineTest {
                 },
                 types = build {
                     +baz
-                }
-            ), after
+                },
+            ),
+            after,
         )
     }
 
@@ -130,7 +132,7 @@ class InlineTest {
             private = false,
             length = 1,
             const = false,
-            isSigned = false
+            isSigned = false,
         )
         val globalVariable = GlobalVariable(counter, doc = emptyList())
 
@@ -139,26 +141,27 @@ class InlineTest {
             id = "inlining",
             main = KobolIRTree.Types.Function(name = "main") {
                 +For(counter = counter, from = 1.l, condition = Smaller(IntVariable(counter), 2.l)) {
-
                 }
             },
             types = build {
                 +globalVariable
-            }
+            },
         )
 
         val after = before.inlineGlobalVariables(false)
 
-        assertEquals(KobolIRTree(
-            name = "inlining",
-            id = "inlining",
-            main = KobolIRTree.Types.Function(name = "main") {
-                +counter
-                +For(counter = counter, from = 1.l, condition = Smaller(IntVariable(counter), 2.l)) {
-
-                }
-            },
-            types = emptyList()
-        ), after)
+        assertEquals(
+            KobolIRTree(
+                name = "inlining",
+                id = "inlining",
+                main = KobolIRTree.Types.Function(name = "main") {
+                    +counter
+                    +For(counter = counter, from = 1.l, condition = Smaller(IntVariable(counter), 2.l)) {
+                    }
+                },
+                types = emptyList(),
+            ),
+            after,
+        )
     }
 }

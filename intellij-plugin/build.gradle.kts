@@ -15,13 +15,13 @@ configurations.implementation {
 }
 
 intellij {
-    version.set(libs.versions.idea.map { "IU-$it" })
+    version.set(libs.versions.idea.map { "IC-$it" })
 }
 
 tasks {
     patchPluginXml {
-        sinceBuild.set("221")
-        untilBuild.set("231.*")
+        sinceBuild.set("231")
+        untilBuild.set("232.*")
         version.set(project.version.toString())
     }
 

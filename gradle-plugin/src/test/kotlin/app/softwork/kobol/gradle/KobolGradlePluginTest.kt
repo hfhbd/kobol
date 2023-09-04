@@ -15,38 +15,38 @@ import kotlin.test.*
 class KobolGradlePluginTest {
     @Test
     fun testConvertingKotlin() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
-            deleteOnExit()
-        }
-        val cobolFile = File(tmp, "hello.cbl").apply {
+        val temp = Files.createTempDirectory("cobolTesting")
+        val tempFile = temp.toFile()
+        val cobolFile = File(tempFile, "hello.cbl").apply {
             writeText(input)
         }
         ExecuteKobol(
+            rootPath = temp,
             input = setOf(cobolFile),
-            outputFolder = tmp,
+            outputFolder = tempFile,
             irPlugins = listOf(NoSynthetics()),
-            codeGeneratorFactory = KotlinCodeGeneratorFactory()
+            codeGeneratorFactory = KotlinCodeGeneratorFactory(),
         )
-        val packageFolder = File(tmp, "kotlin/hello")
+        val packageFolder = File(tempFile, "kotlin/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
     }
 
     @Test
     fun testConvertingJava() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
-            deleteOnExit()
-        }
-        val cobolFile = File(tmp, "hello.cbl").apply {
+        val temp = Files.createTempDirectory("cobolTesting")
+        val tempFile = temp.toFile()
+        val cobolFile = File(tempFile, "hello.cbl").apply {
             writeText(input)
         }
         ExecuteKobol(
+            rootPath = temp,
             input = setOf(cobolFile),
-            outputFolder = tmp,
+            outputFolder = tempFile,
             irPlugins = listOf(Java8Plugin(), NoSynthetics()),
-            codeGeneratorFactory = JavaCodeGeneratorFactory()
+            codeGeneratorFactory = JavaCodeGeneratorFactory(),
         )
-        val packageFolder = File(tmp, "java/hello")
+        val packageFolder = File(tempFile, "java/hello")
         assertTrue(packageFolder.exists())
         assertEquals(listOf("Hello.java"), packageFolder.list()?.toList())
     }
@@ -71,35 +71,30 @@ class KobolGradlePluginTest {
             123456     DISPLAY "HELLO"WORLD
             123456     MOVE "42" TO WORLD
             123456     DISPLAY "ANSWER"WORLD.
-        """.trimIndent()
+    """.trimIndent()
 
     @Test
     fun testFlowGraph() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
-            deleteOnExit()
-        }
-        val cobolFile = File(tmp, "hello.cbl").apply {
+        val temp = Files.createTempDirectory("cobolTesting")
+        val tempFile = temp.toFile()
+        val cobolFile = File(tempFile, "hello.cbl").apply {
             writeText(input)
         }
 
-        PlantumlFlowGraph(tmp).use {
-            it.generate(listOf(cobolFile.toTree()))
+        PlantumlFlowGraph(tempFile).use {
+            it.generate(listOf(cobolFile.toTree(temp)))
         }
-        assertTrue("hello.puml" in tmp.list())
+        assertTrue("hello.puml" in tempFile.list())
     }
 
-    @Ignore
     @Test
-    fun customFlowGraph() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile().apply {
-            deleteOnExit()
-        }
+    fun applyingKobolWorks() {
+        val tmp = Files.createTempDirectory("cobolTesting").toFile()
+
         File(tmp, "build.gradle.kts").writeText(
             """
-            |import app.softwork.kobol.gradle.kobolPlugin
-            |
             |plugins {
-            |  kotlin("jvm") version "1.8.10"
+            |  kotlin("jvm") version "1.9.0"
             |  id("app.softwork.kobol")
             |}
             |
@@ -108,35 +103,23 @@ class KobolGradlePluginTest {
             |}
             |
             |dependencies {
-            |  kobolPlugin(cobol.foo, "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |  kobol("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
             |}
             |
-            |cobol.foo {
-            |  dependencies {
-            |    plugin("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |sourceSets.main {
+            |  cobol {
             |  }
-            |}
+            |}        
             |
-            |tasks {
-            |  register("flowGraph", app.softwork.kobol.gradle.KobolFirPluginTask::class) {
-            |    add(cobol.foo)
-            |  }
-            |  
-            |  uploadCobol {
-            |    files(cobol.foo)
-            |  }
-            |}
-            |
-            """.trimMargin()
+            """.trimMargin(),
         )
-        File(tmp, "foo.cbl").writeText(input)
 
         val result = GradleRunner.create()
             .withProjectDir(tmp)
             .withPluginClasspath()
-            .withArguments(":flowGraph", "--configuration-cache")
+            .withArguments(":help", "--configuration-cache")
             .build()
 
-        assertEquals(TaskOutcome.SUCCESS, result.task(":flowGraph")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
     }
 }

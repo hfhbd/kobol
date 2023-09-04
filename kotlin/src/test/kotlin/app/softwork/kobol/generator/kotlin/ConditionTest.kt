@@ -45,7 +45,7 @@ class ConditionTest {
         
         public var FOO: Int = 10
         
-        public fun main() {
+        public fun helloif() {
           if (WORLD == "WORLD!") {
             // Some Comment
             println("HELLO ${'$'}WORLD")
@@ -105,7 +105,7 @@ class ConditionTest {
         
         public var WORLD: Int = 1
         
-        public fun main() {
+        public fun eval() {
           when {
             FOO == "" && WORLD == 1 && BAR == "" -> {
               println("right")
@@ -159,7 +159,7 @@ class ConditionTest {
         
         public var WORLD: Int = 1
         
-        public fun main() {
+        public fun eval() {
           when (FOO) {
             "" -> {
               println("right")

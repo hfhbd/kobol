@@ -7,7 +7,9 @@ import com.intellij.lang.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 
-internal abstract class CobolVariableElementImpl(node: ASTNode) : ASTWrapperPsiElement(node), CobolNamedElement, CobolVariable {
+internal abstract class CobolVariableElementImpl(
+    node: ASTNode,
+) : ASTWrapperPsiElement(node), CobolNamedElement, CobolVariable {
     override fun getNameIdentifier(): PsiElement = varName
     override fun getName(): String = varName.text
 
@@ -27,10 +29,10 @@ internal abstract class CobolVariableElementImpl(node: ASTNode) : ASTWrapperPsiE
         if (of != null) {
             val size = textLength - 1
             val varLength = of.recordID.varName.textLength
-            //BAR OF B
-            //01234567
+            // BAR OF B
+            // 01234567
             val range = TextRange.create(size - varLength, size)
-            val record = object: PsiReference by CobolRecordReference(of.recordID, range) {
+            val record = object : PsiReference by CobolRecordReference(of.recordID, range) {
                 override fun getElement(): PsiElement {
                     return this@CobolVariableElementImpl
                 }

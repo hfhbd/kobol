@@ -12,7 +12,7 @@ private fun CobolFIRTree.DataTree.toNull(): CobolFIRTree.DataTree {
     return copy(
         fileSection = fileSection.toNull(),
         workingStorage = workingStorage.toNull(),
-        linkingSection = linkingSection.toNull()
+        linkingSection = linkingSection.toNull(),
     )
 }
 
@@ -36,7 +36,7 @@ private fun <T : CobolFIRTree.DataTree.WorkingStorage> T.toNull(): T {
     return when (this) {
         is CobolFIRTree.DataTree.WorkingStorage.Elementar.EmptyElementar -> this
         is CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.Normal -> copy(
-            value = value ?: 0.0
+            value = value ?: 0.0,
         )
         is CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar.ReturnCode -> this
 
@@ -46,10 +46,8 @@ private fun <T : CobolFIRTree.DataTree.WorkingStorage> T.toNull(): T {
         )
 
         is CobolFIRTree.DataTree.WorkingStorage.Record -> copy(
-            elements = elements.toNull()
+            elements = elements.toNull(),
         )
-
-        is CobolFIRTree.DataTree.WorkingStorage.Sql -> this
         else -> notPossible()
     } as T
 }
