@@ -10,4 +10,4 @@ import org.gradle.api.provider.Provider
 internal const val GROUP_NAME = "grammarKit"
 
 internal val <T : FileSystemLocation> Provider<T>.path
-    get() = map { it.asFile.canonicalPath }
+    get() = get().asFile.canonicalPath
