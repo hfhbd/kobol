@@ -3,8 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(projects.ir)
-    api(projects.fir)
+    api(projects.fir2ir)
 
     testImplementation(kotlin("test"))
 }

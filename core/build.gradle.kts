@@ -3,9 +3,6 @@ plugins {
 }
 
 dependencies {
+    api(projects.psi2fir)
     api(projects.fir2ir)
-
-    api(libs.sqldelight.writer)
-
-    testImplementation(kotlin("test"))
 }

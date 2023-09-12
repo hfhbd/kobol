@@ -30,7 +30,9 @@ enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
 include(":lexer-parser")
 include(":fir")
+include(":psi2fir")
 include(":ir")
+include(":fir2ir")
 
 include(":kotlin")
 include(":kotlin:kotlin-sqldelight")
@@ -67,3 +69,6 @@ include(":plugins:plugin-exitprocess")
 
 include(":intellij-env")
 include(":ssh-env")
+
+include(":core")
+include(":util")

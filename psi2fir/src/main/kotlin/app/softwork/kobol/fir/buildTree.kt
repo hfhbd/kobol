@@ -40,6 +40,7 @@ import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.StringExpres
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Section
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement
+import app.softwork.kobol.notPossible
 import app.softwork.sqldelight.db2dialect.grammar.psi.Db2ExtensionStmt
 import app.softwork.sqldelight.db2dialect.grammar.psi.Db2HostVariable
 import app.softwork.sqldelight.db2dialect.grammar.psi.Db2SelectIntoClause
@@ -68,7 +69,7 @@ public fun CobolFile.toTree(absoluteBasePath: Path): CobolFIRTree {
     }
     val id = program.idDiv.toID()
     val env = program.envDiv?.toEnv()
-    val data = program.dataDiv?.toData(env) ?: returnCode
+    val data = program.dataDiv?.toData(env) ?: DataTree.returnCode
     val procedure = program.procedureDiv.toProcedure(data)
 
     val fileComments = program.comments.asComments()
@@ -83,10 +84,6 @@ public fun CobolFile.toTree(absoluteBasePath: Path): CobolFIRTree {
         packageName = packageName(absoluteBasePath),
     )
 }
-
-internal val returnCode: DataTree = DataTree(
-    workingStorage = listOf(NumberElementar.ReturnCode()),
-)
 
 private fun CobolIdDiv.toID(): ID {
     val (programID, programmIDComments) = programIDClause.let {
@@ -974,5 +971,3 @@ private fun Elementar.toVariable(): Expression.Variable = when (this) {
     is Pointer -> TODO()
     is EmptyElementar -> TODO()
 }
-
-public fun notPossible(): Nothing = error("Should not be possible!")
