@@ -5,7 +5,6 @@
 package org.jetbrains.grammarkit.tasks
 
 import org.gradle.api.file.*
-import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 import org.jetbrains.grammarkit.GROUP_NAME
 import org.jetbrains.grammarkit.path
@@ -37,8 +36,8 @@ abstract class GenerateLexerTask : JavaExec() {
         argumentProviders.add {
             listOf(
                 "-d",
-                targetOutputDir.path.get(),
-                sourceFile.path.get(),
+                targetOutputDir.path,
+                sourceFile.path,
             )
         }
     }

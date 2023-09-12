@@ -4,9 +4,7 @@
 
 package org.jetbrains.grammarkit.tasks
 
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.*
+import org.gradle.api.file.*
 import org.gradle.api.tasks.*
 import org.jetbrains.grammarkit.*
 
@@ -35,7 +33,10 @@ abstract class GenerateParserTask : JavaExec() {
 
         mainClass.set("org.intellij.grammar.Main")
         argumentProviders.add {
-            listOf(targetRootOutputDir.path.get(), sourceFile.path.get())
+            listOf(
+                targetRootOutputDir.path,
+                sourceFile.path,
+            )
         }
     }
 }
