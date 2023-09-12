@@ -82,7 +82,7 @@ class CobolParserTest {
                     ),
                 ),
                 data = DataTree(
-                    fileSection = build {
+                    fileSection = buildList {
                         +File(
                             name = "FOO",
                             description = File.FileDescription(
@@ -91,7 +91,7 @@ class CobolParserTest {
                             filePath = "A",
                             fileStatus = "EIN",
                             type = File.FileType.Sequential,
-                            records = build {
+                            records = buildList {
                                 +Record("BAR-1") {
                                     +StringElementar(
                                         name = "FOO",
@@ -109,7 +109,7 @@ class CobolParserTest {
                             },
                         )
                     },
-                    workingStorage = build {
+                    workingStorage = buildList {
                         +Record(name = "RPI") {
                             +world
                             +StringElementar(name = "ANSWER", recordName = "RPI", formatter = Simple(6))
@@ -121,11 +121,11 @@ class CobolParserTest {
                         +StringElementar(name = "BAR", recordName = null, formatter = Simple(3))
                         +ReturnCode()
                     },
-                    linkingSection = build {
+                    linkingSection = buildList {
                         +StringElementar(name = "BBBBB", recordName = null, formatter = Simple(length = 3))
                         +Record(
                             name = "CCCCC",
-                            elements = build {
+                            elements = buildList {
                                 +StringElementar(
                                     name = "DDDDD",
                                     recordName = "CCCCC",
@@ -136,7 +136,7 @@ class CobolParserTest {
                     },
                 ),
                 procedure = ProcedureTree(
-                    topLevel = build {
+                    topLevel = buildList {
                         +Display(StringVariable(target = world))
                         +Display(StringVariable(target = foo))
                         +Display(StringVariable(target = fooRPICA))
@@ -187,13 +187,13 @@ class CobolParserTest {
                     programID = "HELLO",
                 ),
                 data = DataTree(
-                    workingStorage = build {
+                    workingStorage = buildList {
                         +world
                         +ReturnCode()
                     },
                 ),
                 procedure = ProcedureTree(
-                    topLevel = build {
+                    topLevel = buildList {
                         +Display(
                             Concat(
                                 StringLiteral("HELLO"),
@@ -243,7 +243,7 @@ class CobolParserTest {
                     ),
                 ),
                 procedure = ProcedureTree(
-                    topLevel = build {
+                    topLevel = buildList {
                         +Display(StringLiteral("HELLO"))
                         +GoBack()
                     },
@@ -326,7 +326,7 @@ class CobolParserTest {
                             records = listOf(Record(name = "F", elements = emptyList())),
                         ),
                     ),
-                    workingStorage = build {
+                    workingStorage = buildList {
                         +ReturnCode()
                     },
                     linkingSection = emptyList(),
@@ -377,7 +377,7 @@ class CobolParserTest {
                     author = "WEDEMANN / Softwork.app",
                 ),
                 data = DataTree(
-                    workingStorage = build {
+                    workingStorage = buildList {
                         +Record("RPI") {
                             +EmptyElementar("FOO1", "RPI")
                             val world2 = NumberElementar.Normal(
@@ -421,7 +421,7 @@ class CobolParserTest {
                     },
                 ),
                 procedure = ProcedureTree(
-                    topLevel = build {
+                    topLevel = buildList {
                         +Display(StringLiteral("HELLO") + StringVariable(world4))
                     },
                 ),
@@ -458,16 +458,16 @@ class CobolParserTest {
                 fileName = "testing.cbl",
                 id = ID(programID = "HELLO"),
                 data = DataTree(
-                    workingStorage = build {
+                    workingStorage = buildList {
                         +world2
                         +ReturnCode()
                     },
                 ),
                 procedure = ProcedureTree(
-                    topLevel = build {
+                    topLevel = buildList {
                         +Perform("FOO", until = Equals(NumberVariable(world2), 2.l))
                         +While(
-                            build {
+                            buildList {
                                 +Perform("FOO")
                             },
                             until = NumberVariable(world2) eq 2.l,
@@ -477,7 +477,7 @@ class CobolParserTest {
                             from = 1.l,
                             by = 3.l,
                             until = NumberVariable(world2) eq 4.l,
-                            statements = build {
+                            statements = buildList {
                                 +Perform("FOO")
                             },
                         )
@@ -538,7 +538,7 @@ class CobolParserTest {
                 fileName = "testing.cbl",
                 id = ID(programID = "HELLO"),
                 data = DataTree(
-                    workingStorage = build {
+                    workingStorage = buildList {
                         +bar
                         +barResult
                         +Record("SQLCA") {
@@ -580,7 +580,7 @@ class CobolParserTest {
                     },
                 ),
                 procedure = ProcedureTree(
-                    topLevel = build {
+                    topLevel = buildList {
                         +Sql(
                             "SELECT 42 INTO :FOO FROM SYSIBM.SYSDUMMY1",
                             updatingHostVariables = listOf(NumberVariable(foo)),

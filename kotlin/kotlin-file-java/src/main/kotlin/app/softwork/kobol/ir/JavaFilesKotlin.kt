@@ -1,5 +1,6 @@
 package app.softwork.kobol.ir
 
+import app.softwork.kobol.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*

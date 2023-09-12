@@ -22,7 +22,7 @@ class ExitTest {
                     +Move(ReturnCode(), 8.l)
                     +If(
                         1.l eq 1.l,
-                        build {
+                        buildList {
                             +StopRun()
                         },
                     )
@@ -44,12 +44,12 @@ class ExitTest {
                     +Statement.Assignment(testingReturnCodeIr, IntLiteral(8))
                     +Statement.If(
                         Eq(IntLiteral(1), IntLiteral(1)),
-                        statements = build {
+                        statements = buildList {
                             +Statement.Exit(testingReturnCodeIr.variable() as IntVariable)
                         },
                     )
                 }.copy(isEntryPoint = true),
-                types = build {
+                types = buildList {
                     +RC
                 },
             ),
@@ -64,7 +64,7 @@ class ExitTest {
                 topLevel {
                     +If(
                         1.l eq 1.l,
-                        build {
+                        buildList {
                             +StopRun()
                         },
                     )
@@ -88,7 +88,7 @@ class ExitTest {
                 main = Types.Function(name = "before") {
                     +Statement.If(
                         Eq(IntLiteral(1), IntLiteral(1)),
-                        statements = build {
+                        statements = buildList {
                             +Statement.Exit(IntLiteral(0))
                         },
                     )
@@ -107,7 +107,7 @@ class ExitTest {
                     +Move(ReturnCode(), 8.l)
                     +If(
                         1.l eq 1.l,
-                        build {
+                        buildList {
                             +StopRun()
                         },
                     )
@@ -133,7 +133,7 @@ class ExitTest {
                     +Statement.Assignment(testingReturnCodeIr, IntLiteral(8))
                     +Statement.If(
                         Eq(IntLiteral(1), IntLiteral(1)),
-                        statements = build {
+                        statements = buildList {
                             +Statement.Exit(testingReturnCodeIr.variable() as IntVariable)
                         },
                     )

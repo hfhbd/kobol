@@ -17,27 +17,27 @@ class IRTest {
             name = "foo",
             main = function("foo") {
                 +TryCatch(
-                    tryStmts = build {
+                    tryStmts = buildList {
                         +Print("TRY I".l)
                         +Print("TRY II".l)
                     },
-                    catchBlocks = build {
+                    catchBlocks = buildList {
                         +TryCatch.CatchBlock(
                             exceptionClass = Exception,
-                            stmts = build {
+                            stmts = buildList {
                                 +Print("CATCH I".l)
                                 +Print("CATCH II".l)
                             },
                         )
                         +TryCatch.CatchBlock(
                             exceptionClass = Exception,
-                            stmts = build {
+                            stmts = buildList {
                                 +Print("CATCH III".l)
                                 +Print("CATCH IV".l)
                             },
                         )
                     },
-                    finallyStmts = build {
+                    finallyStmts = buildList {
                         +Print("FINALLY I".l)
                         +Print("FINALLY II".l)
                     },

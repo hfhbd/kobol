@@ -1,13 +1,9 @@
 package app.softwork.kobol
 
-// TODO: Remove when serialization plugin supports K2
+context(MutableList<T>)
+public operator fun <T> T.unaryPlus(): Boolean = add(this)
 
-@JvmInline
-public value class Builder<T> (private val list: MutableList<T> = mutableListOf()) : MutableList<T> by list {
-    public inline operator fun T.unaryPlus(): Boolean = add(this)
-    public inline operator fun List<T>.unaryPlus(): Boolean = addAll(this)
-}
+context(MutableList<T>)
+public operator fun <T> List<T>.unaryPlus(): Boolean = addAll(this)
 
-public inline fun <T> build(builder: Builder<T>.() -> Unit): MutableList<T> =
-    Builder<T>().apply(builder).toMutableList()
-public inline fun <T> build(builder: List<T>): MutableList<T> = builder.toMutableList()
+public inline fun <T> build(builder: MutableList<T>.() -> Unit): MutableList<T> = buildList(builder).toMutableList()

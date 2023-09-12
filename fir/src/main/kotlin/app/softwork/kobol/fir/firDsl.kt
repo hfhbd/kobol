@@ -34,13 +34,13 @@ public class CobolFIRTreeBuilder internal constructor(private val programID: Str
         private val sections: MutableList<Section> = mutableListOf()
 
         @CobolFIRTreeMarker
-        public fun topLevel(builder: Builder<Statement>.() -> Unit) {
-            topLevel = build(builder)
+        public fun topLevel(builder: MutableList<Statement>.() -> Unit) {
+            topLevel = buildList(builder)
         }
 
         @CobolFIRTreeMarker
-        public fun section(name: String, builder: Builder<Statement>.() -> Unit) {
-            sections.add(Section(name, statements = build(builder)))
+        public fun section(name: String, builder: MutableList<Statement>.() -> Unit) {
+            sections.add(Section(name, statements = buildList(builder)))
         }
 
         internal fun build(): CobolFIRTree.ProcedureTree = CobolFIRTree.ProcedureTree(topLevel)

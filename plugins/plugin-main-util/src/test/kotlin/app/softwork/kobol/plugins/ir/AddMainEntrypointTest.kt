@@ -1,6 +1,5 @@
 package app.softwork.kobol.plugins.ir
 
-import app.softwork.kobol.build
 import app.softwork.kobol.ir.KobolIRTree
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Print
@@ -8,6 +7,7 @@ import app.softwork.kobol.ir.KobolIRTree.Types.Type.Natives
 import app.softwork.kobol.ir.function
 import app.softwork.kobol.ir.invoke
 import app.softwork.kobol.ir.l
+import app.softwork.kobol.unaryPlus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -30,7 +30,7 @@ class AddMainEntrypointTest {
             "test",
             "test",
             main = normalMain,
-            types = build {
+            types = buildList {
                 +function("main") {
                     +normalMain()
                 }.copy(parameters = stringArgs)
@@ -55,7 +55,7 @@ class AddMainEntrypointTest {
             "test",
             "test",
             main = normalMain,
-            types = build {
+            types = buildList {
                 +function("main") {
                     +normalMain()
                 }.copy(parameters = stringArgs)
@@ -99,7 +99,7 @@ class AddMainEntrypointTest {
             "test",
             "test",
             main = normalMain,
-            types = build {
+            types = buildList {
                 +similarMain
                 +function("main") {
                     +normalMain()

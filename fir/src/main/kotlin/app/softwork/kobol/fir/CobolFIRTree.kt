@@ -136,8 +136,8 @@ public data class CobolFIRTree(
                 public constructor(
                     name: String,
                     comments: List<String> = emptyList(),
-                    elements: Builder<Elementar>.() -> Unit,
-                ) : this(name, build(elements), comments)
+                    elements: MutableList<Elementar>.() -> Unit,
+                ) : this(name, buildList(elements), comments)
             }
 
             @Serializable
@@ -355,8 +355,8 @@ public data class CobolFIRTree(
             public constructor(
                 name: String,
                 comments: List<String> = emptyList(),
-                builder: Builder<Statement>.() -> Unit,
-            ) : this(name, build(builder), comments)
+                builder: MutableList<Statement>.() -> Unit,
+            ) : this(name, buildList(builder), comments)
         }
 
         @Serializable

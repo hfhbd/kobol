@@ -1,7 +1,5 @@
 package app.softwork.kobol.ir
 
-import app.softwork.kobol.Builder
-import app.softwork.kobol.build
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral
 import app.softwork.kobol.ir.KobolIRTree.Expression.StringExpression.StringLiteral
 import app.softwork.kobol.ir.KobolIRTree.Types.Callable
@@ -22,7 +20,7 @@ public fun function(
     private: Boolean = false,
     topLevel: Boolean = false,
     returnType: Type = Type.Natives.Void,
-    block: Builder<Statement>.() -> Unit,
+    block: MutableList<Statement>.() -> Unit,
 ): Function = Function(
     name = name,
     packageName = packageName,
@@ -39,13 +37,13 @@ public operator fun Function.getValue(receiver: Any?, prop: KProperty<*>): Funct
 public fun klass(
     name: String = "fake",
     packageName: String,
-    functions: Builder<Function>.() -> Unit = {},
-    constructor: Builder<Declaration>.() -> Unit = {},
+    functions: MutableList<Function>.() -> Unit = {},
+    constructor: MutableList<Declaration>.() -> Unit = {},
 ): Type.Class = Type.Class(
     name = name,
     packageName = packageName,
-    functions = build(functions),
-    constructor = build(constructor),
+    functions = buildList(functions),
+    constructor = buildList(constructor),
 )
 
 public operator fun Type.Class.getValue(receiver: Any?, prop: KProperty<*>): Type.Class = copy(name = prop.name)
@@ -77,12 +75,12 @@ public val testingReturnCodeIr: Declaration.IntDeclaration = Declaration.IntDecl
     value = IntLiteral(0),
 )
 
-public fun Builder<Statement>.exit(): Exit = Exit(
+public fun MutableList<Statement>.exit(): Exit = Exit(
     testingReturnCodeIr.variable() as KobolIRTree.Expression.NumberExpression.IntExpression,
     emptyList(),
 )
 
-public val Builder<KobolIRTree.Types>.RC: Type.GlobalVariable
+public val MutableList<KobolIRTree.Types>.RC: Type.GlobalVariable
     get() = Type.GlobalVariable(
         testingReturnCodeIr,
         emptyList(),

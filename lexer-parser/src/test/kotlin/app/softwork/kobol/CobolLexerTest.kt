@@ -482,10 +482,10 @@ private fun FlexAdapter.list(input: String): List<List<IElementType>> = buildLis
     add(list)
 }.drop(1).filter { it.isNotEmpty() }
 
-private fun assertEquals(@Language("COBOL") cobol: String, builder: Builder<List<IElementType>>.() -> Unit) {
-    assertEquals(build(builder), CobolLexerAdapter().list(cobol))
+private fun assertEquals(@Language("COBOL") cobol: String, builder: MutableList<List<IElementType>>.() -> Unit) {
+    assertEquals(buildList(builder), CobolLexerAdapter().list(cobol))
 }
 
-private fun Builder<List<IElementType>>.line(vararg types: IElementType) = +listOf(elements = types)
+private fun MutableList<List<IElementType>>.line(vararg types: IElementType) = add(listOf(elements = types))
 
 private operator fun IElementType.times(times: Int) = Array(times) { this }

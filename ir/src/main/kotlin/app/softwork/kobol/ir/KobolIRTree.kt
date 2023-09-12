@@ -1,6 +1,5 @@
 package app.softwork.kobol.ir
 
-import app.softwork.kobol.Builder
 import app.softwork.kobol.build
 import app.softwork.kobol.ir.KobolIRTree.Expression
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.DoubleExpression
@@ -55,7 +54,7 @@ public data class KobolIRTree(
                 topLevel: Boolean = false,
                 packageName: String? = null,
                 isStatic: Boolean = true,
-                body: Builder<Statement>.() -> Unit,
+                body: MutableList<Statement>.() -> Unit,
             ) : this(
                 name = name,
                 parameters = parameters,
@@ -325,13 +324,13 @@ public data class KobolIRTree(
                         step: Expression.NumberExpression? = null,
                         condition: Expression.BooleanExpression,
                         comments: List<String> = emptyList(),
-                        statements: Builder<Statement>.() -> Unit,
+                        statements: MutableList<Statement>.() -> Unit,
                     ) : this(
                         counter,
                         from,
                         step,
                         condition,
-                        build(statements),
+                        buildList(statements),
                         comments,
                     )
                 }

@@ -174,7 +174,7 @@ public class KotlinxSerialization(
             nullable = false,
         )
 
-        return build {
+        return buildList<ForEach> {
             val lineSequence by function {}
             val decode = KobolIRTree.Types.Function(
                 "decode",
@@ -208,7 +208,7 @@ public class KotlinxSerialization(
         ),
     )
 
-    override fun write(write: Write): List<Statement> = build {
+    override fun write(write: Write): List<Statement> = buildList {
         val readBufferedWriter = ObjectDeclaration(
             type = Class(name = "BufferedWriter", packageName = "java.io"),
             name = write.file.name,
