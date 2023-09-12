@@ -4,6 +4,7 @@ import app.softwork.kobol.fir.*
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.plugins.ir.*
 import app.softwork.kobol.plugins.ir.optimizations.*
+import app.softwork.kobol.unaryPlus
 import java.io.*
 import java.nio.file.*
 import kotlin.test.*

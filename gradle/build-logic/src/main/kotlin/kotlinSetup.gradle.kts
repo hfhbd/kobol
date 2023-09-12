@@ -15,6 +15,7 @@ kotlin {
                 it.languageSettings.progressiveMode = true
             }
             kotlinOptions {
+                freeCompilerArgs += "-Xcontext-receivers"
                 // allWarningsAsErrors = true
             }
         }

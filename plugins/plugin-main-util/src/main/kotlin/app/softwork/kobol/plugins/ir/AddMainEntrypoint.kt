@@ -1,6 +1,5 @@
 package app.softwork.kobol.plugins.ir
 
-import app.softwork.kobol.Builder
 import app.softwork.kobol.ir.KobolIRTree
 import app.softwork.kobol.ir.KobolIRTree.Types.Function
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.Array
@@ -17,7 +16,7 @@ internal val stringArg = Array(
 
 internal val stringArgs = listOf(stringArg)
 
-public fun KobolIRTree.addMainEntrypoint(callMain: Builder<Function.Statement>.(Function, Array) -> Unit): KobolIRTree {
+public fun KobolIRTree.addMainEntrypoint(callMain: MutableList<Function.Statement>.(Function, Array) -> Unit): KobolIRTree {
     for (type in types) {
         if (type is Function && type.name == "main") {
             val singleParam = type.parameters.singleOrNull()

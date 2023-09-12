@@ -29,7 +29,7 @@ class InlineTest {
             main = KobolIRTree.Types.Function(name = "main") {
                 +Print(StringVariable(string))
             },
-            types = build {
+            types = buildList {
                 +globalVariable
             },
         )
@@ -67,7 +67,7 @@ class InlineTest {
             main = KobolIRTree.Types.Function(name = "main") {
                 +Print(StringVariable(string))
             },
-            types = build {
+            types = buildList {
                 +globalVariable
                 +function("foo") {
                     +Print(StringVariable(string))
@@ -99,7 +99,7 @@ class InlineTest {
             main = KobolIRTree.Types.Function(name = "main") {
                 +baz(globalVariable)
             },
-            types = build {
+            types = buildList {
                 +globalVariable
                 +baz
             },
@@ -115,7 +115,7 @@ class InlineTest {
                     +string.copy(mutable = false)
                     +baz(StringVariable(string.copy(mutable = false)))
                 },
-                types = build {
+                types = buildList {
                     +baz
                 },
             ),
@@ -143,7 +143,7 @@ class InlineTest {
                 +For(counter = counter, from = 1.l, condition = Smaller(IntVariable(counter), 2.l)) {
                 }
             },
-            types = build {
+            types = buildList {
                 +globalVariable
             },
         )

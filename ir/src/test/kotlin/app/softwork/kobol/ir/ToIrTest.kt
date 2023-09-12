@@ -22,7 +22,7 @@ class ToIrTest {
             fileName = "testing.cbl",
             id = ID("calling"),
             procedure = ProcedureTree(
-                sections = build {
+                sections = buildList {
                     +Section(name = "FOO") {
                         +Display("FOO".l)
                         +Perform("BAR")
@@ -75,7 +75,7 @@ class ToIrTest {
                 doc = emptyList(),
                 isEntryPoint = true,
             ),
-            types = build {
+            types = buildList {
                 +FOO
                 +BAR
                 +C
@@ -130,7 +130,7 @@ class ToIrTest {
                 doc = emptyList(),
                 isEntryPoint = true,
             ),
-            types = build {
+            types = buildList {
                 +GlobalVariable(counter, emptyList())
                 +RC
             },
