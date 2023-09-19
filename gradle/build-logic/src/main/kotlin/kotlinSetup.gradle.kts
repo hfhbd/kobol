@@ -9,16 +9,11 @@ plugins {
 kotlin {
     jvmToolchain(17)
     explicitApi()
-    target {
-        compilations.configureEach {
-            kotlinSourceSets.forAll {
-                it.languageSettings.progressiveMode = true
-            }
-            kotlinOptions {
-                freeCompilerArgs += "-Xcontext-receivers"
-                // allWarningsAsErrors = true
-            }
-        }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-receivers")
+        progressiveMode.set(true)
+        // allWarningsAsErrors.set(true)
     }
 }
 
