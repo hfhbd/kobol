@@ -1,9 +1,9 @@
 package app.softwork.kobol.generator.java
 
-import app.softwork.kobol.notPossible
 import app.softwork.kobol.ir.KobolIRTree
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
+import app.softwork.kobol.notPossible
 import com.squareup.javapoet.*
 import javax.lang.model.element.Modifier.*
 

@@ -5,6 +5,7 @@ import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.ForEach
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.If
+import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Expression
 import app.softwork.kobol.ir.KobolIRTree.Expression.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.DoubleExpression
@@ -12,7 +13,6 @@ import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpressi
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.IntLiteral
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression.IntVariable
 import app.softwork.kobol.ir.KobolIRTree.Types
-import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
