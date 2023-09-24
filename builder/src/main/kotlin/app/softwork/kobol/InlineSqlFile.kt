@@ -1,4 +1,4 @@
-package app.softwork.kobol.fir
+package app.softwork.kobol
 
 import app.softwork.sqldelight.db2dialect.Db2Dialect
 import com.alecstrong.sql.psi.core.*

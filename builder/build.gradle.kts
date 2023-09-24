@@ -3,8 +3,10 @@ plugins {
 }
 
 dependencies {
+    implementation(projects.psi)
     api(projects.fir)
-    implementation(projects.lexerParser)
+    api(projects.ir)
+
     compileOnly(projects.intellijEnv) {
         targetConfiguration = "shadow"
     }

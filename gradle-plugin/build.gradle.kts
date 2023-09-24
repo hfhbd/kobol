@@ -15,10 +15,11 @@ configurations.configureEach {
 }
 
 dependencies {
-    compileOnly(projects.fir2ir)
+    compileOnly(projects.builder)
     compileOnly(projects.sshEnv)
 
     testImplementation(kotlin("test"))
+    testImplementation(projects.builder)
     testImplementation(projects.ir)
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"

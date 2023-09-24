@@ -9,6 +9,7 @@ dependencies {
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"
     }
+    testImplementation(projects.builder)
     testImplementation(kotlin("test"))
     testImplementation(projects.java.javaJava8)
     testImplementation(projects.plugins.pluginNosynthetic)

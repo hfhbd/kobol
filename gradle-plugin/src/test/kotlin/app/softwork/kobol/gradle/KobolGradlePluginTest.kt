@@ -1,6 +1,6 @@
 package app.softwork.kobol.gradle
 
-import app.softwork.kobol.fir.*
+import app.softwork.kobol.*
 import app.softwork.kobol.flowgraph.*
 import app.softwork.kobol.generator.java.*
 import app.softwork.kobol.generator.kotlin.*

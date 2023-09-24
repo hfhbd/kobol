@@ -1,6 +1,7 @@
-package app.softwork.kobol.ir
+package app.softwork.kobol
 
 import app.softwork.kobol.fir.*
+import app.softwork.kobol.ir.*
 import java.io.*
 
 public interface SqlPrecompiler : AutoCloseable {

@@ -8,8 +8,7 @@ import org.gradle.api.tasks.*
 public class KobolGradlePlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
         val kobolClasspath = configurations.register("kobol") {
-            it.dependencies.add(dependencies.create("app.softwork.kobol:psi2fir:$KOBOL_VERSION"))
-            it.dependencies.add(dependencies.create("app.softwork.kobol:fir2ir:$KOBOL_VERSION"))
+            it.dependencies.add(dependencies.create("app.softwork.kobol:builder:$KOBOL_VERSION"))
             it.dependencies.add(dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
             it.isCanBeResolved = true
             it.isCanBeConsumed = false

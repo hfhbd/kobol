@@ -1,6 +1,6 @@
-package app.softwork.kobol.fir
+package app.softwork.kobol
 
-import app.softwork.kobol.*
+import app.softwork.kobol.fir.*
 import app.softwork.sqldelight.db2dialect.grammar.*
 import com.alecstrong.sql.psi.core.*
 import com.intellij.lang.*

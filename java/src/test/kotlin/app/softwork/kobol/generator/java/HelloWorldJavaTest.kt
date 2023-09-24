@@ -3,6 +3,7 @@ package app.softwork.kobol.generator.java
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.java.java8.*
 import app.softwork.kobol.plugins.ir.optimizations.*
+import app.softwork.kobol.*
 import com.squareup.javapoet.*
 import java.io.*
 import kotlin.test.*
@@ -50,7 +51,7 @@ class HelloWorldJavaTest {
     }
 }
 
-internal fun String.toIR(controlFlowHandling: ((String) -> ControlFlowHandling)? = null) =
+internal fun String.toIR(controlFlowHandling: ((String) -> ControlFlowHandling)? = null): KobolIRTree =
     File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR(
         irPlugins = listOf(NoSynthetics()),
         controlFlowHandling = controlFlowHandling,

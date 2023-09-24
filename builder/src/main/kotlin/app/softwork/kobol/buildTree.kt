@@ -1,24 +1,6 @@
-package app.softwork.kobol.fir
+package app.softwork.kobol
 
-import app.softwork.kobol.CobolAnys
-import app.softwork.kobol.CobolBooleanExpr
-import app.softwork.kobol.CobolBooleanExprClause
-import app.softwork.kobol.CobolComments
-import app.softwork.kobol.CobolDataDiv
-import app.softwork.kobol.CobolElementFactory
-import app.softwork.kobol.CobolEnvDiv
-import app.softwork.kobol.CobolExpr
-import app.softwork.kobol.CobolFile
-import app.softwork.kobol.CobolIdDiv
-import app.softwork.kobol.CobolOccursClause
-import app.softwork.kobol.CobolPicDefClause
-import app.softwork.kobol.CobolProcedureDiv
-import app.softwork.kobol.CobolProcedures
-import app.softwork.kobol.CobolRecordDef
-import app.softwork.kobol.CobolStringConcat
-import app.softwork.kobol.CobolTypes
-import app.softwork.kobol.CobolVariable
-import app.softwork.kobol.asComments
+import app.softwork.kobol.fir.CobolFIRTree
 import app.softwork.kobol.fir.CobolFIRTree.DataTree
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.File
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage
@@ -40,7 +22,6 @@ import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.StringExpres
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Expression.StringExpression.StringLiteral
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Section
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement
-import app.softwork.kobol.notPossible
 import app.softwork.sqldelight.db2dialect.grammar.psi.Db2ExtensionStmt
 import app.softwork.sqldelight.db2dialect.grammar.psi.Db2HostVariable
 import app.softwork.sqldelight.db2dialect.grammar.psi.Db2SelectIntoClause
