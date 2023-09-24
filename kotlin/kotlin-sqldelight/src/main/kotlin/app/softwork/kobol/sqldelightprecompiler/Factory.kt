@@ -1,6 +1,6 @@
 package app.softwork.kobol.sqldelightprecompiler
 
-import app.softwork.kobol.ir.*
+import app.softwork.kobol.*
 import app.softwork.kobol.sqldelightprecompiler.SqlDelightPrecompiler.Companion.DB_NAME
 import app.softwork.serviceloader.ServiceLoader
 import java.io.*

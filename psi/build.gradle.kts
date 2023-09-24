@@ -18,7 +18,7 @@ dependencies {
     }
 
     testImplementation(kotlin("test"))
-    testImplementation(projects.fir)
+    testImplementation(projects.builder)
 }
 
 sourceSets.main {

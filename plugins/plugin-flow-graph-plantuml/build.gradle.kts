@@ -8,5 +8,6 @@ dependencies {
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"
     }
+    testImplementation(projects.builder)
     testImplementation(kotlin("test"))
 }

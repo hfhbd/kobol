@@ -28,9 +28,11 @@ rootProject.name = "kobol"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
-include(":lexer-parser")
+include(":psi")
 include(":fir")
 include(":ir")
+
+include(":builder")
 
 include(":kotlin")
 include(":kotlin:kotlin-sqldelight")
@@ -67,3 +69,5 @@ include(":plugins:plugin-exitprocess")
 
 include(":intellij-env")
 include(":ssh-env")
+
+include(":util")

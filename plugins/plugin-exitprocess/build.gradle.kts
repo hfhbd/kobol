@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(projects.ir)
+    api(projects.builder)
 
     testImplementation(kotlin("test"))
     testImplementation(projects.plugins.pluginInlining)

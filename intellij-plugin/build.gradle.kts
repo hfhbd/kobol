@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.lexerParser)
+    implementation(projects.psi)
 }
 
 configurations.implementation {

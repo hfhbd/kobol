@@ -10,4 +10,5 @@ dependencies {
         targetConfiguration = "shadow"
     }
     testImplementation(kotlin("test"))
+    testImplementation(projects.builder)
 }

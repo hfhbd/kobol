@@ -1,24 +1,6 @@
-package app.softwork.kobol.fir
+package app.softwork.kobol
 
-import app.softwork.kobol.CobolAnys
-import app.softwork.kobol.CobolBooleanExpr
-import app.softwork.kobol.CobolBooleanExprClause
-import app.softwork.kobol.CobolComments
-import app.softwork.kobol.CobolDataDiv
-import app.softwork.kobol.CobolElementFactory
-import app.softwork.kobol.CobolEnvDiv
-import app.softwork.kobol.CobolExpr
-import app.softwork.kobol.CobolFile
-import app.softwork.kobol.CobolIdDiv
-import app.softwork.kobol.CobolOccursClause
-import app.softwork.kobol.CobolPicDefClause
-import app.softwork.kobol.CobolProcedureDiv
-import app.softwork.kobol.CobolProcedures
-import app.softwork.kobol.CobolRecordDef
-import app.softwork.kobol.CobolStringConcat
-import app.softwork.kobol.CobolTypes
-import app.softwork.kobol.CobolVariable
-import app.softwork.kobol.asComments
+import app.softwork.kobol.fir.CobolFIRTree
 import app.softwork.kobol.fir.CobolFIRTree.DataTree
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.File
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage
@@ -68,7 +50,7 @@ public fun CobolFile.toTree(absoluteBasePath: Path): CobolFIRTree {
     }
     val id = program.idDiv.toID()
     val env = program.envDiv?.toEnv()
-    val data = program.dataDiv?.toData(env) ?: returnCode
+    val data = program.dataDiv?.toData(env) ?: DataTree.returnCode
     val procedure = program.procedureDiv.toProcedure(data)
 
     val fileComments = program.comments.asComments()
@@ -83,10 +65,6 @@ public fun CobolFile.toTree(absoluteBasePath: Path): CobolFIRTree {
         packageName = packageName(absoluteBasePath),
     )
 }
-
-internal val returnCode: DataTree = DataTree(
-    workingStorage = listOf(NumberElementar.ReturnCode()),
-)
 
 private fun CobolIdDiv.toID(): ID {
     val (programID, programmIDComments) = programIDClause.let {
@@ -974,5 +952,3 @@ private fun Elementar.toVariable(): Expression.Variable = when (this) {
     is Pointer -> TODO()
     is EmptyElementar -> TODO()
 }
-
-public fun notPossible(): Nothing = error("Should not be possible!")

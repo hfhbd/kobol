@@ -2,7 +2,6 @@
 
 package app.softwork.kobol.fir
 
-import app.softwork.kobol.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.NumberElementar
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.StringElementar
 import app.softwork.kobol.fir.serializer.*
@@ -18,9 +17,10 @@ public data class CobolFIRTree(
     val fileComments: List<String> = emptyList(),
     val id: ID,
     val env: EnvTree? = null,
-    val data: DataTree = returnCode,
+    val data: DataTree = DataTree.returnCode,
     val procedure: ProcedureTree,
 ) {
+
     @Serializable
     public data class ID(
         val programID: String,
@@ -89,6 +89,13 @@ public data class CobolFIRTree(
         val linkingSection: List<WorkingStorage> = emptyList(),
         val comments: List<String> = emptyList(),
     ) {
+
+        public companion object {
+            public val returnCode: DataTree = DataTree(
+                workingStorage = listOf(NumberElementar.ReturnCode()),
+            )
+        }
+
         @Serializable
         public data class Sql(
             val sql: String,

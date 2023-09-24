@@ -3,8 +3,7 @@ plugins {
 }
 
 dependencies {
-    api(projects.ir)
-    api(projects.fir)
+    implementation(projects.builder)
 
     api(libs.sqldelight.writer)
 

@@ -1,12 +1,11 @@
-package app.softwork.kobol.ir
+package app.softwork.kobol
 
-import app.softwork.kobol.fir.CobolFIRTree
+import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.ForEach
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.If
-import app.softwork.kobol.fir.FirPlugin
-import app.softwork.kobol.fir.toTree
+import app.softwork.kobol.ir.*
 import app.softwork.kobol.ir.KobolIRTree.Expression
 import app.softwork.kobol.ir.KobolIRTree.Expression.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.DoubleExpression

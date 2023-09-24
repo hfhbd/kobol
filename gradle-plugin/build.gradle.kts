@@ -8,17 +8,18 @@ configurations.configureEach {
         attributes {
             attribute(
                 GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-                objects.named<GradlePluginApiVersion>(GradleVersion.version("8.0").version)
+                objects.named<GradlePluginApiVersion>(GradleVersion.version("8.3").version)
             )
         }
     }
 }
 
 dependencies {
-    implementation(projects.ir)
+    compileOnly(projects.builder)
     compileOnly(projects.sshEnv)
 
     testImplementation(kotlin("test"))
+    testImplementation(projects.builder)
     testImplementation(projects.ir)
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"

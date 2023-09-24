@@ -16,7 +16,3 @@ kotlin {
         // allWarningsAsErrors.set(true)
     }
 }
-
-tasks.assemble {
-    dependsOn(tasks.compileTestKotlin)
-}

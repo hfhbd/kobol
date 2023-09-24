@@ -7,19 +7,19 @@ import org.gradle.api.tasks.*
 
 public class KobolGradlePlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
-        val kobolClasspath = project.configurations.register("kobol") {
-            it.dependencies.add(project.dependencies.create("app.softwork.kobol:ir:$KOBOL_VERSION"))
-            it.dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
+        val kobolClasspath = configurations.register("kobol") {
+            it.dependencies.add(dependencies.create("app.softwork.kobol:builder:$KOBOL_VERSION"))
+            it.dependencies.add(dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
             it.isCanBeResolved = true
             it.isCanBeConsumed = false
             it.isVisible = true
         }
 
-        val upload = registerHelperTasks(tasks)
+        val upload = tasks.registerHelperTasks()
 
         pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
             extensions.getByType(SourceSetContainer::class.java).named("main") { sourceSet ->
-                val convert = project.createConvertTask(sourceSet, kobolClasspath, upload)
+                val convert = createConvertTask(sourceSet, kobolClasspath, upload)
 
                 val kotlin = sourceSet.extensions.getByName("kotlin") as SourceDirectorySet
                 kotlin.srcDir(convert.flatMap { it.outputFolder.dir("kotlin") })
@@ -28,7 +28,7 @@ public class KobolGradlePlugin : Plugin<Project> {
 
         pluginManager.withPlugin("org.gradle.java") {
             extensions.getByType(SourceSetContainer::class.java).named("main") { sourceSet ->
-                val convert = project.createConvertTask(
+                val convert = createConvertTask(
                     sourceSet,
                     kobolClasspath,
                     upload,
@@ -69,16 +69,16 @@ public class KobolGradlePlugin : Plugin<Project> {
         return convert
     }
 
-    private fun registerHelperTasks(tasks: TaskContainer): TaskProvider<out UploadTask> {
-        val upload = tasks.register("uploadCobol", UploadTask::class.java)
-        val buildCobol = tasks.register("buildCobol", BuildTask::class.java) {
+    private fun TaskContainer.registerHelperTasks(): TaskProvider<out UploadTask> {
+        val upload = register("uploadCobol", UploadTask::class.java)
+        val buildCobol = register("buildCobol", BuildTask::class.java) {
             it.dependsOn(upload)
         }
-        tasks.register("runCobol", KobolRunTask::class.java) {
+        register("runCobol", KobolRunTask::class.java) {
             it.dependsOn(buildCobol)
         }
 
-        tasks.register("cleanCobol", CleanCobol::class.java) { cleanCobol ->
+        register("cleanCobol", CleanCobol::class.java) { cleanCobol ->
             cleanCobol.uploaded.convention(upload.flatMap { it.uploaded })
         }
         return upload

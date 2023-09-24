@@ -1,5 +1,6 @@
 package app.softwork.kobol.sqldelightprecompiler
 
+import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.*
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.Formatter.NumberType

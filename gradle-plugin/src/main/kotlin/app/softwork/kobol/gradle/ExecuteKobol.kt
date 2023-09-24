@@ -1,7 +1,9 @@
 package app.softwork.kobol.gradle
 
+import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
 import app.softwork.kobol.ir.*
+import app.softwork.kobol.toIR
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.workers.*
