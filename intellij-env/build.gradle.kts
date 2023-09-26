@@ -85,21 +85,8 @@ configurations {
     }
 }
 
-val licenseeShadow by tasks.registering(LicenseeTask::class) {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
+tasks.licensee {
     configurationToCheck(configurations.shadow)
-    outputDir.set(reporting.baseDirectory.dir("licenseeShadow"))
-}
-
-tasks.check {
-    dependsOn(licenseeShadow)
-}
-
-// https://github.com/cashapp/licensee/pull/194
-afterEvaluate {
-    tasks.named("licensee") {
-        enabled = false
-    }
 }
 
 licensee {
