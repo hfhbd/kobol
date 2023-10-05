@@ -69,7 +69,8 @@ internal fun SSHClient.exec(cmd: String, logger: Logger) {
         "$cmd\n$error " + (result.exitErrorMessage ?: "")
     }
     if (output.isNotBlank()) {
-        logger.quiet("$cmd\n$output")
+        logger.info(cmd)
+        logger.quiet(output)
     }
 }
 
