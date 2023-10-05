@@ -16,10 +16,6 @@ public abstract class KobolRunTask : SshTask() {
     @get:Input
     public abstract val export: ListProperty<String>
 
-    init {
-        export.convention(listOf("PATH=${"$"}{PATH}:${"$"}{JAVA_HOME}/bin"))
-    }
-
     @TaskAction
     internal fun execute() {
         workerExecutor.classLoaderIsolation {
@@ -47,7 +43,7 @@ internal abstract class SshCmdAction : WorkAction<SshCmdAction.Parameters> {
             val workdir = parameters.folder.get()
             val export = parameters.export.get().joinToString(prefix = "export ", separator = "; export", postfix = ";")
             for (cmd: String in parameters.cmds.get()) {
-                exec("""cd $workdir; export JAVA_HOME=/usr/lpp/java/current; $export $cmd""", logger = logger)
+                exec("""cd $workdir; $export $cmd""", logger = logger)
             }
         }
     }
