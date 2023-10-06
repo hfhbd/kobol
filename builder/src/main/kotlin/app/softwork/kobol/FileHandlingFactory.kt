@@ -1,4 +1,4 @@
-package app.softwork.kobol.ir
+package app.softwork.kobol
 
 public fun interface FileHandlingFactory {
     public operator fun invoke(

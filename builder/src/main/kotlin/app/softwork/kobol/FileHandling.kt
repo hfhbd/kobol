@@ -1,4 +1,4 @@
-package app.softwork.kobol.ir
+package app.softwork.kobol
 
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Close
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.Open

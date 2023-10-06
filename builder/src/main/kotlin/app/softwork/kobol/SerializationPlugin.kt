@@ -1,6 +1,7 @@
-package app.softwork.kobol.ir
+package app.softwork.kobol
 
 import app.softwork.kobol.fir.*
+import app.softwork.kobol.ir.KobolIRTree
 
 public interface SerializationPlugin : AutoCloseable {
     /**
