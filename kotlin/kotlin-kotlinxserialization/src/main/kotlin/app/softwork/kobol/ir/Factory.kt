@@ -1,5 +1,6 @@
 package app.softwork.kobol.ir
 
+import app.softwork.kobol.SerializationPluginFactory
 import app.softwork.serviceloader.ServiceLoader
 
 @ServiceLoader(SerializationPluginFactory::class)

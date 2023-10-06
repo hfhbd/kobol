@@ -1,9 +1,9 @@
 package app.softwork.kobol.plugins.ir
 
+import app.softwork.kobol.ControlFlowHandling
+import app.softwork.kobol.ControlFlowHandlingFactory
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.GoBack
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.StopRun
-import app.softwork.kobol.ir.ControlFlowHandling
-import app.softwork.kobol.ir.ControlFlowHandlingFactory
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.IntExpression
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement
 import app.softwork.serviceloader.ServiceLoader
