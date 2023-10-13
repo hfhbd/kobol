@@ -25,9 +25,10 @@ public abstract class SshTask : DefaultTask() {
     public abstract val folder: Property<String>
 
     @get:Internal
-    public val configuration: NamedDomainObjectProvider<DependencyScopeConfiguration> = project.configurations.dependencyScope("${name}Ssh") {
-        dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$KOBOL_VERSION"))
-    }
+    public val configuration: NamedDomainObjectProvider<DependencyScopeConfiguration> =
+        project.configurations.dependencyScope("${name}Ssh") {
+            dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$KOBOL_VERSION"))
+        }
 
     @get:InputFiles
     @get:Classpath
