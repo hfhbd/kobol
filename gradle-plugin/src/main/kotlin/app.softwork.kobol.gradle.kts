@@ -62,7 +62,7 @@ fun SourceSet.createConvertTask(uploadTask: TaskProvider<out UploadTask>): TaskP
     cobolSrc.compiledBy(convert, KobolTask::outputFolder)
     extensions.add("cobol", cobolSrc)
 
-    uploadTask.configure {
+    uploadTask {
         files.from(cobolSrc)
     }
 
