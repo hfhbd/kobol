@@ -1,6 +1,6 @@
 plugins {
-    id("java-gradle-plugin")
-    id("kotlinSetup")
+    `kotlin-dsl`
+    id("setup")
 }
 
 configurations.configureEach {
@@ -40,9 +40,7 @@ kotlin.sourceSets.main {
     kotlin.srcDir(storeVersion)
 }
 
-gradlePlugin.plugins.register("kobol") {
-    id = "app.softwork.kobol"
-    implementationClass = "app.softwork.kobol.gradle.KobolGradlePlugin"
+gradlePlugin.plugins.configureEach {
     displayName = "Kobol Gradle Plugin"
     description = "Kobol Gradle Plugin"
 }

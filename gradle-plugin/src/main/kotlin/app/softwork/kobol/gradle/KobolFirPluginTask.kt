@@ -14,13 +14,13 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     }
 
     @get:Internal
-    internal val pluginConfiguration = project.configurations.register("${name}Plugin") {
-        it.isVisible = false
-        it.isCanBeConsumed = false
-        it.isCanBeResolved = true
-
-        it.dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
+    internal val pluginConfiguration = project.configurations.dependencyScope("${name}Plugin") {
+        dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
     }.name
+
+    @get:InputFiles
+    @get:Classpath
+    internal val pluginClasspath = project.configurations.resolvable("${name}Classpath")
 
     public fun plugin(dependency: Any) {
         project.dependencies.add(pluginConfiguration, dependency)
@@ -29,11 +29,6 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(RELATIVE)
     public abstract val sources: ConfigurableFileCollection
-
-    @get:InputFiles
-    @get:Classpath
-    internal val pluginDependencies =
-        project.objects.fileCollection().from(project.configurations.named(pluginConfiguration))
 
     @get:OutputDirectory
     public abstract val outputFolder: DirectoryProperty
@@ -48,10 +43,10 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @TaskAction
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
-            it.classpath.from(pluginDependencies)
+            classpath.from(pluginClasspath)
         }.submit(FirKobolAction::class.java) {
-            it.inputFiles.setFrom(sources)
-            it.outputFolder.set(outputFolder)
+            inputFiles.setFrom(sources)
+            outputFolder.set(this@KobolFirPluginTask.outputFolder)
         }
     }
 }
