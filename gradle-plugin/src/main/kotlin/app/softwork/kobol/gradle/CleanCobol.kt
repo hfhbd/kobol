@@ -16,13 +16,13 @@ public abstract class CleanCobol : KobolRunTask() {
     @TaskAction
     public fun clean() {
         val queue = workerExecutor.classLoaderIsolation {
-            it.classpath.setFrom(sshClasspath)
+            classpath.setFrom(sshClasspath)
         }
         queue.submit(SshCmdAction::class.java) {
-            it.host.set(host)
-            it.user.set(user)
-            it.folder.set(folder)
-            it.cmds.set(cmds)
+            host.set(this@CleanCobol.host)
+            user.set(this@CleanCobol.user)
+            folder.set(this@CleanCobol.folder)
+            cmds.set(this@CleanCobol.cmds)
         }
         queue.await()
         uploaded.get().asFile.deleteRecursively()
