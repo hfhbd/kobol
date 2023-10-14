@@ -4,6 +4,7 @@ plugins {
     id("setup")
     id("app.softwork.serviceloader")
     id("com.google.devtools.ksp")
+    id("compose")
 }
 
 kotlin {
@@ -15,4 +16,11 @@ kotlin {
         progressiveMode.set(true)
         // allWarningsAsErrors.set(true)
     }
+}
+
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+extensions.getByName<ComposeExtension>("compose").apply {
+    kotlinCompilerPlugin.set(libs.findLibrary("compose-compiler").get())
+    runtime.set(libs.findLibrary("compose-runtime").get())
 }
