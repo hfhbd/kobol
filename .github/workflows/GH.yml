@@ -1,0 +1,26 @@
+name: GH
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      GRADLE_OPTS: -Dorg.gradle.caching=true
+
+    steps:
+      - uses: actions/github-script@v6
+        id: my-script
+        with:
+          result-encoding: string
+          retries: 3
+          script: |
+            return rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per-page: 1000
+            });
