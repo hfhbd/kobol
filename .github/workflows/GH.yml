@@ -13,7 +13,6 @@ jobs:
       - uses: actions/github-script@v6
         id: my-releases
         with:
-          result-encoding: string
           retries: 3
           script: |
             return github.rest.repos.listReleases({
