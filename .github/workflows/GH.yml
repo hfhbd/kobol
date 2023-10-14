@@ -9,12 +9,9 @@ jobs:
     permissions:
       contents: read
 
-    env:
-      GRADLE_OPTS: -Dorg.gradle.caching=true
-
     steps:
       - uses: actions/github-script@v6
-        id: my-script
+        id: my-releases
         with:
           result-encoding: string
           retries: 3
@@ -24,3 +21,4 @@ jobs:
               repo: context.repo.repo,
               per_page: 1000
             });
+      - run: echo "${{ steps.my-releases.outputs.result }}"
