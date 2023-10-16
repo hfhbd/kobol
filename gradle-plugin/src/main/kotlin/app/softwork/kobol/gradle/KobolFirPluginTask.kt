@@ -21,9 +21,11 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @get:InputFiles
     @get:Classpath
     internal val pluginClasspath: ConfigurableFileCollection =
-        project.objects.fileCollection().from(project.configurations.resolvable("${name}Classpath") {
-            extendsFrom(project.configurations.getByName(pluginConfiguration))
-        })
+        project.objects.fileCollection().from(
+            project.configurations.resolvable("${name}Classpath") {
+                extendsFrom(project.configurations.getByName(pluginConfiguration))
+            },
+        )
 
     public fun plugin(dependency: Any) {
         project.dependencies.add(pluginConfiguration, dependency)

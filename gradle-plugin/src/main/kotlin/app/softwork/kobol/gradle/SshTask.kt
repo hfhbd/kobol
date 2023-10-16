@@ -29,11 +29,13 @@ public abstract class SshTask : DefaultTask() {
     internal val sshClasspath: ConfigurableFileCollection = project.objects.fileCollection()
     init {
         val configuration = project.configurations.dependencyScope("${name}Ssh") {
-                dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$KOBOL_VERSION"))
-            }
-        this.sshClasspath.from(project.configurations.resolvable("${name}SshClasspath") {
-            extendsFrom(configuration.get())
-        })
+            dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$KOBOL_VERSION"))
+        }
+        this.sshClasspath.from(
+            project.configurations.resolvable("${name}SshClasspath") {
+                extendsFrom(configuration.get())
+            },
+        )
     }
 
     @get:Inject
