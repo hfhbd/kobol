@@ -6,16 +6,16 @@ import org.gradle.work.*
 
 @DisableCachingByDefault
 public abstract class BuildTask : KobolRunTask() {
-    @get:Input
+    @get:Internal
     public abstract val c89Options: Property<String>
 
-    @get:Input
+    @get:Internal
     public abstract val c89: ListProperty<String>
 
-    @get:Input
+    @get:Internal
     public abstract val cob2Options: Property<String>
 
-    @get:Input
+    @get:Internal
     public abstract val cob2: ListProperty<String>
 
     private fun Provider<List<String>>.options(options: Provider<String>): Provider<List<String>> =
