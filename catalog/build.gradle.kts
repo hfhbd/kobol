@@ -24,6 +24,7 @@ catalog {
             add(name = "plugin-$module", module = "plugin-$module")
         }
 
+        add("builder")
         add("ir")
         add("fir")
 
