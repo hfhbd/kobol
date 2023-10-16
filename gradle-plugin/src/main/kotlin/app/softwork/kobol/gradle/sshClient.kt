@@ -14,17 +14,17 @@ internal fun sshClient(host: String, user: String, action: SSHClient.() -> Unit)
 }
 
 internal fun SSHClient.exec(cmd: String, logger: Logger) {
+    logger.info(cmd)
     val (output, result) = startSession().use { session ->
         val result = session.exec(cmd)
         result.inputStream.reader().use { it.readText() } to result
     }
     val exitCode: Int? = result.exitStatus
-    require(exitCode == 0) {
+    if(exitCode != 0) {
         val error = result.errorStream.reader().use { it.readText() }
-        "$cmd\n$error " + (result.exitErrorMessage ?: "")
+        logger.error("$cmd\n$error " + (result.exitErrorMessage ?: ""))
     }
     if (output.isNotBlank()) {
-        logger.info(cmd)
         logger.quiet(output)
     }
 }
