@@ -11,6 +11,11 @@ dependencies {
 
 licensee {
     allow("MIT")
-    allowUrl("https://www.bouncycastle.org/licence.html") // MIT
+    allowUrl("http://www.jcraft.com/jzlib/LICENSE.txt") {
+        because("BSD")
+    }
+    allowUrl("https://www.bouncycastle.org/licence.html") {
+        because("MIT")
+    }
     allow("CC0-1.0")
 }
