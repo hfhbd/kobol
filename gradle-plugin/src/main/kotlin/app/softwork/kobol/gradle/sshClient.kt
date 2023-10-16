@@ -20,7 +20,7 @@ internal fun SSHClient.exec(cmd: String, logger: Logger) {
         result.inputStream.reader().use { it.readText() } to result
     }
     val exitCode: Int? = result.exitStatus
-    if(exitCode != 0) {
+    if (exitCode != 0) {
         val error = result.errorStream.reader().use { it.readText() }
         logger.error("$cmd\n$error " + (result.exitErrorMessage ?: ""))
     }
