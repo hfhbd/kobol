@@ -11,7 +11,7 @@ plugins {
 
 val extension = extensions.create<GrammarKitPluginExtension>(GROUP_NAME)
 
-val grammarKitClassPath by configurations.registering {
+val grammarKit by configurations.dependencyScope("grammarKit") {
     exclude(group = "com.jetbrains.rd")
     exclude(group = "org.jetbrains.marketplace")
     exclude(group = "org.roaringbitmap")
@@ -34,6 +34,10 @@ val grammarKitClassPath by configurations.registering {
             "org.jetbrains.intellij.deps:asm-all:7.0.1",
         ).map(project.dependencies::create)
     })
+}
+
+val grammarKitClassPath = configurations.resolvable("grammarKitClassPath") {
+    extendsFrom(grammarKit)
 }
 
 tasks.register<GenerateLexerTask>("generateLexer")
