@@ -1,5 +1,3 @@
-import java.util.*
-
 plugins {
     id("java")
     id("maven-publish")
@@ -43,15 +41,9 @@ signing {
     val signingKey: String? by project
     val signingPassword: String? by project
     signingKey?.let {
-        useInMemoryPgpKeys(String(Base64.getDecoder().decode(it)).trim(), signingPassword)
+        useInMemoryPgpKeys(it, signingPassword)
         sign(publishing.publications)
     }
-}
-
-// https://youtrack.jetbrains.com/issue/KT-46466
-val signingTasks = tasks.withType<Sign>()
-tasks.withType<AbstractPublishToMaven>().configureEach {
-    dependsOn(signingTasks)
 }
 
 tasks.withType<AbstractArchiveTask>().configureEach {
