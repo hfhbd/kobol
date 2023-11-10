@@ -171,7 +171,7 @@ expr ::= math | literal | variable | stringConcat
 math ::= (literal | variable) (PLUS | MINUS) (literal | variable)
 literal ::= string | number | [ALL] SPACE | HIGH-VALUE | LOW-VALUE | ZERO | NULL
 
-variable ::= varName [LP expr [colon expr] RP] [of_clause] {
+variable ::= recordID [LP expr [colon expr] RP] [of_clause] {
   mixin="app.softwork.kobol.named.CobolVariableElementImpl"
   implements="app.softwork.kobol.named.CobolNamedElement"
 }

@@ -22,7 +22,7 @@ public class CobolVariableReference(psiElement: CobolVariable, range: TextRange)
 
     private fun <T> find(incompleteCode: Boolean = false, action: (CobolRecordDef) -> T): List<T> {
         val records = records(myElement) ?: return emptyList()
-        val myName = myElement.varName.text.noIdea
+        val myName = myElement.recordID.varName.text.noIdea
         val ofName = myElement.ofClause?.recordID?.varName?.text?.noIdea
         return buildList {
             var currentRecord: CobolRecordDef? = null
