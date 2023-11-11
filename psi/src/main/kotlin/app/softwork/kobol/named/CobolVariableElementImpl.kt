@@ -10,12 +10,12 @@ import com.intellij.psi.*
 internal abstract class CobolVariableElementImpl(
     node: ASTNode,
 ) : ASTWrapperPsiElement(node), CobolNamedElement, CobolVariable {
-    override fun getNameIdentifier(): PsiElement = varName
-    override fun getName(): String = varName.text
+    override fun getNameIdentifier(): PsiElement = recordID.varName
+    override fun getName(): String = recordID.varName.text
 
     override fun setName(name: String): PsiElement {
         val new = CobolElementFactory.createVarName(project, name)
-        node.replaceChild(varName.node, new.node)
+        node.replaceChild(recordID.varName.node, new.node)
         return this
     }
 
@@ -24,7 +24,7 @@ internal abstract class CobolVariableElementImpl(
     }
 
     override fun getReferences(): Array<PsiReference> {
-        val varName = CobolVariableReference(this, TextRange.from(0, varName.textLength))
+        val varName = CobolVariableReference(this, TextRange.from(0, recordID.varName.textLength))
         val of = ofClause
         if (of != null) {
             val size = textLength - 1

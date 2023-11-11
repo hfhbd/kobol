@@ -934,7 +934,7 @@ private fun List<WorkingStorage>.find(
 }
 
 private fun DataTree.find(variable: CobolVariable): WorkingStorage {
-    val name: String = variable.varName.text
+    val name: String = variable.recordID.varName.text
     val of = variable.ofClause?.recordID?.varName?.text
 
     return workingStorage.find(name, of) ?: fileSection.flatMap { it.records }.find(name, of) ?: linkingSection.find(
