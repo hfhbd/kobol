@@ -46,5 +46,8 @@
         <lang.documentationProvider
                 language="Cobol"
                 implementationClass="app.softwork.kobol.intellij.CobolDocumentationProvider"/>
+            <annotator
+                    language="Cobol"
+                    implementationClass="app.softwork.kobol.intellij.CobolAnnotator"/>
     </extensions>
 </idea-plugin>
