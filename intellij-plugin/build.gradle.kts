@@ -1,44 +1,17 @@
 plugins {
-    id("kotlinSetup")
-    id("repos")
-    id("org.jetbrains.intellij")
-}
-
-dependencies {
-    implementation(projects.psi)
-}
-
-configurations.implementation {
-    exclude("org.jetbrains.kotlin", "kotlin-stdlib")
-    exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
-    exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+    kotlin("jvm") version "1.9.20"
+    id("org.jetbrains.intellij") version "1.16.0"
 }
 
 intellij {
     version.set(libs.versions.idea.map { "IC-$it" })
 }
 
-tasks {
-    patchPluginXml {
-        sinceBuild.set("231")
-        untilBuild.set("232.*")
-        version.set(project.version.toString())
-    }
+repositories {
+    mavenCentral()
 
-    buildSearchableOptions {
-        enabled = false
-    }
+    maven(url = "https://www.jetbrains.com/intellij-repository/releases")
+    maven(url = "https://cache-redirector.jetbrains.com/intellij-dependencies")
+    maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies/")
 
-    val copyRepoPlugin by registering(Copy::class) {
-        dependsOn(buildPlugin)
-
-        from(buildPlugin)
-        into("build/customRepo")
-    }
-    register("createPluginRepo", CreatePluginRepo::class) {
-        dependsOn(copyRepoPlugin, patchPluginXml)
-        fileName.set(project.name)
-        sinceBuild.set(patchPluginXml.flatMap { it.sinceBuild })
-        untilBuild.set(patchPluginXml.flatMap { it.untilBuild })
-    }
 }
