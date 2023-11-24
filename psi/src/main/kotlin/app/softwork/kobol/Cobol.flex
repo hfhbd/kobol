@@ -24,7 +24,7 @@ import static app.softwork.kobol.CobolTypes.*;
 
 NUMBER=([+\-])?(\d+(\.\d+)?)|(\.\d+)
 WHITE_SPACE=\s+
-END_OF_LINE_COMMENT=\*.*
+END_OF_LINE_COMMENT=(\*|\/).*
 STRING=X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 VARNAME=[a-zA-Z]([\w\-_])*
 
@@ -345,7 +345,6 @@ VARNAME=[a-zA-Z]([\w\-_])*
 
     {NUMBER}                        { return number(); }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
-    "/"                             { return TokenType.WHITE_SPACE; }
     {END_OF_LINE_COMMENT}           { return COMMENT; }
     "."                             { return DOT; }
     {STRING}                        { return STRING; }
