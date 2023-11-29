@@ -18,7 +18,8 @@ class VariableTest {
         123456 77 WORLD PIC X(6).
         123456 PROCEDURE                   DIVISION.
         123456  MOVE "WORLD!" TO WORLD
-        123456  * Some Comment
+        123456/ Some Comment I
+        123456* Some Comment II
         123456  DISPLAY "HELLO " WORLD
         123456  MOVE "42" TO WORLD
         123456  DISPLAY "ANSWER"WORLD.
@@ -36,7 +37,8 @@ class VariableTest {
         
         public fun hello() {
           WORLD = "WORLD!"
-          // Some Comment
+          // Some Comment I
+          // Some Comment II
           println("HELLO ${'$'}WORLD")
           WORLD = "42"
           println("ANSWER${'$'}WORLD")
@@ -60,7 +62,7 @@ class VariableTest {
         123456 77 WORLD PIC 9(6).
         123456 PROCEDURE                   DIVISION.
         123456  ADD 42 TO WORLD
-        123456  * Some Comment
+        123456* Some Comment
         123456  DISPLAY "HELLO " WORLD
         123456  SUBTRACT 42 FROM WORLD
         123456  DISPLAY "ANSWER"WORLD.

@@ -28,6 +28,8 @@
     LP='('
     RP=')'
     COLON=':'
+    STAR='*'
+    SLASH='/'
   ]
 }
 

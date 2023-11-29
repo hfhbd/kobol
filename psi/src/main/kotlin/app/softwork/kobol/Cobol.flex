@@ -24,7 +24,7 @@ import static app.softwork.kobol.CobolTypes.*;
 
 NUMBER=([+\-])?(\d+(\.\d+)?)|(\.\d+)
 WHITE_SPACE=\s+
-END_OF_LINE_COMMENT=\*.*
+END_OF_LINE_COMMENT=.*
 STRING=X?('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
 VARNAME=[a-zA-Z]([\w\-_])*
 
@@ -32,6 +32,8 @@ VARNAME=[a-zA-Z]([\w\-_])*
 %state ENVIRONMENT
 %state DATA
 %state PROCEDURE
+
+%state COMMENT
 
 // ID
 %state ANY
@@ -52,7 +54,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
   private boolean isID = false;
 
   private IElementType number() {
-      if (yycolumn > 5) {
+      if (yycolumn >= 7) {
         return NUMBER;
       }
       return TokenType.WHITE_SPACE;
@@ -321,7 +323,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
 
 <ANY> {
     {NUMBER}                        {
-          if (yycolumn > 5) {
+          if (yycolumn >= 7) {
               return CobolTypes.ANY;
           }
           yybegin(IDENTIFICATION);
@@ -343,10 +345,32 @@ VARNAME=[a-zA-Z]([\w\-_])*
           return CobolTypes.ANY; }
 }
 
+<COMMENT> {
+{END_OF_LINE_COMMENT} {
+          System.out.println(yycolumn + " " + returnState + " " + yystate());
+          yybegin(returnState);
+          return CobolTypes.COMMENT;
+      }
+}
+
     {NUMBER}                        { return number(); }
     {WHITE_SPACE}                   { return TokenType.WHITE_SPACE; }
-    "/"                             { return TokenType.WHITE_SPACE; }
-    {END_OF_LINE_COMMENT}           { return COMMENT; }
+    "*"           {
+          if (yycolumn == 0 || yycolumn == 6) {
+              returnState = yystate();
+              yybegin(COMMENT);
+          } else {
+          return CobolTypes.STAR;
+          }
+      }
+      "/"           {
+          if (yycolumn == 0 || yycolumn == 6) {
+              returnState = yystate();
+              yybegin(COMMENT);
+          } else {
+          return CobolTypes.SLASH;
+          }
+      }
     "."                             { return DOT; }
     {STRING}                        { return STRING; }
     [^]                             { return TokenType.BAD_CHARACTER; }

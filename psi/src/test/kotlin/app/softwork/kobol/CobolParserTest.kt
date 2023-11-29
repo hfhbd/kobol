@@ -261,7 +261,7 @@ class CobolParserTest {
             123456 PROGRAM-ID.                 HELLO.
             123456 ENVIRONMENT DIVISION.
             123456* INPUT I
-            123456* INPUT II
+            123456/ INPUT II
             123456 INPUT-OUTPUT SECTION.
             123456* FILE I
             123456* FILE II
