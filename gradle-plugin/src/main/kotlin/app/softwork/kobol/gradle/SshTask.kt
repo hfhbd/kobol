@@ -4,6 +4,7 @@ import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.work.*
 import org.gradle.workers.*
 import javax.inject.*
@@ -28,10 +29,11 @@ public abstract class SshTask : DefaultTask() {
     @get:Classpath
     internal val sshClasspath: ConfigurableFileCollection = project.objects.fileCollection()
     init {
-        val configuration = project.configurations.dependencyScope("${name}Ssh") {
-            dependencies.add(project.dependencies.create("app.softwork.kobol:ssh-env:$KOBOL_VERSION"))
+        val configuration = project.configurations.dependencyScope("${name}Ssh")
+        project.dependencies {
+            configuration("app.softwork.kobol:ssh-env:$KOBOL_VERSION")
         }
-        this.sshClasspath.from(
+        sshClasspath.from(
             project.configurations.resolvable("${name}SshClasspath") {
                 extendsFrom(configuration.get())
             },

@@ -2,9 +2,11 @@ import app.softwork.kobol.gradle.*
 import org.gradle.api.file.*
 import org.gradle.api.tasks.*
 
-val kobol = configurations.dependencyScope("kobol") {
-    dependencies.add(project.dependencies.create("app.softwork.kobol:builder:$KOBOL_VERSION"))
-    dependencies.add(project.dependencies.create("app.softwork.kobol:intellij-env:$KOBOL_VERSION"))
+val kobol = configurations.dependencyScope("kobol")
+
+dependencies {
+    kobol("app.softwork.kobol:builder:$KOBOL_VERSION")
+    kobol("app.softwork.kobol:intellij-env:$KOBOL_VERSION")
 }
 
 val kobolClasspath = configurations.resolvable("kobolClasspath") {

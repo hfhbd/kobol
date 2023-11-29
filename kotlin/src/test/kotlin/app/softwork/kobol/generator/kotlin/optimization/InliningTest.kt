@@ -1,10 +1,8 @@
 package app.softwork.kobol.generator.kotlin.optimization
 
-import app.softwork.kobol.generator.*
 import app.softwork.kobol.generator.kotlin.*
 import app.softwork.kobol.ir.*
 import app.softwork.kobol.plugins.fir.*
-import app.softwork.kobol.plugins.fir.renaming.*
 import app.softwork.kobol.plugins.ir.optimizations.*
 import org.intellij.lang.annotations.*
 import kotlin.test.*
