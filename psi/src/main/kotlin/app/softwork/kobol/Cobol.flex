@@ -71,6 +71,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
 <YYINITIAL>
 {
     "IDENTIFICATION"                { yybegin(IDENTIFICATION); return CobolTypes.IDENTIFICATION; }
+    "ID"                            { yybegin(IDENTIFICATION); return CobolTypes.IDENTIFICATION; }
     "ENVIRONMENT"                   { yybegin(ENVIRONMENT); return CobolTypes.ENVIRONMENT; }
     "DATA"                          { yybegin(DATA); return CobolTypes.DATA; }
     "PROCEDURE"                     { yybegin(PROCEDURE); return CobolTypes.PROCEDURE; }

@@ -39,7 +39,7 @@ program ::= comments idDiv [envDiv] [dataDiv] procedureDiv
 
 comments ::= comment*
 
-idDiv ::= IDENTIFICATION DIVISION DOT programID_clause [other]
+idDiv ::= (IDENTIFICATION | ID) DIVISION DOT programID_clause [other]
 
 private other ::= (author_clause | installation_clause | date_clause ) *
 
