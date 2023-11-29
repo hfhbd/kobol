@@ -13,7 +13,7 @@ class CobolLexerTest {
     fun author() {
         assertEquals(
             """
-            123456 IDENTIFICATION DIVISION.
+            123456 ID DIVISION.
             123456 PROGRAM-ID. BS12A00.
             123456 AUTHOR. A.
             123456 PROCEDURE DIVISION.
