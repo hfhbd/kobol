@@ -41,7 +41,6 @@ include(":kotlin:kotlin-file-java")
 
 include(":java")
 include(":java:java-java8")
-include(":java:java-jdbc")
 
 include(":gradle-plugin")
 include(":intellij-plugin")
