@@ -61,19 +61,19 @@ class CallJavaTest {
     fun linkageTest() {
         //language=cobol
         val input = """
-        |      IDENTIFICATION DIVISION.
-        |      PROGRAM-ID. CALLING.
-        |      DATA DIVISION.
-        |      WORKING-STORAGE SECTION.
-        |      01 FOO.
-        |      05 BAR PIC 9 VALUE 5.
-        |      05 C PIC X VALUE 'X'.
-        |      PROCEDURE DIVISION.
-        |     * LONDON CALLING
-        |          CALL "LONDON" USING FOO.
-        |          DISPLAY "FOO".
-        |      FOO SECTION.
-        |          CALL "LONDON" USING FOO.
+        |       IDENTIFICATION DIVISION.
+        |       PROGRAM-ID. CALLING.
+        |       DATA DIVISION.
+        |       WORKING-STORAGE SECTION.
+        |       01 FOO.
+        |       05 BAR PIC 9 VALUE 5.
+        |       05 C PIC X VALUE 'X'.
+        |       PROCEDURE DIVISION.
+        |      * LONDON CALLING
+        |           CALL "LONDON" USING FOO.
+        |           DISPLAY "FOO".
+        |       FOO SECTION.
+        |           CALL "LONDON" USING FOO.
         """.trimMargin().toIR()
 
         val (fooJava, londonJava, output) = generate(input, java8 = true)

@@ -29,7 +29,7 @@ class RecordTest {
         123456   05 CCCC PIC A(1).
         123456 PROCEDURE                   DIVISION.
         123456  ADD 42 TO WO-RLD OF FOO
-        123456  * Some Comment
+        123456* Some Comment
         123456  DISPLAY "HELLO " WO-RLD OF FOO
         123456  DISPLAY "HELLO " WORLD OF BAR.
         123456  DISPLAY "HELLO " CCCC

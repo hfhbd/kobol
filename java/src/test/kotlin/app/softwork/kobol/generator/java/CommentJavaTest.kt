@@ -46,7 +46,7 @@ class CommentJavaTest {
         123456* WORLD I
         123456* WORLD II
         123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
-        123456/* PROCEDURE I
+        123456/ PROCEDURE I
         123456* PROCEDURE II
         123456 PROCEDURE                   DIVISION.
         123456* DISPLAY I

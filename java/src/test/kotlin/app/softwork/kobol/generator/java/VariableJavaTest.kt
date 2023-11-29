@@ -17,7 +17,7 @@ class VariableJavaTest {
         123456 77 WORLD PIC X(6).
         123456 PROCEDURE                   DIVISION.
         123456  MOVE "WORLD!" TO WORLD
-        123456  * Some Comment
+        123456* Some Comment
         123456  DISPLAY "HELLO " WORLD
         123456  MOVE "42" TO WORLD
         123456  DISPLAY "ANSWER"WORLD.
