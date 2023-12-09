@@ -29,6 +29,34 @@ class CobolLexerTest {
     }
 
     @Test
+    fun lowercase() {
+        assertEquals(
+            //language=cobol
+            """
+            123456 id division.
+            123456 program-id. BS12A00.
+            123456 author. A.
+            123456 data division.
+            123456 working-storage section.
+            123456 77 WORLD pic x(6).
+            123456 procedure division.
+            123456     display WORLD.
+            123456 goback.
+            """.trimIndent(),
+        ) {
+            line(IDENTIFICATION, sp, DIVISION, DOT, sp)
+            line(PROGRAM_ID, DOT, sp, VARNAME, DOT, sp)
+            line(AUTHOR, ANY, sp, ANY, ANY, sp)
+            line(DATA, sp, DIVISION, DOT, sp)
+            line(WORKING_STORAGE, sp, SECTION, DOT, sp)
+            line(NUMBER, sp, VARNAME, sp, PIC, sp, X, LP, NUMBER, RP, DOT, sp)
+            line(PROCEDURE, sp, DIVISION, DOT, sp)
+            line(DISPLAY, sp, VARNAME, DOT, sp)
+            line(GOBACK, DOT)
+        }
+    }
+
+    @Test
     fun id() {
         assertEquals(
             """
