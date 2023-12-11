@@ -50,7 +50,7 @@ public abstract class UploadTask : SshTask() {
     public abstract val notTagged: ListProperty<String>
 
     init {
-        notTagged.convention(listOf("jar", "class"))
+        notTagged.convention(listOf("jar", "class", "jks"))
     }
 
     @TaskAction
