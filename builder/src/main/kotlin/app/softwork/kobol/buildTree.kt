@@ -41,7 +41,7 @@ import com.intellij.psi.util.elementType
 import com.intellij.psi.util.siblings
 import java.nio.file.Path
 
-public fun CobolFile.toTree(absoluteBasePath: Path): CobolFIRTree {
+public fun CobolFile.toTree(): CobolFIRTree {
     val errors = childrenOfType<PsiErrorElement>()
     require(errors.isEmpty()) {
         errors.joinToString(separator = "\n") {
@@ -62,7 +62,6 @@ public fun CobolFile.toTree(absoluteBasePath: Path): CobolFIRTree {
         data = data,
         procedure = procedure,
         fileComments = fileComments,
-        packageName = packageName(absoluteBasePath),
     )
 }
 

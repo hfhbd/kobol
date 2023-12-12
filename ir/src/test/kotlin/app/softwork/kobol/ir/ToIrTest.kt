@@ -10,8 +10,6 @@ import app.softwork.kobol.ir.KobolIRTree.Types.Function
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
 import app.softwork.kobol.plugins.ir.ExitProcessControlFlowHandlingFactory.*
-import java.io.File
-import java.nio.file.Files
 import kotlin.test.*
 import app.softwork.kobol.ir.l as irL
 
@@ -94,18 +92,8 @@ class ToIrTest {
 
     @Test
     fun returnCodeFound() {
-        //language=Cobol
-        val input = """
-        123456 IDENTIFICATION              DIVISION.
-        123456 PROGRAM-ID.                 HELLO.
-        123456 DATA DIVISION.
-        123456 WORKING-STORAGE SECTION.
-        123456 77 COUNTER  PIC 9(4).
-        123456 PROCEDURE                   DIVISION.
-        123456     MOVE 42 TO RETURN-CODE.
-        """.trimIndent()
-
-        val actual = input.toIR()
+        val returnCode by CobolTestFixtures
+        val actual = returnCode.toIR()
 
         val counter = Declaration.IntDeclaration.Normal(
             name = "COUNTER",
@@ -137,11 +125,4 @@ class ToIrTest {
         )
         assertEquals(expected, actual)
     }
-}
-
-private fun String.toIR(): KobolIRTree {
-    val temp = Files.createTempDirectory("testing")
-    return listOf(
-        File(temp.toFile(), "kobol.cbl").apply { writeText(this@toIR) },
-    ).toIR(temp).single().copy(id = "testing.cbl")
 }

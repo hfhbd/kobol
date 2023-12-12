@@ -8,6 +8,8 @@ import app.softwork.kobol.plugins.ir.optimizations.*
 import app.softwork.kobol.unaryPlus
 import java.io.*
 import java.nio.file.*
+import kotlin.io.path.div
+import kotlin.io.path.writeText
 import kotlin.test.*
 
 class HelloWorldTest {
@@ -30,7 +32,7 @@ class HelloWorldTest {
         123456     MOVE "42" TO WO-RLD
         123456     DISPLAY WO-RLD
         123456     DISPLAY "ANSWER"WO-RLD.
-        """.trimIndent().toIR(packageName = "foo") { _, _ ->
+        """.trimIndent().toIR { _, _ ->
             "main"
         }
 
@@ -38,7 +40,7 @@ class HelloWorldTest {
 
         //language=kotlin
         val expected = """
-        package foo.hello
+        package hello
         
         import kotlin.String
         
@@ -76,7 +78,6 @@ class HelloWorldTest {
         123456     DISPLAY WO-RLD
         123456     DISPLAY "ANSWER"WO-RLD.
         """.trimIndent().toIR(
-            packageName = "foo",
             irPlugins = listOf(
                 NoSynthetics(),
                 IrPlugin { tree, others ->
@@ -92,7 +93,7 @@ class HelloWorldTest {
 
         //language=kotlin
         val expected = """
-        package foo.hello
+        package hello
         
         import kotlin.Array
         import kotlin.String
@@ -122,39 +123,31 @@ internal fun String.toIR(
     serialization: ((String) -> SerializationPlugin)? = null,
     sqlPrecompiler: ((String, File) -> SqlPrecompiler)? = null,
     controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
-    packageName: String? = null,
     procedureName: ProcedureName? = null,
 ): KobolIRTree {
     val tempPath = Files.createTempDirectory("testing")
-    val temp = tempPath.toFile()
     val files = including.map { (packageName, name, content) ->
         val packageFile = if (packageName != null) {
-            val fileName = temp.absolutePath + "/" + packageName
-            File(fileName).apply { mkdirs() }
+            tempPath / packageName
         } else {
-            temp
+            tempPath
         }
 
-        File(packageFile, name).apply { writeText(content) }
+        (packageFile / name).apply { writeText(content) }
     }
-    val packageFile = if (packageName != null) {
-        val fileName = temp.absolutePath + "/" + packageName
-        File(fileName).apply { mkdirs() }
-    } else {
-        temp
-    }
-    return (files + File(packageFile, "testing.cbl").apply { writeText(this@toIR) }).toIR(
+    val testing = (tempPath / "testing.cbl").apply { writeText(this@toIR) }
+    val input = files.plus(element = testing)
+    return input.toIR(
         firPlugins = firPlugins,
         irPlugins = irPlugins,
         fileConverter = fileConverter,
         serialization = serialization,
         sqlPrecompiler = sqlPrecompiler?.let { getSQL ->
             {
-                getSQL(it, temp)
+                getSQL(it, tempPath.toFile())
             }
         },
         controlFlowHandling = controlFlowHandling,
         procedureName = procedureName,
-        absoluteBasePath = tempPath,
     ).single()
 }

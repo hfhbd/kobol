@@ -16,12 +16,5 @@ public class CobolFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvide
         },
     )
 
-    public fun packageName(absoluteBasePath: Path): String? = absoluteBasePath.relativize(
-        virtualFile.toNioPath().parent,
-    )
-        .joinToString(".") {
-            it.name
-        }.takeUnless { it == "" }
-
     public val programOrNull: CobolProgram? get() = childrenOfType<CobolProgram>().singleOrNull()
 }

@@ -21,8 +21,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
 
     internal companion object {
         operator fun invoke(
-            rootPath: Path,
-            input: Set<File>,
+            input: List<Path>,
             outputFolder: File,
             sqlFolder: File? = null,
             config: Map<String, Map<String, String>> = emptyMap(),
@@ -69,7 +68,6 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
                     }
                 },
                 irPlugins = irPlugins,
-                absoluteBasePath = rootPath,
             )
 
             codeGenerator.generate(irs)
@@ -92,8 +90,7 @@ internal abstract class ExecuteKobol : WorkAction<ExecuteKobol.Parameters> {
 
         for (codeGenerator in codeGenerators) {
             invoke(
-                input = parameters.inputFiles.files,
-                rootPath = parameters.inputFiles.singleFile.toPath(),
+                input = parameters.inputFiles.map { it.toPath() },
                 outputFolder = parameters.outputFolder.get().asFile,
                 sqlFolder = parameters.sqlFolder.asFile.orNull,
                 config = parameters.config.get(),

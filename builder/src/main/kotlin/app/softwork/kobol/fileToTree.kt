@@ -11,16 +11,13 @@ import com.intellij.psi.tree.*
 import java.io.*
 import java.nio.file.Path
 
-public fun File.toTree(
-    absoluteBasePath: Path,
+public fun Path.toTree(
     firPlugins: List<FirPlugin> = emptyList(),
-): CobolFIRTree =
-    setOf(this).toTree(absoluteBasePath, firPlugins).single()
+): CobolFIRTree = listOf(this).toTree(firPlugins).single()
 
-public fun Iterable<File>.toTree(
-    absoluteBasePath: Path,
+public fun List<Path>.toTree(
     firPlugins: Iterable<FirPlugin> = emptyList(),
-): Iterable<CobolFIRTree> {
+): Collection<CobolFIRTree> {
     val beforePhases = mutableListOf<FirPluginBeforePhase>()
     val afterPhases = mutableListOf<FirPluginAfterPhase>()
 
@@ -34,7 +31,7 @@ public fun Iterable<File>.toTree(
     var cobolTrees = buildMap {
         for (file in toCobolFile()) {
             try {
-                var tree = file.toTree(absoluteBasePath)
+                var tree = file.toTree()
                 for (plugin in beforePhases) {
                     tree = plugin(tree)
                 }
@@ -86,13 +83,13 @@ private class Db2ParserDefinition : SqlParserDefinition() {
     }
 }
 
-public fun File.toCobolFile(): CobolFile = setOf(this).toCobolFile().single()
+public fun Path.toCobolFile(): CobolFile = listOf(this).toCobolFile().single()
 
-public fun Iterable<File>.toCobolFile(): Collection<CobolFile> {
+public fun List<Path>.toCobolFile(): List<CobolFile> {
     System.setProperty("java.awt.headless", "true")
 
     val intelliJ = object : SqlCoreEnvironment(
-        sourceFolders = toList(),
+        sourceFolders = this,
         dependencies = emptyList(),
     ) {
         init {
@@ -105,7 +102,8 @@ public fun Iterable<File>.toCobolFile(): Collection<CobolFile> {
             }
         }
     }
-    return buildSet {
+
+    return buildList {
         intelliJ.forSourceFiles<CobolFile> {
             add(it)
         }
