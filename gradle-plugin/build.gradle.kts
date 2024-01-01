@@ -3,6 +3,8 @@ plugins {
     id("setup")
 }
 
+kotlin.jvmToolchain(17)
+
 configurations.configureEach {
     if (isCanBeConsumed) {
         attributes {
