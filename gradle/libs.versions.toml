@@ -9,7 +9,7 @@ serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-jso
 
 db2-dialect = { module = "app.softwork:sqldelight-db2-dialect", version = "0.0.6" }
 
-kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.15.3" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version = "1.16.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 
 sqldelight-writer = { module = "app.softwork:sqldelight-writer", version = "0.0.3" }
