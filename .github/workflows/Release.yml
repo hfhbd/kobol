@@ -32,7 +32,7 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 17
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/gradle-build-action@v3-prerelease
       - run: ./gradlew assemble compileTestKotlin
       - name: Build with Gradle
         run: ./gradlew build
