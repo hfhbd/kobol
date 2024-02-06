@@ -31,19 +31,19 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'adopt'
-          java-version: 17
-      - uses: gradle/gradle-build-action@v3-prerelease
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew assemble compileTestKotlin
       - name: Build with Gradle
         run: ./gradlew build
       - name: Publish
-        run: ./gradlew -Pversion=$version --no-configuration-cache publish closeAndReleaseStagingRepository
+        run: ./gradlew -Pversion=$version --no-configuration-cache publish :closeAndReleaseStagingRepository
         env:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONARTYPE_APIKEY }}
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONARTYPE_APITOKEN }}
-      - run: ./gradlew -Pversion=$version createPluginRepo
+      - run: ./gradlew -Pversion=$version :intellij-plugin:createPluginRepo
       - uses: actions/upload-pages-artifact@v3
         with:
           path: intellij-plugin/build/customRepo
