@@ -1,14 +1,5 @@
 version: 2
 registries:
-  maven-central:
-    type: maven-repository
-    url: https://repo.maven.apache.org/maven2
-  google:
-    type: maven-repository
-    url: https://dl.google.com/dl/android/maven2
-  gradle:
-    type: maven-repository
-    url: https://plugins.gradle.org/m2
   intellij:
     type: maven-repository
     url: https://www.jetbrains.com/intellij-repository/releases
@@ -25,17 +16,19 @@ updates:
       interval: "daily"
     assignees:
       - "hfhbd"
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "hfhbd"
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "daily"
     assignees:
       - "hfhbd"
-    rebase-strategy: "disabled"
     registries:
-      - maven-central
-      - google
-      - gradle
       - intellij
       - intellij-deps
       - kotlin-ide
