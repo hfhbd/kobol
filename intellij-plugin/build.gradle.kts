@@ -1,7 +1,7 @@
 plugins {
     id("kotlinSetup")
     id("repos")
-    id("org.jetbrains.intellij")
+    id("org.jetbrains.intellij.platform")
 }
 
 dependencies {
