@@ -6,6 +6,12 @@ plugins {
 
 dependencies {
     implementation(projects.psi)
+
+    intellijPlatform {
+        intellijIdeaCommunity("2023.3")
+
+        pluginVerifier()
+    }
 }
 
 configurations.implementation {
@@ -14,15 +20,11 @@ configurations.implementation {
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
 }
 
-intellij {
-    version.set(libs.versions.idea.map { "IC-$it" })
-}
-
 tasks {
     patchPluginXml {
         sinceBuild.set("231")
         untilBuild.set("233.*")
-        version.set(project.version.toString())
+        pluginVersion.set(project.version.toString())
     }
 
     buildSearchableOptions {
