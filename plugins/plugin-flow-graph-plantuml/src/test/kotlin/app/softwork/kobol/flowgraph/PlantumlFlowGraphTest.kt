@@ -6,6 +6,7 @@ import org.intellij.lang.annotations.Language
 import java.io.*
 import java.nio.file.Files
 import java.util.ServiceLoader
+import kotlin.io.path.writeText
 import kotlin.test.*
 
 class PlantumlFlowGraphTest {
@@ -52,6 +53,5 @@ class PlantumlFlowGraphTest {
 }
 
 internal fun String.toTree(): CobolFIRTree {
-    val temp = Files.createTempDirectory("testing")
-    return File(temp.toFile(), "testing.cbl").apply { writeText(this@toTree) }.toTree(temp)
+    return Files.createTempFile("testing", ".cbl").apply { writeText(this@toTree) }.toTree()
 }

@@ -23,6 +23,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(projects.builder)
     testImplementation(projects.ir)
+    testImplementation(testFixtures(projects.ir))
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"
     }
