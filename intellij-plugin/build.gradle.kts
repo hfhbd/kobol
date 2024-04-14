@@ -7,14 +7,14 @@ dependencies {
     implementation(projects.psi)
 
     intellijPlatform {
-        intellijIdeaCommunity("2023.3")
+        intellijIdeaCommunity(libs.versions.idea)
 
         pluginVerifier()
         instrumentationTools()
     }
 }
 
-configurations.implementation {
+configurations.runtimeClasspath {
     exclude("org.jetbrains.kotlin", "kotlin-stdlib")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
@@ -22,8 +22,8 @@ configurations.implementation {
 
 tasks {
     patchPluginXml {
-        sinceBuild.set("231")
-        untilBuild.set("233.*")
+        sinceBuild.set("232")
+        untilBuild.set("241.*")
         pluginVersion.set(project.version.toString())
     }
 
