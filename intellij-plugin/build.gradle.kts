@@ -10,7 +10,7 @@ dependencies {
         intellijIdeaCommunity(libs.versions.idea)
 
         pluginVerifier()
-        instrumentationTools()
+        javaCompiler(libs.versions.idea)
     }
 }
 
