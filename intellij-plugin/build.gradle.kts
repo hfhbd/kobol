@@ -10,6 +10,7 @@ dependencies {
         intellijIdeaCommunity("2023.3")
 
         pluginVerifier()
+        instrumentationTools()
     }
 }
 

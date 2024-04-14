@@ -11,10 +11,7 @@ dependencies {
         targetConfiguration = "shadow"
     }
 
-    implementation(libs.db2.dialect) {
-        exclude("com.alecstrong.sql.psi")
-    }
-    implementation("app.softwork.sql.psi:core:0.5.0-SNAPSHOT")
+    implementation(libs.db2.dialect)
     testImplementation(projects.intellijEnv) {
         targetConfiguration = "shadow"
     }
