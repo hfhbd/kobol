@@ -22,7 +22,7 @@ configurations.runtimeClasspath {
 
 tasks {
     patchPluginXml {
-        sinceBuild.set("232")
+        sinceBuild.set("233")
         untilBuild.set("241.*")
         pluginVersion.set(project.version.toString())
     }
