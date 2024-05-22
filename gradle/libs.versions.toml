@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.9.24"
+kotlin = "2.0.0"
 idea = "221.6008.13" # https://www.jetbrains.com/intellij-repository/releases
 serialization = "1.6.3"
 
