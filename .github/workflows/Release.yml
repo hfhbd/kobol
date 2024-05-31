@@ -30,7 +30,7 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
+          distribution: 'temurin'
           java-version: 21
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew assemble compileTestKotlin
