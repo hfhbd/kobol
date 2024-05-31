@@ -4,7 +4,7 @@ kotlin = "1.9.23"
 # IC sources: https://www.jetbrains.com/intellij-repository/releases
 # choose a matching/similar build
 
-idea = "232.10300.40" # AS Iguana | 2023.2.1 Patch 1
+idea = "221.6008.13"
 serialization = "1.6.3"
 
 [libraries]
