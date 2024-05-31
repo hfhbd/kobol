@@ -3,14 +3,14 @@ plugins {
     id("setup")
 }
 
-kotlin.jvmToolchain(17)
+kotlin.jvmToolchain(21)
 
 configurations.configureEach {
     if (isCanBeConsumed) {
         attributes {
             attribute(
                 GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-                objects.named<GradlePluginApiVersion>(GradleVersion.version("8.6").version)
+                objects.named<GradlePluginApiVersion>(GradleVersion.version("8.8").version)
             )
         }
     }
