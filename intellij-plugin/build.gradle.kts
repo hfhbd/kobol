@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
 plugins {
     id("kotlinSetup")
     id("org.jetbrains.intellij.platform")
@@ -9,8 +11,9 @@ dependencies {
     intellijPlatform {
         intellijIdeaCommunity(libs.versions.idea)
 
-        pluginVerifier()
+        pluginVerifier("1.365")
         javaCompiler(libs.versions.idea)
+        testFramework(TestFrameworkType.Platform.JUnit4, libs.versions.idea.get())
     }
 }
 
@@ -18,6 +21,7 @@ configurations.runtimeClasspath {
     exclude("org.jetbrains.kotlin", "kotlin-stdlib")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+    exclude("org.jetbrains.kotlinx", "kotlinx-coroutines")
 }
 
 tasks {
