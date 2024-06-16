@@ -1,8 +1,5 @@
-import app.cash.licensee.LicenseeTask
-
 plugins {
     id("kotlinSetup")
-    id("repos")
     id("com.github.johnrengelman.shadow")
 }
 
@@ -19,8 +16,6 @@ configurations.shadow {
     exclude(group = "com.jetbrains.intellij.platform", module = "util-xml-dom")
     exclude(group = "com.jetbrains.intellij.platform", module = "util-zip")
     exclude(group = "com.jetbrains.intellij.platform", module = "code-style")
-    exclude(group = "com.jetbrains.intellij.platform", module = "editor")
-    exclude(group = "com.jetbrains.intellij.platform", module = "editor-ex")
     exclude(group = "com.jetbrains.intellij.platform", module = "jps-model-serialization")
     exclude(group = "com.jetbrains.intellij.platform", module = "object-serializer")
     exclude(group = "com.jetbrains.intellij.platform", module = "ide-util-io")
@@ -110,6 +105,8 @@ licensee {
     allowIdea("core")
     allowIdea("core-impl")
     allowIdea("core-ui")
+    allowIdea("editor")
+    allowIdea("editor-ex")
     allowIdea("extensions")
     allowIdea("indexing")
     allowIdea("indexing-impl")

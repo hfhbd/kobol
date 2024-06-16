@@ -1,34 +1,58 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
 plugins {
     id("kotlinSetup")
-    id("repos")
-    id("org.jetbrains.intellij")
+    id("org.jetbrains.intellij.platform")
+}
+
+kotlin.jvmToolchain {
+    vendor.set(JvmVendorSpec.JETBRAINS)
 }
 
 dependencies {
     implementation(projects.psi)
+
+    compileOnly(projects.intellijEnv) {
+        targetConfiguration = "shadow"
+    }
+    compileOnly(libs.bundles.idea)
+
+    intellijPlatform {
+        intellijIdeaCommunity(libs.versions.idea)
+
+        pluginVerifier("1.367")
+        javaCompiler(libs.versions.idea)
+        testFramework(TestFrameworkType.Platform, libs.versions.idea.get())
+    }
 }
 
-configurations.implementation {
+configurations.runtimeClasspath {
     exclude("org.jetbrains.kotlin", "kotlin-stdlib")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+    exclude("org.jetbrains.kotlinx", "kotlinx-coroutines")
 }
 
-intellij {
-    version.set(libs.versions.idea.map { "IC-$it" })
+intellijPlatform {
+    buildSearchableOptions.set(false)
+
+    pluginConfiguration {
+        this.version.set(project.version.toString())
+        ideaVersion {
+            sinceBuild.set("233")
+            untilBuild.set("242.*")
+        }
+    }
+    verifyPlugin {
+        ides {
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, libs.versions.idea.get())
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, "241.15989.150") // Koala | 2024.1.1
+        }
+    }
 }
 
 tasks {
-    patchPluginXml {
-        sinceBuild.set("233")
-        untilBuild.set("241.*")
-        version.set(project.version.toString())
-    }
-
-    buildSearchableOptions {
-        enabled = false
-    }
-
     val copyRepoPlugin by registering(Copy::class) {
         dependsOn(buildPlugin)
 
