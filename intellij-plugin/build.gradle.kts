@@ -5,8 +5,17 @@ plugins {
     id("org.jetbrains.intellij.platform")
 }
 
+kotlin.jvmToolchain {
+    vendor.set(JvmVendorSpec.JETBRAINS)
+}
+
 dependencies {
     implementation(projects.psi)
+
+    compileOnly(projects.intellijEnv) {
+        targetConfiguration = "shadow"
+    }
+    compileOnly(libs.bundles.idea)
 
     intellijPlatform {
         intellijIdeaCommunity(libs.versions.idea)
@@ -24,17 +33,19 @@ configurations.runtimeClasspath {
     exclude("org.jetbrains.kotlinx", "kotlinx-coroutines")
 }
 
+intellijPlatform {
+    buildSearchableOptions.set(false)
+
+    pluginConfiguration {
+        this.version.set(project.version.toString())
+        ideaVersion {
+            sinceBuild.set("233")
+            untilBuild.set("241.*")
+        }
+    }
+}
+
 tasks {
-    patchPluginXml {
-        sinceBuild.set("233")
-        untilBuild.set("241.*")
-        pluginVersion.set(project.version.toString())
-    }
-
-    buildSearchableOptions {
-        enabled = false
-    }
-
     val copyRepoPlugin by registering(Copy::class) {
         dependsOn(buildPlugin)
 
