@@ -315,12 +315,12 @@ private fun FunctionCall.call(packageName: String) = CodeBlock.builder().apply {
 
     when (val function = function) {
         is KobolIRTree.Types.Function -> {
-            val member = if (function.topLevel) {
-                MemberName(function.packageName ?: "", function.name, isExtension = true)
+            if (function.topLevel) {
+                val member = MemberName(function.packageName!!, function.name, isExtension = true)
+                add("%M(%L)", member, params)
             } else {
-                MemberName(function.packageName ?: "", function.name)
+                add("${function.name}(%L)", params)
             }
-            add("%M(%L)", member, params)
         }
 
         is KobolIRTree.Types.Type.Class -> add(
