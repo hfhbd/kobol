@@ -9,7 +9,7 @@ on:
 
 jobs:
   dependency-submission:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: write
@@ -29,7 +29,7 @@ jobs:
         cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
 
   dependency-review:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: dependency-submission
     if: github.event_name == 'pull_request'
     steps:
