@@ -37,4 +37,4 @@ jobs:
         if: always()
         with:
           sarif_file: build/reports/detekt/detekt.sarif
-      - run: ./gradlew -Pversion=42.0.0 :intellij-plugin:runPluginVerifier
+      - run: ./gradlew -Pversion=42.0.0 :intellij-plugin:verifyPlugin

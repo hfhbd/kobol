@@ -1,3 +1,4 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -20,7 +21,7 @@ dependencies {
     intellijPlatform {
         intellijIdeaCommunity(libs.versions.idea)
 
-        pluginVerifier("1.365")
+        pluginVerifier("1.367")
         javaCompiler(libs.versions.idea)
         testFramework(TestFrameworkType.Platform, libs.versions.idea.get())
     }
@@ -40,7 +41,13 @@ intellijPlatform {
         this.version.set(project.version.toString())
         ideaVersion {
             sinceBuild.set("233")
-            untilBuild.set("241.*")
+            untilBuild.set("242.*")
+        }
+    }
+    verifyPlugin {
+        ides {
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, libs.versions.idea.get())
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, "241.15989.150") // Koala | 2024.1.1
         }
     }
 }
