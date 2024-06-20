@@ -13,7 +13,6 @@ import kotlinx.serialization.*
 @Serializable
 public data class CobolFIRTree(
     val fileName: String,
-    val packageName: String? = null,
     val fileComments: List<String> = emptyList(),
     val id: ID,
     val env: EnvTree? = null,
