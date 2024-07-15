@@ -2,8 +2,9 @@ package app.softwork.kobol.gradle
 
 import org.gradle.api.file.*
 import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
 
-@CacheableTask
+@DisableCachingByDefault(because = "@Destroys does not support caching")
 public abstract class CleanCobol : KobolRunTask() {
     @get:Destroys
     public abstract val uploaded: DirectoryProperty

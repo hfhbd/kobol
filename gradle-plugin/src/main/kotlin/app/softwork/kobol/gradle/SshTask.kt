@@ -25,7 +25,6 @@ public abstract class SshTask : DefaultTask() {
     @get:Input
     public abstract val folder: Property<String>
 
-    @get:InputFiles
     @get:Classpath
     internal val sshClasspath: ConfigurableFileCollection = project.objects.fileCollection()
     init {
