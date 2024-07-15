@@ -5,7 +5,6 @@ import java.io.*
 
 @CacheableTask
 abstract class DepSize : DefaultTask() {
-    @get:InputFiles
     @get:Classpath
     abstract val configurationToCheck: ConfigurableFileCollection
 

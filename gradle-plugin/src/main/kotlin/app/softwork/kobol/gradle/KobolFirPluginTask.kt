@@ -17,7 +17,6 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @get:Internal
     internal val pluginConfiguration: String
 
-    @get:InputFiles
     @get:Classpath
     internal val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
 

@@ -26,7 +26,6 @@ public abstract class KobolTask : DefaultTask() {
     @get:OutputDirectory
     public abstract val sqlFolder: DirectoryProperty
 
-    @get:InputFiles
     @get:Classpath
     internal abstract val classpath: ConfigurableFileCollection
 
