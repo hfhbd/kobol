@@ -32,6 +32,6 @@ ksp = { id = "com.google.devtools.ksp", version = "2.0.0-1.0.22" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 serviceloader = { id = "app.softwork.serviceloader", version = "0.0.8" }
 licensee = { id = "app.cash.licensee", version = "1.11.0" }
-intellij = { id = "org.jetbrains.intellij.platform", version = "2.0.0-beta7" }
+intellij = { id = "org.jetbrains.intellij.platform", version = "2.0.0-rc1" }
 publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.6" }
