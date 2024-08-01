@@ -2,8 +2,8 @@ import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
-    id("kotlinSetup")
     id("org.jetbrains.intellij.platform")
+    id("kotlinSetup")
 }
 
 kotlin.jvmToolchain {
@@ -19,7 +19,7 @@ dependencies {
     compileOnly(libs.bundles.idea)
 
     intellijPlatform {
-        intellijIdeaCommunity(libs.versions.idea)
+        intellijIdeaCommunity(libs.versions.idea, useInstaller = false)
 
         pluginVerifier("1.367")
         javaCompiler(libs.versions.idea)
@@ -44,10 +44,10 @@ intellijPlatform {
             untilBuild.set("242.*")
         }
     }
-    verifyPlugin {
+    pluginVerification {
         ides {
-            ide(IntelliJPlatformType.IntellijIdeaCommunity, libs.versions.idea.get())
-            ide(IntelliJPlatformType.IntellijIdeaCommunity, "241.15989.150") // Koala | 2024.1.1
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.1.4")
+            ide(IntelliJPlatformType.AndroidStudio, "2024.1.2.10")
         }
     }
 }
