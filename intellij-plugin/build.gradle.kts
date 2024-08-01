@@ -46,8 +46,8 @@ intellijPlatform {
     }
     pluginVerification {
         ides {
-            ide(IntelliJPlatformType.IntellijIdeaCommunity, libs.versions.idea.get())
-            ide(IntelliJPlatformType.IntellijIdeaCommunity, "241.15989.150") // Koala | 2024.1.1
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.1.4")
+            ide(IntelliJPlatformType.AndroidStudio, "2024.1.2.10")
         }
     }
 }
