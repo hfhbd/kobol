@@ -4,8 +4,13 @@ plugins {
 }
 
 publishing {
-    if (name != "gradle-plugin") {
-        publications.register<MavenPublication>("mavenJava") {
+    when (name) {
+        "gradle-plugin" -> Unit
+        "intellij-plugin" -> publications.register<MavenPublication>("mavenJava") {
+            from(components["intellijPlatform"])
+        }
+
+        else -> publications.register<MavenPublication>("mavenJava") {
             from(components["java"])
         }
     }
