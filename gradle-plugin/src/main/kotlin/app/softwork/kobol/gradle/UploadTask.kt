@@ -4,6 +4,7 @@ import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.*
+import org.gradle.kotlin.dsl.submit
 import org.gradle.work.*
 
 @CacheableTask
@@ -65,7 +66,7 @@ public abstract class UploadTask : SshTask() {
 
             when (changeType) {
                 ChangeType.ADDED, ChangeType.MODIFIED -> {
-                    queue.submit(UploadAction::class.java) {
+                    queue.submit(UploadAction::class) {
                         user.set(this@UploadTask.user)
                         host.set(this@UploadTask.host)
                         folder.set(this@UploadTask.folder)
@@ -80,7 +81,7 @@ public abstract class UploadTask : SshTask() {
                 }
 
                 ChangeType.REMOVED -> {
-                    queue.submit(DeleteAction::class.java) {
+                    queue.submit(DeleteAction::class) {
                         user.set(this@UploadTask.user)
                         host.set(this@UploadTask.host)
                         folder.set(this@UploadTask.folder)

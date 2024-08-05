@@ -1,28 +1,30 @@
 import app.softwork.kobol.gradle.*
-import org.gradle.api.file.*
-import org.gradle.api.tasks.*
 
-val kobol = configurations.dependencyScope("kobol")
+val kobol = extensions.create<Kobol>("kobol")
+
+val kobolCompiler = configurations.dependencyScope("kobol") {
+    fromDependencyCollector(kobol.dependencies.compiler)
+}
 
 dependencies {
-    kobol("app.softwork.kobol:builder:$KOBOL_VERSION")
-    kobol("app.softwork.kobol:intellij-env:$KOBOL_VERSION")
+    kobolCompiler("app.softwork.kobol:builder:$KOBOL_VERSION")
+    kobolCompiler("app.softwork.kobol:intellij-env:$KOBOL_VERSION")
 }
 
 val kobolClasspath = configurations.resolvable("kobolClasspath") {
     // https://github.com/gradle/gradle/issues/26732
-    extendsFrom(kobol.get())
+    extendsFrom(kobolCompiler.get())
 }
 
 val uploadCobol by tasks.registering(UploadTask::class)
 val buildCobol by tasks.registering(BuildTask::class) {
     dependsOn(uploadCobol)
 }
-tasks.register("runCobol", KobolRunTask::class.java) {
+tasks.register("runCobol", KobolRunTask::class) {
     dependsOn(buildCobol)
 }
 
-tasks.register("cleanCobol", CleanCobol::class.java) {
+tasks.register("cleanCobol", CleanCobol::class) {
     uploaded.convention(uploadCobol.flatMap { it.uploaded })
 }
 
@@ -45,10 +47,10 @@ pluginManager.withPlugin("org.gradle.java") {
 fun SourceSet.createConvertTask(uploadTask: TaskProvider<out UploadTask>): TaskProvider<out KobolTask> {
     val taskName = "convertCobol"
     if (taskName in tasks.names) {
-        return tasks.named(taskName, KobolTask::class.java)
+        return tasks.named(taskName, KobolTask::class)
     }
 
-    val convert = tasks.register(taskName, KobolTask::class.java)
+    val convert = tasks.register(taskName, KobolTask::class)
 
     val cobolSrc = objects.sourceDirectorySet("cobol", "cobol")
     cobolSrc.filter.include("*.cbl")
