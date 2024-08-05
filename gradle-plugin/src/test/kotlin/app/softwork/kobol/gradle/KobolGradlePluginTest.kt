@@ -103,7 +103,9 @@ class KobolGradlePluginTest {
             |}
             |
             |kobol {
-            |  compiler("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |  dependencies {
+            |    compiler("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |  }
             |}
             |
             |sourceSets.main {
