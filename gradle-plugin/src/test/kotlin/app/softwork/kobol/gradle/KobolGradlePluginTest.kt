@@ -94,7 +94,7 @@ class KobolGradlePluginTest {
         File(tmp, "build.gradle.kts").writeText(
             """
             |plugins {
-            |  kotlin("jvm") version "1.9.0"
+            |  kotlin("jvm") version "2.0.0"
             |  id("app.softwork.kobol")
             |}
             |
@@ -102,8 +102,8 @@ class KobolGradlePluginTest {
             |  mavenCentral()
             |}
             |
-            |dependencies {
-            |  kobol("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |kobol {
+            |  compiler("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
             |}
             |
             |sourceSets.main {

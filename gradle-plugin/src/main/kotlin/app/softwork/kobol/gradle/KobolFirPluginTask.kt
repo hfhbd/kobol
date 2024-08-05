@@ -5,6 +5,7 @@ import org.gradle.api.file.*
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.*
 import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.*
 import javax.inject.*
 
@@ -55,7 +56,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
             classpath.from(pluginClasspath)
-        }.submit(FirKobolAction::class.java) {
+        }.submit(FirKobolAction::class) {
             inputFiles.setFrom(sources)
             outputFolder.set(this@KobolFirPluginTask.outputFolder)
         }

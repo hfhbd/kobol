@@ -2,6 +2,7 @@ package app.softwork.kobol.gradle
 
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.submit
 import org.gradle.work.*
 
 @DisableCachingByDefault
@@ -16,7 +17,7 @@ public abstract class KobolRunTask : SshTask() {
     internal fun execute() {
         workerExecutor.classLoaderIsolation {
             classpath.setFrom(sshClasspath)
-        }.submit(SshCmdAction::class.java) {
+        }.submit(SshCmdAction::class) {
             host.set(this@KobolRunTask.host)
             user.set(this@KobolRunTask.user)
             folder.set(this@KobolRunTask.folder)

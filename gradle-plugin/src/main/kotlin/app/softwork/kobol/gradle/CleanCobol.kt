@@ -2,6 +2,7 @@ package app.softwork.kobol.gradle
 
 import org.gradle.api.file.*
 import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.submit
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "@Destroys does not support caching")
@@ -19,7 +20,7 @@ public abstract class CleanCobol : KobolRunTask() {
         val queue = workerExecutor.classLoaderIsolation {
             classpath.setFrom(sshClasspath)
         }
-        queue.submit(SshCmdAction::class.java) {
+        queue.submit(SshCmdAction::class) {
             host.set(this@CleanCobol.host)
             user.set(this@CleanCobol.user)
             folder.set(this@CleanCobol.folder)

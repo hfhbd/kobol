@@ -4,6 +4,7 @@ import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
+import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.*
 import javax.inject.*
 
@@ -39,7 +40,7 @@ public abstract class KobolTask : DefaultTask() {
     internal fun generate() {
         workerExecutor.classLoaderIsolation {
             classpath.from(this@KobolTask.classpath)
-        }.submit(ExecuteKobol::class.java) {
+        }.submit(ExecuteKobol::class) {
             inputFiles.setFrom(sources)
             outputFolder.set(this@KobolTask.outputFolder)
             sqlFolder.set(this@KobolTask.sqlFolder)
