@@ -22,9 +22,9 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: 17
+        java-version: 21
     - name: Generate and submit dependency graph
-      uses: gradle/actions/dependency-submission@prerelease/v4
+      uses: gradle/actions/dependency-submission@v4
       with:
         cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
 
