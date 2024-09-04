@@ -21,7 +21,7 @@
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
-    <extensions defaultExtensionNs="com.jetbrains">
+    <extensions defaultExtensionNs="com.inellij">
         <fileType
                 name="Cobol File"
                 implementationClass="app.softwork.kobol.CobolFileType"
