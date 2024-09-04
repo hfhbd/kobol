@@ -348,7 +348,6 @@ VARNAME=[a-zA-Z]([\w\-_])*
 
 <COMMENT> {
 {END_OF_LINE_COMMENT} {
-          System.out.println(yycolumn + " " + returnState + " " + yystate());
           yybegin(returnState);
           return CobolTypes.COMMENT;
       }
