@@ -21,8 +21,10 @@
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
-    <extensions defaultExtensionNs="com.intellij">
-        <fileType
+   <extensions defaultExtensionNs="org.jetbrains.kotlin">
+       <supportsKotlinPluginMode supportsK2="true" />
+
+       <fileType
                 name="Cobol File"
                 implementationClass="app.softwork.kobol.CobolFileType"
                 fieldName="INSTANCE"
