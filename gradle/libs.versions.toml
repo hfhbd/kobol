@@ -6,7 +6,7 @@ kotlin = "2.0.20"
 # choose a matching/similar build
 
 idea = "221.6008.13"
-serialization = "1.7.2"
+serialization = "1.7.3"
 
 [libraries]
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
