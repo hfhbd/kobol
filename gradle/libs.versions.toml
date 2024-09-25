@@ -31,7 +31,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version = "2.0.20-1.0.25" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
-serviceloader = { id = "app.softwork.serviceloader", version = "0.0.8" }
+serviceloader = { id = "app.softwork.serviceloader", version = "0.0.9" }
 licensee = { id = "app.cash.licensee", version = "1.11.0" }
 intellij = { id = "org.jetbrains.intellij.platform", version = "2.0.1" }
 publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
