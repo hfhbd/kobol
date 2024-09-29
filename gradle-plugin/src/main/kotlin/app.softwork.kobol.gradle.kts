@@ -6,9 +6,9 @@ val kobolCompiler = configurations.dependencyScope("kobol") {
     fromDependencyCollector(kobol.dependencies.compiler)
 }
 
-dependencies {
-    kobolCompiler("app.softwork.kobol:builder:$KOBOL_VERSION")
-    kobolCompiler("app.softwork.kobol:intellij-env:$KOBOL_VERSION")
+kobol.dependencies {
+    compiler("app.softwork.kobol:builder:$KOBOL_VERSION")
+    compiler("app.softwork.kobol:intellij-env:$KOBOL_VERSION")
 }
 
 val kobolClasspath = configurations.resolvable("kobolClasspath") {

@@ -23,7 +23,7 @@ dependencies {
 
         pluginVerifier("1.367")
         javaCompiler(libs.versions.idea)
-        testFramework(TestFrameworkType.Platform, libs.versions.idea.get())
+        testFramework(TestFrameworkType.Platform, libs.versions.idea)
     }
 }
 

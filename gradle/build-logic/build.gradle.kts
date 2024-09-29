@@ -17,5 +17,3 @@ dependencies {
 fun Provider<PluginDependency>.toDep() = map {
     "${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}"
 }
-
-kotlin.jvmToolchain(17)
