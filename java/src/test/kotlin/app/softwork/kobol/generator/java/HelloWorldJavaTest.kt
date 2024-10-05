@@ -5,7 +5,8 @@ import app.softwork.kobol.ir.*
 import app.softwork.kobol.java.java8.*
 import app.softwork.kobol.plugins.ir.optimizations.*
 import com.squareup.javapoet.*
-import java.io.*
+import java.nio.file.Files
+import kotlin.io.path.writeText
 import kotlin.test.*
 
 class HelloWorldJavaTest {
@@ -52,10 +53,10 @@ class HelloWorldJavaTest {
 }
 
 internal fun String.toIR(controlFlowHandling: ((String) -> ControlFlowHandling)? = null): KobolIRTree =
-    File.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }.toIR(
+    listOf(Files.createTempFile("testing", ".cbl").apply { writeText(this@toIR) }).toIR(
         irPlugins = listOf(NoSynthetics()),
         controlFlowHandling = controlFlowHandling,
-    )
+    ).single()
 
 internal fun generate(cobol: KobolIRTree, java8: Boolean): List<JavaFile> = generateJava(
     cobol.let {
