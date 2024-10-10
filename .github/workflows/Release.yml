@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   release:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pages: write
@@ -33,9 +33,6 @@ jobs:
           distribution: 'temurin'
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew assemble compileTestKotlin
-      - name: Build with Gradle
-        run: ./gradlew build
       - name: Publish
         run: ./gradlew -Pversion=$version --no-configuration-cache publish :closeAndReleaseStagingRepositories
         env:
