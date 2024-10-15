@@ -19,5 +19,5 @@ public fun interface FirPluginAfterPhase : FirPlugin {
     /**
      * @param tree The current main tree and other trees
      */
-    public operator fun invoke(tree: CobolFIRTree, other: Iterable<CobolFIRTree>): Iterable<CobolFIRTree>
+    public operator fun invoke(tree: CobolFIRTree, other: Collection<CobolFIRTree>): Collection<CobolFIRTree>
 }
