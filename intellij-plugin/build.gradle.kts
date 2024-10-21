@@ -7,6 +7,7 @@ plugins {
 }
 
 kotlin.jvmToolchain {
+    languageVersion.set(JavaLanguageVersion.of(21))
     vendor.set(JvmVendorSpec.JETBRAINS)
 }
 

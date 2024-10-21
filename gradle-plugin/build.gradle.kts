@@ -10,7 +10,7 @@ configurations.configureEach {
         attributes {
             attribute(
                 GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-                objects.named<GradlePluginApiVersion>(GradleVersion.version("8.8").version)
+                objects.named(GradleVersion.version("8.11").version)
             )
         }
     }
