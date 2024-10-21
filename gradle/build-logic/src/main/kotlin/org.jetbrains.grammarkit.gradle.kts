@@ -6,7 +6,7 @@ import org.jetbrains.grammarkit.*
 import org.jetbrains.grammarkit.tasks.*
 
 plugins {
-    id("java")
+    id("java-library")
 }
 
 val extension = extensions.create<GrammarKitPluginExtension>(GROUP_NAME)
