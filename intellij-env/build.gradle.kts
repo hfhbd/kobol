@@ -71,11 +71,11 @@ tasks.jar {
 
 configurations {
     apiElements {
-        outgoing.artifacts.removeIf { tasks.jar.name in it.buildDependencies.getDependencies(null).map { it.name } }
+        outgoing.artifacts.clear()
         outgoing.artifact(tasks.shadowJar)
     }
     runtimeElements {
-        outgoing.artifacts.removeIf { tasks.jar.name in it.buildDependencies.getDependencies(null).map { it.name } }
+        outgoing.artifacts.clear()
         outgoing.artifact(tasks.shadowJar)
     }
 }

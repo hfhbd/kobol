@@ -20,9 +20,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    env:
-      GRADLE_OPTS: -Dorg.gradle.caching=true
-
     steps:
       - name: Set environment for version
         run: long="${{ github.ref }}"; version=${long#"refs/tags/v"}; echo "version=${version}" >> $GITHUB_ENV
@@ -34,7 +31,7 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Publish
-        run: ./gradlew -Pversion=$version --no-configuration-cache publish :closeAndReleaseStagingRepositories
+        run: ./gradlew -Pversion=$version publish :closeAndReleaseStagingRepositories
         env:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
