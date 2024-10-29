@@ -29,7 +29,7 @@ idea = ["idea-core-impl", "idea-project-model-impl", "idea-analysis-impl", "idea
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-shadow = { id = "com.gradleup.shadow", version = "8.3.3" }
+shadow = { id = "com.gradleup.shadow", version = "8.3.4" }
 serviceloader = { id = "app.softwork.serviceloader-compiler", version = "0.0.12" }
 licensee = { id = "app.cash.licensee", version = "1.12.0" }
 intellij = { id = "org.jetbrains.intellij.platform", version = "2.1.0" }
