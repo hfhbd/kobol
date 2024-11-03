@@ -10,6 +10,7 @@ dependencies {
     implementation(libs.plugins.shadow.toDep())
     implementation(libs.plugins.serviceloader.toDep())
     implementation(libs.plugins.detekt.toDep())
+    implementation(libs.plugins.mavencentral.toDep())
 }
 
 fun Provider<PluginDependency>.toDep() = map {
