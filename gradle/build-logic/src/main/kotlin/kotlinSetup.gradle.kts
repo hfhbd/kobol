@@ -15,3 +15,7 @@ kotlin {
         // allWarningsAsErrors.set(true)
     }
 }
+
+publishing.publications.register<MavenPublication>("mavenJava") {
+    from(components["java"])
+}

@@ -7,10 +7,17 @@ import java.io.*
 @CacheableTask
 abstract class StoreVersion : DefaultTask() {
     @get:Input
-    abstract val version: Property<String>
+    abstract val projectVersion: Property<String>
 
     init {
-        version.convention(project.version.toString())
+        projectVersion.convention(project.version.toString())
+    }
+
+    @get:Input
+    abstract val projectGroup: Property<String>
+
+    init {
+        projectGroup.convention(project.group.toString())
     }
 
     @get:OutputDirectory
@@ -26,7 +33,8 @@ abstract class StoreVersion : DefaultTask() {
             """
             |package app.softwork.kobol.gradle
             |
-            |public val KOBOL_VERSION: String = "${version.get()}"
+            |internal const val GROUP: String = "${projectGroup.get()}"
+            |internal const val VERSION: String = "${projectVersion.get()}"
             |
             """.trimMargin(),
         )
