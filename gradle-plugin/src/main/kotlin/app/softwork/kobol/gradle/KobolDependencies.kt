@@ -11,8 +11,8 @@ interface KobolDependencies : Dependencies {
     fun kotlinKotlinxSerialization() = dependencyFactory.create("$GROUP:kotlin-kotlinxserialization:$VERSION")
     fun kotlinFileJava() = dependencyFactory.create("$GROUP:kotlin-file-java:$VERSION")
 
-    fun java()  = dependencyFactory.create("$GROUP:java:$VERSION")
-    fun javaJava8()  = dependencyFactory.create("$GROUP:java-java8:$VERSION")
+    fun java() = dependencyFactory.create("$GROUP:java:$VERSION")
+    fun javaJava8() = dependencyFactory.create("$GROUP:java-java8:$VERSION")
 
     fun pluginBooleanexpressions() = dependencyFactory.create("$GROUP:plugin-booleanexpressions:$VERSION")
     fun pluginJavanames() = dependencyFactory.create("$GROUP:plugin-javanames:$VERSION")
