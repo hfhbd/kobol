@@ -6,11 +6,6 @@ val kobolCompiler = configurations.dependencyScope("kobol") {
     fromDependencyCollector(kobol.dependencies.compiler)
 }
 
-kobol.dependencies {
-    compiler("app.softwork.kobol:builder:$KOBOL_VERSION")
-    compiler("app.softwork.kobol:intellij-env:$KOBOL_VERSION")
-}
-
 val kobolClasspath = configurations.resolvable("kobolClasspath") {
     // https://github.com/gradle/gradle/issues/26732
     extendsFrom(kobolCompiler.get())
