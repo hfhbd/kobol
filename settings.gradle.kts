@@ -67,6 +67,5 @@ include(":plugins:plugin-useparameters")
 include(":plugins:plugin-exitprocess")
 
 include(":intellij-env")
-include(":ssh-env")
 
 include(":util")

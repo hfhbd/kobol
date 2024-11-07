@@ -15,28 +15,8 @@ public abstract class KobolFirPluginTask : DefaultTask() {
         group = "kobol"
     }
 
-    @get:Internal
-    internal val pluginConfiguration: String
-
     @get:Classpath
     internal val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
-
-    init {
-        val pluginConfiguration = project.configurations.dependencyScope("${name}Plugin")
-        this.pluginConfiguration = pluginConfiguration.name
-        project.dependencies {
-            pluginConfiguration("app.softwork.kobol:intellij-env:$KOBOL_VERSION")
-        }
-        pluginClasspath.from(
-            project.configurations.resolvable("${name}Classpath") {
-                extendsFrom(project.configurations.getByName(this@KobolFirPluginTask.pluginConfiguration))
-            },
-        )
-    }
-
-    public fun plugin(dependency: Any) {
-        project.dependencies.add(pluginConfiguration, dependency)
-    }
 
     @get:InputFiles
     @get:PathSensitive(RELATIVE)
@@ -46,7 +26,7 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     public abstract val outputFolder: DirectoryProperty
 
     init {
-        outputFolder.convention(project.layout.buildDirectory.dir("reports/kobol/plugins"))
+        outputFolder.convention(project.layout.buildDirectory.dir("reports/kobol/plugins/$name"))
     }
 
     @get:Inject

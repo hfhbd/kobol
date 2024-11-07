@@ -18,7 +18,6 @@ configurations.configureEach {
 
 dependencies {
     compileOnly(projects.builder)
-    compileOnly(projects.sshEnv)
 
     testImplementation(kotlin("test"))
     testImplementation(projects.builder)

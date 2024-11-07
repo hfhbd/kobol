@@ -1,31 +1,33 @@
 import app.softwork.kobol.gradle.*
 
-val kobol = extensions.create<Kobol>("kobol")
+val kobol: Kobol = extensions.create<Kobol>("kobol")
 
-val kobolCompiler = configurations.dependencyScope("kobol") {
+val kobolCompiler = configurations.dependencyScope("kobolCompiler") {
     fromDependencyCollector(kobol.dependencies.compiler)
 }
 
-val kobolClasspath = configurations.resolvable("kobolClasspath") {
-    // https://github.com/gradle/gradle/issues/26732
+val kobolCompilerClasspath = configurations.resolvable("kobolCompilerClasspath") {
     extendsFrom(kobolCompiler.get())
 }
 
-val uploadCobol by tasks.registering(UploadTask::class)
-val buildCobol by tasks.registering(BuildTask::class) {
-    dependsOn(uploadCobol)
-}
-tasks.register("runCobol", KobolRunTask::class) {
-    dependsOn(buildCobol)
-}
-
-tasks.register("cleanCobol", CleanCobol::class) {
-    uploaded.convention(uploadCobol.flatMap { it.uploaded })
+kobol.firActions.all {
+    val deps = configurations.dependencyScope("kobolFir$name") {
+        fromDependencyCollector(this@all.dependencies.compiler)
+    }
+    tasks.register("kobol$name", KobolFirPluginTask::class) {
+        pluginClasspath.from(
+            pluginClasspath.from(
+                configurations.resolvable("kobolFir${name}Classpath") {
+                    extendsFrom(deps.get())
+                },
+            )
+        )
+    }
 }
 
 pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-    extensions.getByType(SourceSetContainer::class).named("main") {
-        val convert = createConvertTask(uploadCobol)
+    extensions.getByType(SourceSetContainer::class).configureEach {
+        val convert = createCompilerTask()
 
         val kotlin = extensions.getByName<SourceDirectorySet>("kotlin")
         kotlin.srcDir(convert.flatMap { it.outputFolder.dir("kotlin") })
@@ -33,37 +35,32 @@ pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
 }
 
 pluginManager.withPlugin("org.gradle.java") {
-    extensions.getByType(SourceSetContainer::class).named("main") {
-        val convert = createConvertTask(uploadCobol)
+    extensions.getByType(SourceSetContainer::class).configureEach {
+        val convert = createCompilerTask()
         java.srcDir(convert.flatMap { it.outputFolder.dir("java") })
     }
 }
 
-fun SourceSet.createConvertTask(uploadTask: TaskProvider<out UploadTask>): TaskProvider<out KobolTask> {
-    val taskName = "convertCobol"
+fun SourceSet.createCompilerTask(): TaskProvider<out KobolTask> {
+    val sourceSetName = name.replaceFirstChar { it.uppercaseChar() }
+    val taskName = "compileCobol$sourceSetName"
     if (taskName in tasks.names) {
         return tasks.named(taskName, KobolTask::class)
     }
-
-    val convert = tasks.register(taskName, KobolTask::class)
 
     val cobolSrc = objects.sourceDirectorySet("cobol", "cobol")
     cobolSrc.filter.include("*.cbl")
     cobolSrc.srcDir(file("src/${name}/cobol"))
     cobolSrc.destinationDirectory.convention(layout.buildDirectory.dir("generated/kobol/"))
 
-    convert {
-        classpath.from(kobolClasspath)
+    val convert = tasks.register(taskName, KobolTask::class) {
+        classpath.from(kobolCompilerClasspath)
         sources.from(cobolSrc.sourceDirectories)
         outputFolder.convention(cobolSrc.destinationDirectory)
     }
 
     cobolSrc.compiledBy(convert, KobolTask::outputFolder)
     extensions.add("cobol", cobolSrc)
-
-    uploadTask {
-        files.from(cobolSrc)
-    }
 
     return convert
 }
