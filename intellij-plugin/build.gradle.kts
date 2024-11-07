@@ -3,12 +3,19 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("org.jetbrains.intellij.platform")
-    id("kotlinSetup")
+    kotlin("jvm")
+    id("setup")
 }
 
 kotlin.jvmToolchain {
     languageVersion.set(JavaLanguageVersion.of(21))
     vendor.set(JvmVendorSpec.JETBRAINS)
+}
+
+publishing.publications.register<MavenPublication>("mavenJava") {
+    from(components["intellijPlatform"])
+    artifact(tasks.named("sourcesJar"))
+    artifact(tasks.named("javadocJar"))
 }
 
 dependencies {

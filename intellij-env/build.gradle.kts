@@ -123,8 +123,3 @@ licensee {
     allowIdea("util-ui")
     allowIdea("workspace-model-storage")
 }
-
-tasks.register("depsize", DepSize::class.java) {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    configurationToCheck.from(configurations.shadow)
-}
