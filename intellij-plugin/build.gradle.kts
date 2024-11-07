@@ -20,11 +20,11 @@ dependencies {
     compileOnly(libs.bundles.idea)
 
     intellijPlatform {
-        intellijIdeaCommunity(libs.versions.idea, useInstaller = false)
+        intellijIdeaCommunity(libs.versions.ideaplugin, useInstaller = false)
 
         pluginVerifier()
-        javaCompiler(libs.versions.idea)
-        testFramework(TestFrameworkType.Platform, libs.versions.idea)
+        javaCompiler(libs.versions.ideaplugin)
+        testFramework(TestFrameworkType.Platform, libs.versions.ideaplugin)
     }
 }
 
@@ -41,7 +41,7 @@ intellijPlatform {
     pluginConfiguration {
         this.version.set(project.version.toString())
         ideaVersion {
-            sinceBuild.set("243")
+            sinceBuild.set("242")
             untilBuild.set("243.*")
         }
     }

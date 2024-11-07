@@ -6,6 +6,7 @@ kotlin = "2.1.0-RC"
 # choose a matching/similar build
 
 idea = "221.6008.13"
+ideaplugin = "242.23726.103"
 serialization = "1.7.3"
 
 [libraries]
