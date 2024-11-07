@@ -22,7 +22,7 @@ dependencies {
     intellijPlatform {
         intellijIdeaCommunity(libs.versions.idea, useInstaller = false)
 
-        pluginVerifier("1.367")
+        pluginVerifier()
         javaCompiler(libs.versions.idea)
         testFramework(TestFrameworkType.Platform, libs.versions.idea)
     }
@@ -41,14 +41,14 @@ intellijPlatform {
     pluginConfiguration {
         this.version.set(project.version.toString())
         ideaVersion {
-            sinceBuild.set("233")
-            untilBuild.set("242.*")
+            sinceBuild.set("243")
+            untilBuild.set("243.*")
         }
     }
     pluginVerification {
         ides {
-            ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.1.4")
-            ide(IntelliJPlatformType.AndroidStudio, "2024.1.2.10")
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.2.4")
+            ide(IntelliJPlatformType.AndroidStudio, "2024.2.2.9")
         }
     }
 }
