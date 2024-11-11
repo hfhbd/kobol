@@ -99,12 +99,12 @@ recordID ::= varName {
 }
 pointer_clause ::= POINTER [VALUE literal]
 redefines_clause ::= REDEFINES recordID
-pic_clause ::= [occurs_clause] [PIC pic_def_clause+] [USAGE [IS]] [compressed] [BINARY] [SIGN [IS] LEADING [SEPARATE]] [VALUE literal] [occurs_clause]
+pic_clause ::= [occurs_clause] [PIC pic_def_clause+] [USAGE [IS]] [compressed] [BINARY] [NATIONAL] [SIGN [IS] LEADING [SEPARATE]] [VALUE literal] [occurs_clause]
 compressed ::= COMP | COMP-3 | COMP-5
 occurs_clause ::= OCCURS occurs_clause_number [TIMES] [TO occurs_clause_number_to [TIMES]] [DEPENDING ON recordID]
 occurs_clause_number ::= number
 occurs_clause_number_to ::= number
-pictures ::= X | A | S9 | 9 | V9 | PLUS | Z | B
+pictures ::= X | A | S9 | 9 | V9 | PLUS | Z | B | N
 pic_def_clause ::= pictures [length]
 
 length ::= LP number RP

@@ -191,6 +191,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
       "A" { return A; }
       "S9" { return S9; }
       "V9" { return V9; }
+      "N" { return N; }
       "+" { return PLUS; }
       "Z" { return Z; }
       "(" { return LP; }
@@ -216,6 +217,7 @@ VARNAME=[a-zA-Z]([\w\-_])*
       "LOW-VALUE" { return LOW_VALUE; }
       "HIGH-VALUE" { return HIGH_VALUE; }
       "SIGN" { return SIGN; }
+      "NATIONAL" { return NATIONAL; }
       "LEADING" { return LEADING; }
       "SEPARATE" { return SEPARATE; }
       "ZEROES" { return ZERO; }
