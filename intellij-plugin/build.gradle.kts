@@ -21,11 +21,6 @@ publishing.publications.register<MavenPublication>("mavenJava") {
 dependencies {
     implementation(projects.psi)
 
-    compileOnly(projects.intellijEnv) {
-        targetConfiguration = "shadow"
-    }
-    compileOnly(libs.bundles.idea)
-
     intellijPlatform {
         intellijIdeaCommunity(libs.versions.ideaplugin, useInstaller = false)
 

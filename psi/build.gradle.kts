@@ -8,15 +8,9 @@ grammarKit {
 }
 
 dependencies {
-    compileOnly(projects.intellijEnv) {
-        targetConfiguration = "shadow"
-    }
+    compileOnly(libs.bundles.idea)
 
-    testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shadow"
-    }
-
-    testImplementation(kotlin("test"))
+    testImplementation(libs.bundles.idea)
     testImplementation(projects.builder)
 }
 

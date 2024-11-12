@@ -4,6 +4,4 @@ plugins {
 
 dependencies {
     implementation(projects.ir)
-
-    testImplementation(kotlin("test"))
 }

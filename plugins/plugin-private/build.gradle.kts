@@ -4,6 +4,4 @@ plugins {
 
 dependencies {
     api(projects.ir)
-
-    testImplementation(kotlin("test"))
 }

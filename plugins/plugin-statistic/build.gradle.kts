@@ -6,9 +6,6 @@ dependencies {
     implementation(libs.serialization.json)
     implementation(projects.fir)
 
-    testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shadow"
-    }
-    testImplementation(kotlin("test"))
+    testImplementation(libs.bundles.idea)
     testImplementation(projects.builder)
 }
