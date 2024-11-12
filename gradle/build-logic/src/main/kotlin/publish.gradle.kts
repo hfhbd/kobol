@@ -11,6 +11,12 @@ java {
 }
 
 publishing {
+    repositories {
+        maven(url = "https://maven.pkg.github.com/hfhbd/kobol") {
+            name = "GitHubPackages"
+            credentials(PasswordCredentials::class)
+        }
+    }
     publications.withType<MavenPublication>().configureEach {
         pom {
             name.set("app.softwork KOBOL")
