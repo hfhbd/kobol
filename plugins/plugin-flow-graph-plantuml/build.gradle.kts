@@ -5,9 +5,6 @@ plugins {
 dependencies {
     implementation(projects.fir)
 
-    testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shadow"
-    }
+    testImplementation(libs.bundles.idea)
     testImplementation(projects.builder)
-    testImplementation(kotlin("test"))
 }

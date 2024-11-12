@@ -6,10 +6,7 @@ dependencies {
     implementation(projects.ir)
     implementation(libs.kotlinpoet)
 
-    testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shadow"
-    }
-    testImplementation(kotlin("test"))
+    testImplementation(libs.bundles.idea)
     testImplementation(projects.kotlin.kotlinSqldelight)
     testImplementation(projects.kotlin.kotlinKotlinxserialization)
     testImplementation(projects.kotlin.kotlinFileJava)

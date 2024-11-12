@@ -22,9 +22,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(projects.builder)
     testImplementation(projects.ir)
-    testImplementation(projects.intellijEnv) {
-        targetConfiguration = "shadow"
-    }
+    testImplementation(libs.bundles.idea)
     testImplementation(projects.plugins.pluginFlowGraphPlantuml)
     testImplementation(projects.kotlin)
     testImplementation(projects.java)

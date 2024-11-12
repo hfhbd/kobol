@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.serialization")
     id("setup")
     id("app.softwork.serviceloader-compiler")
+    id("jvm-test-suite")
 }
 
 kotlin {
@@ -18,4 +19,8 @@ kotlin {
 
 publishing.publications.register<MavenPublication>("mavenJava") {
     from(components["java"])
+}
+
+testing.suites.named("test", JvmTestSuite::class) {
+    useKotlinTest()
 }
