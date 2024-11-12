@@ -6,6 +6,10 @@ val kobolCompiler = configurations.dependencyScope("kobolCompiler") {
     fromDependencyCollector(kobol.dependencies.compiler)
 }
 
+kobol.dependencies {
+    compiler("$GROUP:intellij-env:$VERSION")
+}
+
 val kobolCompilerClasspath = configurations.resolvable("kobolCompilerClasspath") {
     extendsFrom(kobolCompiler.get())
 }
@@ -13,6 +17,9 @@ val kobolCompilerClasspath = configurations.resolvable("kobolCompilerClasspath")
 kobol.firActions.all {
     val deps = configurations.dependencyScope("kobolFir$name") {
         fromDependencyCollector(this@all.dependencies.compiler)
+    }
+    this@all.dependencies {
+        compiler("$GROUP:intellij-env:$VERSION")
     }
     tasks.register("kobol$name", KobolFirPluginTask::class) {
         pluginClasspath.from(
