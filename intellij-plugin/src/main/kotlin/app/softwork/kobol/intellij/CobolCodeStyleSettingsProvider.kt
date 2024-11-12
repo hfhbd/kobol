@@ -18,7 +18,7 @@ class CobolCodeStyleSettingsProvider : CodeStyleSettingsProvider() {
 
     override fun createConfigurable(
         settings: CodeStyleSettings,
-        modelSettings: CodeStyleSettings
+        modelSettings: CodeStyleSettings,
     ): CodeStyleConfigurable {
         return object : CodeStyleAbstractConfigurable(settings, modelSettings, this.getConfigurableDisplayName()) {
             override fun createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel {
