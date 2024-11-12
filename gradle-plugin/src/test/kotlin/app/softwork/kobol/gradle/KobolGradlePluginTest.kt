@@ -4,6 +4,7 @@ import app.softwork.kobol.*
 import app.softwork.kobol.flowgraph.*
 import app.softwork.kobol.generator.java.*
 import app.softwork.kobol.generator.kotlin.*
+import app.softwork.kobol.ir.CobolTestFixtures
 import app.softwork.kobol.java.java8.*
 import app.softwork.kobol.plugins.ir.optimizations.*
 import org.gradle.testkit.runner.GradleRunner
@@ -15,14 +16,10 @@ import kotlin.test.*
 class KobolGradlePluginTest {
     @Test
     fun testConvertingKotlin() {
-        val temp = Files.createTempDirectory("cobolTesting")
-        val tempFile = temp.toFile()
-        val cobolFile = File(tempFile, "hello.cbl").apply {
-            writeText(input)
-        }
+        val tempFile = Files.createTempDirectory("cobolTesting").toFile()
+        val simple by CobolTestFixtures
         ExecuteKobol(
-            rootPath = temp,
-            input = setOf(cobolFile),
+            input = listOf(simple),
             outputFolder = tempFile,
             irPlugins = listOf(NoSynthetics()),
             codeGeneratorFactory = KotlinCodeGeneratorFactory(),
@@ -36,12 +33,9 @@ class KobolGradlePluginTest {
     fun testConvertingJava() {
         val temp = Files.createTempDirectory("cobolTesting")
         val tempFile = temp.toFile()
-        val cobolFile = File(tempFile, "hello.cbl").apply {
-            writeText(input)
-        }
+        val simple by CobolTestFixtures
         ExecuteKobol(
-            rootPath = temp,
-            input = setOf(cobolFile),
+            input = listOf(simple),
             outputFolder = tempFile,
             irPlugins = listOf(Java8Plugin(), NoSynthetics()),
             codeGeneratorFactory = JavaCodeGeneratorFactory(),
@@ -51,38 +45,14 @@ class KobolGradlePluginTest {
         assertEquals(listOf("Hello.java"), packageFolder.list()?.toList())
     }
 
-    //language=cobol
-    private val input = """
-            123456 IDENTIFICATION              DIVISION.
-            123456******************************************************************
-            123456 PROGRAM-ID.                 HELLO.
-            123456 INSTALLATION. Softwork.app
-            123456 AUTHOR. WEDEMANN / Softwork.app
-            123456 DATE-WRITTEN TODAY.
-            123456******************************************************************
-            123456 DATA                        DIVISION.
-            123456 WORKING-STORAGE SECTION.
-            123456 77 WORLD PIC X(6) VALUE 'WORLD!'.
-            123456/*****************************************************************
-            123456 PROCEDURE                   DIVISION.
-            123456******************************************************************
-            123456
-            123456* Some Comment
-            123456     DISPLAY "HELLO"WORLD
-            123456     MOVE "42" TO WORLD
-            123456     DISPLAY "ANSWER"WORLD.
-    """.trimIndent()
-
     @Test
     fun testFlowGraph() {
+        val simple by CobolTestFixtures
         val temp = Files.createTempDirectory("cobolTesting")
         val tempFile = temp.toFile()
-        val cobolFile = File(tempFile, "hello.cbl").apply {
-            writeText(input)
-        }
 
         PlantumlFlowGraph(tempFile).use {
-            it.generate(listOf(cobolFile.toTree(temp)))
+            it.generate(listOf(simple.toTree()))
         }
         assertTrue("hello.puml" in tempFile.list())
     }

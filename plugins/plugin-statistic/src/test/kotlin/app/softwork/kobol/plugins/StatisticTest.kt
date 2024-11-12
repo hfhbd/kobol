@@ -3,8 +3,8 @@ package app.softwork.kobol.plugins
 import app.softwork.kobol.*
 import app.softwork.kobol.fir.*
 import org.intellij.lang.annotations.Language
-import java.io.*
-import java.nio.file.Files
+import java.nio.file.*
+import kotlin.io.path.*
 import kotlin.test.*
 
 class StatisticTest {
@@ -133,7 +133,5 @@ class StatisticTest {
     }
 }
 
-internal fun String.toTree(): CobolFIRTree {
-    val temp = Files.createTempDirectory("testing")
-    return File(temp.toFile(), "testing.cbl").apply { writeText(this@toTree) }.toTree(temp)
-}
+internal fun String.toTree(): CobolFIRTree =
+    Files.createTempFile("testing", ".cbl").apply { writeText(this@toTree) }.toTree()

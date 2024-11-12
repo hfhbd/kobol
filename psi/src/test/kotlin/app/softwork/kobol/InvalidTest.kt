@@ -3,6 +3,8 @@ package app.softwork.kobol
 import app.softwork.kobol.fir.*
 import java.io.*
 import java.nio.file.*
+import kotlin.io.path.div
+import kotlin.io.path.writeText
 import kotlin.test.*
 
 class InvalidTest {
@@ -31,15 +33,13 @@ class InvalidTest {
 internal fun String.toTree(vararg including: Pair<String, String>): CobolFIRTree {
     val tempFolder = Files.createTempDirectory("cobolTesting")
     val files = including.map { (name, content) ->
-        File(tempFolder.toFile(), name).apply { writeText(content) }
+        (tempFolder / name).apply { writeText(content) }
     }
 
-    return (
-        files + File(tempFolder.toFile(), "testing.cbl").apply {
-            writeText(this@toTree)
-        }
-        ).toCobolFile().single().toTree(tempFolder)
+    return files.plus(element = (tempFolder / "testing.cbl").apply {
+        writeText(this@toTree)
+    }).toCobolFile().single().toTree()
 }
 
 internal fun String.toCobolFile() =
-    File.createTempFile("testing", ".cbl").apply { writeText(this@toCobolFile) }.toCobolFile()
+    File.createTempFile("testing", ".cbl").apply { writeText(this@toCobolFile) }.toPath().toCobolFile()

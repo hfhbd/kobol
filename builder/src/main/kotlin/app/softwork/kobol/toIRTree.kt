@@ -1,11 +1,13 @@
 package app.softwork.kobol
 
-import app.softwork.kobol.fir.*
+import app.softwork.kobol.fir.CobolFIRTree
 import app.softwork.kobol.fir.CobolFIRTree.DataTree.WorkingStorage.Elementar.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.*
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.ForEach
 import app.softwork.kobol.fir.CobolFIRTree.ProcedureTree.Statement.If
-import app.softwork.kobol.ir.*
+import app.softwork.kobol.fir.FirPlugin
+import app.softwork.kobol.ir.IrPlugin
+import app.softwork.kobol.ir.KobolIRTree
 import app.softwork.kobol.ir.KobolIRTree.Expression
 import app.softwork.kobol.ir.KobolIRTree.Expression.*
 import app.softwork.kobol.ir.KobolIRTree.Expression.NumberExpression.DoubleExpression
@@ -16,30 +18,10 @@ import app.softwork.kobol.ir.KobolIRTree.Types
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Function.Statement.Declaration.*
 import app.softwork.kobol.ir.KobolIRTree.Types.Type.*
-import java.io.File
+import app.softwork.kobol.ir.variable
 import java.nio.file.Path
 
-public fun File.toIR(
-    firPlugins: List<FirPlugin> = emptyList(),
-    fileConverter: ((String) -> FileHandling)? = null,
-    serialization: ((String) -> SerializationPlugin)? = null,
-    sqlPrecompiler: ((String) -> SqlPrecompiler)? = null,
-    controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
-    irPlugins: List<IrPlugin> = emptyList(),
-    procedureName: ProcedureName? = null,
-): KobolIRTree = setOf(this).toIR(
-    parentFile!!.toPath(),
-    firPlugins,
-    fileConverter,
-    serialization,
-    sqlPrecompiler,
-    controlFlowHandling,
-    irPlugins,
-    procedureName,
-).single()
-
-public fun Iterable<File>.toIR(
-    absoluteBasePath: Path,
+public fun List<Path>.toIR(
     firPlugins: Iterable<FirPlugin> = emptyList(),
     fileConverter: ((String) -> FileHandling)? = null,
     serialization: ((String) -> SerializationPlugin)? = null,
@@ -47,8 +29,8 @@ public fun Iterable<File>.toIR(
     controlFlowHandling: ((String) -> ControlFlowHandling)? = null,
     irPlugins: Iterable<IrPlugin> = emptyList(),
     procedureName: ProcedureName? = null,
-): Iterable<KobolIRTree> {
-    val firTrees = toTree(absoluteBasePath, firPlugins)
+): Collection<KobolIRTree> {
+    val firTrees = toTree(firPlugins)
 
     var irTrees = firTrees.map {
         it.toIRTree(fileConverter, serialization, sqlPrecompiler, controlFlowHandling, procedureName)
@@ -146,7 +128,7 @@ public fun CobolFIRTree.toIRTree(
     return KobolIRTree(
         id = fileName,
         name = name,
-        packageName = packageName,
+        packageName = null,
         main = main,
         types = functions + dataTypes + externalIR,
     )
