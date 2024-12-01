@@ -11,6 +11,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import java.io.*
 import java.nio.file.*
 import kotlin.test.*
+import kotlin.io.path.div
+import kotlin.io.path.writeText
 
 class KobolGradlePluginTest {
     @Test
@@ -89,12 +91,19 @@ class KobolGradlePluginTest {
 
     @Test
     fun applyingKobolWorks() {
-        val tmp = Files.createTempDirectory("cobolTesting").toFile()
+        val tmp = Files.createTempDirectory("cobolTesting")
 
-        File(tmp, "build.gradle.kts").writeText(
+
+        (tmp / "settings.gradle.kts").writeText("""|
+            |plugins {
+            |  id("app.softwork.kobol.settings")
+            |}
+        """.trimMargin())
+
+        (tmp / "build.gradle.kts").writeText(
             """
             |plugins {
-            |  kotlin("jvm") version "2.0.0"
+            |  kotlin("jvm") version "2.1.0"
             |  id("app.softwork.kobol")
             |}
             |
@@ -117,9 +126,49 @@ class KobolGradlePluginTest {
         )
 
         val result = GradleRunner.create()
-            .withProjectDir(tmp)
+            .withProjectDir(tmp.toFile())
             .withPluginClasspath()
-            .withArguments(":help", "--configuration-cache")
+            .forwardOutput()
+            .withArguments(
+                ":help",
+                "-Porg.gradle.kotlin.dsl.dcl=true",
+                "-Porg.gradle.unsafe.isolated-projects=true",
+            )
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
+    }
+
+    @Test
+    fun declarativeKobolWorks() {
+        val tmp = Files.createTempDirectory("cobolTesting")
+
+
+        (tmp / "settings.gradle.dcl").writeText("""|
+            |plugins {
+            |  id("app.softwork.kobol.settings")
+            |}
+        """.trimMargin())
+
+        (tmp / "build.gradle.dcl").writeText(
+            """
+            |kobol {
+            |  dependencies {
+            |    compiler("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+            |  }
+            |}     
+            |
+            """.trimMargin(),
+        )
+
+        val result = GradleRunner.create()
+            .withProjectDir(tmp.toFile())
+            .withPluginClasspath()
+            .forwardOutput()
+            .withArguments(
+                ":help",
+                "-Porg.gradle.unsafe.isolated-projects=true",
+            )
             .build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)

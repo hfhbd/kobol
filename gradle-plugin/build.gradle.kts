@@ -10,7 +10,7 @@ configurations.configureEach {
         attributes {
             attribute(
                 GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-                objects.named(GradleVersion.version("8.11").version)
+                objects.named(GradleVersion.version("8.12").version)
             )
         }
     }
@@ -39,7 +39,17 @@ sourceSets.main {
     kotlin.srcDir(storeVersion)
 }
 
-gradlePlugin.plugins.configureEach {
-    displayName = "Kobol Gradle Plugin"
-    description = "Kobol Gradle Plugin"
+gradlePlugin{
+    plugins.configureEach {
+        displayName = "Kobol Gradle Plugin"
+        description = "Kobol Gradle Plugin"
+    }
+    plugins.register("kobol") {
+        id = "app.softwork.kobol"
+        implementationClass = "app.softwork.kobol.gradle.KobolPlugin"
+    }
+    plugins.register("kobolSettings") {
+        id = "app.softwork.kobol.settings"
+        implementationClass = "app.softwork.kobol.gradle.KobolSettingsPlugin"
+    }
 }

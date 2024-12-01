@@ -2,7 +2,9 @@ package app.softwork.kobol.gradle
 
 import org.gradle.api.artifacts.dsl.Dependencies
 import org.gradle.api.artifacts.dsl.DependencyCollector
+import org.gradle.declarative.dsl.model.annotations.Restricted
 
+@Restricted
 interface KobolDependencies : Dependencies {
     val compiler: DependencyCollector
 
