@@ -10,9 +10,9 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import java.io.*
 import java.nio.file.*
-import kotlin.test.*
 import kotlin.io.path.div
 import kotlin.io.path.writeText
+import kotlin.test.*
 
 class KobolGradlePluginTest {
     @Test
@@ -93,12 +93,13 @@ class KobolGradlePluginTest {
     fun applyingKobolWorks() {
         val tmp = Files.createTempDirectory("cobolTesting")
 
-
-        (tmp / "settings.gradle.kts").writeText("""|
+        (tmp / "settings.gradle.kts").writeText(
+            """|
             |plugins {
             |  id("app.softwork.kobol.settings")
             |}
-        """.trimMargin())
+            """.trimMargin(),
+        )
 
         (tmp / "build.gradle.kts").writeText(
             """
@@ -143,12 +144,13 @@ class KobolGradlePluginTest {
     fun declarativeKobolWorks() {
         val tmp = Files.createTempDirectory("cobolTesting")
 
-
-        (tmp / "settings.gradle.dcl").writeText("""|
+        (tmp / "settings.gradle.dcl").writeText(
+            """|
             |plugins {
             |  id("app.softwork.kobol.settings")
             |}
-        """.trimMargin())
+            """.trimMargin(),
+        )
 
         (tmp / "build.gradle.dcl").writeText(
             """

@@ -33,7 +33,7 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
                     configurations.resolvable("kobolFir${name}Classpath") {
                         extendsFrom(deps.get())
                     },
-                )
+                ),
             )
         }
     }
@@ -57,7 +57,7 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
 
         val cobolSrc = objects.sourceDirectorySet("cobol", "cobol")
         cobolSrc.filter.include("*.cbl")
-        cobolSrc.srcDir(file("src/${name}/cobol"))
+        cobolSrc.srcDir(file("src/$name/cobol"))
         cobolSrc.destinationDirectory.convention(layout.buildDirectory.dir("generated/kobol/"))
 
         val convert = tasks.register(taskName, KobolTask::class) {
