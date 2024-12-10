@@ -5,7 +5,7 @@ kotlin = "2.1.0"
 # IC sources: https://www.jetbrains.com/intellij-repository/releases
 # choose a matching/similar build
 
-idea = "221.6008.13"
+idea = "243.22562.145"
 ideaplugin = "242.23726.103"
 serialization = "1.7.3"
 
