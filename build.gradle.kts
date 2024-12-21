@@ -1,36 +1,23 @@
-import io.gitlab.arturbosch.detekt.*
-
 plugins {
     id("io.gitlab.arturbosch.detekt")
 }
 
 detekt {
-    source.from(files(rootProject.rootDir))
-    parallel = true
-    autoCorrect = true
-    buildUponDefaultConfig = true
-}
-
-dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${detekt.toolVersion}")
-}
-
-tasks {
-    fun SourceTask.config() {
+    source.from(fileTree(rootProject.rootDir) {
         include("**/*.kt")
         exclude("**/*.kts")
         exclude("**/resources/**")
         exclude("**/generated/**")
         exclude("**/build/**")
+    })
+    parallel = true
+    autoCorrect = true
+    buildUponDefaultConfig = true
+    reports {
+        sarif.required.set(true)
     }
-    withType<DetektCreateBaselineTask>().configureEach {
-        config()
-    }
-    withType<Detekt>().configureEach {
-        config()
+}
 
-        reports {
-            sarif.required.set(true)
-        }
-    }
+dependencies {
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${detekt.toolVersion}")
 }
