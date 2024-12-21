@@ -11,6 +11,7 @@ dependencies {
     implementation(libs.plugins.serviceloader.toDep())
     implementation(libs.plugins.detekt.toDep())
     implementation(libs.plugins.mavencentral.toDep())
+    implementation(libs.plugins.gradle.lint.toDep())
 }
 
 fun Provider<PluginDependency>.toDep() = map {
