@@ -1,11 +1,18 @@
 package app.softwork.kobol.intellij
 
 import app.softwork.kobol.CobolLanguage
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider
-import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 
 internal class CobolLanguageCodeStyleSettingsProvider : LanguageCodeStyleSettingsProvider() {
     override fun getLanguage() = CobolLanguage
+
+    override fun customizeDefaults(
+        commonSettings: CommonCodeStyleSettings,
+        indentOptions: CommonCodeStyleSettings.IndentOptions
+    ) {
+        commonSettings.softMargins = listOf(6, 7, 12, 80)
+    }
 
     override fun getCodeSample(settingsType: SettingsType): String {
         // language=cobol
