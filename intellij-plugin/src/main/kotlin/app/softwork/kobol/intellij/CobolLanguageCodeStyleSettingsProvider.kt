@@ -9,7 +9,7 @@ internal class CobolLanguageCodeStyleSettingsProvider : LanguageCodeStyleSetting
 
     override fun customizeDefaults(
         commonSettings: CommonCodeStyleSettings,
-        indentOptions: CommonCodeStyleSettings.IndentOptions
+        indentOptions: CommonCodeStyleSettings.IndentOptions,
     ) {
         commonSettings.softMargins = listOf(6, 7, 12, 80)
     }
