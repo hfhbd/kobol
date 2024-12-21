@@ -39,7 +39,7 @@ sourceSets.main {
     kotlin.srcDir(storeVersion)
 }
 
-gradlePlugin{
+gradlePlugin {
     plugins.configureEach {
         displayName = "Kobol Gradle Plugin"
         description = "Kobol Gradle Plugin"
