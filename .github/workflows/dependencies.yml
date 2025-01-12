@@ -30,3 +30,5 @@ jobs:
     steps:
     - name: Perform dependency review
       uses: actions/dependency-review-action@v4
+      with:
+        allow-licenses: Apache-2.0

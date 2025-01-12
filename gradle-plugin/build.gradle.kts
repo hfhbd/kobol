@@ -1,6 +1,7 @@
 plugins {
     `kotlin-dsl`
     id("setup")
+    id("com.android.lint")
 }
 
 kotlin.jvmToolchain(21)
@@ -28,6 +29,12 @@ dependencies {
     testImplementation(projects.java)
     testImplementation(projects.java.javaJava8)
     testImplementation(projects.plugins.pluginNosynthetic)
+
+    lintChecks(libs.gradle.lint)
+}
+
+lint {
+    baseline = file("lint-baseline.xml")
 }
 
 tasks.validatePlugins {
@@ -39,7 +46,7 @@ sourceSets.main {
     kotlin.srcDir(storeVersion)
 }
 
-gradlePlugin{
+gradlePlugin {
     plugins.configureEach {
         displayName = "Kobol Gradle Plugin"
         description = "Kobol Gradle Plugin"

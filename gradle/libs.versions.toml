@@ -7,7 +7,7 @@ kotlin = "2.1.0"
 
 idea = "221.6008.13"
 ideaplugin = "242.23726.103"
-serialization = "1.7.3"
+serialization = "1.8.0"
 
 [libraries]
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
@@ -25,6 +25,8 @@ idea-analysis-impl = { module = "com.jetbrains.intellij.platform:analysis-impl",
 idea-indexing-impl = { module = "com.jetbrains.intellij.platform:indexing-impl", version.ref = "idea" }
 idea-util-ui = { module = "com.jetbrains.intellij.platform:util-ui", version.ref = "idea" }
 
+gradle-lint = { module = "androidx.lint:lint-gradle", version = "1.0.0-alpha03" }
+
 [bundles]
 idea = ["idea-core-impl", "idea-project-model-impl", "idea-analysis-impl", "idea-indexing-impl", "idea-util-ui"]
 
@@ -32,8 +34,9 @@ idea = ["idea-core-impl", "idea-project-model-impl", "idea-analysis-impl", "idea
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 shadow = { id = "com.gradleup.shadow", version = "8.3.5" }
-serviceloader = { id = "app.softwork.serviceloader-compiler", version = "0.0.14" }
+serviceloader = { id = "app.softwork.serviceloader-compiler", version = "0.0.15" }
 licensee = { id = "app.cash.licensee", version = "1.12.0" }
-intellij = { id = "org.jetbrains.intellij.platform", version = "2.1.0" }
+intellij = { id = "org.jetbrains.intellij.platform", version = "2.2.1" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.7" }
-mavencentral = { id = "io.github.hfhbd.mavencentral", version = "0.0.14" }
+mavencentral = { id = "io.github.hfhbd.mavencentral", version = "0.0.15" }
+gradle-lint = { id = "com.android.lint", version = "8.9.0-alpha06" }
