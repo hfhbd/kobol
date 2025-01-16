@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     permissions:
       security-events: write
 
@@ -31,7 +31,7 @@ jobs:
           sarif_file: build/reports/detekt/detekt.sarif
 
   verify:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     needs: build
 
     steps:
