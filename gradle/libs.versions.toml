@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.1.20-Beta1"
+kotlin = "2.1.20-Beta2"
 # AS releases: https://plugins.jetbrains.com/docs/intellij/android-studio-releases-list.html
 # IC releases: https://www.jetbrains.com/idea/download/other.html
 # IC sources: https://www.jetbrains.com/intellij-repository/releases
