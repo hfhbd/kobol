@@ -37,6 +37,6 @@ shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
 serviceloader = { id = "app.softwork.serviceloader-compiler", version = "0.0.15" }
 licensee = { id = "app.cash.licensee", version = "1.12.0" }
 intellij = { id = "org.jetbrains.intellij.platform", version = "2.2.1" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.7" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.8" }
 mavencentral = { id = "io.github.hfhbd.mavencentral", version = "0.0.17" }
 gradle-lint = { id = "com.android.lint", version = "8.9.0-alpha06" }
