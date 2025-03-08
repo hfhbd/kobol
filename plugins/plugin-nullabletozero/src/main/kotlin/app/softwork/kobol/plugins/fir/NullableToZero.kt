@@ -1,7 +1,6 @@
 package app.softwork.kobol.plugins.fir
 
 import app.softwork.kobol.fir.*
-import app.softwork.kobol.notPossible
 import app.softwork.serviceloader.ServiceLoader
 
 @ServiceLoader(FirPluginBeforePhase::class)
