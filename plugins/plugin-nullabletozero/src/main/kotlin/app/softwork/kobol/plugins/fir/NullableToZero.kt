@@ -1,7 +1,6 @@
 package app.softwork.kobol.plugins.fir
 
 import app.softwork.kobol.fir.*
-import app.softwork.kobol.notPossible
 import app.softwork.serviceloader.ServiceLoader
 
 @ServiceLoader(FirPluginBeforePhase::class)
@@ -49,6 +48,5 @@ private fun <T : CobolFIRTree.DataTree.WorkingStorage> T.toNull(): T {
         is CobolFIRTree.DataTree.WorkingStorage.Record -> copy(
             elements = elements.toNull(),
         )
-        else -> notPossible()
     } as T
 }
