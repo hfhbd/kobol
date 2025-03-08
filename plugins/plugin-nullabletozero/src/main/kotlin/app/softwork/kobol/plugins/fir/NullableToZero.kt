@@ -49,6 +49,5 @@ private fun <T : CobolFIRTree.DataTree.WorkingStorage> T.toNull(): T {
         is CobolFIRTree.DataTree.WorkingStorage.Record -> copy(
             elements = elements.toNull(),
         )
-        else -> notPossible()
     } as T
 }
