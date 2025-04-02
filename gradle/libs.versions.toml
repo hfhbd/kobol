@@ -7,7 +7,7 @@ kotlin = "2.1.20"
 
 idea = "221.6008.13"
 ideaplugin = "242.23726.103"
-serialization = "1.8.0"
+serialization = "1.8.1"
 
 [libraries]
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
