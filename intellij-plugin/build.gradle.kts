@@ -43,8 +43,8 @@ intellijPlatform {
     pluginConfiguration {
         this.version.set(project.version.toString())
         ideaVersion {
-            sinceBuild.set("242")
-            untilBuild.set("243.*")
+            sinceBuild.set("251")
+            untilBuild.set("251.*")
         }
     }
     pluginVerification {
@@ -57,13 +57,11 @@ intellijPlatform {
 
 tasks {
     val copyRepoPlugin by registering(Copy::class) {
-        dependsOn(buildPlugin)
-
         from(buildPlugin)
         into("build/customRepo")
     }
     register("createPluginRepo", CreatePluginRepo::class) {
-        dependsOn(copyRepoPlugin, patchPluginXml)
+        dependsOn(copyRepoPlugin)
         fileName.set(project.name)
         sinceBuild.set(patchPluginXml.flatMap { it.sinceBuild })
         untilBuild.set(patchPluginXml.flatMap { it.untilBuild })
