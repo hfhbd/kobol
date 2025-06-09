@@ -16,8 +16,8 @@ detekt {
     reports {
         sarif.required.set(true)
     }
-}
 
-dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${detekt.toolVersion}")
+    dependencies {
+        detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${detekt.toolVersion}")
+    }
 }

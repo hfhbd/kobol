@@ -9,9 +9,6 @@ dependencies {
 
     compileOnly(libs.bundles.idea)
 
-    implementation(libs.db2.dialect) {
-        exclude("com.alecstrong.sql.psi")
-    }
-    implementation("app.softwork.sql.psi:core:0.5.0-SNAPSHOT")
+    implementation(libs.db2.dialect)
     testImplementation(libs.bundles.idea)
 }
