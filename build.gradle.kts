@@ -3,7 +3,7 @@ plugins {
 }
 
 detekt {
-    source.from(fileTree(rootProject.rootDir) {
+    source.from(fileTree(layout.settingsDirectory) {
         include("**/*.kt")
         exclude("**/*.kts")
         exclude("**/resources/**")
@@ -16,8 +16,8 @@ detekt {
     reports {
         sarif.required.set(true)
     }
-}
 
-dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${detekt.toolVersion}")
+    dependencies {
+        detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${detekt.toolVersion}")
+    }
 }
