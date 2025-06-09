@@ -11,7 +11,7 @@ internal class CobolLanguageCodeStyleSettingsProvider : LanguageCodeStyleSetting
         commonSettings: CommonCodeStyleSettings,
         indentOptions: CommonCodeStyleSettings.IndentOptions,
     ) {
-        commonSettings.softMargins = listOf(6, 7, 12, 80)
+        commonSettings.softMargins = listOf(6, 7, 11, 80)
     }
 
     override fun getCodeSample(settingsType: SettingsType): String {
