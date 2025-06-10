@@ -13,7 +13,7 @@ serialization = "1.8.1"
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 
-db2-dialect = { module = "app.softwork:sqldelight-db2-dialect", version = "0.0.7" }
+db2-dialect = { module = "app.softwork:sqldelight-db2-dialect", version = "0.0.8" }
 
 kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.2.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
