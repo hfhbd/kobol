@@ -24,9 +24,6 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
         val deps = configurations.dependencyScope("kobolFir$name") {
             fromDependencyCollector(this@all.dependencies.compiler)
         }
-        this@all.dependencies {
-            compiler("$GROUP:intellij-env:$VERSION")
-        }
         tasks.register("kobol$name", KobolFirPluginTask::class) {
             pluginClasspath.from(
                 pluginClasspath.from(
@@ -58,7 +55,7 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
         val cobolSrc = objects.sourceDirectorySet("cobol", "cobol")
         cobolSrc.filter.include("*.cbl")
         cobolSrc.srcDir(file("src/$name/cobol"))
-        cobolSrc.destinationDirectory.convention(layout.buildDirectory.dir("generated/kobol/"))
+        cobolSrc.destinationDirectory.convention(layout.buildDirectory.dir("generated/kobol/$name"))
 
         val convert = tasks.register(taskName, KobolTask::class) {
             classpath.from(kobolCompilerClasspath)
