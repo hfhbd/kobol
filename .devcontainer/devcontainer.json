@@ -3,5 +3,5 @@
     "features": {
         "ghcr.io/devcontainers/features/sshd:1": {}
     },
-    "updateContentCommand": "./gradlew build"
+    "updateContentCommand": "./gradlew build -x :intellij-plugin:instrumentCode"
 }
