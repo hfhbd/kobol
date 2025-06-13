@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.1.21"
+kotlin = "2.2.0-RC2"
 # AS releases: https://plugins.jetbrains.com/docs/intellij/android-studio-releases-list.html
 # IC releases: https://www.jetbrains.com/idea/download/other.html
 # IC sources: https://www.jetbrains.com/intellij-repository/releases
@@ -19,6 +19,7 @@ kotlinpoet = { module = "com.squareup:kotlinpoet", version = "2.2.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 
 sqldelight-writer = { module = "app.softwork:sqldelight-writer", version = "0.0.3" }
+sql-psi-environment = { module = "app.cash.sql-psi:environment", version = "0.5.2" }
 idea-core-impl = { module = "com.jetbrains.intellij.platform:core-impl", version.ref = "idea" }
 idea-project-model-impl = { module = "com.jetbrains.intellij.platform:project-model-impl", version.ref = "idea" }
 idea-analysis-impl = { module = "com.jetbrains.intellij.platform:analysis-impl", version.ref = "idea" }
