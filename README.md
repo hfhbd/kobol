@@ -25,7 +25,7 @@ kobol {
 }
 ```
 
-The cobol code files need to stored in `src/main/cobol` with `.cbl` ending.
+The cobol code files need to be stored in `src/main/cobol` with `.cbl` ending.
 The resulting code will be generated in `build/generated/kobol/main`.
 
 ## Optional IntelliJ plugin
