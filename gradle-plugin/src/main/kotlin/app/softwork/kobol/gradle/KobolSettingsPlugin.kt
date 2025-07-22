@@ -6,5 +6,5 @@ import org.gradle.api.internal.plugins.software.RegistersSoftwareTypes
 
 @RegistersSoftwareTypes(KobolPlugin::class)
 public abstract class KobolSettingsPlugin : Plugin<Settings> {
-    override fun apply(target: Settings) {}
+    override fun apply(target: Settings): Unit = Unit
 }
