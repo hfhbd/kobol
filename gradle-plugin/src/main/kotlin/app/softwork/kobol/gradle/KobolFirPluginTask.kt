@@ -4,7 +4,6 @@ import org.gradle.api.*
 import org.gradle.api.file.*
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.PathSensitivity.*
-import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.*
 import javax.inject.*
 
@@ -36,10 +35,10 @@ public abstract class KobolFirPluginTask : DefaultTask() {
     @TaskAction
     internal fun generateFlow() {
         workerExecutor.classLoaderIsolation {
-            classpath.from(pluginClasspath)
-        }.submit(FirKobolAction::class) {
-            inputFiles.setFrom(sources)
-            outputFolder.set(this@KobolFirPluginTask.outputFolder)
+            it.classpath.from(pluginClasspath)
+        }.submit(FirKobolAction::class.java) {
+            it.inputFiles.setFrom(sources)
+            it.outputFolder.set(this@KobolFirPluginTask.outputFolder)
         }
     }
 }

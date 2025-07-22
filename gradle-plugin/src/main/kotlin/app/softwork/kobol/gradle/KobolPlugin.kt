@@ -6,12 +6,12 @@ import org.gradle.api.internal.plugins.software.SoftwareType
 import org.gradle.api.tasks.SourceSetContainer
 import javax.inject.Inject
 
-abstract class KobolPlugin : Plugin<Project> {
+public abstract class KobolPlugin : Plugin<Project> {
     @get:SoftwareType(name = "kobol")
-    abstract val kobol: Kobol
+    public abstract val kobol: Kobol
 
     @get:Inject
-    abstract val sourceSetContainer: SourceSetContainer
+    public abstract val sourceSetContainer: SourceSetContainer
 
     override fun apply(target: Project) {
         target.configureExtension(kobol, sourceSetContainer)

@@ -5,26 +5,25 @@ import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.tasks.Nested
 import org.gradle.declarative.dsl.model.annotations.Configuring
-import org.gradle.declarative.dsl.model.annotations.Restricted
 
-@Restricted
-interface Kobol {
+public interface Kobol {
     @get:Nested
-    val dependencies: KobolDependencies
+    public val dependencies: KobolDependencies
 
     @Configuring
-    fun dependencies(action: Action<KobolDependencies>) {
+    public fun dependencies(action: Action<KobolDependencies>) {
         action.execute(dependencies)
     }
 
-    val firActions: NamedDomainObjectContainer<KobolFirSpec>
+    public val firActions: NamedDomainObjectContainer<KobolFirSpec>
 }
 
-interface KobolFirSpec : Named {
+public interface KobolFirSpec : Named {
     @get:Nested
-    val dependencies: KobolDependencies
+    public val dependencies: KobolDependencies
 
-    fun dependencies(action: Action<KobolDependencies>) {
+    @Configuring
+    public fun dependencies(action: Action<KobolDependencies>) {
         action.execute(dependencies)
     }
 }

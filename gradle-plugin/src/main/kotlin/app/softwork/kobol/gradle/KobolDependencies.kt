@@ -1,37 +1,64 @@
 package app.softwork.kobol.gradle
 
+import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.dsl.Dependencies
 import org.gradle.api.artifacts.dsl.DependencyCollector
-import org.gradle.declarative.dsl.model.annotations.Restricted
 
-@Restricted
-interface KobolDependencies : Dependencies {
-    val compiler: DependencyCollector
+public interface KobolDependencies : Dependencies {
+    public val compiler: DependencyCollector
 
-    fun kotlin() = dependencyFactory.create("$GROUP:kotlin:$VERSION")
-    fun kotlinSqldelight() = dependencyFactory.create("$GROUP:kotlin-sqldelight:$VERSION")
-    fun kotlinKotlinxSerialization() = dependencyFactory.create("$GROUP:kotlin-kotlinxserialization:$VERSION")
-    fun kotlinFileJava() = dependencyFactory.create("$GROUP:kotlin-file-java:$VERSION")
+    public fun kotlin(): ExternalModuleDependency = dependencyFactory.create("$GROUP:kotlin:$VERSION")
+    public fun kotlinSqldelight(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:kotlin-sqldelight:$VERSION",
+    )
+    public fun kotlinKotlinxSerialization(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:kotlin-kotlinxserialization:$VERSION",
+    )
+    public fun kotlinFileJava(): ExternalModuleDependency = dependencyFactory.create("$GROUP:kotlin-file-java:$VERSION")
 
-    fun java() = dependencyFactory.create("$GROUP:java:$VERSION")
-    fun javaJava8() = dependencyFactory.create("$GROUP:java-java8:$VERSION")
+    public fun java(): ExternalModuleDependency = dependencyFactory.create("$GROUP:java:$VERSION")
+    public fun javaJava8(): ExternalModuleDependency = dependencyFactory.create("$GROUP:java-java8:$VERSION")
 
-    fun pluginBooleanexpressions() = dependencyFactory.create("$GROUP:plugin-booleanexpressions:$VERSION")
-    fun pluginJavanames() = dependencyFactory.create("$GROUP:plugin-javanames:$VERSION")
-    fun pluginKeepnames() = dependencyFactory.create("$GROUP:plugin-keepnames:$VERSION")
-    fun pluginConstvariables() = dependencyFactory.create("$GROUP:plugin-constvariables:$VERSION")
-    fun pluginFlowgraphplantuml() = dependencyFactory.create("$GROUP:plugin-flow-graph-plantuml:$VERSION")
-    fun pluginIfassignments() = dependencyFactory.create("$GROUP:plugin-ifassignments:$VERSION")
-    fun pluginInlining() = dependencyFactory.create("$GROUP:plugin-inlining:$VERSION")
-    fun pluginMain() = dependencyFactory.create("$GROUP:plugin-main-util:$VERSION")
-    fun pluginNosynthetic() = dependencyFactory.create("$GROUP:plugin-nosynthetic:$VERSION")
-    fun pluginNullabletozero() = dependencyFactory.create("$GROUP:plugin-nullabletozero:$VERSION")
-    fun pluginObjects() = dependencyFactory.create("$GROUP:plugin-objects:$VERSION")
-    fun pluginOptimize() = dependencyFactory.create("$GROUP:plugin-optimize:$VERSION")
-    fun pluginPrivate() = dependencyFactory.create("$GROUP:plugin-private:$VERSION")
-    fun pluginRenaming() = dependencyFactory.create("$GROUP:plugin-renaming:$VERSION")
-    fun pluginReadonlyvariables() = dependencyFactory.create("$GROUP:plugin-readonlyvariables:$VERSION")
-    fun pluginStatistic() = dependencyFactory.create("$GROUP:plugin-statistic:$VERSION")
-    fun pluginUseparameters() = dependencyFactory.create("$GROUP:plugin-useparameters:$VERSION")
-    fun pluginExitProcess() = dependencyFactory.create("$GROUP:plugin-exitprocess:$VERSION")
+    public fun pluginBooleanexpressions(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-booleanexpressions:$VERSION",
+    )
+    public fun pluginJavanames(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-javanames:$VERSION",
+    )
+    public fun pluginKeepnames(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-keepnames:$VERSION",
+    )
+    public fun pluginConstvariables(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-constvariables:$VERSION",
+    )
+    public fun pluginFlowgraphplantuml(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-flow-graph-plantuml:$VERSION",
+    )
+    public fun pluginIfassignments(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-ifassignments:$VERSION",
+    )
+    public fun pluginInlining(): ExternalModuleDependency = dependencyFactory.create("$GROUP:plugin-inlining:$VERSION")
+    public fun pluginMain(): ExternalModuleDependency = dependencyFactory.create("$GROUP:plugin-main-util:$VERSION")
+    public fun pluginNosynthetic(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-nosynthetic:$VERSION",
+    )
+    public fun pluginNullabletozero(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-nullabletozero:$VERSION",
+    )
+    public fun pluginObjects(): ExternalModuleDependency = dependencyFactory.create("$GROUP:plugin-objects:$VERSION")
+    public fun pluginOptimize(): ExternalModuleDependency = dependencyFactory.create("$GROUP:plugin-optimize:$VERSION")
+    public fun pluginPrivate(): ExternalModuleDependency = dependencyFactory.create("$GROUP:plugin-private:$VERSION")
+    public fun pluginRenaming(): ExternalModuleDependency = dependencyFactory.create("$GROUP:plugin-renaming:$VERSION")
+    public fun pluginReadonlyvariables(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-readonlyvariables:$VERSION",
+    )
+    public fun pluginStatistic(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-statistic:$VERSION",
+    )
+    public fun pluginUseparameters(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-useparameters:$VERSION",
+    )
+    public fun pluginExitProcess(): ExternalModuleDependency = dependencyFactory.create(
+        "$GROUP:plugin-exitprocess:$VERSION",
+    )
 }

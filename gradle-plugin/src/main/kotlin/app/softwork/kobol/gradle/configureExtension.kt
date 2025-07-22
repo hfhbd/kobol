@@ -9,28 +9,26 @@ import org.gradle.kotlin.dsl.*
 
 internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: SourceSetContainer) {
     val kobolCompiler = configurations.dependencyScope("kobolCompiler") {
-        fromDependencyCollector(kobol.dependencies.compiler)
+        it.fromDependencyCollector(kobol.dependencies.compiler)
     }
 
     kobol.dependencies {
-        compiler("$GROUP:intellij-env:$VERSION")
+        it.compiler.add("$GROUP:intellij-env:$VERSION")
     }
 
     val kobolCompilerClasspath = configurations.resolvable("kobolCompilerClasspath") {
-        extendsFrom(kobolCompiler.get())
+        it.extendsFrom(kobolCompiler.get())
     }
 
-    kobol.firActions.all {
-        val deps = configurations.dependencyScope("kobolFir$name") {
-            fromDependencyCollector(this@all.dependencies.compiler)
+    kobol.firActions.all { firAction ->
+        val deps = configurations.dependencyScope("kobolFir${firAction.name}") {
+            it.fromDependencyCollector(firAction.dependencies.compiler)
         }
-        tasks.register("kobol$name", KobolFirPluginTask::class) {
-            pluginClasspath.from(
-                pluginClasspath.from(
-                    configurations.resolvable("kobolFir${name}Classpath") {
-                        extendsFrom(deps.get())
-                    },
-                ),
+        tasks.register("kobol${firAction.name}", KobolFirPluginTask::class.java) {
+            it.pluginClasspath.from(
+                configurations.resolvable("kobolFir${firAction.name}Classpath") {
+                    it.extendsFrom(deps.get())
+                },
             )
         }
     }
@@ -39,7 +37,7 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
     val sourceSets = if (existingSourceSet != null) {
         existingSourceSet as SourceSetContainer
     } else {
-        extensions.add(SourceSetContainer::class, "sourceSets", sourceSetContainer)
+        extensions.add(SourceSetContainer::class.java, "sourceSets", sourceSetContainer)
         sourceSetContainer.register(SourceSet.MAIN_SOURCE_SET_NAME)
         sourceSetContainer.register(SourceSet.TEST_SOURCE_SET_NAME)
         sourceSetContainer
@@ -49,7 +47,7 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
         val sourceSetName = name.replaceFirstChar { it.uppercaseChar() }
         val taskName = "compileCobol$sourceSetName"
         if (taskName in tasks.names) {
-            return tasks.named(taskName, KobolTask::class)
+            return tasks.named(taskName, KobolTask::class.java)
         }
 
         val cobolSrc = objects.sourceDirectorySet("cobol", "cobol")
@@ -57,10 +55,10 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
         cobolSrc.srcDir(file("src/$name/cobol"))
         cobolSrc.destinationDirectory.convention(layout.buildDirectory.dir("generated/kobol/$name"))
 
-        val convert = tasks.register(taskName, KobolTask::class) {
-            classpath.from(kobolCompilerClasspath)
-            sources.from(cobolSrc.sourceDirectories)
-            outputFolder.convention(cobolSrc.destinationDirectory)
+        val convert = tasks.register(taskName, KobolTask::class.java) {
+            it.classpath.from(kobolCompilerClasspath)
+            it.sources.from(cobolSrc.sourceDirectories)
+            it.outputFolder.convention(cobolSrc.destinationDirectory)
         }
 
         cobolSrc.compiledBy(convert, KobolTask::outputFolder)
@@ -71,17 +69,17 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
 
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
         sourceSets.configureEach {
-            val convert = createCompilerTask()
+            val convert = it.createCompilerTask()
 
-            val kotlin = extensions.getByName<SourceDirectorySet>("kotlin")
+            val kotlin = it.extensions.getByName("kotlin") as SourceDirectorySet
             kotlin.srcDir(convert.flatMap { it.outputFolder.dir("kotlin") })
         }
     }
 
     pluginManager.withPlugin("org.gradle.java") {
         sourceSets.configureEach {
-            val convert = createCompilerTask()
-            java.srcDir(convert.flatMap { it.outputFolder.dir("java") })
+            val convert = it.createCompilerTask()
+            it.java.srcDir(convert.flatMap { it.outputFolder.dir("java") })
         }
     }
 }

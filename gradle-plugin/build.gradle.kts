@@ -1,19 +1,17 @@
 plugins {
-    `kotlin-dsl`
-    id("setup")
+    id("kotlinSetup")
+    id("java-gradle-plugin")
     id("com.android.lint")
 }
 
 kotlin.jvmToolchain(21)
 
-configurations.configureEach {
-    if (isCanBeConsumed) {
-        attributes {
-            attribute(
-                GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-                objects.named(GradleVersion.version("8.12").version)
-            )
-        }
+configurations.apiElements {
+    attributes {
+        attribute(
+            GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+            objects.named(GradleVersion.version("8.12").version)
+        )
     }
 }
 
