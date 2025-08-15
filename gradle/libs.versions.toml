@@ -36,7 +36,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 shadow = { id = "com.gradleup.shadow", version = "8.3.8" }
 serviceloader = { id = "app.softwork.serviceloader-compiler", version = "0.0.19" }
 licensee = { id = "app.cash.licensee", version = "1.13.0" }
-intellij = { id = "org.jetbrains.intellij.platform", version = "2.7.1" }
+intellij = { id = "org.jetbrains.intellij.platform", version = "2.7.2" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.8" }
 mavencentral = { id = "io.github.hfhbd.mavencentral", version = "0.0.17" }
 gradle-lint = { id = "com.android.lint", version = "8.9.0-alpha06" }
