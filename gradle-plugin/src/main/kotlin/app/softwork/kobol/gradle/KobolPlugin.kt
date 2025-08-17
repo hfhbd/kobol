@@ -8,10 +8,10 @@ import javax.inject.Inject
 
 public abstract class KobolPlugin : Plugin<Project> {
     @get:SoftwareType(name = "kobol")
-    public abstract val kobol: Kobol
+    internal abstract val kobol: Kobol
 
     @get:Inject
-    public abstract val sourceSetContainer: SourceSetContainer
+    internal abstract val sourceSetContainer: SourceSetContainer
 
     override fun apply(target: Project) {
         target.configureExtension(kobol, sourceSetContainer)
