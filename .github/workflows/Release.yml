@@ -36,7 +36,7 @@ jobs:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.CENTRAL_PASSWORD }}
       - run: ./gradlew -Pversion=${{ steps.version.outputs.version }} :intellij-plugin:createPluginRepo
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: intellij-plugin/build/customRepo
       - name: Deploy to GitHub Pages
