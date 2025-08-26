@@ -43,13 +43,13 @@ intellijPlatform {
     pluginConfiguration {
         this.version.set(project.version.toString())
         ideaVersion {
-            sinceBuild.set("251")
-            untilBuild.set("251.*")
+            sinceBuild.set("252")
+            untilBuild.set("252.*")
         }
     }
     pluginVerification {
         ides {
-            ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.2.4")
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, "2025.2")
             ide(IntelliJPlatformType.AndroidStudio, "2024.2.2.9")
         }
     }
