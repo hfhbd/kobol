@@ -11,14 +11,10 @@ formatting:
 style:
   WildcardImport:
     active: false
-  UseOrEmpty:
-    active: false
   CollapsibleIfStatements:
     active: true
   DataClassShouldBeImmutable:
     active: true
-  UnusedPrivateClass:
-    active: false
   ForbiddenComment:
     active: false
   MagicNumber:
@@ -29,11 +25,8 @@ style:
     maxJumpCount: 5
 
 naming:
-  InvalidPackageDeclaration:
-    active: false
   MemberNameEqualsClassName:
     active: false
-
 
 potential-bugs:
   UnsafeCallOnNullableType:
