@@ -18,6 +18,7 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+
       - name: Detekt
         run: ./gradlew :detekt
         if: always()

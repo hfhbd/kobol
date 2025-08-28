@@ -1,7 +1,8 @@
 package app.softwork.kobol.plugins.ir.optimizations
 
-import app.softwork.kobol.ir.*
-import kotlin.test.*
+import app.softwork.kobol.ir.KobolIRTree
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ConstTest {
     @Test

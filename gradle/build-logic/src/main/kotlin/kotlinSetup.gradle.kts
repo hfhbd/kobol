@@ -11,9 +11,8 @@ kotlin {
     explicitApi()
 
     compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
+        freeCompilerArgs.add("-Xcontext-parameters")
         progressiveMode.set(true)
-        // allWarningsAsErrors.set(true)
     }
 }
 

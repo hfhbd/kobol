@@ -9,6 +9,7 @@ detekt {
         exclude("**/resources/**")
         exclude("**/generated/**")
         exclude("**/build/**")
+        exclude("util/src/main/kotlin/app/softwork/kobol/build.kt")
     })
     parallel = true
     autoCorrect = true
