@@ -14,9 +14,11 @@ internal class CobolLanguageCodeStyleSettingsProvider : LanguageCodeStyleSetting
         commonSettings.softMargins = listOf(6, 7, 11, 80)
     }
 
-    override fun getCodeSample(settingsType: SettingsType): String {
+    override fun getCodeSample(settingsType: SettingsType): String = cobolSampleCode
+
+    companion object {
         // language=cobol
-        return """
+        val cobolSampleCode = """
         123456 IDENTIFICATION              DIVISION.
         123456 PROGRAM-ID.                 HELLO.
         123456 AUTHOR. WEDEMANN / Softwork.app

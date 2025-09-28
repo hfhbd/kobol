@@ -43,10 +43,10 @@ intellijPlatform {
     buildSearchableOptions.set(false)
 
     pluginConfiguration {
-        this.version.set(project.version.toString())
+        version.set(project.version.toString())
         ideaVersion {
-            sinceBuild.set("251")
-            untilBuild.set("252.*")
+            sinceBuild.set("252")
+            untilBuild.set("253.*")
         }
     }
     pluginVerification {
