@@ -8,20 +8,20 @@ import com.intellij.psi.*
 import com.intellij.psi.tree.*
 
 internal object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
-    private val comment =
+    val comment =
         TextAttributesKey.createTextAttributesKey("COBOL_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT)
-    private val badCharacter =
+    val badCharacter =
         TextAttributesKey.createTextAttributesKey("COBOL_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER)
-    private val vars =
+    val vars =
         TextAttributesKey.createTextAttributesKey("COBOL_VAR", DefaultLanguageHighlighterColors.INSTANCE_FIELD)
-    private val function =
+    val function =
         TextAttributesKey.createTextAttributesKey("COBOL_FUNCTIONS", DefaultLanguageHighlighterColors.STATIC_METHOD)
-    private val string =
+    val string =
         TextAttributesKey.createTextAttributesKey("COBOL_STRING", DefaultLanguageHighlighterColors.STRING)
-    private val keyword =
+    val keyword =
         TextAttributesKey.createTextAttributesKey("COBOL_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
-    private val dot = TextAttributesKey.createTextAttributesKey("COBOL_DOT", DefaultLanguageHighlighterColors.DOT)
-    private val number =
+    val dot = TextAttributesKey.createTextAttributesKey("COBOL_DOT", DefaultLanguageHighlighterColors.DOT)
+    val number =
         TextAttributesKey.createTextAttributesKey("COBOL_NUMBER", DefaultLanguageHighlighterColors.NUMBER)
 
     override fun getHighlightingLexer() = CobolLexerAdapter()
@@ -49,7 +49,7 @@ internal object CobolSyntaxHighlighter : SyntaxHighlighterBase() {
         CobolTypes.IF, CobolTypes.THEN, CobolTypes.ELSE, CobolTypes.END_IF,
 
         CobolTypes.WORKING_STORAGE,
-        CobolTypes.FILE, CobolTypes.FD, CobolTypes.RECORD, CobolTypes.RECORDING, CobolTypes.STANDARD, CobolTypes.LABEL,
+        CobolTypes.FD, CobolTypes.RECORD, CobolTypes.RECORDING, CobolTypes.STANDARD, CobolTypes.LABEL,
 
         CobolTypes.PIC, CobolTypes.X, CobolTypes.A, CobolTypes.S9, CobolTypes.VALUE,
 

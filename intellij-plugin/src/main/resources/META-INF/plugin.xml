@@ -53,6 +53,9 @@
         <codeStyleSettingsProvider
                 implementation="app.softwork.kobol.intellij.CobolCodeStyleSettingsProvider"/>
 
+        <colorSettingsPage
+                implementation="app.softwork.kobol.intellij.CobolColorSettingsPage"/>
+
         <langCodeStyleSettingsProvider
                 implementation="app.softwork.kobol.intellij.CobolLanguageCodeStyleSettingsProvider"/>
 
