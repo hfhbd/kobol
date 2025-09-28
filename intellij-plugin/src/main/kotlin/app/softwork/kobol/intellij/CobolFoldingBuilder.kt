@@ -15,14 +15,15 @@ class CobolFoldingBuilder : FoldingBuilderEx(), DumbAware {
         root: PsiElement,
         document: Document,
         quick: Boolean,
-    ): Array<FoldingDescriptor> = (root as CobolFile).program.procedureDiv.procedureSectionList.map {
+    ): Array<FoldingDescriptor> = (root as CobolFile).programOrNull?.procedureDiv?.procedureSectionList?.map {
         FoldingDescriptor(
             it.node,
             it.textRange,
         )
-    }.toArray(FoldingDescriptor.EMPTY_ARRAY)
+    }?.toArray(FoldingDescriptor.EMPTY_ARRAY) ?: FoldingDescriptor.EMPTY_ARRAY
 
     override fun isCollapsedByDefault(node: ASTNode): Boolean = false
 
-    override fun getPlaceholderText(node: ASTNode): String? = (node.psi as? CobolProcedureSection)?.sectionID?.text?.let { "$it SECTION." }
+    override fun getPlaceholderText(node: ASTNode): String? =
+        (node.psi as? CobolProcedureSection)?.sectionID?.text?.let { "$it SECTION." }
 }
