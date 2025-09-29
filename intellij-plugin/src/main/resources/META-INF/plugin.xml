@@ -59,6 +59,10 @@
         <langCodeStyleSettingsProvider
                 implementation="app.softwork.kobol.intellij.CobolLanguageCodeStyleSettingsProvider"/>
 
+        <lang.foldingBuilder
+                language="Cobol"
+                implementationClass="app.softwork.kobol.intellij.CobolFoldingBuilder"/>
+
     </extensions>
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <supportsKotlinPluginMode supportsK2="true"/>
