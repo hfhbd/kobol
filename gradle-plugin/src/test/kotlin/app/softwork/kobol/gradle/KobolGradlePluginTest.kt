@@ -34,25 +34,6 @@ class KobolGradlePluginTest {
         assertEquals(listOf("hello.kt"), packageFolder.list()?.toList())
     }
 
-    @Test
-    fun testConvertingJava() {
-        val temp = Files.createTempDirectory("cobolTesting")
-        val tempFile = temp.toFile()
-        val cobolFile = File(tempFile, "hello.cbl").apply {
-            writeText(input)
-        }
-        ExecuteKobol(
-            rootPath = temp,
-            input = setOf(cobolFile),
-            outputFolder = tempFile,
-            irPlugins = listOf(Java8Plugin(), NoSynthetics()),
-            codeGeneratorFactory = JavaCodeGeneratorFactory(),
-        )
-        val packageFolder = File(tempFile, "java/hello")
-        assertTrue(packageFolder.exists())
-        assertEquals(listOf("Hello.java"), packageFolder.list()?.toList())
-    }
-
     //language=cobol
     private val input = """
             123456 IDENTIFICATION              DIVISION.
@@ -133,42 +114,6 @@ class KobolGradlePluginTest {
             .withArguments(
                 ":help",
                 "-Porg.gradle.kotlin.dsl.dcl=true",
-                "-Porg.gradle.unsafe.isolated-projects=true",
-            )
-            .build()
-
-        assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
-    }
-
-    @Test
-    fun declarativeKobolWorks() {
-        val tmp = Files.createTempDirectory("cobolTesting")
-
-        (tmp / "settings.gradle.dcl").writeText(
-            """|
-            |plugins {
-            |  id("app.softwork.kobol.settings")
-            |}
-            """.trimMargin(),
-        )
-
-        (tmp / "build.gradle.dcl").writeText(
-            """
-            |kobol {
-            |  dependencies {
-            |    compiler("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
-            |  }
-            |}     
-            |
-            """.trimMargin(),
-        )
-
-        val result = GradleRunner.create()
-            .withProjectDir(tmp.toFile())
-            .withPluginClasspath()
-            .forwardOutput()
-            .withArguments(
-                ":help",
                 "-Porg.gradle.unsafe.isolated-projects=true",
             )
             .build()

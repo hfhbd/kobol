@@ -10,7 +10,7 @@ configurations.apiElements {
     attributes {
         attribute(
             GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-            objects.named(GradleVersion.version("8.12").version)
+            objects.named(GradleVersion.version("9.4.0").version)
         )
     }
 }

@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 # AS releases: https://plugins.jetbrains.com/docs/intellij/android-studio-releases-list.html
 # IC releases: https://www.jetbrains.com/idea/download/other.html
 # IC sources: https://www.jetbrains.com/intellij-repository/releases
@@ -34,9 +34,10 @@ idea = ["idea-core-impl", "idea-project-model-impl", "idea-analysis-impl", "idea
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 shadow = { id = "com.gradleup.shadow", version = "8.3.8" }
-serviceloader = { id = "app.softwork.serviceloader-compiler", version = "0.0.21" }
+serviceloader = { id = "app.softwork.serviceloader-compiler", version = "0.0.22" }
 licensee = { id = "app.cash.licensee", version = "1.14.1" }
 intellij = { id = "org.jetbrains.intellij.platform", version = "2.10.5" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.8" }
 mavencentral = { id = "io.github.hfhbd.mavencentral", version = "0.0.23" }
 gradle-lint = { id = "com.android.lint", version = "8.9.0-alpha06" }
+foojay = { id = "org.gradle.toolchains.foojay-resolver-convention", version = "1.0.0" }
