@@ -2,6 +2,7 @@ import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 
 plugins {
     id("org.jetbrains.intellij.platform.settings")
+    id("org.gradle.toolchains.foojay-resolver-convention")
 }
 
 dependencyResolutionManagement {

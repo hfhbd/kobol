@@ -5,9 +5,8 @@ import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.*
 
-internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: SourceSetContainer) {
+internal fun Project.configureExtension(kobol: Kobol) {
     val kobolCompiler = configurations.dependencyScope("kobolCompiler") {
         it.fromDependencyCollector(kobol.dependencies.compiler)
     }
@@ -33,15 +32,7 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
         }
     }
 
-    val existingSourceSet = extensions.findByName("sourceSets")
-    val sourceSets = if (existingSourceSet != null) {
-        existingSourceSet as SourceSetContainer
-    } else {
-        extensions.add(SourceSetContainer::class.java, "sourceSets", sourceSetContainer)
-        sourceSetContainer.register(SourceSet.MAIN_SOURCE_SET_NAME)
-        sourceSetContainer.register(SourceSet.TEST_SOURCE_SET_NAME)
-        sourceSetContainer
-    }
+    val sourceSets = extensions.getByName("sourceSets") as SourceSetContainer
 
     fun SourceSet.createCompilerTask(): TaskProvider<out KobolTask> {
         val sourceSetName = name.replaceFirstChar { it.uppercaseChar() }
@@ -67,19 +58,10 @@ internal fun Project.configureExtension(kobol: Kobol, sourceSetContainer: Source
         return convert
     }
 
-    pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-        sourceSets.configureEach {
-            val convert = it.createCompilerTask()
+    sourceSets.configureEach {
+        val convert = it.createCompilerTask()
 
-            val kotlin = it.extensions.getByName("kotlin") as SourceDirectorySet
-            kotlin.srcDir(convert.flatMap { it.outputFolder.dir("kotlin") })
-        }
-    }
-
-    pluginManager.withPlugin("org.gradle.java") {
-        sourceSets.configureEach {
-            val convert = it.createCompilerTask()
-            it.java.srcDir(convert.flatMap { it.outputFolder.dir("java") })
-        }
+        val kotlin = it.extensions.getByName("kotlin") as SourceDirectorySet
+        kotlin.srcDir(convert.flatMap { it.outputFolder.dir("kotlin") })
     }
 }
