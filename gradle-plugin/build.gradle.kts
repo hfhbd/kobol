@@ -6,11 +6,11 @@ plugins {
 
 kotlin.jvmToolchain(21)
 
-configurations.apiElements {
+configurations.runtimeElements {
     attributes {
         attribute(
             GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-            objects.named(GradleVersion.version("9.4.0").version)
+            named(GradleVersion.version("9.4.0").version)
         )
     }
 }
